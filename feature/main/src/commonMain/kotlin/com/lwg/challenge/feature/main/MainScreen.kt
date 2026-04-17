@@ -1,0 +1,136 @@
+package com.lwg.challenge.feature.main
+
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
+import androidx.savedstate.serialization.SavedStateConfiguration
+import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.feature.ex1.Ex1Route
+import com.lwg.challenge.feature.ex2.Ex2Route
+import com.lwg.challenge.feature.ex3.Ex3Route
+import com.lwg.challenge.feature.home.HomeRoute
+import com.lwg.challenge.feature.main.component.ChallengeBottomBar
+import com.lwg.challenge.navigation.LocalMainAction
+import com.lwg.challenge.navigation.LocalNavigateAction
+import com.lwg.challenge.navigation.MainAction
+import com.lwg.challenge.navigation.Route
+import com.lwg.challenge.navigation.routeSerializersModule
+import kotlinx.coroutines.launch
+
+private val savedStateConfiguration = SavedStateConfiguration {
+    serializersModule = routeSerializersModule
+}
+
+@Composable
+fun MainRoute(
+    onFinishApp: () -> Unit = {},
+) {
+    val backStack = rememberNavBackStack(savedStateConfiguration, Route.HomeRoute.Main)
+    val navigator = remember(backStack) { MainNavigator(backStack) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    var backPressedOnce by remember { mutableStateOf(false) }
+
+    val mainAction = remember(snackbarHostState, scope) {
+        object : MainAction {
+            override fun showSnackBar(message: String) {
+                scope.launch {
+                    snackbarHostState.showSnackbar(message)
+                }
+            }
+
+            override fun finishApp() {
+                onFinishApp()
+            }
+        }
+    }
+
+    ChallengeTheme {
+        CompositionLocalProvider(
+            LocalNavigateAction provides navigator,
+            LocalMainAction provides mainAction,
+        ) {
+            MainScreen(
+                backStack = backStack,
+                navigator = navigator,
+                snackbarHostState = snackbarHostState,
+                onBackPressed = {
+                    if (backPressedOnce) {
+                        mainAction.finishApp()
+                    } else {
+                        backPressedOnce = true
+                        scope.launch {
+                            snackbarHostState.showSnackbar("뒤로 버튼을 한번 더 누르면 종료됩니다.")
+                            backPressedOnce = false
+                        }
+                    }
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun MainScreen(
+    backStack: NavBackStack<NavKey>,
+    navigator: MainNavigator,
+    snackbarHostState: SnackbarHostState,
+    onBackPressed: () -> Unit,
+) {
+    val currentRoute = backStack.lastOrNull()
+
+    PlatformBackHandler(enabled = backStack.size <= 1) {
+        onBackPressed()
+    }
+
+    Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        bottomBar = {
+            ChallengeBottomBar(
+                currentRoute = currentRoute,
+                onTabSelected = navigator::switchTab,
+            )
+        },
+    ) { innerPadding ->
+        NavDisplay(
+            backStack = backStack,
+            onBack = {
+                if (backStack.size > 1) {
+                    navigator.popBackStack()
+                } else {
+                    onBackPressed()
+                }
+            },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            entryProvider = { route ->
+                when (route) {
+                    is Route.HomeRoute -> NavEntry(route) { HomeRoute() }
+                    is Route.Ex1Route -> NavEntry(route) { Ex1Route() }
+                    is Route.Ex2Route -> NavEntry(route) { Ex2Route() }
+                    is Route.Ex3Route -> NavEntry(route) { Ex3Route() }
+                    else -> NavEntry(route) {}
+                }
+            },
+        )
+    }
+}
+
