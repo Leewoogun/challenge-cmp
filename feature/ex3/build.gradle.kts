@@ -1,7 +1,7 @@
 plugins {
-    alias(libs.plugins.baseFeature)
+    alias(libs.plugins.challengeFeature)
 }
 
 android {
-    namespace = "com.lwg.base.feature.ex3"
+    namespace = "com.lwg.challenge.feature.ex3"
 }

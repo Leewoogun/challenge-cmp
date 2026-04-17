@@ -1,3 +1,3 @@
 plugins {
-    alias(libs.plugins.baseKotlinMultiplatformPure)
+    alias(libs.plugins.challengeKotlinMultiplatformPure)
 }

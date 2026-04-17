@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.baseFeature)
+    alias(libs.plugins.challengeFeature)
 }
 
 kotlin {
@@ -20,5 +20,5 @@ kotlin {
 }
 
 android {
-    namespace = "com.lwg.base.feature.main"
+    namespace = "com.lwg.challenge.feature.main"
 }

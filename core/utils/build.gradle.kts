@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.baseKotlinMultiplatform)
-    alias(libs.plugins.baseComposeMultiplatform)
+    alias(libs.plugins.challengeKotlinMultiplatform)
+    alias(libs.plugins.challengeComposeMultiplatform)
 }
 
 android {

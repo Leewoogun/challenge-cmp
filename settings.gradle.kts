@@ -1,4 +1,4 @@
-rootProject.name = "CmpSystem"
+rootProject.name = "Challenge"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

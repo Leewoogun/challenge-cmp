@@ -1,11 +1,11 @@
 plugins {
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.baseKotlinMultiplatform)
+    alias(libs.plugins.challengeKotlinMultiplatform)
     alias(libs.plugins.kotlinxSerialization)
 }
 
 android {
-    namespace = "com.lwg.base.remote.model"
+    namespace = "com.lwg.challenge.remote.model"
 }
 
 kotlin {

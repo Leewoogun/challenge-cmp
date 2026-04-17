@@ -18,40 +18,40 @@ dependencies {
 gradlePlugin {
     plugins {
         register("kmpIos") {
-            id = "base.kmp.ios"
-            implementationClass = "com.lwg.base.primitive.KotlinMultiPlatformiOSPlugin"
+            id = "challenge.kmp.ios"
+            implementationClass = "com.lwg.challenge.primitive.KotlinMultiPlatformiOSPlugin"
         }
         register("kmpAndroid") {
-            id = "base.kmp.android"
-            implementationClass = "com.lwg.base.primitive.KotlinMultiPlatformAndroidPlugin"
+            id = "challenge.kmp.android"
+            implementationClass = "com.lwg.challenge.primitive.KotlinMultiPlatformAndroidPlugin"
         }
         register("kmpPrimitive") {
-            id = "base.kmp"
-            implementationClass = "com.lwg.base.primitive.KotlinMultiPlatformPlugin"
+            id = "challenge.kmp"
+            implementationClass = "com.lwg.challenge.primitive.KotlinMultiPlatformPlugin"
         }
         register("detekt") {
-            id = "base.verify.detekt"
-            implementationClass = "com.lwg.base.primitive.DetektPlugin"
+            id = "challenge.verify.detekt"
+            implementationClass = "com.lwg.challenge.primitive.DetektPlugin"
         }
         register("kspKoin") {
-            id = "base.ksp.koin"
-            implementationClass = "com.lwg.base.primitive.KspKoinPlugin"
+            id = "challenge.ksp.koin"
+            implementationClass = "com.lwg.challenge.primitive.KspKoinPlugin"
         }
         register("kmpConvention") {
-            id = "base.kotlin.multiplatform"
-            implementationClass = "com.lwg.base.convention.KotlinMultiPlatformConventionPlugin"
+            id = "challenge.kotlin.multiplatform"
+            implementationClass = "com.lwg.challenge.convention.KotlinMultiPlatformConventionPlugin"
         }
         register("cmpConvention") {
-            id = "base.compose.multiplatform"
-            implementationClass = "com.lwg.base.convention.ComposeMultiPlatformConventionPlugin"
+            id = "challenge.compose.multiplatform"
+            implementationClass = "com.lwg.challenge.convention.ComposeMultiPlatformConventionPlugin"
         }
         register("kmpPureConvention") {
-            id = "base.kotlin.multiplatform.pure"
-            implementationClass = "com.lwg.base.convention.KotlinMultiPlatformPurePlugin"
+            id = "challenge.kotlin.multiplatform.pure"
+            implementationClass = "com.lwg.challenge.convention.KotlinMultiPlatformPurePlugin"
         }
-        register("baseFeature") {
-            id = "base.feature"
-            implementationClass = "com.lwg.base.convention.BaseFeaturePlugin"
+        register("challengeFeature") {
+            id = "challenge.feature"
+            implementationClass = "com.lwg.challenge.convention.ChallengeFeaturePlugin"
         }
     }
 }

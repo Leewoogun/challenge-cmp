@@ -1,12 +1,12 @@
 plugins {
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.baseKotlinMultiplatform)
-    alias(libs.plugins.baseComposeMultiplatform)
+    alias(libs.plugins.challengeKotlinMultiplatform)
+    alias(libs.plugins.challengeComposeMultiplatform)
     alias(libs.plugins.kotlinxSerialization)
 }
 
 android {
-    namespace = "com.lwg.base.navigation"
+    namespace = "com.lwg.challenge.navigation"
 }
 
 kotlin {

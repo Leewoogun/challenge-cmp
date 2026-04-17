@@ -57,8 +57,8 @@ if [ "$MODULE_TYPE" = "android" ]; then
     cat > "$MODULE_PATH/build.gradle.kts" << 'EOF'
 plugins {
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.baseKotlinMultiplatform)
-    alias(libs.plugins.baseComposeMultiplatform)
+    alias(libs.plugins.challengeKotlinMultiplatform)
+    alias(libs.plugins.challengeComposeMultiplatform)
 }
 
 android {

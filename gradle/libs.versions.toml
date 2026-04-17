@@ -168,13 +168,13 @@ mokoResources = { id = "dev.icerock.mobile.multiplatform-resources", version.ref
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
 
 # Custom Plugins
-baseKmpIos = { id = "base.kmp.ios" }
-baseKmpAndroid = { id = "base.kmp.android" }
-baseKmp = { id = "base.kmp" }
-baseVerifyDetekt = { id = "base.verify.detekt" }
-baseKotlinMultiplatform = { id = "base.kotlin.multiplatform" }
-baseKotlinMultiplatformPure = { id = "base.kotlin.multiplatform.pure" }
-baseComposeMultiplatform = { id = "base.compose.multiplatform" }
-baseFeature = { id = "base.feature" }
-baseKspKoin = { id = "base.ksp.koin" }
+challengeKmpIos = { id = "challenge.kmp.ios" }
+challengeKmpAndroid = { id = "challenge.kmp.android" }
+challengeKmp = { id = "challenge.kmp" }
+challengeVerifyDetekt = { id = "challenge.verify.detekt" }
+challengeKotlinMultiplatform = { id = "challenge.kotlin.multiplatform" }
+challengeKotlinMultiplatformPure = { id = "challenge.kotlin.multiplatform.pure" }
+challengeComposeMultiplatform = { id = "challenge.compose.multiplatform" }
+challengeFeature = { id = "challenge.feature" }
+challengeKspKoin = { id = "challenge.ksp.koin" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

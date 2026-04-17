@@ -1,11 +1,11 @@
 plugins {
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.baseKotlinMultiplatform)
-    alias(libs.plugins.baseKspKoin)
+    alias(libs.plugins.challengeKotlinMultiplatform)
+    alias(libs.plugins.challengeKspKoin)
 }
 
 android {
-    namespace = "com.lwg.base.data.repositoryimpl"
+    namespace = "com.lwg.challenge.data.repositoryimpl"
 }
 
 kotlin {

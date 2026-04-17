@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.baseKotlinMultiplatform)
-    alias(libs.plugins.baseComposeMultiplatform)
-    alias(libs.plugins.baseKspKoin)
+    alias(libs.plugins.challengeKotlinMultiplatform)
+    alias(libs.plugins.challengeComposeMultiplatform)
+    alias(libs.plugins.challengeKspKoin)
 }
 
 kotlin {
@@ -46,11 +46,11 @@ composeCompiler {
 }
 
 android {
-    namespace = "com.lwg.base"
+    namespace = "com.lwg.challenge"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.lwg.base"
+        applicationId = "com.lwg.challenge"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

@@ -1,10 +1,10 @@
 plugins {
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.baseKotlinMultiplatform)
+    alias(libs.plugins.challengeKotlinMultiplatform)
 }
 
 android {
-    namespace = "com.lwg.base.remote.mapper"
+    namespace = "com.lwg.challenge.remote.mapper"
 }
 
 kotlin {
