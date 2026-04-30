@@ -8,6 +8,8 @@ kotlin {
             implementation(compose.materialIconsExtended)
 
             implementation(projects.feature.home)
+            implementation(projects.feature.login)
+            implementation(projects.feature.splash)
             implementation(projects.feature.ex1)
             implementation(projects.feature.ex2)
             implementation(projects.feature.ex3)

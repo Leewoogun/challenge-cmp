@@ -14,6 +14,10 @@ kotlin {
             // Domain
             implementation(projects.domain.model)
             implementation(projects.domain.repository)
+            implementation(projects.domain.usecase)
+
+            // Local
+            implementation(projects.local.datastore)
 
             // Remote
             implementation(projects.remote.api)
@@ -27,6 +31,11 @@ kotlin {
 
             // Coroutines
             implementation(libs.kotlinx.coroutines.core)
+        }
+
+        androidMain.dependencies {
+            // EncryptedSharedPreferences (AES-256-GCM + AndroidKeyStore)
+            implementation(libs.androidx.security.crypto)
         }
     }
 }

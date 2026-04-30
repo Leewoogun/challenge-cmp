@@ -122,10 +122,73 @@ class UserLocalRepositoryImpl(
 }
 ```
 
+## ⚠️ Platform-specific 구현 (expect/actual)에 Koin annotation 금지
+
+`@Single`/`@Factory` 같은 Koin annotation은 **commonMain의 `actual` 클래스 또는 commonMain `expect`**에는 정상 동작하지만, **platform-specific source set(`androidMain`/`iosMain`)의 `actual` 클래스**에 붙이면 commonMain의 `@Module @ComponentScan`이 **picked up하지 못합니다**.
+
+### 왜 안 되는가
+
+- KSP는 타겟별로 따로 동작 (metadata/commonMain, androidDebug, iosSimulatorArm64).
+- `@Module @ComponentScan`이 commonMain에 정의되면 **metadata/commonMain pass**에서 모듈 코드가 생성되며 commonMain 컴포넌트만 등록됨.
+- 플랫폼별 KSP pass에서 발견된 platform-specific `@Single`은 이미 finalize된 commonMain 모듈에 추가할 수 없어 **`defaultModule`이라는 별도 platform-specific 모듈로 분리**됨.
+- `defaultModule`은 platform별로 코드가 달라 commonMain 모듈 그래프(`includes = [...]`)에 포함시키기 어렵고, 결국 런타임에 `NoDefinitionFoundException` 발생.
+
+### 올바른 패턴: `expect/actual val Module` 수동 등록
+
+DataStore, SecureStorage 등 **plaftorm별 구현이 다른 컴포넌트**는 Koin annotation 대신 다음 패턴을 사용한다.
+
+```kotlin
+// commonMain — interface 또는 expect class만 (Koin annotation 없이)
+interface SecureTokenStorage { ... }
+expect class SecureTokenStorageImpl : SecureTokenStorage
+
+// androidMain
+actual class SecureTokenStorageImpl(
+    private val context: Context,
+) : SecureTokenStorage { ... }
+
+// iosMain
+actual class SecureTokenStorageImpl : SecureTokenStorage { ... }
+```
+
+Koin 등록은 별도의 `expect/actual val Module`로:
+
+```kotlin
+// commonMain/.../di/PlatformDataModule.kt
+expect val platformDataModule: Module
+
+// androidMain/.../di/PlatformDataModule.android.kt
+actual val platformDataModule: Module = module {
+    single<SecureTokenStorage> { SecureTokenStorageImpl(get()) }
+}
+
+// iosMain/.../di/PlatformDataModule.ios.kt
+actual val platformDataModule: Module = module {
+    single<SecureTokenStorage> { SecureTokenStorageImpl() }
+}
+```
+
+`composeApp/.../App.kt`의 `startKoin` modules 리스트에 추가:
+
+```kotlin
+modules(
+    AppModule().module,
+    // ...
+    platformDataModule,
+)
+```
+
+### 적용 대상 판단 기준
+
+- ✅ commonMain의 `class` (expect/actual 아님) → `@Single` 사용 OK
+- ✅ commonMain의 `interface` + commonMain의 `class` 구현체 → `@Single(binds = [...])` 사용 OK
+- ❌ commonMain의 `expect class` + androidMain/iosMain의 `actual class` → **수동 `expect/actual val Module` 필수**
+
 ## 체크리스트
 
 - [ ] Prefs 모델이 `@Serializable data class`인지
 - [ ] 모든 필드에 기본값이 있는지
 - [ ] Mapper가 양방향 변환하는지 (Domain 존재 시)
-- [ ] DataSource 구현체에 `@Single` Koin 어노테이션이 있는지
+- [ ] DataSource 구현체에 `@Single` Koin 어노테이션이 있는지 (commonMain 한정)
+- [ ] **expect/actual인 경우 `@Single` 대신 `expect/actual val Module` 패턴을 사용했는지**
 - [ ] `commonMain`에 작성했는지

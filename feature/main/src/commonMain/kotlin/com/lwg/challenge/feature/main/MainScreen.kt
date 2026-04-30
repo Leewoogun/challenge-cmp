@@ -21,11 +21,13 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.feature.login.LoginRoute
 import com.lwg.challenge.feature.ex1.Ex1Route
 import com.lwg.challenge.feature.ex2.Ex2Route
 import com.lwg.challenge.feature.ex3.Ex3Route
 import com.lwg.challenge.feature.home.HomeRoute
 import com.lwg.challenge.feature.main.component.ChallengeBottomBar
+import com.lwg.challenge.feature.splash.SplashRoute
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.navigation.MainAction
@@ -41,7 +43,7 @@ private val savedStateConfiguration = SavedStateConfiguration {
 fun MainRoute(
     onFinishApp: () -> Unit = {},
 ) {
-    val backStack = rememberNavBackStack(savedStateConfiguration, Route.HomeRoute.Main)
+    val backStack = rememberNavBackStack(savedStateConfiguration, Route.SplashRoute.Main)
     val navigator = remember(backStack) { MainNavigator(backStack) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -94,6 +96,7 @@ private fun MainScreen(
     onBackPressed: () -> Unit,
 ) {
     val currentRoute = backStack.lastOrNull()
+    val showBottomBar = currentRoute !is Route.SplashRoute && currentRoute !is Route.LoginRoute
 
     PlatformBackHandler(enabled = backStack.size <= 1) {
         onBackPressed()
@@ -103,10 +106,12 @@ private fun MainScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
-            ChallengeBottomBar(
-                currentRoute = currentRoute,
-                onTabSelected = navigator::switchTab,
-            )
+            if (showBottomBar) {
+                ChallengeBottomBar(
+                    currentRoute = currentRoute,
+                    onTabSelected = navigator::switchTab,
+                )
+            }
         },
     ) { innerPadding ->
         NavDisplay(
@@ -123,6 +128,8 @@ private fun MainScreen(
                 .padding(innerPadding),
             entryProvider = { route ->
                 when (route) {
+                    is Route.SplashRoute -> NavEntry(route) { SplashRoute() }
+                    is Route.LoginRoute -> NavEntry(route) { LoginRoute() }
                     is Route.HomeRoute -> NavEntry(route) { HomeRoute() }
                     is Route.Ex1Route -> NavEntry(route) { Ex1Route() }
                     is Route.Ex2Route -> NavEntry(route) { Ex2Route() }

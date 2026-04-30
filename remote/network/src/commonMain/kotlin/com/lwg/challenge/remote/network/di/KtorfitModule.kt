@@ -33,7 +33,8 @@ class KtorfitModule {
 
             install(DefaultRequest) {
                 header("Content-Type", "application/json; charset=utf-8")
-                header("Authorization", "Bearer ${BuildKonfig.TMDB_TOKEN}")
+                // Authorization 은 인증이 필요한 요청에서 개별 API 또는 인터셉터로 주입.
+                // 카카오 로그인/토큰 재발급 엔드포인트는 공개.
             }
 
             install(HttpNetworkLogger)

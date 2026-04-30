@@ -21,9 +21,30 @@ val properties = Properties().apply {
 buildkonfig {
     packageName = "com.lwg.challenge.remote.network"
 
+    // 기본값: Android 에뮬레이터용 URL. (ADR-0007)
+    // Android target 은 defaultConfigs 를 그대로 사용하고, iOS target 들은 targetConfigs 로 오버라이드.
     defaultConfigs {
-        buildConfigField(STRING, "TMDB_TOKEN", properties["tmdb_token"].toString().trim('"'))
-        buildConfigField(STRING, "BASE_URL", "https://api.themoviedb.org/3/")
+        buildConfigField(
+            STRING,
+            "BASE_URL",
+            properties["challenge_api_base_url_android"]?.toString()?.trim('"')
+                ?: "http://10.0.2.2:8080/",
+        )
+    }
+
+    val iosBaseUrl = properties["challenge_api_base_url_ios"]?.toString()?.trim('"')
+        ?: "http://localhost:8080/"
+
+    targetConfigs {
+        create("iosArm64") {
+            buildConfigField(STRING, "BASE_URL", iosBaseUrl)
+        }
+        create("iosSimulatorArm64") {
+            buildConfigField(STRING, "BASE_URL", iosBaseUrl)
+        }
+        create("iosX64") {
+            buildConfigField(STRING, "BASE_URL", iosBaseUrl)
+        }
     }
 }
 

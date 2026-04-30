@@ -5,7 +5,7 @@ import co.touchlab.kermit.Severity
 
 object Logger {
 
-    private const val TAG = "sample"
+    private const val TAG = "promise"
 
     init {
         KermitLogger.setTag(TAG)

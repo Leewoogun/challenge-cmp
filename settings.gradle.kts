@@ -57,6 +57,8 @@ include(":core:navigation")
 // Feature
 include(":feature:main")
 include(":feature:home")
+include(":feature:login")
+include(":feature:splash")
 include(":feature:ex1")
 include(":feature:ex2")
 include(":feature:ex3")

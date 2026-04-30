@@ -150,6 +150,35 @@ import org.koin.core.annotation.Module
 class {Name}Module
 ```
 
+#### ⚠️ Platform-specific 의존성 (expect/actual)에 Koin annotation 금지
+
+Feature 모듈에 platform-specific 구현(예: 카카오 SDK wrapper, 카메라/위치 등 native)을 `expect/actual class`로 두는 경우, **`actual` 클래스에 `@Single`/`@Factory` annotation을 붙이면 안 된다**.
+
+**이유:** KSP는 타겟별로 따로 동작. commonMain `@Module @ComponentScan`은 metadata/commonMain pass에서 commonMain 컴포넌트만 등록하고, 플랫폼별 `@Single`은 별도 `defaultModule`로 분리되어 모듈 그래프에 연결되지 않는다 → 런타임 `NoDefinitionFoundException`.
+
+**올바른 패턴:** Koin annotation 없이 `expect/actual val Module = module { ... }`로 수동 등록.
+
+```kotlin
+// commonMain/.../di/Platform{Name}Module.kt
+expect val platform{Name}Module: Module
+
+// androidMain/.../di/Platform{Name}Module.android.kt
+actual val platform{Name}Module: Module = module {
+    single<SomeProvider> { SomeProviderImpl(get()) }
+}
+
+// iosMain/.../di/Platform{Name}Module.ios.kt
+actual val platform{Name}Module: Module = module {
+    single<SomeProvider> { SomeProviderImpl() }
+}
+```
+
+`composeApp/.../App.kt`의 `startKoin` modules 리스트에 `platform{Name}Module` 추가.
+
+**적용 대상 판단:**
+- ✅ commonMain의 `@KoinViewModel`, `@Single`, `@Factory` → `@ComponentScan`이 정상 picked up
+- ❌ androidMain/iosMain의 `actual class`에 `@Single` → **금지, `expect/actual val Module` 사용**
+
 ### 5단계: Route + Content 구현
 
 **위치**: `.../{Name}Route.kt`

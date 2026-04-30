@@ -16,6 +16,20 @@ sealed interface Route : NavKey {
     }
 
     @Serializable
+    sealed interface LoginRoute : Route {
+
+        @Serializable
+        data object Main : LoginRoute
+    }
+
+    @Serializable
+    sealed interface SplashRoute : Route {
+
+        @Serializable
+        data object Main : SplashRoute
+    }
+
+    @Serializable
     sealed interface Ex1Route : Route {
 
         @Serializable
@@ -40,6 +54,8 @@ sealed interface Route : NavKey {
 val routeSerializersModule = SerializersModule {
     polymorphic(NavKey::class) {
         subclass(Route.HomeRoute.Main::class)
+        subclass(Route.LoginRoute.Main::class)
+        subclass(Route.SplashRoute.Main::class)
         subclass(Route.Ex1Route.Main::class)
         subclass(Route.Ex2Route.Main::class)
         subclass(Route.Ex3Route.Main::class)

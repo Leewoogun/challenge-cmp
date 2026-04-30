@@ -12,5 +12,5 @@ import org.koin.core.annotation.Module
  * - ApiModule: API 인터페이스 계층
  * - RepositoryModule: Repository 계층
  */
-@Module(includes = [NetworkModule::class, ApiModule::class, RepositoryModule::class])
+@Module(includes = [NetworkModule::class, ApiModule::class, RepositoryModule::class, UseCaseModule::class])
 class DataModule

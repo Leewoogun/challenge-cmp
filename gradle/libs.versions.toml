@@ -11,6 +11,7 @@ androidx-espresso-core = "3.6.1"
 androidx-lifecycle = "2.10.0"
 androidx-material = "1.12.0"
 androidx-datastore = "1.1.7"
+androidx-security-crypto = "1.1.0-alpha06"
 androidx-test-junit = "1.2.1"
 androidx-navigation = "2.9.2"
 androidx-navigation3 = "1.1.0-alpha01"
@@ -38,6 +39,7 @@ roborazzi = "1.43.1"
 composablePreviewScanner = "0.6.1"
 buildkonfig = "0.15.2"
 kermit = "2.0.5"
+turbine = "1.2.0"
 moko-resources = "0.24.3"
 room = "2.7.1"
 sqlite = "2.5.1"
@@ -51,6 +53,7 @@ kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version
 # KotlinX
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinx-immutable" }
@@ -63,6 +66,7 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-material = { group = "com.google.android.material", name = "material", version.ref = "androidx-material" }
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "androidx-datastore" }
 androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "androidx-datastore" }
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "androidx-security-crypto" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
@@ -139,6 +143,9 @@ aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref
 
 # Kermit
 kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
+
+# Turbine (Flow testing)
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 # MOKO Resources
 moko-resources = { group = "dev.icerock.moko", name = "resources", version.ref = "moko-resources" }
