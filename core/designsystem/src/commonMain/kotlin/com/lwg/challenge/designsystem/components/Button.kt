@@ -24,10 +24,10 @@ fun NormalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    containerColor: Color = ChallengeTheme.colorScheme.ivory2,
-    contentColor: Color = ChallengeTheme.colorScheme.brown2,
-    disabledContainerColor: Color = ChallengeTheme.colorScheme.ivory2.copy(alpha = 0.6f),
-    disabledContentColor: Color = ChallengeTheme.colorScheme.brown2.copy(alpha = 0.4f),
+    containerColor: Color = ChallengeTheme.colorScheme.surfaceVariant,
+    contentColor: Color = ChallengeTheme.colorScheme.onSurface,
+    disabledContainerColor: Color = containerColor.copy(alpha = 0.6f),
+    disabledContentColor: Color = contentColor.copy(alpha = 0.4f),
     textStyle: TextStyle = ChallengeTheme.typography.medium14,
     shape: Shape = RoundedCornerShape(14.dp),
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
@@ -72,10 +72,10 @@ private fun NormalButtonPreview() {
             )
 
             NormalButton(
-                text = "커스텀 색상 버튼",
+                text = "Primary 버튼",
                 onClick = {},
-                containerColor = ChallengeTheme.colorScheme.orange1,
-                contentColor = ChallengeTheme.colorScheme.white,
+                containerColor = ChallengeTheme.colorScheme.primary,
+                contentColor = ChallengeTheme.colorScheme.onPrimary,
             )
 
             NormalButton(

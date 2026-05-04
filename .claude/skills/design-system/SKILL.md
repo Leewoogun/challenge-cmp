@@ -7,54 +7,115 @@ allowed-tools:
   - Grep
 ---
 
-# 디자인 시스템 핵심 규칙
+# 디자인 시스템 핵심 규칙 (단일 다크 톤)
 
-UI Composable 코드를 작성할 때 이 규칙을 반드시 따릅니다.
+UI Composable 코드를 작성할 때 이 규칙을 반드시 따른다. 라이트 모드는 지원하지 않는다.
 
 ## 색상 규칙
 
-프로젝트의 디자인 시스템 테마를 통해서만 색상에 접근합니다.
-`core/designsystem/` 디렉토리의 테마 파일을 확인하여 사용 가능한 색상을 파악합니다.
+색에 접근하는 정식 경로는 **세 갈래**다. 다른 길은 없다.
+
+| 종류 | 접근 경로 |
+|---|---|
+| 시멘틱 색상 (모든 색상) | `ChallengeTheme.colorScheme.<name>` |
+| 그라데이션 | `ChallengeTheme.brushes.<name>` |
+| 외부 브랜드 (테마 영향 X) | `BrandColors.<name>` |
+
+> Material3 `MaterialTheme.colorScheme.X` 는 **직접 호출 금지**.
+> Material3 컴포넌트 호환을 위해 내부적으로 동일 색상이 매핑돼 있을 뿐, Feature 코드는 항상 `ChallengeTheme.colorScheme` 를 사용한다.
+
+### 의미 → 슬롯 매핑 가이드
+
+| 의미 | 슬롯 |
+|---|---|
+| 메인 CTA / 강조 배경 | `colorScheme.primary` 또는 `brushes.fire` |
+| CTA 위 텍스트/아이콘 | `colorScheme.onPrimary` |
+| 화면 배경 | `colorScheme.background` |
+| 메인 텍스트 | `colorScheme.onBackground` / `onSurface` |
+| 카드 / 섹션 배경 | `colorScheme.surface` 또는 `surfaceVariant` |
+| 보조 텍스트 / 캡션 | `colorScheme.onSurfaceVariant` |
+| 1px 구분선 | `colorScheme.outline` 또는 `colorScheme.border` |
+| 에러 텍스트/아이콘 | `colorScheme.error` |
+| 성공 (챌린지 완료 등) | `colorScheme.success` / `onSuccess` |
+| 경고 (데드라인 임박 등) | `colorScheme.warning` / `onWarning` |
+| 차트 1~5 (랭킹/통계) | `colorScheme.chart1` ~ `chart5` |
+
+### 그라데이션 / 외부 브랜드
+
+- 메인 그라데이션: `ChallengeTheme.brushes.fire` (gradientPrimaryStart → gradientPrimaryEnd, 135deg)
+- 카드 depth: `ChallengeTheme.brushes.card` (gradientCardStart → gradientCardEnd)
+- 후광: `ChallengeTheme.brushes.glow` (radial)
+- 카카오 브랜드: `BrandColors.KakaoYellow`, `BrandColors.KakaoLabel` (테마 영향 받지 않음)
 
 ```kotlin
-// ❌ 절대 금지
+// 올바른 사용
+Text(
+    text = "...",
+    color = ChallengeTheme.colorScheme.onBackground,
+)
+Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background))
+Box(modifier = Modifier.background(ChallengeTheme.brushes.fire))
+NormalButton(
+    containerColor = BrandColors.KakaoYellow,
+    contentColor = BrandColors.KakaoLabel,
+)
+Text(
+    text = "성공!",
+    color = ChallengeTheme.colorScheme.success,
+)
+
+// 절대 금지
 Color(0xFF000000)                       // 하드코딩 금지
+MaterialTheme.colorScheme.primary       // Material3 직접 호출 금지
 ```
 
 **새 색상이 필요한 경우만 임시 하드코딩 허용**:
 ```kotlin
-// TODO: 새로운 색상 필요 - 디자인 시스템에 추가 요청
-// 용도: [사용 목적]
-// 제안 색상: Color(0xFFXXXXXX)
-Box(modifier = Modifier.background(Color(0xFFXXXXXX)))
+// TODO: 디자인 시스템에 추가 요청 - [용도]
+Color(0xFFXXXXXX)
 ```
+이후 다음 두 곳에 추가한다:
+1. `core/designsystem/theme/Color.kt` 에 raw 토큰 (예: `internal val orange3 = Color(0xFFXXXXXX)`)
+2. `core/designsystem/theme/ChallengeColorScheme.kt` 의 `ChallengeColorScheme` 데이터 클래스 + `DefaultChallengeColorScheme` 인스턴스에 시멘틱 슬롯 추가
+
+외부 브랜드 색이면 `BrandColors.kt` 에 추가.
 
 ## 타이포그래피 규칙
 
-프로젝트 디자인 시스템의 Typography를 사용합니다.
-`core/designsystem/`의 Typography 정의를 확인하여 사용 가능한 스타일을 파악합니다.
+`ChallengeTheme.typography.<style>` 사용. 직접 `fontSize`/`fontWeight` 조합 금지.
 
 ```kotlin
-// ❌ 금지 (직접 fontSize/fontWeight 조합)
+// 금지
 fontSize = 20.sp, fontWeight = FontWeight.Bold
+
+// 허용
+style = ChallengeTheme.typography.bold20
 ```
+
+사용 가능한 스타일은 `core/designsystem/theme/Typography.kt` 참조.
 
 ## 컴포넌트 규칙
 
-`core/designsystem/` 디렉토리에 정의된 공용 컴포넌트를 우선 사용합니다.
-커스텀 UI가 필요한 경우에만 직접 구현합니다.
+`core/designsystem/components/` 의 공용 컴포넌트를 우선 사용:
+- `NormalButton` — 기본 버튼
+- `ChallengeLabel` — 라벨 (solid/gradient 두 종류)
+- `ChallengeScaffold` — StatusBar 통합 Scaffold
+
+커스텀 UI가 필요한 경우에만 직접 구현.
 
 ## UI 작성 규칙
 
 1. **KMP Compose**: `commonMain`에 작성 (플랫폼 독립)
-2. **클릭 영역**: `clip(RoundedCornerShape(4.dp))` 처리
-3. **다크 모드**: 디자인 시스템 테마 사용 시 자동 대응
+2. **클릭 영역**: `clip(RoundedCornerShape(N.dp))` 처리
+3. **테마**: 단일 다크 톤. 라이트 모드 분기 금지.
 
 ## 코드 작성 전 확인
 
-**반드시 `core/designsystem/` 디렉토리를 먼저 탐색**하여 다음을 확인합니다:
-- 테마 (색상, 타이포)
-- 기존 공용 컴포넌트
-- 기존 패턴과 네이밍 컨벤션
-
-이렇게 하면 아직 정의되지 않은 디자인 시스템도 코드를 작성하면서 점진적으로 파악할 수 있습니다.
+`core/designsystem/theme/`를 먼저 탐색:
+- `Color.kt` — raw 토큰 (orange1, black2, gray3 ... 직접 import 금지)
+- `ChallengeColorScheme.kt` — 시멘틱 색상 데이터 클래스 + Default 인스턴스
+- `ChallengeBrushes.kt` — 그라데이션
+- `BrandColors.kt` — 외부 브랜드 (Kakao)
+- `Theme.kt` — `ChallengeTheme` 진입점, `ChallengeTheme.colorScheme` getter
+- `Typography.kt` — 타이포 스타일
+- `components/` — 기존 공용 컴포넌트

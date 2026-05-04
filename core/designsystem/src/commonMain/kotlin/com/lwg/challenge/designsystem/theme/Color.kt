@@ -1,71 +1,49 @@
 package com.lwg.challenge.designsystem.theme
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-val LocalColorScheme = staticCompositionLocalOf { ChallengeColorScheme.lightColorScheme }
-// Primary Colors - 주요 액션 및 강조 색상
-val Orange1 = Color(0xFFFF7033)
-val Orange2 = Color(0xFFF49D25)
-val Orange3 = Color(0xFFF2F0E7)
+/**
+ * Raw color palette for the Challenge (MAENGSE) design system — 단일 다크 톤.
+ *
+ * **Feature 코드는 이 raw 토큰을 직접 import 하지 않는다.** 다음 경로로만 색에 접근한다:
+ * - 시멘틱 색상: `ChallengeTheme.colorScheme.<name>`
+ * - 그라데이션: `ChallengeTheme.brushes.<name>`
+ * - 외부 브랜드: `BrandColors.<name>`
+ *
+ * 토큰 이름은 색상 자체(orange1, black2 등)를 가리키고, 의미(primary/background)는
+ * `ChallengeColorScheme.kt` 의 `DefaultChallengeColorScheme` 에서 매핑한다.
+ */
 
-// Secondary
-val Red1 = Color(0xFFEF4444)
-val Red2 = Color(0xFFEF4444).copy(alpha = 0.1f)
+// Orange
+internal val orange1 = Color(0xFFE97A3D)
+internal val orange2 = Color(0xFFD75C3A)
 
-// Background Colors - 배경 색상
-val Ivory1 = Color(0xFFFCFAF8)
-val Ivory2 = Color(0xFFF3ECE2)
+// Red
+internal val red1 = Color(0xFFD75C4A)
 
-val White = Color(0xFFFFFFFF)
-val Gray50 = Color(0xFFF9FAFB)
+// Yellow
+internal val yellow1 = Color(0xFFD7AF45)
 
-// Text Colors - 텍스트 색상
-val FontBlack = Color(0xFF32221B)
+// Green
+internal val green1 = Color(0xFF3CAB7A)
 
-val Brown1 = Color(0xFF93796C)
-val Brown2 = Color(0xFF53392D)
+// Blue
+internal val blue1 = Color(0xFF5E91C9)
 
-val GradientColor = Brush.horizontalGradient(
-    colors = listOf(
-        Orange1,
-        Orange2
-    )
-)
+// Black (dark surfaces & deep text)
+internal val black1 = Color(0xFF1A1B22)
+internal val black2 = Color(0xFF26272F)
+internal val black3 = Color(0xFF2F303A)
+internal val black4 = Color(0xFF31323D)
+internal val black5 = Color(0xFF2B2C36)
 
-@Immutable
-data class ChallengeColorScheme(
-    val orange1: Color,
-    val orange2: Color,
-    val orange3: Color,
-    val red1: Color,
-    val red2: Color,
-    val ivory1: Color,
-    val ivory2: Color,
-    val white: Color,
-    val gray50: Color,
-    val fontBlack: Color,
-    val brown1: Color,
-    val brown2: Color,
-    val gradientColor: Brush
-) {
-    companion object {
-        val lightColorScheme = ChallengeColorScheme(
-            orange1 = Orange1,
-            orange2 = Orange2,
-            orange3 = Orange3,
-            red1 = Red1,
-            red2 = Red2,
-            ivory1 = Ivory1,
-            ivory2 = Ivory2,
-            white = White,
-            gray50 = Gray50,
-            fontBlack = FontBlack,
-            brown1 = Brown1,
-            brown2 = Brown2,
-            gradientColor = GradientColor
-        )
-    }
-}
+// Gray
+internal val gray1 = Color(0xFF3D3E48)
+internal val gray2 = Color(0xFF43444F)
+internal val gray3 = Color(0xFF43444E)
+internal val gray4 = Color(0xFF383942)
+internal val gray5 = Color(0xFF9596A0)
+internal val gray6 = Color(0xFFD2D2D6)
+
+// White
+internal val white1 = Color(0xFFF2F2F4)

@@ -20,7 +20,7 @@ internal fun SplashScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(ChallengeTheme.colorScheme.gradientColor),
+            .background(ChallengeTheme.brushes.fire),
         contentAlignment = Alignment.Center,
     ) {
         Column(
@@ -30,10 +30,10 @@ internal fun SplashScreen() {
             Text(
                 text = "맹세",
                 style = ChallengeTheme.typography.bold48,
-                color = ChallengeTheme.colorScheme.white,
+                color = ChallengeTheme.colorScheme.onPrimary,
             )
             Spacer(modifier = Modifier.height(24.dp))
-            CircularProgressIndicator(color = ChallengeTheme.colorScheme.white)
+            CircularProgressIndicator(color = ChallengeTheme.colorScheme.onPrimary)
         }
     }
 }

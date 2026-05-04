@@ -15,7 +15,7 @@ internal fun HomeTopBar(
     Text(
         text = "Cooking",
         style = ChallengeTheme.typography.bold20,
-        color = ChallengeTheme.colorScheme.white,
+        color = ChallengeTheme.colorScheme.onPrimary,
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp),

@@ -42,13 +42,13 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 @Composable
 fun ChallengeScaffold(
     modifier: Modifier = Modifier,
-    statusBarColor: Color = ChallengeTheme.colorScheme.white,
+    statusBarColor: Color = ChallengeTheme.colorScheme.background,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
-    containerColor: Color = ChallengeTheme.colorScheme.white,
+    containerColor: Color = ChallengeTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
     content: @Composable ColumnScope.() -> Unit,
 ) {

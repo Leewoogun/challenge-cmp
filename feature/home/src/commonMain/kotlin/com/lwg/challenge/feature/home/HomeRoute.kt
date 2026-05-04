@@ -31,7 +31,7 @@ private fun HomeContent(
     uiState: HomeUiState,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.orange1,
+        statusBarColor = ChallengeTheme.colorScheme.primary,
         topBar = {
             HomeTopBar()
         },

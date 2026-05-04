@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.NormalButton
+import com.lwg.challenge.designsystem.theme.BrandColors
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.login.contract.LoginModalEffect
 import com.lwg.challenge.feature.login.contract.LoginUiState
@@ -28,8 +29,8 @@ import com.lwg.challenge.feature.login.contract.LoginUiState
 /**
  * 로그인 화면 UI.
  *
- * TODO: design-bridge 의 design.md 가 준비되면 배경 그라데이션, 로고, 카카오 옐로우 토큰 적용.
- * 지금은 디자인 시스템의 기본 토큰으로 placeholder UI 작성.
+ * 배경: Lovable `--gradient-fire` (135deg 오렌지 그라데이션) — `ChallengeTheme.brushes.fire`.
+ * 카카오 버튼: 카카오 공식 브랜드 색 — `BrandColors.KakaoYellow` / `BrandColors.KakaoLabel`.
  */
 @Composable
 internal fun LoginScreen(
@@ -42,7 +43,7 @@ internal fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(ChallengeTheme.colorScheme.gradientColor),
+            .background(ChallengeTheme.brushes.fire),
     ) {
         Column(
             modifier = Modifier
@@ -55,26 +56,26 @@ internal fun LoginScreen(
             Text(
                 text = "맹세",
                 style = ChallengeTheme.typography.bold48,
-                color = ChallengeTheme.colorScheme.white,
+                color = ChallengeTheme.colorScheme.onPrimary,
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "말만 하지 말고, 걸어.",
                 style = ChallengeTheme.typography.medium16,
-                color = ChallengeTheme.colorScheme.white,
+                color = ChallengeTheme.colorScheme.onPrimary,
                 textAlign = TextAlign.Center,
             )
 
             Spacer(modifier = Modifier.height(64.dp))
 
-            // TODO(design): 카카오 옐로우 (#FEE500) + 카카오 아이콘. 지금은 placeholder.
+            // 카카오 공식 브랜드 색은 디자인 시스템 ColorScheme이 아닌 BrandColors에서 가져온다.
             NormalButton(
                 text = if (uiState is LoginUiState.Loading) "로그인 중..." else "카카오로 시작하기",
                 onClick = onLoginClick,
                 enabled = uiState !is LoginUiState.Loading,
                 modifier = Modifier.fillMaxWidth(),
-                containerColor = Color(0xFFFEE500),
-                contentColor = Color(0xFF191919),
+                containerColor = BrandColors.KakaoYellow,
+                contentColor = BrandColors.KakaoLabel,
                 shape = RoundedCornerShape(14.dp),
                 textStyle = ChallengeTheme.typography.bold16,
             )
@@ -87,7 +88,7 @@ internal fun LoginScreen(
                     .background(Color.Black.copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator(color = ChallengeTheme.colorScheme.white)
+                CircularProgressIndicator(color = ChallengeTheme.colorScheme.onPrimary)
             }
         }
     }

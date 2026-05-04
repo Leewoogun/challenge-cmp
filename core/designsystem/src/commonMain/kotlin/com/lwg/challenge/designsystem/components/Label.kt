@@ -76,33 +76,33 @@ private fun ChallengeLabelPreview() {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Solid color label
+            // Solid color label — primary
             ChallengeLabel(
-                backgroundColor = ChallengeTheme.colorScheme.orange1
+                backgroundColor = ChallengeTheme.colorScheme.primary
             ) {
                 Text(
-                    text = "Orange Label",
-                    color = ChallengeTheme.colorScheme.white
+                    text = "Primary Label",
+                    color = ChallengeTheme.colorScheme.onPrimary
                 )
             }
 
-            // Gradient label
+            // Gradient label — fire
             ChallengeLabel(
-                backgroundBrush = ChallengeTheme.colorScheme.gradientColor
+                backgroundBrush = ChallengeTheme.brushes.fire
             ) {
                 Text(
                     text = "Gradient Label",
-                    color = ChallengeTheme.colorScheme.white
+                    color = ChallengeTheme.colorScheme.onPrimary
                 )
             }
 
-            // Another color example
+            // Surface variant example
             ChallengeLabel(
-                backgroundColor = ChallengeTheme.colorScheme.ivory2
+                backgroundColor = ChallengeTheme.colorScheme.surfaceVariant
             ) {
                 Text(
-                    text = "Ivory Label",
-                    color = ChallengeTheme.colorScheme.brown2
+                    text = "Secondary Label",
+                    color = ChallengeTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
