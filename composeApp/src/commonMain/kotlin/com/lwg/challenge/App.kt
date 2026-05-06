@@ -1,6 +1,5 @@
 package com.lwg.challenge
 
-import com.lwg.challenge.data.di.platformDataModule
 import com.lwg.challenge.di.AppModule
 import com.lwg.challenge.feature.ex1.di.Ex1Module
 import com.lwg.challenge.feature.ex2.di.Ex2Module
@@ -23,7 +22,6 @@ internal fun cookingAppDeclaration(
         Ex1Module().module,
         Ex2Module().module,
         Ex3Module().module,
-        platformDataModule,
     )
     additionalDeclaration()
 }

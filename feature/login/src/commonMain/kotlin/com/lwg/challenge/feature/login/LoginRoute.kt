@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.lwg.challenge.feature.login.contract.LoginModalEffect
 import com.lwg.challenge.feature.login.contract.LoginUiEffect
 import com.lwg.challenge.feature.login.contract.LoginUiState
 import com.lwg.challenge.navigation.LocalMainAction
@@ -17,7 +16,6 @@ fun LoginRoute(
     viewModel: LoginViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val modalEffect by viewModel.modalEffect.collectAsStateWithLifecycle()
     val navigateAction = LocalNavigateAction.current
     val mainAction = LocalMainAction.current
 
@@ -35,26 +33,17 @@ fun LoginRoute(
 
     LoginContent(
         uiState = uiState,
-        modalEffect = modalEffect,
         onLoginClick = viewModel::login,
-        onRetryClick = viewModel::retryLogin,
-        onDismissModal = viewModel::dismissModal,
     )
 }
 
 @Composable
 private fun LoginContent(
     uiState: LoginUiState,
-    modalEffect: LoginModalEffect,
     onLoginClick: () -> Unit,
-    onRetryClick: () -> Unit,
-    onDismissModal: () -> Unit,
 ) {
     LoginScreen(
         uiState = uiState,
-        modalEffect = modalEffect,
         onLoginClick = onLoginClick,
-        onRetryClick = onRetryClick,
-        onDismissModal = onDismissModal,
     )
 }

@@ -1,6 +1,6 @@
 package com.lwg.challenge.remote.model.auth
 
-import com.lwg.challenge.remote.model.base.BaseResponse
+import com.lwg.challenge.remote.model.BaseResponse
 import kotlinx.serialization.Serializable
 
 /**

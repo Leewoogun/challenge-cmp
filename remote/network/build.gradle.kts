@@ -54,6 +54,9 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
+            // Remote model (BaseResponse envelope)
+            implementation(projects.remote.model)
+
             // Ktorfit
             implementation(libs.ktorfit.lib)
 

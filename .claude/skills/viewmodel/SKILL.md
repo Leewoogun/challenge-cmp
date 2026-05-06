@@ -158,6 +158,39 @@ private fun initState() {
 
 ## 상태 관리 규칙
 
+### sealed interface UiState 타입 체크: FlowUtil 사용 (필수)
+
+StateFlow의 값을 타입으로 분기할 때는 `core/utils`의 FlowUtil 확장 함수를 사용한다. 직접 `value is Type` 비교 금지.
+
+```kotlin
+import com.lwg.challenge.utils.flow.withData
+import com.lwg.challenge.utils.flow.updateWithData
+
+// ✅ withData — 특정 타입일 때만 로직 실행 (inline이므로 non-local return 가능)
+fun login() {
+    _uiState.withData<LoginUiState.Loading> { return }
+    // ... Loading이 아닐 때만 실행
+}
+
+// ✅ withData — 타입 캐스팅 후 데이터 접근
+fun showMessage() {
+    uiState.withData<UiState.Data> { data ->
+        showToast(data.message)
+    }
+}
+
+// ✅ updateWithData — 특정 타입일 때만 상태 변형 (다른 타입이면 무시)
+fun updateMessage() {
+    _uiState.updateWithData<UiState, UiState.Data> { data ->
+        data.copy(message = "Hello")
+    }
+}
+
+// ❌ 직접 타입 비교 금지
+if (_uiState.value is LoginUiState.Loading) return
+val data = _uiState.value as? UiState.Data ?: return
+```
+
 ### MutableStateFlow 상태 변경: .update { }
 
 ```kotlin
@@ -211,6 +244,7 @@ fun onTabSelected(tab: Tab) { }
 - [ ] ViewModel 함수에 `on` 접두어가 없는지
 - [ ] 적합한 Flow 패턴을 선택했는지 (A/B/C/D)
 - [ ] `SharingStarted` 전략이 적합한지
+- [ ] sealed UiState 타입 체크에 `withData` / `updateWithData` 사용하는지 (`value is Type` 직접 비교 금지)
 - [ ] MutableStateFlow 상태 변경에 `.update { }` 사용하는지
 - [ ] Flow 수집에 `collect` 패턴 사용하는지
 - [ ] `commonMain`에 작성했는지

@@ -4,6 +4,8 @@ import com.lwg.challenge.domain.model.AuthTokens
 import com.lwg.challenge.domain.model.LoginResult
 import com.lwg.challenge.domain.model.UserProfile
 import com.lwg.challenge.domain.repository.LoginRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 /**
  * 테스트용 Fake LoginRepository. [loginWithKakao] 응답을 예약해두고 반환.
@@ -23,26 +25,24 @@ class FakeLoginRepository : LoginRepository {
 
     var storedTokens: AuthTokens = AuthTokens.Empty
 
-    override suspend fun loginWithKakao(
+    override fun loginWithKakao(
         kakaoAccessToken: String,
-        onError: (code: Int, message: String) -> Unit,
-    ): LoginResult? = when (val r = loginResponse) {
-        is LoginResponse.Success -> r.result
-        is LoginResponse.Error -> {
-            onError(r.code, r.message)
-            null
+        onError: (String) -> Unit,
+    ): Flow<LoginResult> = flow {
+        when (val r = loginResponse) {
+            is LoginResponse.Success -> emit(r.result)
+            is LoginResponse.Error -> onError(r.message)
         }
     }
 
-    override suspend fun refreshAccessToken(
-        onError: (code: Int, message: String) -> Unit,
-    ): AuthTokens? = when (val r = refreshResponse) {
-        is RefreshResponse.Success -> r.tokens
-        is RefreshResponse.Error -> {
-            onError(r.code, r.message)
-            null
+    override fun refreshAccessToken(
+        onError: (String) -> Unit,
+    ): Flow<AuthTokens> = flow {
+        when (val r = refreshResponse) {
+            is RefreshResponse.Success -> emit(r.tokens)
+            is RefreshResponse.Error -> onError(r.message)
+            RefreshResponse.Unauthorized -> Unit
         }
-        RefreshResponse.Unauthorized -> null
     }
 
     override suspend fun getStoredTokens(): AuthTokens = storedTokens
@@ -53,12 +53,12 @@ class FakeLoginRepository : LoginRepository {
 
     sealed interface LoginResponse {
         data class Success(val result: LoginResult) : LoginResponse
-        data class Error(val code: Int, val message: String) : LoginResponse
+        data class Error(val message: String) : LoginResponse
     }
 
     sealed interface RefreshResponse {
         data class Success(val tokens: AuthTokens) : RefreshResponse
-        data class Error(val code: Int, val message: String) : RefreshResponse
+        data class Error(val message: String) : RefreshResponse
         data object Unauthorized : RefreshResponse
     }
 }

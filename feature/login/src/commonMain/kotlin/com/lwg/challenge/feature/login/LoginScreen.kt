@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.NormalButton
 import com.lwg.challenge.designsystem.theme.BrandColors
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.feature.login.contract.LoginModalEffect
 import com.lwg.challenge.feature.login.contract.LoginUiState
 
 /**
@@ -35,10 +32,7 @@ import com.lwg.challenge.feature.login.contract.LoginUiState
 @Composable
 internal fun LoginScreen(
     uiState: LoginUiState,
-    modalEffect: LoginModalEffect,
     onLoginClick: () -> Unit,
-    onRetryClick: () -> Unit,
-    onDismissModal: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -90,37 +84,6 @@ internal fun LoginScreen(
             ) {
                 CircularProgressIndicator(color = ChallengeTheme.colorScheme.onPrimary)
             }
-        }
-    }
-
-    when (modalEffect) {
-        LoginModalEffect.Hidden -> Unit
-        is LoginModalEffect.ReLogin -> {
-            AlertDialog(
-                onDismissRequest = onDismissModal,
-                title = { Text(text = "로그인 만료") },
-                text = { Text(text = modalEffect.message) },
-                confirmButton = {
-                    TextButton(onClick = onRetryClick) { Text(text = "다시 로그인") }
-                },
-                dismissButton = {
-                    TextButton(onClick = onDismissModal) { Text(text = "닫기") }
-                },
-            )
-        }
-
-        is LoginModalEffect.ServerError -> {
-            AlertDialog(
-                onDismissRequest = onDismissModal,
-                title = { Text(text = "서버 오류") },
-                text = { Text(text = modalEffect.message) },
-                confirmButton = {
-                    TextButton(onClick = onRetryClick) { Text(text = "다시 시도") }
-                },
-                dismissButton = {
-                    TextButton(onClick = onDismissModal) { Text(text = "닫기") }
-                },
-            )
         }
     }
 }

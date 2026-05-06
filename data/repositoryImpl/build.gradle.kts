@@ -32,10 +32,5 @@ kotlin {
             // Coroutines
             implementation(libs.kotlinx.coroutines.core)
         }
-
-        androidMain.dependencies {
-            // EncryptedSharedPreferences (AES-256-GCM + AndroidKeyStore)
-            implementation(libs.androidx.security.crypto)
-        }
     }
 }

@@ -19,6 +19,7 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(libs.kermit)
+            implementation(libs.kotlinx.coroutines.core)
         }
         iosMain.dependencies {
 

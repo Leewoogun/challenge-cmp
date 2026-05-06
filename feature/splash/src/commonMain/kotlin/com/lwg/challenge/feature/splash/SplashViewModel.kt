@@ -12,23 +12,14 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
-/**
- * Splash ViewModel.
- *
- * 진입 시:
- * 1. 저장된 refresh token 조회.
- * 2. 비어있으면 바로 로그인 화면으로.
- * 3. 존재하면 `/auth/refresh` 시도.
- *    - 성공: 홈.
- *    - 실패 (code=401 등): 로그인.
- */
 @KoinViewModel
 class SplashViewModel(
-    private val getStoredTokens: GetStoredTokensUseCase,
-    private val refreshAccessToken: RefreshAccessTokenUseCase,
+    private val getStoredTokensUseCase: GetStoredTokensUseCase,
+    private val refreshAccessTokenUseCase: RefreshAccessTokenUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SplashUiState>(SplashUiState.Loading)
@@ -43,18 +34,17 @@ class SplashViewModel(
 
     private fun decideDestination() {
         viewModelScope.launch {
-            val tokens = getStoredTokens()
+            val tokens = getStoredTokensUseCase()
             if (tokens.refreshToken.isBlank()) {
                 _uiEffect.emit(SplashUiEffect.NavigateToLogin)
                 return@launch
             }
 
-            val refreshed = refreshAccessToken { _, _ -> /* no-op, 실패 시 아래 null 로 분기 */ }
-            if (refreshed != null) {
-                _uiEffect.emit(SplashUiEffect.NavigateToHome)
-            } else {
-                _uiEffect.emit(SplashUiEffect.NavigateToLogin)
-            }
+            val refreshed = refreshAccessTokenUseCase(onError = { /* 로그인으로 분기 */ })
+                .firstOrNull()
+            _uiEffect.emit(
+                if (refreshed != null) SplashUiEffect.NavigateToHome else SplashUiEffect.NavigateToLogin,
+            )
         }
     }
 }

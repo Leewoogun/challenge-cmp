@@ -5,7 +5,6 @@ import com.lwg.challenge.domain.model.AuthTokens
 import com.lwg.challenge.domain.model.LoginResult
 import com.lwg.challenge.domain.model.UserProfile
 import com.lwg.challenge.domain.usecase.LoginWithKakaoUseCase
-import com.lwg.challenge.feature.login.contract.LoginModalEffect
 import com.lwg.challenge.feature.login.contract.LoginUiEffect
 import com.lwg.challenge.feature.login.contract.LoginUiState
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +37,7 @@ class LoginViewModelTest {
 
     private fun createViewModel(): LoginViewModel {
         return LoginViewModel(
-            loginWithKakao = LoginWithKakaoUseCase(fakeRepository),
+            loginWithKakaoUseCase = LoginWithKakaoUseCase(fakeRepository),
         )
     }
 
@@ -62,18 +61,18 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `카카오 토큰 만료 code=701 응답 시 ReLogin 모달 effect 로 전환된다`() = runTest {
+    fun `로그인 실패 시 ShowMessage UiEffect 로 스낵바 메시지를 발행하고 Idle 로 복귀한다`() = runTest {
         fakeRepository.loginResponse = FakeLoginRepository.LoginResponse.Error(
-            code = 701,
             message = "카카오 로그인이 만료되었습니다. 다시 시도해주세요",
         )
         val viewModel = createViewModel()
 
-        viewModel.login()
-
-        val modal = viewModel.modalEffect.value
-        assertIs<LoginModalEffect.ReLogin>(modal)
-        assertEquals("카카오 로그인이 만료되었습니다. 다시 시도해주세요", modal.message)
+        viewModel.uiEffect.test {
+            viewModel.login()
+            val effect = awaitItem()
+            assertIs<LoginUiEffect.ShowMessage>(effect)
+            assertEquals("카카오 로그인이 만료되었습니다. 다시 시도해주세요", effect.message)
+        }
         assertIs<LoginUiState.Idle>(viewModel.uiState.value)
     }
 }

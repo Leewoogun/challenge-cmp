@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
 
 @Single
-internal class TokenLocalDataSource {
+class TokenLocalDataSource {
 
     private val dataStore = createDataStore(
         serializer = TokenPrefs.serializer(),
@@ -22,6 +22,14 @@ internal class TokenLocalDataSource {
 
     suspend fun getAccessToken(): String {
         return dataStore.data.first().accessToken
+    }
+
+    suspend fun getRefreshToken(): String {
+        return dataStore.data.first().refreshToken
+    }
+
+    suspend fun saveAccessToken(accessToken: String) {
+        dataStore.updateData { it.copy(accessToken = accessToken) }
     }
 
     suspend fun updateTokens(accessToken: String, refreshToken: String) {

@@ -1,5 +1,6 @@
 package com.lwg.challenge.data.di
 
+import com.lwg.challenge.local.datastore.di.DataStoreModule
 import com.lwg.challenge.remote.api.di.ApiModule
 import com.lwg.challenge.remote.network.di.NetworkModule
 import org.koin.core.annotation.Module
@@ -11,6 +12,16 @@ import org.koin.core.annotation.Module
  * - NetworkModule: Network 계층 (Ktorfit, HttpClient)
  * - ApiModule: API 인터페이스 계층
  * - RepositoryModule: Repository 계층
+ * - UseCaseModule: Domain UseCase 팩토리
+ * - DataStoreModule: 로컬 저장소 (TokenLocalDataSource 등)
  */
-@Module(includes = [NetworkModule::class, ApiModule::class, RepositoryModule::class, UseCaseModule::class])
+@Module(
+    includes = [
+        NetworkModule::class,
+        ApiModule::class,
+        RepositoryModule::class,
+        UseCaseModule::class,
+        DataStoreModule::class,
+    ],
+)
 class DataModule
