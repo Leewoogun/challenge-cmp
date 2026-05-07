@@ -26,6 +26,10 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        // Kakao SDK (Android) — `com.kakao.sdk:*` 이 Maven Central 에 미러링되어 있지 않아 공식 저장소 추가.
+        maven("https://devrepo.kakao.com/nexus/content/groups/public/") {
+            content { includeGroup("com.kakao.sdk") }
+        }
     }
 }
 

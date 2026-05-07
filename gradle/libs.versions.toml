@@ -43,6 +43,7 @@ turbine = "1.2.0"
 moko-resources = "0.24.3"
 room = "2.7.1"
 sqlite = "2.5.1"
+kakao-sdk = "2.20.6"
 
 
 [libraries]
@@ -155,6 +156,9 @@ moko-resources-compose = { group = "dev.icerock.moko", name = "resources-compose
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+
+# Kakao SDK (Android only - iOS는 KakaoSDKUser pod/SPM으로 별도 통합)
+kakao-sdk-user = { module = "com.kakao.sdk:v2-user", version.ref = "kakao-sdk" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

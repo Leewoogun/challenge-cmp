@@ -14,3 +14,4 @@ sealed interface LoginUiEffect {
     @Immutable
     data class NavigateToHome(val isNewUser: Boolean) : LoginUiEffect
 }
+

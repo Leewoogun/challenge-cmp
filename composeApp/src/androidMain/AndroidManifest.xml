@@ -21,6 +21,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!--
+            카카오 OAuth Redirect Handler.
+            카카오 SDK 가 App-to-App 인증 후 redirect 를 가로채기 위해 필요.
+            scheme 은 "kakao{NATIVE_APP_KEY}" — manifestPlaceholder `kakaoNativeAppKey` 로 주입.
+            (composeApp/build.gradle.kts 의 manifestPlaceholders 참조)
+        -->
+        <activity
+            android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="kakao${kakaoNativeAppKey}"
+                      android:host="oauth" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

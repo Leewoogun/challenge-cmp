@@ -5,3 +5,7 @@ PRODUCT_BUNDLE_IDENTIFIER=com.lwg.challenge.Challenge$(TEAM_ID)
 
 CURRENT_PROJECT_VERSION=1
 MARKETING_VERSION=1.0
+
+// 시크릿 값 (KAKAO_NATIVE_APP_KEY 등) 은 Secrets.xcconfig 에서 주입.
+// Secrets.xcconfig 는 .gitignore 처리되어 있으므로 Secrets.xcconfig.template 을 복사해서 사용.
+#include? "Secrets.xcconfig"
