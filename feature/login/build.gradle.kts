@@ -8,6 +8,10 @@ android {
 
 kotlin {
     sourceSets {
+        commonMain.dependencies {
+            // LoginScreen 의 Hero 스탬프 아이콘(LocalFireDepartment, AutoAwesome) 사용.
+            implementation(compose.materialIconsExtended)
+        }
         androidMain.dependencies {
             // 카카오 OAuth (Android) — App-to-App + 카카오 계정 웹 fallback 까지 SDK 가 처리.
             // SDK 초기화는 ChallengeApplication.onCreate, AuthCodeHandlerActivity 는 AndroidManifest 에 등록.
