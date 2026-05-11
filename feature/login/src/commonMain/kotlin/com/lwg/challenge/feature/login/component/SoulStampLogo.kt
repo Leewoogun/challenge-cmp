@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.login
+package com.lwg.challenge.feature.login.component
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -24,11 +24,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 로그인 Hero 의 "영혼의 인장" 스탬프 로고.
  *
- * 구조 (디자인 결정 2026-05-08 반영 — 외곽 회전 링은 제거):
  * - 140dp 원형 fire-gradient 배경 + `pulse-fire` 맥동
  * - 내부 ring (`onPrimary` 30% alpha) 인셋 8dp
  * - 중앙 Flame 아이콘 (56dp, `onPrimary`)
@@ -43,7 +43,6 @@ internal fun SoulStampLogo(
 ) {
     val infinite = rememberInfiniteTransition(label = "soul-stamp")
 
-    // pulse-fire: 스탬프 자체의 맥동 (alpha 0.85 ~ 1.0).
     val stampAlpha by infinite.animateFloat(
         initialValue = 0.85f,
         targetValue = 1.0f,
@@ -54,7 +53,6 @@ internal fun SoulStampLogo(
         label = "stamp-alpha",
     )
 
-    // sparkle pulse — 두 개를 다른 위상으로.
     val sparkleAlpha1 by infinite.animateFloat(
         initialValue = 0.4f,
         targetValue = 1.0f,
@@ -79,7 +77,6 @@ internal fun SoulStampLogo(
     val fireBrush = ChallengeTheme.brushes.fire
 
     Box(modifier = modifier.size(140.dp)) {
-        // Inner stamp — fire-gradient 원
         Box(
             modifier = Modifier
                 .size(140.dp)
@@ -88,7 +85,6 @@ internal fun SoulStampLogo(
                 .background(brush = fireBrush),
             contentAlignment = Alignment.Center,
         ) {
-            // 내부 링 (onPrimary 30% alpha)
             Box(
                 modifier = Modifier
                     .padding(8.dp)
@@ -100,7 +96,6 @@ internal fun SoulStampLogo(
                         shape = CircleShape,
                     ),
             )
-            // 중앙 Flame 아이콘
             Icon(
                 imageVector = Icons.Filled.LocalFireDepartment,
                 contentDescription = null,
@@ -109,7 +104,6 @@ internal fun SoulStampLogo(
             )
         }
 
-        // 우상단 Sparkles (20dp)
         Icon(
             imageVector = Icons.Filled.AutoAwesome,
             contentDescription = null,
@@ -120,7 +114,6 @@ internal fun SoulStampLogo(
                 .size(20.dp)
                 .alpha(sparkleAlpha1),
         )
-        // 좌하단 Sparkles (14dp)
         Icon(
             imageVector = Icons.Filled.AutoAwesome,
             contentDescription = null,
@@ -131,5 +124,19 @@ internal fun SoulStampLogo(
                 .size(14.dp)
                 .alpha(sparkleAlpha2),
         )
+    }
+}
+
+@Preview
+@Composable
+private fun SoulStampLogoPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(32.dp),
+        ) {
+            SoulStampLogo()
+        }
     }
 }

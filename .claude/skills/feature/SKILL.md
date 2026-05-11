@@ -42,7 +42,7 @@ feature/{name}/
     │   └── {Name}Effect.kt      # UiEffect + ModalEffect
     ├── di/
     │   └── {Name}Module.kt      # Koin 모듈
-    └── component/               # (필요시) 화면 전용 컴포넌트
+    └── component/               # 화면 전용 sub-Composable (필수)
 ```
 
 ### build.gradle.kts
@@ -248,6 +248,81 @@ internal fun {Name}Screen(
 **UI 작성 시 금지 사항**:
 - ❌ Composable에서 문자열 포맷팅, 조건 판별 등 파싱 금지 → State의 `get()` 프로퍼티로 제공
 
+### 7단계: 화면 전용 컴포넌트 분리 (필수)
+
+`{Name}Screen.kt` 안에 sub-Composable (`private @Composable`) 을 **여러 개 두지 않는다**. Screen 외 모든 sub-Composable 은 `component/` 패키지로 분리한다.
+
+#### 규칙
+
+1. **Screen.kt 에는 진입 Composable 만 둔다**
+   - `internal fun {Name}Screen(...)` 1개만
+   - 그 외 sub-Composable 은 모두 별도 파일로 분리
+
+2. **각 컴포넌트는 1파일 = 1컴포넌트**
+   - 위치: `component/{ComponentName}.kt`
+   - 가시성: `internal` (feature 모듈 내부 재사용 허용)
+   - 같은 화면에서만 쓰이는 trivial 헬퍼라도 별도 파일로 분리
+
+3. **각 컴포넌트는 자체 `@Preview` 를 가진다**
+   - 같은 파일 하단에 `private @Composable fun {ComponentName}Preview()` 추가
+   - 상태 분기가 있으면 (예: `isLoading=true/false`) Preview 도 분기별로 작성
+   - Preview 는 반드시 `ChallengeTheme { }` 로 래핑하고 배경색을 줘서 다크 톤에서 가시성 확보
+
+4. **Screen 에도 `@Preview` 를 작성한다**
+   - 주요 UiState 분기별 (예: Idle / Loading / Error)
+
+#### 예시
+
+```
+feature/login/src/commonMain/kotlin/.../login/
+├── LoginScreen.kt              # LoginScreen + Preview만
+└── component/
+    ├── BackgroundDecor.kt      # @Composable BackgroundDecor + @Preview
+    ├── HeroSection.kt          # @Composable HeroSection + @Preview
+    ├── HeroTitle.kt            # @Composable HeroTitle + @Preview
+    ├── SoulStampLogo.kt        # @Composable SoulStampLogo + @Preview
+    ├── CtaSection.kt           # @Composable CtaSection + @Preview (Idle/Loading)
+    └── FooterAgreementText.kt  # @Composable FooterAgreementText + @Preview
+```
+
+#### 컴포넌트 파일 템플릿
+
+```kotlin
+package com.lwg.challenge.feature.{name}.component
+
+import androidx.compose.runtime.Composable
+import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
+
+@Composable
+internal fun {ComponentName}(
+    // params
+) {
+    // UI
+}
+
+@Preview
+@Composable
+private fun {ComponentName}Preview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(24.dp),
+        ) {
+            {ComponentName}(/* 샘플 인자 */)
+        }
+    }
+}
+```
+
+#### 이유
+
+- **Preview 격리**: 컴포넌트 단위 Preview 가 가능해서 Android Studio Design 패널에서 빠르게 시각 확인 가능
+- **재사용 가능성 노출**: feature 모듈 내 다른 화면이 생기면 같은 component 를 import 해서 즉시 활용
+- **Screen 가독성**: Screen.kt 가 레이아웃 backbone (Spacer/Column/Box) 만 남아 100줄 이내로 유지됨
+- **`:core:designsystem` 승격 신호**: 한 component 가 다른 feature 에서도 쓰이면 그대로 designsystem 으로 옮기기 쉬움
+
 ---
 
 ## 함수 네이밍 규칙
@@ -294,6 +369,13 @@ MyContent(
 - [ ] Route에서 Koin ViewModel은 `koinViewModel()`으로 주입하는지
 - [ ] Content에서 State에 따라 Loading/Data 분기하는지
 - [ ] Screen은 `State.Data` 타입만 파라미터로 받는지
+
+### Component 분리
+- [ ] Screen.kt 에 `internal fun {Name}Screen(...)` 외 sub-Composable 이 남아있지 않은지
+- [ ] sub-Composable 은 `component/{Name}.kt` 별도 파일로 분리되어 있는지 (1파일=1컴포넌트)
+- [ ] 각 컴포넌트 파일 하단에 `private @Composable {Name}Preview()` 가 있는지
+- [ ] 상태 분기가 있는 컴포넌트는 분기별 Preview 가 모두 있는지
+- [ ] Screen.kt 에도 주요 UiState 분기별 Preview 가 있는지
 
 ### Koin 모듈
 - [ ] `@Module @ComponentScan` 모듈이 정의되어 있는지
