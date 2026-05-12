@@ -1,12 +1,12 @@
 package com.lwg.challenge
 
 import com.lwg.challenge.di.AppModule
-import com.lwg.challenge.feature.ex1.di.Ex1Module
-import com.lwg.challenge.feature.ex2.di.Ex2Module
-import com.lwg.challenge.feature.ex3.di.Ex3Module
+import com.lwg.challenge.feature.friends.di.FriendsModule
 import com.lwg.challenge.feature.home.di.HomeModule
 import com.lwg.challenge.feature.login.di.LoginModule
 import com.lwg.challenge.feature.login.di.platformLoginModule
+import com.lwg.challenge.feature.mypage.di.MyPageModule
+import com.lwg.challenge.feature.ranking.di.RankingModule
 import com.lwg.challenge.feature.splash.di.SplashModule
 import org.koin.core.KoinApplication
 import org.koin.dsl.KoinAppDeclaration
@@ -21,9 +21,9 @@ internal fun cookingAppDeclaration(
         LoginModule().module,
         platformLoginModule,
         SplashModule().module,
-        Ex1Module().module,
-        Ex2Module().module,
-        Ex3Module().module,
+        FriendsModule().module,
+        RankingModule().module,
+        MyPageModule().module,
     )
     additionalDeclaration()
 }

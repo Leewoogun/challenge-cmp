@@ -55,6 +55,7 @@ include(":local:database")
 
 // Core
 include(":core:designsystem")
+include(":core:ui")
 include(":core:utils")
 include(":core:navigation")
 
@@ -63,6 +64,6 @@ include(":feature:main")
 include(":feature:home")
 include(":feature:login")
 include(":feature:splash")
-include(":feature:ex1")
-include(":feature:ex2")
-include(":feature:ex3")
+include(":feature:friends")
+include(":feature:ranking")
+include(":feature:mypage")

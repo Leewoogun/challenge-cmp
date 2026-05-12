@@ -30,24 +30,24 @@ sealed interface Route : NavKey {
     }
 
     @Serializable
-    sealed interface Ex1Route : Route {
+    sealed interface FriendsRoute : Route {
 
         @Serializable
-        data object Main : Ex1Route
+        data object Main : FriendsRoute
     }
 
     @Serializable
-    sealed interface Ex2Route : Route {
+    sealed interface RankingRoute : Route {
 
         @Serializable
-        data object Main : Ex2Route
+        data object Main : RankingRoute
     }
 
     @Serializable
-    sealed interface Ex3Route : Route {
+    sealed interface MyPageRoute : Route {
 
         @Serializable
-        data object Main : Ex3Route
+        data object Main : MyPageRoute
     }
 }
 
@@ -56,8 +56,8 @@ val routeSerializersModule = SerializersModule {
         subclass(Route.HomeRoute.Main::class)
         subclass(Route.LoginRoute.Main::class)
         subclass(Route.SplashRoute.Main::class)
-        subclass(Route.Ex1Route.Main::class)
-        subclass(Route.Ex2Route.Main::class)
-        subclass(Route.Ex3Route.Main::class)
+        subclass(Route.FriendsRoute.Main::class)
+        subclass(Route.RankingRoute.Main::class)
+        subclass(Route.MyPageRoute.Main::class)
     }
 }

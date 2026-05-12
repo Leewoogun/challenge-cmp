@@ -22,7 +22,8 @@ class ChallengeFeaturePlugin : Plugin<Project> {
             sourceSets.apply {
                 commonMain {
                     dependencies {
-                        implementation(project(":core:designsystem"))
+                        // :core:ui 가 :core:designsystem 을 api 로 노출하므로 한 번만 선언해도 둘 다 사용 가능
+                        implementation(project(":core:ui"))
                         implementation(project(":core:navigation"))
                         implementation(project(":domain:model"))
                         implementation(project(":domain:repository"))

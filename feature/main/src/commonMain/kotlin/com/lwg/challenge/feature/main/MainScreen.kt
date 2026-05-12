@@ -23,12 +23,12 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.feature.login.LoginRoute
-import com.lwg.challenge.feature.ex1.Ex1Route
-import com.lwg.challenge.feature.ex2.Ex2Route
-import com.lwg.challenge.feature.ex3.Ex3Route
+import com.lwg.challenge.feature.friends.FriendsRoute
 import com.lwg.challenge.feature.home.HomeRoute
+import com.lwg.challenge.feature.login.LoginRoute
 import com.lwg.challenge.feature.main.component.ChallengeBottomBar
+import com.lwg.challenge.feature.mypage.MyPageRoute
+import com.lwg.challenge.feature.ranking.RankingRoute
 import com.lwg.challenge.feature.splash.SplashRoute
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
@@ -140,9 +140,9 @@ private fun MainScreen(
                     is Route.SplashRoute -> NavEntry(route) { SplashRoute() }
                     is Route.LoginRoute -> NavEntry(route) { LoginRoute() }
                     is Route.HomeRoute -> NavEntry(route) { HomeRoute() }
-                    is Route.Ex1Route -> NavEntry(route) { Ex1Route() }
-                    is Route.Ex2Route -> NavEntry(route) { Ex2Route() }
-                    is Route.Ex3Route -> NavEntry(route) { Ex3Route() }
+                    is Route.FriendsRoute -> NavEntry(route) { FriendsRoute() }
+                    is Route.RankingRoute -> NavEntry(route) { RankingRoute() }
+                    is Route.MyPageRoute -> NavEntry(route) { MyPageRoute() }
                     else -> NavEntry(route) {}
                 }
             },
