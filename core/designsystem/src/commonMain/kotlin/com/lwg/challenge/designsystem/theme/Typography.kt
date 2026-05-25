@@ -126,6 +126,8 @@ data class ChallengeTypoGraphy(
     val light12: TextStyle,
     val medium12: TextStyle,
     val bold12: TextStyle,
+
+    val medium10: TextStyle,
 )
 
 @Composable
@@ -266,6 +268,12 @@ fun createTypography(): ChallengeTypoGraphy {
             fontSize = 12.sp,
             lineHeight = 16.sp,
             fontWeight = FontWeight.Bold,
+        ),
+        // 10 / 14
+        medium10 = baseStyle.copy(
+            fontSize = 10.sp,
+            lineHeight = 14.sp,
+            fontWeight = FontWeight.Medium,
         ),
     )
 }
