@@ -19,10 +19,6 @@ class FakeLoginRepository : LoginRepository {
         ),
     )
 
-    var refreshResponse: RefreshResponse = RefreshResponse.Success(
-        tokens = AuthTokens(accessToken = "acc", refreshToken = "ref"),
-    )
-
     var storedTokens: AuthTokens = AuthTokens.Empty
 
     override fun loginWithKakao(
@@ -35,16 +31,6 @@ class FakeLoginRepository : LoginRepository {
         }
     }
 
-    override fun refreshAccessToken(
-        onError: (String) -> Unit,
-    ): Flow<AuthTokens> = flow {
-        when (val r = refreshResponse) {
-            is RefreshResponse.Success -> emit(r.tokens)
-            is RefreshResponse.Error -> onError(r.message)
-            RefreshResponse.Unauthorized -> Unit
-        }
-    }
-
     override suspend fun getStoredTokens(): AuthTokens = storedTokens
 
     override suspend fun clearTokens() {
@@ -54,11 +40,5 @@ class FakeLoginRepository : LoginRepository {
     sealed interface LoginResponse {
         data class Success(val result: LoginResult) : LoginResponse
         data class Error(val message: String) : LoginResponse
-    }
-
-    sealed interface RefreshResponse {
-        data class Success(val tokens: AuthTokens) : RefreshResponse
-        data class Error(val message: String) : RefreshResponse
-        data object Unauthorized : RefreshResponse
     }
 }

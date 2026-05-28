@@ -10,6 +10,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +36,9 @@ import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.navigation.MainAction
 import com.lwg.challenge.navigation.Route
 import com.lwg.challenge.navigation.routeSerializersModule
+import com.lwg.challenge.utils.AuthEventBus
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 private val savedStateConfiguration = SavedStateConfiguration {
     serializersModule = routeSerializersModule
@@ -62,6 +65,14 @@ fun MainRoute(
             override fun finishApp() {
                 onFinishApp()
             }
+        }
+    }
+
+    val authEventBus = koinInject<AuthEventBus>()
+
+    LaunchedEffect(authEventBus) {
+        authEventBus.sessionExpired.collect {
+            navigator.switchTab(Route.LoginRoute.Main)
         }
     }
 

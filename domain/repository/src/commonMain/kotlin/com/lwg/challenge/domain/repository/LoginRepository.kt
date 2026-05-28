@@ -11,10 +11,6 @@ interface LoginRepository {
         onError: (String) -> Unit,
     ): Flow<LoginResult>
 
-    fun refreshAccessToken(
-        onError: (String) -> Unit,
-    ): Flow<AuthTokens>
-
     suspend fun getStoredTokens(): AuthTokens
 
     suspend fun clearTokens()
