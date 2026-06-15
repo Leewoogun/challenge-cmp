@@ -31,6 +31,7 @@ import com.lwg.challenge.feature.main.component.ChallengeBottomBar
 import com.lwg.challenge.feature.mypage.MyPageRoute
 import com.lwg.challenge.feature.ranking.RankingRoute
 import com.lwg.challenge.feature.splash.SplashRoute
+import com.lwg.challenge.ui.components.PlaceholderScreen
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.navigation.MainAction
@@ -154,6 +155,18 @@ private fun MainScreen(
                     is Route.FriendsRoute -> NavEntry(route) { FriendsRoute() }
                     is Route.RankingRoute -> NavEntry(route) { RankingRoute() }
                     is Route.MyPageRoute -> NavEntry(route) { MyPageRoute() }
+                    is Route.ChallengeDetailRoute.Main -> NavEntry(route) {
+                        PlaceholderScreen(
+                            title = "챌린지 상세",
+                            subtitle = "id=${route.challengeId} (준비 중)",
+                        )
+                    }
+                    is Route.ChallengeCreateRoute -> NavEntry(route) {
+                        PlaceholderScreen(title = "챌린지 만들기")
+                    }
+                    is Route.NotificationsRoute -> NavEntry(route) {
+                        PlaceholderScreen(title = "알림")
+                    }
                     else -> NavEntry(route) {}
                 }
             },

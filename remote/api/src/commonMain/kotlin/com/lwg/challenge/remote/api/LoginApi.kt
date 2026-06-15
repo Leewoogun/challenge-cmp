@@ -7,11 +7,10 @@ import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.POST
 
 /**
- * 인증 관련 API.
+ * 카카오 로그인 API. 공개 엔드포인트 (Authorization header 불필요).
  *
- * - 카카오 로그인은 공개 엔드포인트 (Authorization header 불필요).
- * - 토큰 갱신(refresh)은 Ktor Auth 플러그인(KtorfitModule)이 직접 처리.
- * - 서버는 항상 HTTP 200 을 반환하며 body.code 로 성공/에러를 구분 (ADR-0002).
+ * 서버는 항상 HTTP 200 을 반환하며 body.code 로 성공/에러를 구분 (ADR-0002).
+ * 따라서 ApiResult.Success 라도 response.code != 200 일 수 있고, 이는 Repository 레이어에서 처리한다.
  */
 interface LoginApi {
 

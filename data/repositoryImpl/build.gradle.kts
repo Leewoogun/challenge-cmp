@@ -25,6 +25,9 @@ kotlin {
             implementation(projects.remote.mapper)
             implementation(projects.remote.network)
 
+            // Utils (AuthEventBus)
+            implementation(projects.core.utils)
+
             // Koin
             implementation(libs.koin.core)
             implementation(libs.koin.annotations)

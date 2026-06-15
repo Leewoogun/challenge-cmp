@@ -1,6 +1,9 @@
 package com.lwg.challenge.data.di
 
+import com.lwg.challenge.domain.repository.ActiveChallengeRepository
 import com.lwg.challenge.domain.repository.LoginRepository
+import com.lwg.challenge.domain.repository.RecordRepository
+import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.domain.usecase.GetStoredTokensUseCase
 import com.lwg.challenge.domain.usecase.LoginWithKakaoUseCase
 import org.koin.core.annotation.Factory
@@ -24,4 +27,10 @@ class UseCaseModule {
     fun provideGetStoredTokensUseCase(
         loginRepository: LoginRepository,
     ): GetStoredTokensUseCase = GetStoredTokensUseCase(loginRepository)
+
+    @Factory
+    fun provideGetHomeDataUseCase(
+        recordRepository: RecordRepository,
+        activeChallengeRepository: ActiveChallengeRepository,
+    ): GetHomeDataUseCase = GetHomeDataUseCase(recordRepository, activeChallengeRepository)
 }

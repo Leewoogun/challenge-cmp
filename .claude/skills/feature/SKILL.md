@@ -89,16 +89,30 @@ sealed interface {Name}UiState {
     data object Loading : {Name}UiState
 
     @Immutable
-    data object Empty : {Name}UiState
-
-    @Immutable
     data class Data(
         val items: List<SomeItem>,
     ) : {Name}UiState
 }
 ```
 
-**UI State 파싱 규칙**: 모든 UI 표시용 파생 데이터는 State의 `get()` 프로퍼티로 제공
+#### State 설계 핵심 원칙 (필수 준수)
+
+1. **Error 상태를 UiState 에 두지 않는다**
+   - 실패는 `{Name}UiEffect.ShowMessage` (스낵바) 로 일관 처리. State 에 `Error` / `Failed` 변형을 만들지 말 것
+   - 슬롯별 인라인 에러 UI / 슬롯별 retry 버튼 만들지 않는다 — 코드 복잡도만 키우고 UX 일관성이 떨어진다
+   - Repository 가 `Flow + onError` 패턴이므로 실패 시 Flow 가 emit 하지 않고 `onError(message)` 가 호출된다 → ViewModel 이 그대로 `ShowMessage` 로 전달
+   - 부분 실패도 마찬가지: 두 데이터를 `combine` 하는 화면에서 한 쪽 실패 시 combine 은 emit 하지 않으므로 UiState 는 Loading 유지, 스낵바로 안내
+
+2. **공통 프로퍼티는 abstract val + 각 변형이 override** (선택)
+   - 여러 변형에서 공통으로 노출할 필드(예: 사용자 이름, 헤더 데이터) 가 있을 때 `sealed interface` 에 `val` 로 두고 각 변형이 override
+   - Composable 이 `when (state)` 분기 없이 `state.userName` 으로 접근 가능
+   - Loading 변형은 빈 기본값(`""`, `0`, `emptyList()`) 을 `get()` 으로 제공
+
+3. **nav args 에 캐시 가능한 값이 있으면 `Initial` 변형 추가** (선택)
+   - Loading 대신 optimistic 초기값을 즉시 표시 → 빈 화면 깜빡임 제거
+   - 예: 사용자 이름은 이전 화면에서 전달받은 값을 우선 표시하고, 서버 데이터가 들어오면 `Data` 로 교체
+
+**UI State 파싱 규칙**: 모든 UI 표시용 파생 데이터는 State 의 `get()` 프로퍼티로 제공
 
 ### 2단계: Contract - Effect 정의
 
@@ -122,6 +136,12 @@ sealed interface {Name}UiEffect {
     data class ShowMessage(val message: String) : {Name}UiEffect
 }
 ```
+
+#### Effect 설계 원칙
+
+- **모든 실패는 `ShowMessage` 한 채널로** — 토큰 만료 같은 분기 NavigateXxx 효과는 만들지 않는다
+  - HTTP 401 토큰 만료는 `AuthEventBus` 가 globally 처리해 자동으로 로그인 화면으로 전환됨 (KtorfitModule + MainScreen)
+  - 화면 단에서 `NavigateToLogin` effect 를 따로 발행할 필요 없음
 
 ### 3단계: ViewModel 구현
 

@@ -108,6 +108,7 @@ enum class DifficultyLevel(val value: Int, val text: String) {
 - 패키지: `com.lwg.cooking.domain.repository`
 - 도메인 모델만 사용 (DTO, Entity 사용 금지)
 - 에러 콜백: `onError: (String) -> Unit`
+- **단일 데이터 소스 책임만 가진다** — 다른 Repository 를 의존하거나 그 결과를 `combine`/`zip`/`flatMap` 으로 합치지 않는다. 화면용 통합 데이터는 UseCase 에서 합성한다 (패턴 B 참조). 화면 이름이 들어간 Repository (`HomeRepository`, `ProfileRepository` 등) 금지 — Repository 는 데이터 도메인 단위 (`RecordRepository`, `UserRepository`)
 
 **Flow vs suspend fun 선택**:
 - `Flow<T>`: 데이터 조회, 실시간 스트림, 여러 값 방출
