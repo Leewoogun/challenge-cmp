@@ -32,7 +32,7 @@ LOWER_CAMEL_CASE_NAME=$(to_lower_first "$RAW_NAME")
 
 BASE_PACKAGE="com.lwg.challenge"
 FEATURE_MODULE_DIR="$PROJECT_ROOT/feature/$LOWER_FEATURE_NAME"
-SRC_DIR="$FEATURE_MODULE_DIR/src/commonMain/kotlin/com/lwg/base/feature/$LOWER_FEATURE_NAME"
+SRC_DIR="$FEATURE_MODULE_DIR/src/commonMain/kotlin/com/lwg/challenge/feature/$LOWER_FEATURE_NAME"
 
 echo "======================================="
 echo "  Feature Module Generator (KMP)"
