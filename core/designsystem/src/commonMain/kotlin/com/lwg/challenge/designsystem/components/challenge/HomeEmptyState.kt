@@ -5,9 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,18 +15,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.SportsKabaddi
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.components.IconTextButton
+import com.lwg.challenge.designsystem.components.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 
 /**
@@ -102,75 +98,21 @@ fun HomeEmptyState(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                AddFriendButton(onClick = onClickAddFriend)
-                CreateChallengeButton(onClick = onClickCreateChallenge)
+                IconTextButton(
+                    text = "친구 등록",
+                    icon = Icons.Filled.PersonAdd,
+                    onClick = onClickAddFriend,
+                    modifier = Modifier.weight(1f),
+                    style = IconTextButtonStyle.Outlined,
+                )
+                IconTextButton(
+                    text = "챌린지 만들기",
+                    icon = Icons.Filled.SportsKabaddi,
+                    onClick = onClickCreateChallenge,
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
-    }
-}
-
-@Composable
-private fun RowScope.AddFriendButton(onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier
-            .weight(1f)
-            .height(52.dp),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
-        contentPadding = PaddingValues(horizontal = 12.dp),
-    ) {
-        ButtonContent(
-            icon = Icons.Filled.PersonAdd,
-            label = "친구 등록",
-            tint = ChallengeTheme.colorScheme.onSurface,
-        )
-    }
-}
-
-@Composable
-private fun RowScope.CreateChallengeButton(onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .weight(1f)
-            .height(52.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = ChallengeTheme.colorScheme.primary,
-            contentColor = ChallengeTheme.colorScheme.onPrimary,
-        ),
-        contentPadding = PaddingValues(horizontal = 12.dp),
-    ) {
-        ButtonContent(
-            icon = Icons.Filled.SportsKabaddi,
-            label = "챌린지 만들기",
-            tint = ChallengeTheme.colorScheme.onPrimary,
-        )
-    }
-}
-
-@Composable
-private fun ButtonContent(
-    icon: ImageVector,
-    label: String,
-    tint: androidx.compose.ui.graphics.Color,
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-            tint = tint,
-        )
-        Text(
-            text = label,
-            style = ChallengeTheme.typography.medium14,
-            color = tint,
-        )
     }
 }
 

@@ -13,12 +13,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
+/**
+ * 친구 탭 ViewModel.
+ *
+ * 1차 1단계 — 백엔드 호출 0건. 진입과 동시에 [FriendsUiState.Data] 상태.
+ * 1차 2단계 도입 시 GetFriendsUseCase 주입 + Flow 결합.
+ */
 @KoinViewModel
-class FriendsViewModel(
-    // TODO: 의존성을 주입하세요.
-) : ViewModel() {
+class FriendsViewModel : ViewModel() {
 
-    private val _uiState: MutableStateFlow<FriendsUiState> = MutableStateFlow(FriendsUiState.Data())
+    private val _uiState: MutableStateFlow<FriendsUiState> = MutableStateFlow(FriendsUiState.Data)
     val uiState: StateFlow<FriendsUiState> get() = _uiState
 
     private val _modalEffect = MutableStateFlow<FriendsModalEffect>(FriendsModalEffect.Hidden)
@@ -31,7 +35,7 @@ class FriendsViewModel(
         _modalEffect.update { FriendsModalEffect.Hidden }
     }
 
-    private fun showMessage(message: String) {
+    internal fun showMessage(message: String) {
         viewModelScope.launch {
             _uiEffect.emit(FriendsUiEffect.ShowMessage(message))
         }

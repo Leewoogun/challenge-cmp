@@ -108,6 +108,41 @@ style = ChallengeTheme.typography.bold20
 1. **KMP Compose**: `commonMain`에 작성 (플랫폼 독립)
 2. **클릭 영역**: `clip(RoundedCornerShape(N.dp))` 처리
 3. **테마**: 단일 다크 톤. 라이트 모드 분기 금지.
+4. **Preview 필수**: 새 `@Composable` UI를 작성하면 **반드시 같은 파일 하단에 `@Preview` 를 함께 작성한다** (아래 규칙 참조).
+
+## Preview 필수 규칙 (모든 UI 코드 공통)
+
+`@Composable` UI 함수를 새로 만들거나 수정할 때, **Preview 작성을 생략하지 않는다.** Screen / Component / designsystem 공용 컴포넌트 어디든 동일하게 적용된다.
+
+1. **1 Composable = 1 Preview (최소)**: 새로 만든 표시용 `@Composable` 마다 같은 파일 하단에 `private @Composable fun {Name}Preview()` 를 추가한다.
+2. **상태 분기는 분기별 Preview**: 인자에 따라 시각이 달라지면(`isLoading=true/false`, 선택/비선택, Empty/Data 등) 분기마다 별도 Preview 를 만든다.
+3. **테마 래핑 필수**: Preview 는 반드시 `ChallengeTheme { }` 로 감싸고, 다크 톤 가시성을 위해 `ChallengeTheme.colorScheme.background` 배경을 깐다.
+4. **import**: `org.jetbrains.compose.ui.tooling.preview.Preview` (KMP) 사용. `androidx.compose.ui.tooling.preview.Preview` 아님.
+
+```kotlin
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
+
+@Preview
+@Composable
+private fun {Name}Preview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(24.dp),
+        ) {
+            {Name}(/* 샘플 인자 */)
+        }
+    }
+}
+```
 
 ## 코드 작성 전 확인
 

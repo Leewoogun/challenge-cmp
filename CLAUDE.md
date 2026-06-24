@@ -115,6 +115,13 @@ data class SomeItemState(private val model: SomeDomainModel) {
 // ❌ Composable에서 직접 파싱
 ```
 
+### Compose Preview 규칙 (필수)
+- 새 `@Composable` UI를 작성/수정하면 **반드시 같은 파일 하단에 `@Preview` 를 함께 작성한다** (Screen / Component / designsystem 공용 컴포넌트 모두 해당)
+- `private @Composable fun {Name}Preview()` 형태, `ChallengeTheme { }` 래핑 + `ChallengeTheme.colorScheme.background` 배경
+- 상태 분기(Loading/Data/Empty, 선택/비선택 등)가 있으면 분기별 Preview 작성
+- import 는 `org.jetbrains.compose.ui.tooling.preview.Preview` (KMP) 사용
+- 세부 규칙은 `design-system` 스킬의 "Preview 필수 규칙" 참조
+
 ### 함수 네이밍 규칙
 - **Composable 콜백**: `on` 접두어 (`onTabSelected`, `onSearchClick`)
 - **ViewModel 함수**: `on` 없음 (`selectTab`, `search`)
