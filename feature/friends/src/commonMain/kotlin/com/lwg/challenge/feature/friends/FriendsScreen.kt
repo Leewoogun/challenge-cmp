@@ -15,6 +15,12 @@ import com.lwg.challenge.feature.friends.component.FriendsTopBar
 import com.lwg.challenge.feature.friends.contract.FriendsUiState
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
+/**
+ * 친구 탭 화면 (1차 1단계 호환 — Task 6 에서 풀 UI 로 확장 예정).
+ *
+ * 1차 2단계 ViewModel 도입으로 [FriendsUiState.Data] 가 받은 요청 / 친구 목록을 갖게 됨.
+ * 현재 화면은 EmptyState 만 노출 — 풀 UI (받은 요청 카드 + 친구 목록) 는 후속 task.
+ */
 @Composable
 internal fun FriendsScreen(
     uiState: FriendsUiState,
@@ -27,7 +33,7 @@ internal fun FriendsScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             when (uiState) {
                 FriendsUiState.Loading -> LoadingContent()
-                FriendsUiState.Data -> FriendsEmptyState(
+                is FriendsUiState.Data -> FriendsEmptyState(
                     title = "아직 친구가 없어요",
                     subtitle = "친구를 추가하고 함께 챌린지를 시작해보세요",
                     ctaLabel = "친구 추가하기",
@@ -54,7 +60,10 @@ private fun LoadingContent() {
 private fun FriendsScreenDataPreview() {
     ChallengeTheme {
         FriendsScreen(
-            uiState = FriendsUiState.Data,
+            uiState = FriendsUiState.Data(
+                receivedRequests = emptyList(),
+                friends = emptyList(),
+            ),
             onClickAddFriend = {},
         )
     }

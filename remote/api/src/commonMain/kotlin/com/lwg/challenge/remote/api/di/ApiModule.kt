@@ -1,9 +1,11 @@
 package com.lwg.challenge.remote.api.di
 
 import com.lwg.challenge.remote.api.ActiveChallengeApi
+import com.lwg.challenge.remote.api.FriendsApi
 import com.lwg.challenge.remote.api.LoginApi
 import com.lwg.challenge.remote.api.RecordApi
 import com.lwg.challenge.remote.api.createActiveChallengeApi
+import com.lwg.challenge.remote.api.createFriendsApi
 import com.lwg.challenge.remote.api.createLoginApi
 import com.lwg.challenge.remote.api.createRecordApi
 import de.jensklingenberg.ktorfit.Ktorfit
@@ -21,4 +23,7 @@ class ApiModule {
 
     @Single
     fun provideActiveChallengeApi(ktorfit: Ktorfit): ActiveChallengeApi = ktorfit.createActiveChallengeApi()
+
+    @Single
+    fun provideFriendsApi(ktorfit: Ktorfit): FriendsApi = ktorfit.createFriendsApi()
 }
