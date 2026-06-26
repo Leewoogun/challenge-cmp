@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 후속 feature 개발 전 임시 화면용 공통 placeholder.
@@ -45,5 +46,13 @@ fun PlaceholderScreen(
             style = ChallengeTheme.typography.medium14,
             color = ChallengeTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+@Preview
+@Composable
+private fun PlaceholderScreenPreview() {
+    ChallengeTheme {
+        PlaceholderScreen(title = "랭킹")
     }
 }

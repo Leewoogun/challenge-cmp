@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 점(dot) + 텍스트로 구성된 캡슐 형태의 상태/카테고리 뱃지.
@@ -55,6 +56,20 @@ fun StatusPillBadge(
                 text = text,
                 style = textStyle,
             )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun StatusPillBadgePreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(24.dp),
+        ) {
+            StatusPillBadge(text = "SOUL CONTRACT")
         }
     }
 }

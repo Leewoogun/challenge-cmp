@@ -1,7 +1,9 @@
 package com.lwg.challenge.feature.main.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -24,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.navigation.Route
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ChallengeBottomBar(
@@ -105,5 +108,18 @@ private fun BottomNavTab(
             style = ChallengeTheme.typography.medium10,
             color = color,
         )
+    }
+}
+
+@Preview
+@Composable
+private fun ChallengeBottomBarPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            ChallengeBottomBar(
+                currentRoute = Route.HomeRoute.Main,
+                onTabSelected = {},
+            )
+        }
     }
 }

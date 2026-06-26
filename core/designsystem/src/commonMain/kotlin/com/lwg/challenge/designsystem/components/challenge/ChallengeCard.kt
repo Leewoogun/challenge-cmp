@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.utils.datetime.toRelativeKoreanString
 import kotlin.time.Instant
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 챌린지 카드 — 홈/상세 등 재사용 가능한 단위.
@@ -268,5 +269,41 @@ private fun BetStrip(bet: String) {
             style = ChallengeTheme.typography.medium12,
             color = primary,
         )
+    }
+}
+
+@Preview
+@Composable
+private fun ChallengeCardPreview() {
+    ChallengeTheme {
+        Column(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            ChallengeCard(
+                challengeId = 1L,
+                myMission = "오늘 운동 1시간 하기",
+                opponentNickname = "우건",
+                opponentMission = "책 30페이지 읽기",
+                deadline = Instant.parse("2026-06-27T10:00:00Z"),
+                myVerificationStatus = ChallengeVerificationStatus.VERIFIED,
+                opponentVerificationStatus = ChallengeVerificationStatus.PENDING,
+                bet = "커피 사기 ☕",
+                onClick = {},
+            )
+            ChallengeCard(
+                challengeId = 2L,
+                myMission = "물 2L 마시기",
+                opponentNickname = "민지",
+                opponentMission = "10000보 걷기",
+                deadline = Instant.parse("2026-06-27T22:00:00Z"),
+                myVerificationStatus = ChallengeVerificationStatus.FAILED,
+                opponentVerificationStatus = ChallengeVerificationStatus.VERIFIED,
+                bet = "점심 사기 🍚",
+                onClick = {},
+            )
+        }
     }
 }

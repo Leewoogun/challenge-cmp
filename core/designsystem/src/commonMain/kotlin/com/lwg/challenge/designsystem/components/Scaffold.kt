@@ -1,6 +1,7 @@
 package com.lwg.challenge.designsystem.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.statusbar.SetStatusBarAppearance
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * StatusBar 색상과 TopBar 색상을 통합 관리하는 Scaffold.
@@ -79,6 +82,36 @@ fun ChallengeScaffold(
                 .padding(contentPadding),
         ) {
             content()
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ChallengeScaffoldPreview() {
+    ChallengeTheme {
+        ChallengeScaffold(
+            topBar = {
+                Text(
+                    text = "TopBar",
+                    style = ChallengeTheme.typography.bold18,
+                    color = ChallengeTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(16.dp),
+                )
+            },
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(ChallengeTheme.colorScheme.background)
+                    .padding(24.dp),
+            ) {
+                Text(
+                    text = "Content",
+                    style = ChallengeTheme.typography.medium14,
+                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

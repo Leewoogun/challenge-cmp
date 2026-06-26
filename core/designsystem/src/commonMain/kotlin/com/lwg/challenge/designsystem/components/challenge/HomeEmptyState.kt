@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.IconTextButton
 import com.lwg.challenge.designsystem.components.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 홈 화면 챌린지 영역의 빈 상태 카드.
@@ -124,4 +125,40 @@ private fun VerticalGap(height: androidx.compose.ui.unit.Dp) {
 private fun textsFor(type: HomeEmptyStateType): Pair<String, String> = when (type) {
     HomeEmptyStateType.FIRST_USER -> "아직 진행 중인 챌린지가 없어요" to "친구를 등록하고 첫 약속을 걸어보세요"
     HomeEmptyStateType.NO_ACTIVE_CHALLENGE -> "진행 중인 챌린지가 없어요" to "새 챌린지를 시작해 다시 불을 붙여보세요"
+}
+
+@Preview
+@Composable
+private fun HomeEmptyStateFirstUserPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(16.dp),
+        ) {
+            HomeEmptyState(
+                type = HomeEmptyStateType.FIRST_USER,
+                onClickAddFriend = {},
+                onClickCreateChallenge = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun HomeEmptyStateNoActiveChallengePreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(16.dp),
+        ) {
+            HomeEmptyState(
+                type = HomeEmptyStateType.NO_ACTIVE_CHALLENGE,
+                onClickAddFriend = {},
+                onClickCreateChallenge = {},
+            )
+        }
+    }
 }

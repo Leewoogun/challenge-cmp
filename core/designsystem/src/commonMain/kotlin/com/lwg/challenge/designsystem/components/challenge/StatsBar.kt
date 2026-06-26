@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 홈 화면 상단의 4분할 전적 카드.
@@ -103,4 +104,32 @@ private fun CellDivider() {
             .height(20.dp)
             .background(ChallengeTheme.colorScheme.outline),
     )
+}
+
+@Preview
+@Composable
+private fun StatsBarPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(16.dp),
+        ) {
+            StatsBar(win = 12, lose = 3, draw = 1, currentStreak = 4)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun StatsBarEmptyPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(16.dp),
+        ) {
+            StatsBar(win = 0, lose = 0, draw = 0, currentStreak = 0)
+        }
+    }
 }

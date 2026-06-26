@@ -1,6 +1,8 @@
 package com.lwg.challenge.designsystem.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 양쪽에 1px 구분선이 있고 가운데 짧은 라벨 텍스트가 들어가는 시각 패턴.
@@ -53,5 +56,19 @@ fun LabeledDivider(
                 .height(1.dp),
             color = dividerColor,
         )
+    }
+}
+
+@Preview
+@Composable
+private fun LabeledDividerPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(24.dp),
+        ) {
+            LabeledDivider(text = "한 번 서명하면 무를 수 없음")
+        }
     }
 }
