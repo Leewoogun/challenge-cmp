@@ -18,13 +18,6 @@ import de.jensklingenberg.ktorfit.http.Query
 
 /**
  * 친구 시스템 API (검색 / 요청 / 수락 / 거절 / 취소 / 목록 / 받은 요청).
- *
- * - 인증: Bearer JWT (네트워크 레이어 공통 헤더에서 주입).
- * - 서버는 항상 HTTP 200 + body.code 로 성공/에러 구분 (ADR-0002).
- * - 비즈니스 에러는 `code: 700` 단일 (스낵바) — `code: 701` 미사용.
- *
- * spec: docs/features/friends/spec-friend-add.md §5
- * api-contract: docs/features/friends/api-contract-friend-add.md
  */
 interface FriendsApi {
 
