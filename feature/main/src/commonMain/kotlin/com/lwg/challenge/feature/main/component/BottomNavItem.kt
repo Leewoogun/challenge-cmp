@@ -8,10 +8,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.lwg.challenge.navigation.Route
 
-/**
- * 메인 셸 BottomBar 의 4 탭. 디자인 결정(design.md ✅ 표 #1, #2)에 따라
- * `materialIconsExtended` filled 아이콘 + 한글 라벨("MY"만 영문).
- */
 enum class BottomNavItem(
     val route: Route,
     val icon: ImageVector,

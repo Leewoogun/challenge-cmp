@@ -10,8 +10,6 @@ import androidx.compose.runtime.Stable
  * - [Searching] : debounce 후 API 호출 중.
  * - [Result]    : 결과 ≥ 1건.
  * - [Empty]     : 입력 ≥ 2자 인데 결과 0건.
- *
- * spec: docs/features/friends/spec-friend-add.md §6.5
  */
 @Stable
 sealed interface FriendsSearchUiState {

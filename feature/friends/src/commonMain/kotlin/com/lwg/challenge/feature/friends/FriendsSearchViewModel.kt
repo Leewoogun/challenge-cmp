@@ -2,8 +2,6 @@ package com.lwg.challenge.feature.friends
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lwg.challenge.domain.model.friend.FriendsApiException
-import com.lwg.challenge.domain.model.friend.FriendsNetworkException
 import com.lwg.challenge.domain.model.friend.Relation
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.domain.repository.FriendsRepository
@@ -65,7 +63,7 @@ class FriendsSearchViewModel(
                     flow {
                         emit(SearchPhase.Searching)
                         friendsRepository
-                            .searchUsers(q, onError = ::handleSearchError)
+                            .searchUsers(q, onError = ::showMessage)
                             .collect { list ->
                                 _searchResults.update { list }
                                 emit(SearchPhase.Done)
@@ -110,8 +108,8 @@ class FriendsSearchViewModel(
             item = item,
             optimisticRelation = Relation.REQUEST_SENT,
             optimisticPendingRequestId = null,
-        ) {
-            friendsRepository.sendRequest(item.userId)
+        ) { onSuccess, onError ->
+            friendsRepository.sendRequest(item.userId, onSuccess, onError)
         }
     }
 
@@ -122,8 +120,8 @@ class FriendsSearchViewModel(
             item = item,
             optimisticRelation = Relation.FRIEND,
             optimisticPendingRequestId = null,
-        ) {
-            friendsRepository.acceptRequest(requestId)
+        ) { onSuccess, onError ->
+            friendsRepository.acceptRequest(requestId, onSuccess, onError)
         }
     }
 
@@ -134,8 +132,8 @@ class FriendsSearchViewModel(
             item = item,
             optimisticRelation = Relation.NONE,
             optimisticPendingRequestId = null,
-        ) {
-            friendsRepository.cancelRequest(requestId)
+        ) { onSuccess, onError ->
+            friendsRepository.cancelRequest(requestId, onSuccess, onError)
         }
     }
 
@@ -150,7 +148,7 @@ class FriendsSearchViewModel(
         item: FriendSearchItemState,
         optimisticRelation: Relation,
         optimisticPendingRequestId: Long?,
-        action: suspend () -> Result<Unit>,
+        action: suspend (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit,
     ) {
         val before = _searchResults.value.firstOrNull { it.userId == item.userId } ?: return
 
@@ -168,35 +166,28 @@ class FriendsSearchViewModel(
         }
 
         viewModelScope.launch {
-            val result = action()
-            result.onFailure { throwable ->
-                _searchResults.update { list ->
-                    list.map {
-                        if (it.userId == before.userId) {
-                            it.copy(
-                                relation = before.relation,
-                                pendingRequestId = before.pendingRequestId,
-                            )
-                        } else {
-                            it
+            action(
+                {},
+                { message ->
+                    _searchResults.update { list ->
+                        list.map {
+                            if (it.userId == before.userId) {
+                                it.copy(
+                                    relation = before.relation,
+                                    pendingRequestId = before.pendingRequestId,
+                                )
+                            } else {
+                                it
+                            }
                         }
                     }
-                }
-                emitError(throwable)
-            }
+                    showMessage(message)
+                },
+            )
         }
     }
 
-    private fun handleSearchError(throwable: Throwable) {
-        emitError(throwable)
-    }
-
-    private fun emitError(throwable: Throwable) {
-        val message = when (throwable) {
-            is FriendsApiException -> throwable.message ?: "알 수 없는 오류"
-            is FriendsNetworkException -> "네트워크 오류가 발생하였습니다."
-            else -> throwable.message ?: "알 수 없는 오류"
-        }
+    private fun showMessage(message: String) {
         viewModelScope.launch {
             _uiEffect.emit(FriendsUiEffect.ShowMessage(message))
         }

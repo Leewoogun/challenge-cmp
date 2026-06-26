@@ -21,14 +21,14 @@ class FakeFriendsRepository : FriendsRepository {
     val receivedRequestsFlow = MutableStateFlow<List<FriendRequest>>(emptyList())
     val searchResultsFlow = MutableStateFlow<List<UserSearchResult>>(emptyList())
 
-    /** searchUsers 호출 시 onError 콜백으로 emit 할 throwable. null 이면 정상 흐름. */
-    var searchInitialError: Throwable? = null
+    /** searchUsers 호출 시 onError 콜백으로 emit 할 메시지. null 이면 정상 흐름. */
+    var searchInitialError: String? = null
 
-    /** 다음 mutation 결과. 기본 success. */
-    var sendRequestResult: Result<Unit> = Result.success(Unit)
-    var acceptRequestResult: Result<Unit> = Result.success(Unit)
-    var rejectRequestResult: Result<Unit> = Result.success(Unit)
-    var cancelRequestResult: Result<Unit> = Result.success(Unit)
+    /** 다음 mutation 에러 메시지. null 이면 성공(onSuccess). */
+    var sendRequestError: String? = null
+    var acceptRequestError: String? = null
+    var rejectRequestError: String? = null
+    var cancelRequestError: String? = null
 
     /** mutation 인자 기록. */
     val sendRequestCalls = mutableListOf<Long>()
@@ -40,36 +40,52 @@ class FakeFriendsRepository : FriendsRepository {
 
     override fun searchUsers(
         nickname: String,
-        onError: (Throwable) -> Unit,
+        onError: (String) -> Unit,
     ): Flow<List<UserSearchResult>> {
         searchCalls += nickname
         searchInitialError?.let(onError)
         return searchResultsFlow.asStateFlow()
     }
 
-    override fun listFriends(onError: (Throwable) -> Unit): Flow<List<Friend>> =
+    override fun listFriends(onError: (String) -> Unit): Flow<List<Friend>> =
         friendsFlow.asStateFlow()
 
-    override fun listReceivedRequests(onError: (Throwable) -> Unit): Flow<List<FriendRequest>> =
+    override fun listReceivedRequests(onError: (String) -> Unit): Flow<List<FriendRequest>> =
         receivedRequestsFlow.asStateFlow()
 
-    override suspend fun sendRequest(receiverId: Long): Result<Unit> {
+    override suspend fun sendRequest(
+        receiverId: Long,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
         sendRequestCalls += receiverId
-        return sendRequestResult
+        sendRequestError.let { if (it == null) onSuccess() else onError(it) }
     }
 
-    override suspend fun acceptRequest(requestId: Long): Result<Unit> {
+    override suspend fun acceptRequest(
+        requestId: Long,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
         acceptRequestCalls += requestId
-        return acceptRequestResult
+        acceptRequestError.let { if (it == null) onSuccess() else onError(it) }
     }
 
-    override suspend fun rejectRequest(requestId: Long): Result<Unit> {
+    override suspend fun rejectRequest(
+        requestId: Long,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
         rejectRequestCalls += requestId
-        return rejectRequestResult
+        rejectRequestError.let { if (it == null) onSuccess() else onError(it) }
     }
 
-    override suspend fun cancelRequest(requestId: Long): Result<Unit> {
+    override suspend fun cancelRequest(
+        requestId: Long,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
         cancelRequestCalls += requestId
-        return cancelRequestResult
+        cancelRequestError.let { if (it == null) onSuccess() else onError(it) }
     }
 }

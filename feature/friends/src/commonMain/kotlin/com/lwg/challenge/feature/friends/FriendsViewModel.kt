@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.friend.FriendRequest
-import com.lwg.challenge.domain.model.friend.FriendsApiException
-import com.lwg.challenge.domain.model.friend.FriendsNetworkException
 import com.lwg.challenge.domain.repository.FriendsRepository
 import com.lwg.challenge.feature.friends.contract.FriendItemState
 import com.lwg.challenge.feature.friends.contract.FriendRequestItemState
@@ -56,7 +54,7 @@ class FriendsViewModel(
     private fun observeReceivedRequests() {
         viewModelScope.launch {
             friendsRepository
-                .listReceivedRequests(onError = ::handleLoadError)
+                .listReceivedRequests(onError = ::showMessage)
                 .collect { list -> _receivedRequests.update { list } }
         }
     }
@@ -64,7 +62,7 @@ class FriendsViewModel(
     private fun observeFriends() {
         viewModelScope.launch {
             friendsRepository
-                .listFriends(onError = ::handleLoadError)
+                .listFriends(onError = ::showMessage)
                 .collect { list -> _friends.update { list } }
         }
     }
@@ -103,21 +101,24 @@ class FriendsViewModel(
         _friends.update { list -> list + optimisticFriend }
 
         viewModelScope.launch {
-            val result = friendsRepository.acceptRequest(item.requestId)
-            result.onFailure { throwable ->
-                // 1행 단위 역연산 — 다른 mutation 의 낙관 갱신을 보존
-                _receivedRequests.update { list ->
-                    if (list.any { it.requestId == target.requestId }) {
-                        list
-                    } else {
-                        val mutable = list.toMutableList()
-                        mutable.add(index.coerceIn(0, mutable.size), target)
-                        mutable
+            friendsRepository.acceptRequest(
+                requestId = item.requestId,
+                onSuccess = {},
+                onError = { message ->
+                    // 1행 단위 역연산 — 다른 mutation 의 낙관 갱신을 보존
+                    _receivedRequests.update { list ->
+                        if (list.any { it.requestId == target.requestId }) {
+                            list
+                        } else {
+                            val mutable = list.toMutableList()
+                            mutable.add(index.coerceIn(0, mutable.size), target)
+                            mutable
+                        }
                     }
-                }
-                _friends.update { list -> list.filterNot { it.userId == optimisticFriend.userId } }
-                emitError(throwable)
-            }
+                    _friends.update { list -> list.filterNot { it.userId == optimisticFriend.userId } }
+                    showMessage(message)
+                },
+            )
         }
     }
 
@@ -132,19 +133,22 @@ class FriendsViewModel(
         _receivedRequests.update { list -> list.filterNot { it.requestId == target.requestId } }
 
         viewModelScope.launch {
-            val result = friendsRepository.rejectRequest(item.requestId)
-            result.onFailure { throwable ->
-                _receivedRequests.update { list ->
-                    if (list.any { it.requestId == target.requestId }) {
-                        list
-                    } else {
-                        val mutable = list.toMutableList()
-                        mutable.add(index.coerceIn(0, mutable.size), target)
-                        mutable
+            friendsRepository.rejectRequest(
+                requestId = item.requestId,
+                onSuccess = {},
+                onError = { message ->
+                    _receivedRequests.update { list ->
+                        if (list.any { it.requestId == target.requestId }) {
+                            list
+                        } else {
+                            val mutable = list.toMutableList()
+                            mutable.add(index.coerceIn(0, mutable.size), target)
+                            mutable
+                        }
                     }
-                }
-                emitError(throwable)
-            }
+                    showMessage(message)
+                },
+            )
         }
     }
 
@@ -156,19 +160,6 @@ class FriendsViewModel(
         viewModelScope.launch {
             _uiEffect.emit(FriendsUiEffect.ShowMessage(message))
         }
-    }
-
-    private fun handleLoadError(throwable: Throwable) {
-        emitError(throwable)
-    }
-
-    private fun emitError(throwable: Throwable) {
-        val message = when (throwable) {
-            is FriendsApiException -> throwable.message ?: "알 수 없는 오류"
-            is FriendsNetworkException -> "네트워크 오류가 발생하였습니다."
-            else -> throwable.message ?: "알 수 없는 오류"
-        }
-        showMessage(message)
     }
 
     @OptIn(kotlin.time.ExperimentalTime::class)

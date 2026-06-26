@@ -5,8 +5,6 @@ package com.lwg.challenge.feature.friends
 import app.cash.turbine.test
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.friend.FriendRequest
-import com.lwg.challenge.domain.model.friend.FriendsApiException
-import com.lwg.challenge.domain.model.friend.FriendsNetworkException
 import com.lwg.challenge.domain.model.friend.UserBrief
 import com.lwg.challenge.feature.friends.contract.FriendsUiEffect
 import com.lwg.challenge.feature.friends.contract.FriendsUiState
@@ -104,7 +102,6 @@ class FriendsViewModelTest {
     fun `acceptRequest 성공 시 받은 요청에서 제거되고 친구 목록에 추가된다`() = runTest {
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(10, fromUserId = 999))
         fakeRepository.friendsFlow.value = emptyList()
-        fakeRepository.acceptRequestResult = Result.success(Unit)
 
         val viewModel = createViewModel()
         val initial = viewModel.uiState.value as FriendsUiState.Data
@@ -122,7 +119,6 @@ class FriendsViewModelTest {
     @Test
     fun `rejectRequest 성공 시 받은 요청에서 제거된다`() = runTest {
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(20), sampleRequest(21))
-        fakeRepository.rejectRequestResult = Result.success(Unit)
 
         val viewModel = createViewModel()
         val initial = viewModel.uiState.value as FriendsUiState.Data
@@ -138,8 +134,7 @@ class FriendsViewModelTest {
     @Test
     fun `acceptRequest 실패 시 ShowMessage 발행 후 받은 요청을 롤백한다`() = runTest {
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(30))
-        fakeRepository.acceptRequestResult =
-            Result.failure(FriendsApiException(code = 705, message = "이미 친구입니다"))
+        fakeRepository.acceptRequestError = "이미 친구입니다"
 
         val viewModel = createViewModel()
         val initial = viewModel.uiState.value as FriendsUiState.Data
@@ -161,8 +156,7 @@ class FriendsViewModelTest {
     @Test
     fun `rejectRequest 실패 시 ShowMessage 발행 후 받은 요청을 롤백한다`() = runTest {
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(40))
-        fakeRepository.rejectRequestResult =
-            Result.failure(FriendsNetworkException("timeout"))
+        fakeRepository.rejectRequestError = "네트워크 오류가 발생하였습니다."
 
         val viewModel = createViewModel()
         val initial = viewModel.uiState.value as FriendsUiState.Data
@@ -190,9 +184,7 @@ class FriendsViewModelTest {
         // 요청 A(70) accept, 요청 B(71) reject 시나리오
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(70), sampleRequest(71))
         // accept 는 실패, reject 는 성공
-        fakeRepository.acceptRequestResult =
-            Result.failure(FriendsApiException(code = 705, message = "이미 친구입니다"))
-        fakeRepository.rejectRequestResult = Result.success(Unit)
+        fakeRepository.acceptRequestError = "이미 친구입니다"
 
         val viewModel = createViewModel()
         val initial = viewModel.uiState.value as FriendsUiState.Data
@@ -216,9 +208,7 @@ class FriendsViewModelTest {
     fun `reject 실패 롤백은 동시 accept 의 낙관 갱신을 보존한다`() = runTest {
         // 요청 A(80) accept (성공), 요청 B(81) reject (실패) 시나리오
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(80, fromUserId = 880), sampleRequest(81))
-        fakeRepository.acceptRequestResult = Result.success(Unit)
-        fakeRepository.rejectRequestResult =
-            Result.failure(FriendsNetworkException("timeout"))
+        fakeRepository.rejectRequestError = "timeout"
 
         val viewModel = createViewModel()
         val initial = viewModel.uiState.value as FriendsUiState.Data

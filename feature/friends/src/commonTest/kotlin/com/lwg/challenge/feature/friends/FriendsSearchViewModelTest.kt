@@ -1,8 +1,6 @@
 package com.lwg.challenge.feature.friends
 
 import app.cash.turbine.test
-import com.lwg.challenge.domain.model.friend.FriendsApiException
-import com.lwg.challenge.domain.model.friend.FriendsNetworkException
 import com.lwg.challenge.domain.model.friend.Relation
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.feature.friends.contract.FriendsSearchUiState
@@ -219,8 +217,7 @@ class FriendsSearchViewModelTest {
     fun `sendRequest 실패 시 ShowMessage 발행 후 NONE 으로 롤백`() = runTest {
         fakeRepository.searchResultsFlow.value =
             listOf(sample(500, relation = Relation.NONE))
-        fakeRepository.sendRequestResult =
-            Result.failure(FriendsApiException(code = 700, message = "차단된 사용자입니다"))
+        fakeRepository.sendRequestError = "차단된 사용자입니다"
 
         val viewModel = createViewModel()
         viewModel.search("ab")
@@ -244,8 +241,7 @@ class FriendsSearchViewModelTest {
     fun `네트워크 실패 시 고정 문구 ShowMessage`() = runTest {
         fakeRepository.searchResultsFlow.value =
             listOf(sample(501, relation = Relation.NONE))
-        fakeRepository.sendRequestResult =
-            Result.failure(FriendsNetworkException("timeout"))
+        fakeRepository.sendRequestError = "네트워크 오류가 발생하였습니다."
 
         val viewModel = createViewModel()
         viewModel.search("ab")
@@ -290,13 +286,12 @@ class FriendsSearchViewModelTest {
         val b = result.items.first { it.userId == 701L }
 
         // B 성공
-        fakeRepository.sendRequestResult = Result.success(Unit)
+        fakeRepository.sendRequestError = null
         viewModel.sendRequest(b)
         advanceUntilIdle()
 
         // A 실패
-        fakeRepository.sendRequestResult =
-            Result.failure(FriendsApiException(code = 700, message = "차단"))
+        fakeRepository.sendRequestError = "차단"
         viewModel.sendRequest(a)
         advanceUntilIdle()
 

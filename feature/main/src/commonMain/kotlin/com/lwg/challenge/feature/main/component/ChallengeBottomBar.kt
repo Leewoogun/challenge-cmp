@@ -25,16 +25,6 @@ import androidx.navigation3.runtime.NavKey
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.navigation.Route
 
-/**
- * 메인 셸 BottomBar.
- *
- * 디자인 결정(design.md):
- * - `NavigationBar`/`NavigationBarItem` 미사용 — Material 컴포넌트가 라벨 12.sp / 56.dp 패딩을 강제하여
- *   디자인의 10.sp / py-1.5 / alpha 95% 를 맞출 수 없음.
- * - 컨테이너 색: `surface.copy(alpha=0.95f)` — backdrop-blur 는 KMP 공통 API 한계로 alpha 만 근사.
- * - 상단 1.dp `outline` 보더, 하단 `WindowInsets.safeDrawing` (iOS 홈 인디케이터 회피).
- * - Active/Inactive 는 색 분기만 (`primary` vs `onSurfaceVariant`). stroke 굵기 분기 없음.
- */
 @Composable
 internal fun ChallengeBottomBar(
     currentRoute: NavKey?,

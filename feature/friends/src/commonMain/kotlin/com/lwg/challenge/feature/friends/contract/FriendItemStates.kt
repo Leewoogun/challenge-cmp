@@ -17,7 +17,9 @@ import kotlin.time.Instant
  * (UI State 파싱 규칙 — challenge-app/CLAUDE.md 104-114)
  */
 @Immutable
-data class FriendSearchItemState(internal val model: UserSearchResult) {
+data class FriendSearchItemState(
+    internal val model: UserSearchResult
+) {
 
     val userId: Long get() = model.userId
     val nickname: String get() = model.nickname
