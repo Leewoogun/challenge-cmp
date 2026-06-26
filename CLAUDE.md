@@ -2,6 +2,8 @@
 
 Kotlin Multiplatform (KMP) + Compose Multiplatform 기반 애플리케이션. 작업 요청 시 매칭되는 Skill이 있으면 **반드시 해당 Skill을 먼저 호출**한다.
 
+> ⚠️ **다른 프로젝트(PM/오케스트레이터)에서 이 repo 를 수정할 때**: 절대경로 reach-in 편집 금지. 반드시 이 repo 를 cwd 로 하는 세션에 위임한다 (그래야 CLAUDE.md/skills/hooks/메모리가 로드됨). 절차: [`docs/agent-delegation-guide.md`](docs/agent-delegation-guide.md)
+
 ## Skill 매핑 테이블
 
 | 사용자 요청 키워드 / 상황 | Skill | 설명 |
