@@ -19,14 +19,6 @@ fun HomeRoute(
     val navigateAction = LocalNavigateAction.current
     val mainAction = LocalMainAction.current
 
-    LaunchedEffect(viewModel) {
-        viewModel.uiEffect.collect { effect ->
-            when (effect) {
-                is HomeUiEffect.ShowMessage -> mainAction.showSnackBar(effect.message)
-            }
-        }
-    }
-
     HomeContent(
         uiState = uiState,
         onBellClick = { navigateAction.navigateTo(Route.NotificationsRoute.Main) },
@@ -37,6 +29,14 @@ fun HomeRoute(
         onAddFriendClick = { navigateAction.switchTab(Route.FriendsRoute.Main) },
         onCreateChallengeClick = { navigateAction.navigateTo(Route.ChallengeCreateRoute.Main) },
     )
+
+    LaunchedEffect(viewModel) {
+        viewModel.uiEffect.collect { effect ->
+            when (effect) {
+                is HomeUiEffect.ShowMessage -> mainAction.showSnackBar(effect.message)
+            }
+        }
+    }
 }
 
 @Composable

@@ -16,10 +16,6 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * CTA 하단 약관 동의 풋터 텍스트.
- * 이용약관 / 개인정보처리방침 키워드만 강조 컬러.
- */
 @Composable
 internal fun FooterAgreementText() {
     val muted = ChallengeTheme.colorScheme.onSurfaceVariant

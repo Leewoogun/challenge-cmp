@@ -29,11 +29,6 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 로그인 CTA — LabeledDivider + 카카오 버튼 + 약관 풋터.
- *
- * 진입 시 fadeIn + slideUp (200ms delay).
- */
 @Composable
 internal fun LoginButtonSection(
     isLoading: Boolean,

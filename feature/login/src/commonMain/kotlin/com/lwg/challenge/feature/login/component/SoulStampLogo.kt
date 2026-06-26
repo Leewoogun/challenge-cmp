@@ -26,17 +26,6 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 로그인 Hero 의 "영혼의 인장" 스탬프 로고.
- *
- * - 140dp 원형 fire-gradient 배경 + `pulse-fire` 맥동
- * - 내부 ring (`onPrimary` 30% alpha) 인셋 8dp
- * - 중앙 Flame 아이콘 (56dp, `onPrimary`)
- * - 외부 Sparkles 2개 (우상단 20dp / 좌하단 14dp, `primary` + 깜빡임)
- *
- * 이 컴포넌트는 로그인 외 화면에서 사용되지 않으므로 `:feature:login` 내부에 둔다.
- * 다른 화면에서 재사용 필요해지면 `:core:designsystem` 으로 승격.
- */
 @Composable
 internal fun SoulStampLogo(
     modifier: Modifier = Modifier,

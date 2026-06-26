@@ -15,9 +15,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * - 카카오톡이 설치되어 있으면 카카오톡 앱 ↔ 우리 앱 간 인증 (App-to-App, 자동 redirect intent 처리)
  * - 미설치 시 카카오 계정 웹 로그인 (Custom Tab) 으로 fallback
  *
- * AndroidManifest 에 `AuthCodeHandlerActivity` (`kakao{NATIVE_APP_KEY}://oauth`) 가
- * 등록되어 있어야 SDK 가 redirect 를 가로챌 수 있다.
- *
  * SDK 초기화 (`KakaoSdk.init`) 는 `ChallengeApplication.onCreate` 에서 수행.
  */
 internal class KakaoAuthClientAndroid(

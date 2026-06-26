@@ -25,11 +25,6 @@ import com.lwg.challenge.ui.components.StatusPillBadge
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 로그인 Hero — 스탬프 로고 + "SOUL CONTRACT" 뱃지 + 타이틀 + 서브카피.
- *
- * 진입 시 fadeIn + slideUp 애니메이션 (400ms).
- */
 @Composable
 internal fun ChallengeSection() {
     var visible by remember { mutableStateOf(false) }

@@ -25,13 +25,6 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * "영혼을 걸어라. 🔥" 타이틀.
- *
- * - "영혼" 부분만 `brushes.fire` brush 텍스트
- * - 나머지는 `onBackground`
- * - 🔥 이모지에 wiggle 애니메이션 (좌우 -8° ~ +8°)
- */
 @Composable
 internal fun ChallengeTitle() {
     val fireBrush = ChallengeTheme.brushes.fire

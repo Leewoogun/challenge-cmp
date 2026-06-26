@@ -15,12 +15,6 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 로그인 배경 글로우 + 하단 fire 블롭.
- *
- * - 상단 글로우: 500dp 원, opacity 30%, `brushes.glow` (radial)
- * - 하단 fire 블롭: 400dp 원, opacity 20%, `brushes.fire`
- */
 @Composable
 internal fun BoxScope.BackgroundDecor() {
     val glowBrush = ChallengeTheme.brushes.glow

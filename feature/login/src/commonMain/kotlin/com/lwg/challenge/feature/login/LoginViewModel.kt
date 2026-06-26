@@ -18,17 +18,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
-/**
- * 로그인 화면 ViewModel.
- *
- * 흐름:
- * 1. [login] 호출 → Loading 진입.
- * 2. [kakaoAuthClient] 가 카카오 OAuth (인가 → access_token 교환) 를 캡슐화하여 access_token 반환.
- *    - Cancelled: 사용자 취소. 메시지 노출 없이 Idle 복귀.
- *    - Failure: SDK / 네트워크 에러. 스낵바.
- *    - Success: access_token 을 [LoginWithKakaoUseCase] 에 넘겨 서버 로그인 진행.
- * 3. 서버 응답 처리 후 NavigateToHome.
- */
 @KoinViewModel
 class LoginViewModel(
     private val kakaoAuthClient: KakaoAuthClient,

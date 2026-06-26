@@ -22,17 +22,6 @@ import com.lwg.challenge.feature.login.component.ChallengeSection
 import com.lwg.challenge.feature.login.contract.LoginUiState
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 로그인 화면 UI.
- *
- * 디자인 결정 (2026-05-08, `docs/features/auth-kakao/design.md`):
- * - 다크 베이스 + 상단 글로우 후광 + 하단 fire 블롭
- * - Hero: 스탬프 로고 + "SOUL CONTRACT" 뱃지 + 타이틀("영혼" 부분 fire-gradient) + 서브 카피
- * - CTA: LabeledDivider + 카카오 버튼(텍스트 only) + 약관 풋터
- * - Hero/CTA 진입 시 slide-up 애니메이션 (CTA 0.2s delay)
- *
- * 화면 전용 컴포넌트는 `component/` 패키지로 분리되어 있다.
- */
 @Composable
 internal fun LoginScreen(
     uiState: LoginUiState,

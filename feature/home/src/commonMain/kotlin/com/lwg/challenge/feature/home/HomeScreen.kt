@@ -2,6 +2,7 @@
 
 package com.lwg.challenge.feature.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,10 +32,14 @@ import com.lwg.challenge.designsystem.components.challenge.HomeEmptyState
 import com.lwg.challenge.designsystem.components.challenge.HomeEmptyStateType
 import com.lwg.challenge.designsystem.components.challenge.StatsBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.ActiveChallenge
+import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.feature.home.component.HomeTopBar
 import com.lwg.challenge.feature.home.contract.HomeEmptyType
 import com.lwg.challenge.feature.home.contract.HomeUiState
+import kotlin.time.Instant
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun HomeScreen(
@@ -198,4 +203,100 @@ private fun HomeEmptyType.toDesignSystem(): HomeEmptyStateType = when (this) {
     HomeEmptyType.FIRST_USER -> HomeEmptyStateType.FIRST_USER
     HomeEmptyType.NO_ACTIVE_CHALLENGE -> HomeEmptyStateType.NO_ACTIVE_CHALLENGE
     HomeEmptyType.NONE -> error("HomeEmptyType.NONE 는 HomeEmptyState 진입 전에 분기됨")
+}
+
+private val previewChallenges = listOf(
+    ActiveChallenge(
+        challengeId = 1L,
+        myMission = "오늘 운동 1시간 하기",
+        opponentNickname = "우건",
+        opponentMission = "책 30페이지 읽기",
+        deadline = Instant.parse("2026-06-27T10:00:00Z"),
+        myVerificationStatus = VerificationStatus.VERIFIED,
+        opponentVerificationStatus = VerificationStatus.PENDING,
+        bet = "커피 사기 ☕",
+    ),
+    ActiveChallenge(
+        challengeId = 2L,
+        myMission = "물 2L 마시기",
+        opponentNickname = "민지",
+        opponentMission = "10000보 걷기",
+        deadline = Instant.parse("2026-06-27T22:00:00Z"),
+        myVerificationStatus = VerificationStatus.PENDING,
+        opponentVerificationStatus = VerificationStatus.FAILED,
+        bet = "점심 사기 🍚",
+    ),
+)
+
+@Preview
+@Composable
+private fun HomeScreenDataPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            HomeScreen(
+                uiState = HomeUiState.Data(
+                    record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
+                    challenges = previewChallenges,
+                ),
+                onBellClick = {},
+                onFabClick = {},
+                onChallengeClick = {},
+                onAddFriendClick = {},
+                onCreateChallengeClick = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun HomeScreenFirstUserPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            HomeScreen(
+                uiState = HomeUiState.Data(
+                    record = UserRecord.Empty,
+                    challenges = emptyList(),
+                ),
+                onBellClick = {},
+                onFabClick = {},
+                onChallengeClick = {},
+                onAddFriendClick = {},
+                onCreateChallengeClick = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun HomeScreenNoActiveChallengePreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            HomeScreen(
+                uiState = HomeUiState.Data(
+                    record = UserRecord(win = 8, lose = 5, draw = 2, currentStreak = 0),
+                    challenges = emptyList(),
+                ),
+                onBellClick = {},
+                onFabClick = {},
+                onChallengeClick = {},
+                onAddFriendClick = {},
+                onCreateChallengeClick = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun HomeLoadingScreenPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            HomeLoadingScreen(
+                onBellClick = {},
+                onFabClick = {},
+            )
+        }
+    }
 }

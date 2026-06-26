@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun SplashScreen() {
@@ -35,5 +36,13 @@ internal fun SplashScreen() {
             Spacer(modifier = Modifier.height(24.dp))
             CircularProgressIndicator(color = ChallengeTheme.colorScheme.onPrimary)
         }
+    }
+}
+
+@Preview
+@Composable
+private fun SplashScreenPreview() {
+    ChallengeTheme {
+        SplashScreen()
     }
 }

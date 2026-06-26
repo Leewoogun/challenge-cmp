@@ -19,16 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 홈 상단 헤더 — design.md §1 sticky header.
- *
- * - 좌측: Flame(primary) 24.dp + "맹세" (bold20)
- * - 우측: Bell 아이콘 + 우상단 dot (미확인 알림)
- * - 배경: `surface.copy(alpha=0.95f)` (backdrop-blur 근사 — BottomBar 와 동일 패턴)
- *
- * Safe-top inset 은 호출부([ChallengeScaffold]) 가 책임진다.
- */
 @Composable
 internal fun HomeTopBar(
     hasUnreadNotification: Boolean,
@@ -82,6 +74,36 @@ internal fun HomeTopBar(
                         ),
                 )
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun HomeTopBarUnreadPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier.background(ChallengeTheme.colorScheme.background),
+        ) {
+            HomeTopBar(
+                hasUnreadNotification = true,
+                onBellClick = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun HomeTopBarReadPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier.background(ChallengeTheme.colorScheme.background),
+        ) {
+            HomeTopBar(
+                hasUnreadNotification = false,
+                onBellClick = {},
+            )
         }
     }
 }

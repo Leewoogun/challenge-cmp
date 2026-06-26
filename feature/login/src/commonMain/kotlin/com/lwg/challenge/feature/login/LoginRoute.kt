@@ -19,6 +19,11 @@ fun LoginRoute(
     val navigateAction = LocalNavigateAction.current
     val mainAction = LocalMainAction.current
 
+    LoginContent(
+        uiState = uiState,
+        onLoginClick = viewModel::login,
+    )
+
     LaunchedEffect(viewModel) {
         viewModel.uiEffect.collect { effect ->
             when (effect) {
@@ -30,11 +35,6 @@ fun LoginRoute(
             }
         }
     }
-
-    LoginContent(
-        uiState = uiState,
-        onLoginClick = viewModel::login,
-    )
 }
 
 @Composable
