@@ -59,8 +59,6 @@ class FriendsViewModelTest {
             requestedAt = Instant.parse("2026-06-01T00:00:00Z"),
         )
 
-    // ── 진입: 빈 상태 ──────────────────────────────────────────────────────────
-
     @Test
     fun `init 시 uiState 는 빈 상태로 진입한다`() = runTest {
         val viewModel = createViewModel()
@@ -80,8 +78,6 @@ class FriendsViewModelTest {
         }
     }
 
-    // ── 진입: 받은 요청 + 친구 목록 둘 다 로드 ─────────────────────────────────
-
     @Test
     fun `init 시 받은 요청과 친구 목록을 둘 다 로드한다`() = runTest {
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(10))
@@ -94,8 +90,6 @@ class FriendsViewModelTest {
         assertEquals(2, state.friends.size)
         assertEquals(listOf(100L, 101L), state.friends.map { it.userId })
     }
-
-    // ── 수락/거절: repository 호출 ─────────────────────────────────────────────
 
     @Test
     fun `acceptRequest 호출 시 repository acceptRequest 가 호출된다`() = runTest {
@@ -116,8 +110,6 @@ class FriendsViewModelTest {
 
         assertEquals(listOf(20L), fakeRepository.rejectRequestCalls)
     }
-
-    // ── 수락/거절 실패: ShowMessage ───────────────────────────────────────────
 
     @Test
     fun `acceptRequest 실패 시 ShowMessage 가 발행된다`() = runTest {

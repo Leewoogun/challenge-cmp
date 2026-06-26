@@ -15,6 +15,5 @@ data class FriendsUiState(
     val friends: List<FriendItemState>,
 ) {
 
-    /** 받은 요청 + 친구 모두 0건 → 빈 상태 UI 노출 분기용. */
     val isEmpty: Boolean get() = receivedRequests.isEmpty() && friends.isEmpty()
 }

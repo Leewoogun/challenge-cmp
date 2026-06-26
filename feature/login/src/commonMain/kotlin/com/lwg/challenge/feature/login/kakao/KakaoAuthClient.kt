@@ -9,7 +9,6 @@ interface KakaoAuthClient {
  */
 sealed interface KakaoAuthResult {
 
-    /** access_token 획득 성공. */
     data class Success(val accessToken: String) : KakaoAuthResult
 
     /** 사용자가 동의 화면에서 취소 / 뒤로가기. UI 는 메시지 노출 없이 Idle 복귀. */

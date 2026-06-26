@@ -49,7 +49,6 @@ class FriendsSearchViewModel(
     /** 검색 결과 (raw) — 낙관적 갱신은 이 StateFlow 를 직접 업데이트. */
     private val _searchResults = MutableStateFlow<List<UserSearchResult>>(emptyList())
 
-    /** 검색 단계: query 입력 길이 / debounce 후 호출 상태. */
     private val searchPhase: StateFlow<SearchPhase> =
         _query
             .debounce(SEARCH_DEBOUNCE_MS)

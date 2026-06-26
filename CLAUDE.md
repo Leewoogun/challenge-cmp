@@ -128,6 +128,22 @@ data class SomeItemState(private val model: SomeDomainModel) {
 - **Composable 콜백**: `on` 접두어 (`onTabSelected`, `onSearchClick`)
 - **ViewModel 함수**: `on` 없음 (`selectTab`, `search`)
 
+### 주석 규칙
+- **불필요한 주석 금지**: 네이밍·타입·구조로 파악 가능한 내용은 주석으로 달지 않는다.
+- 주석은 **왜(why)** 만 설명한다 — 비자명한 결정, 트레이드오프, 우회(workaround), 외부 제약 등. **무엇을(what)** 다시 옮긴 주석은 금지.
+
+```kotlin
+// ❌ 코드가 그대로 말하는 내용 — 주석 불필요
+// 받은 요청에서 제거
+list.filterNot { it.requestId == target.requestId }
+
+// ✅ 코드만으로 모르는 이유(why) 를 설명
+// 전체 스냅샷 복원 시 동시 진행 중인 다른 mutation 의 낙관 갱신을 덮어쓰므로 1행 단위로 되돌린다
+```
+
+- **KDoc**: 공개 API의 비자명한 계약/제약에만. 함수명·시그니처로 자명하면 생략.
+- **모델(data class/enum) KDoc**: 한 줄 요약 + `@property`/값(enum·table) 설명은 유지. 단, spec·api-contract 경로 참조와 "백엔드가 ~ 응답한다" 식 서버 동작 설명 prose 는 적지 않는다.
+
 ### Navigation 3 패턴
 ```kotlin
 // Route 정의 (core/navigation)

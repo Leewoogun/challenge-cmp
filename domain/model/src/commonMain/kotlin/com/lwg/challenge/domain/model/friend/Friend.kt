@@ -7,8 +7,6 @@ import kotlin.time.Instant
 /**
  * 친구 목록 1행 (ACCEPTED).
  *
- * api-contract: docs/features/friends/api-contract-friend-add.md §6
- *
  * @property userId 상대(나 아닌) user id — 백엔드가 "내가 아닌 쪽"을 매핑.
  * @property nickname 상대 닉네임
  * @property profileImageUrl null = 미설정

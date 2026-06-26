@@ -30,7 +30,6 @@ class FakeFriendsRepository : FriendsRepository {
     var rejectRequestError: String? = null
     var cancelRequestError: String? = null
 
-    /** mutation 인자 기록. */
     val sendRequestCalls = mutableListOf<Long>()
     val acceptRequestCalls = mutableListOf<Long>()
     val rejectRequestCalls = mutableListOf<Long>()

@@ -26,13 +26,6 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import org.koin.android.annotation.KoinViewModel
 
-/**
- * 친구 탭 ViewModel.
- *
- * - `listReceivedRequests` + `listFriends` 두 Flow 를 [combine] 하여 단일 [uiState] 로 노출.
- * - 수락/거절은 낙관적 갱신 없이 성공 시 [reload] 로 목록을 다시 불러오고, 실패 시 메시지만 노출한다.
- * - 401(세션 만료)은 Ktor Authenticator 가 전담하므로 ViewModel 은 401 을 모른다.
- */
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
 @KoinViewModel
 class FriendsViewModel(

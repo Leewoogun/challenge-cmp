@@ -27,7 +27,6 @@ data class FriendSearchItemState(
     val relation: Relation get() = model.relation
     val pendingRequestId: Long? get() = model.pendingRequestId
 
-    /** 주 액션 버튼 라벨 (relation 분기). */
     val actionLabel: String
         get() = when (model.relation) {
             Relation.NONE -> "친구 요청"
@@ -37,10 +36,8 @@ data class FriendSearchItemState(
             Relation.REJECTED -> "다시 요청"
         }
 
-    /** FRIEND 상태에서는 비활성. */
     val isActionEnabled: Boolean get() = model.relation != Relation.FRIEND
 
-    /** REQUEST_SENT 일 때만 "X 취소" 노출. */
     val showCancel: Boolean get() = model.relation == Relation.REQUEST_SENT
 }
 

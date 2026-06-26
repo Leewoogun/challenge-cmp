@@ -14,31 +14,25 @@ import androidx.compose.ui.graphics.Color
  */
 @Immutable
 data class ChallengeColorScheme(
-    // CTA / 강조
     val primary: Color,
     val onPrimary: Color,
 
-    // 배경
     val background: Color,
     val onBackground: Color,
 
-    // 표면 (카드 / 섹션)
     val surface: Color,
     val onSurface: Color,
     val surfaceVariant: Color,
     val onSurfaceVariant: Color,
 
-    // 보조 톤
     val secondary: Color,
     val onSecondary: Color,
     val tertiary: Color,
     val onTertiary: Color,
 
-    // 보더 / 구분선
     val outline: Color,
     val border: Color,
 
-    // 상태 색
     val error: Color,
     val onError: Color,
     val success: Color,
@@ -46,14 +40,12 @@ data class ChallengeColorScheme(
     val warning: Color,
     val onWarning: Color,
 
-    // 차트 (랭킹 / 통계)
     val chart1: Color,
     val chart2: Color,
     val chart3: Color,
     val chart4: Color,
     val chart5: Color,
 
-    // 그라데이션 stops (Brush 재료)
     val gradientPrimaryStart: Color,
     val gradientPrimaryEnd: Color,
     val gradientCardStart: Color,

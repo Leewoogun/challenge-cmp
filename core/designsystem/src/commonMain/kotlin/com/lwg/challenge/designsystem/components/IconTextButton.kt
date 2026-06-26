@@ -35,12 +35,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  *
  * [IconTextButtonStyle.Filled] (강조 배경) / [IconTextButtonStyle.Outlined] (테두리) 두 스타일 지원.
  * 단순 텍스트 버튼은 [NormalButton] 을 사용한다.
- *
- * @param text 버튼 라벨.
- * @param icon 텍스트 좌측 16.dp 아이콘.
- * @param onClick 클릭 콜백.
- * @param style 채움/외곽선 스타일.
- * @param textStyle 라벨 타이포(기본 `medium14`).
  */
 @Composable
 fun IconTextButton(

@@ -7,9 +7,6 @@ import kotlin.time.Instant
 /**
  * 홈 화면에 노출되는 진행 중 챌린지 1건.
  *
- * api-contract.md §성공 Response 의 7개 표시 필드 + 식별자.
- * "내" / "상대" 시점은 백엔드가 현재 사용자 기준으로 이미 매핑하여 응답한다.
- *
  * @property challengeId 챌린지 식별자 (카드 탭 시 상세로 전달)
  * @property myMission 현재 사용자의 미션 (예: "오늘 운동 1시간 하기")
  * @property opponentNickname 상대 닉네임

@@ -62,7 +62,6 @@ internal fun HomeTopBar(
                 )
             }
             if (hasUnreadNotification) {
-                // 우상단 2.dp dot (destructive) — 미확인 알림 표시
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)

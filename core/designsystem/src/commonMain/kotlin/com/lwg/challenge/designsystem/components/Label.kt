@@ -20,9 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * Label with solid color background
- */
 @Composable
 fun ChallengeLabel(
     backgroundColor: Color,
@@ -46,9 +43,6 @@ fun ChallengeLabel(
     }
 }
 
-/**
- * Label with gradient brush background
- */
 @Composable
 fun ChallengeLabel(
     backgroundBrush: Brush,
@@ -76,7 +70,6 @@ private fun ChallengeLabelPreview() {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Solid color label — primary
             ChallengeLabel(
                 backgroundColor = ChallengeTheme.colorScheme.primary
             ) {
@@ -86,7 +79,6 @@ private fun ChallengeLabelPreview() {
                 )
             }
 
-            // Gradient label — fire
             ChallengeLabel(
                 backgroundBrush = ChallengeTheme.brushes.fire
             ) {
@@ -96,7 +88,6 @@ private fun ChallengeLabelPreview() {
                 )
             }
 
-            // Surface variant example
             ChallengeLabel(
                 backgroundColor = ChallengeTheme.colorScheme.surfaceVariant
             ) {

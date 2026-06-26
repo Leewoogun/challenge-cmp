@@ -52,16 +52,12 @@ class FriendsSearchViewModelTest {
         pendingRequestId = pendingRequestId,
     )
 
-    // ── 1. 초기 상태 = Idle ─────────────────────────────────────────────────────
-
     @Test
     fun `초기 uiState 는 Idle`() = runTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
         assertEquals(FriendsSearchUiState.Idle, viewModel.uiState.value)
     }
-
-    // ── 2. query 입력 < 2자 → Idle 유지 ─────────────────────────────────────────
 
     @Test
     fun `query 1자 입력 시 Idle 유지`() = runTest {
@@ -71,8 +67,6 @@ class FriendsSearchViewModelTest {
         assertEquals(FriendsSearchUiState.Idle, viewModel.uiState.value)
         assertTrue(fakeRepository.searchCalls.isEmpty())
     }
-
-    // ── 3. query ≥ 2자 → debounce 300ms → Searching → Result ─────────────────────
 
     @Test
     fun `query 2자 입력 시 debounce 후 Searching 거쳐 Result 로 전이`() = runTest {
@@ -86,7 +80,6 @@ class FriendsSearchViewModelTest {
 
             viewModel.search("김민")
             advanceTimeBy(299)
-            // 아직 debounce 안 끝남
             advanceTimeBy(2)
             // searching emit 후 즉시 Result 로 (StateFlow 는 conflate 가능)
             // → Searching 을 놓칠 수 있으므로 last state 검증
@@ -99,8 +92,6 @@ class FriendsSearchViewModelTest {
         assertEquals(listOf("김민"), fakeRepository.searchCalls)
     }
 
-    // ── 4. 결과 0건 → Empty ────────────────────────────────────────────────────
-
     @Test
     fun `결과 0건 → Empty`() = runTest {
         fakeRepository.searchResultsFlow.value = emptyList()
@@ -111,8 +102,6 @@ class FriendsSearchViewModelTest {
 
         assertEquals(FriendsSearchUiState.Empty, viewModel.uiState.value)
     }
-
-    // ── 5. query 변경 → flatMapLatest 로 이전 검색 취소 ─────────────────────────
 
     @Test
     fun `debounce 안에 query 변경 시 마지막 query 만 검색`() = runTest {
@@ -128,8 +117,6 @@ class FriendsSearchViewModelTest {
 
         assertEquals(listOf("ef"), fakeRepository.searchCalls)
     }
-
-    // ── 6. Relation.NONE 클릭 → 낙관적 REQUEST_SENT + sendRequest ──────────────
 
     @Test
     fun `sendRequest 호출 시 낙관적 REQUEST_SENT 갱신 + repository sendRequest`() = runTest {
@@ -148,8 +135,6 @@ class FriendsSearchViewModelTest {
         assertEquals(Relation.REQUEST_SENT, after.items.first().relation)
         assertEquals(listOf(100L), fakeRepository.sendRequestCalls)
     }
-
-    // ── 7. Relation.REQUEST_RECEIVED 클릭 → 낙관적 FRIEND + acceptRequest ──────
 
     @Test
     fun `acceptRequest 호출 시 낙관적 FRIEND 갱신 + repository acceptRequest`() = runTest {
@@ -170,8 +155,6 @@ class FriendsSearchViewModelTest {
         assertEquals(listOf(555L), fakeRepository.acceptRequestCalls)
     }
 
-    // ── 8. Relation.REQUEST_SENT 의 cancel → 낙관적 NONE + cancelRequest ──────
-
     @Test
     fun `cancelRequest 호출 시 낙관적 NONE 갱신 + repository cancelRequest`() = runTest {
         fakeRepository.searchResultsFlow.value = listOf(
@@ -191,8 +174,6 @@ class FriendsSearchViewModelTest {
         assertEquals(listOf(777L), fakeRepository.cancelRequestCalls)
     }
 
-    // ── 9. Relation.REJECTED → 낙관적 REQUEST_SENT + sendRequest ──────────────
-
     @Test
     fun `REJECTED 에서 sendRequest 호출 시 낙관적 REQUEST_SENT 갱신`() = runTest {
         fakeRepository.searchResultsFlow.value =
@@ -210,8 +191,6 @@ class FriendsSearchViewModelTest {
         assertEquals(Relation.REQUEST_SENT, after.items.first().relation)
         assertEquals(listOf(400L), fakeRepository.sendRequestCalls)
     }
-
-    // ── 10. 액션 실패 시 ShowMessage + 롤백 ────────────────────────────────────
 
     @Test
     fun `sendRequest 실패 시 ShowMessage 발행 후 NONE 으로 롤백`() = runTest {
@@ -258,16 +237,12 @@ class FriendsSearchViewModelTest {
         }
     }
 
-    // ── 11. 401(세션 만료)은 Repository 가 흡수 → ViewModel 엔 성공으로 보임 ──────────────
-    //
+    // 401(세션 만료)은 Repository 가 흡수 → ViewModel 엔 성공으로 보임.
     // 401 은 더 이상 ViewModel 에 도달하지 않는다 (Ktor Auth 전담 + RepositoryImpl 이 Result.success 로 흡수).
     // ViewModel 관점에서 401 은 일반 성공 경로와 동일하므로 별도 테스트는 성공 케이스로 커버된다.
 
-    // ── 12. race: 한쪽 row 의 실패 롤백이 다른 row 의 낙관 갱신을 덮어쓰지 않는다 ─────────
-
     @Test
     fun `한 row 의 sendRequest 실패 롤백은 동시 다른 row 의 낙관 갱신을 보존한다`() = runTest {
-        // row A(700): sendRequest 실패 시나리오, row B(701): sendRequest 성공
         fakeRepository.searchResultsFlow.value = listOf(
             sample(700, relation = Relation.NONE),
             sample(701, relation = Relation.NONE),
@@ -285,12 +260,10 @@ class FriendsSearchViewModelTest {
         val a = result.items.first { it.userId == 700L }
         val b = result.items.first { it.userId == 701L }
 
-        // B 성공
         fakeRepository.sendRequestError = null
         viewModel.sendRequest(b)
         advanceUntilIdle()
 
-        // A 실패
         fakeRepository.sendRequestError = "차단"
         viewModel.sendRequest(a)
         advanceUntilIdle()
