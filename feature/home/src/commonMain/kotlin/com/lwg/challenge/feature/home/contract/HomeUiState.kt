@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.lwg.challenge.domain.model.ActiveChallenge
 import com.lwg.challenge.domain.model.UserRecord
+import com.lwg.challenge.domain.model.user.UserInfo
 
 @Stable
 sealed interface HomeUiState {
@@ -15,6 +16,7 @@ sealed interface HomeUiState {
     data class Data(
         val record: UserRecord,
         val challenges: List<ActiveChallenge>,
+        val userInfo: UserInfo? = null,
     ) : HomeUiState {
         val emptyType: HomeEmptyType
             get() = when {

@@ -24,10 +24,11 @@ class HomeViewModel(
     val uiEffect: Flow<HomeUiEffect> = _uiEffect.receiveAsFlow()
 
     val uiState: StateFlow<HomeUiState> = getHomeDataUseCase(::showMessage)
-        .map<_, HomeUiState> { data ->
+        .map { data ->
             HomeUiState.Data(
                 record = data.record,
                 challenges = data.challenges,
+                userInfo = data.userInfo,
             )
         }
         .stateIn(

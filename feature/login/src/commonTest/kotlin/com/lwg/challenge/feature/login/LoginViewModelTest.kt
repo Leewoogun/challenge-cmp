@@ -3,7 +3,6 @@ package com.lwg.challenge.feature.login
 import app.cash.turbine.test
 import com.lwg.challenge.domain.model.AuthTokens
 import com.lwg.challenge.domain.model.LoginResult
-import com.lwg.challenge.domain.model.UserProfile
 import com.lwg.challenge.domain.usecase.LoginWithKakaoUseCase
 import com.lwg.challenge.feature.login.contract.LoginUiEffect
 import com.lwg.challenge.feature.login.contract.LoginUiState
@@ -52,7 +51,8 @@ class LoginViewModelTest {
             fakeRepository.loginResponse = FakeLoginRepository.LoginResponse.Success(
                 result = LoginResult(
                     tokens = AuthTokens("a", "r"),
-                    userProfile = UserProfile(userId = 42L, isNewUser = true),
+                    userId = 42L,
+                    isNewUser = true,
                 ),
             )
             val viewModel = createViewModel()

@@ -50,7 +50,7 @@ class LoginViewModel(
                         kakaoAccessToken = authResult.accessToken,
                         onError = ::showMessage,
                     ).collect { result ->
-                        _uiEffect.emit(LoginUiEffect.NavigateToHome(isNewUser = result.userProfile.isNewUser))
+                        _uiEffect.emit(LoginUiEffect.NavigateToHome(isNewUser = result.isNewUser))
                     }
                 }
             }

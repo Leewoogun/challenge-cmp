@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import com.lwg.challenge.domain.model.ActiveChallenge
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
+import com.lwg.challenge.domain.model.user.UserInfo
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.feature.home.contract.HomeEmptyType
 import com.lwg.challenge.feature.home.contract.HomeUiEffect
@@ -28,12 +29,14 @@ class HomeViewModelTest {
 
     private lateinit var fakeRecord: FakeRecordRepository
     private lateinit var fakeChallenges: FakeActiveChallengeRepository
+    private lateinit var fakeUserInfo: FakeUserInfoRepository
 
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         fakeRecord = FakeRecordRepository()
         fakeChallenges = FakeActiveChallengeRepository()
+        fakeUserInfo = FakeUserInfoRepository()
     }
 
     @AfterTest
@@ -42,7 +45,7 @@ class HomeViewModelTest {
     }
 
     private fun createViewModel(): HomeViewModel =
-        HomeViewModel(GetHomeDataUseCase(fakeRecord, fakeChallenges))
+        HomeViewModel(GetHomeDataUseCase(fakeRecord, fakeChallenges, fakeUserInfo))
 
     @Test
     fun `둘 다 성공하면 Data 로 전이`() = runTest {
@@ -140,5 +143,50 @@ class HomeViewModelTest {
 
         assertEquals(1, fakeRecord.callCount)
         assertEquals(1, fakeChallenges.callCount)
+    }
+
+    @Test
+    fun `캐시 있으면 init 시 즉시 userInfo 노출`() = runTest {
+        fakeRecord.record = UserRecord.Empty
+        fakeChallenges.challenges = emptyList()
+        fakeUserInfo.seedCache(
+            UserInfo(id = 12, kakaoId = 999, nickname = "이우건", profileImageUrl = null),
+        )
+
+        val viewModel = createViewModel()
+        val state = viewModel.uiState.value as HomeUiState.Data
+
+        assertEquals("이우건", state.userInfo?.nickname)
+    }
+
+    @Test
+    fun `캐시 없으면 init 트리거가 fetch + 관찰로 노출`() = runTest {
+        fakeRecord.record = UserRecord.Empty
+        fakeChallenges.challenges = emptyList()
+        fakeUserInfo.fetchResult =
+            UserInfo(id = 7, kakaoId = 1, nickname = "민수", profileImageUrl = null)
+
+        val viewModel = createViewModel()
+        val state = viewModel.uiState.value as HomeUiState.Data
+
+        assertEquals("민수", state.userInfo?.nickname)
+        assertEquals(1, fakeUserInfo.getUserInfoCallCount)
+    }
+
+    @Test
+    fun `유저 조회 실패 시 ShowMessage 1회 + userInfo 는 null`() = runTest {
+        fakeRecord.record = UserRecord.Empty
+        fakeChallenges.challenges = emptyList()
+        fakeUserInfo.error = "유저 조회 실패"
+
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            val effect = awaitItem()
+            assertIs<HomeUiEffect.ShowMessage>(effect)
+            assertEquals("유저 조회 실패", effect.message)
+        }
+        val state = viewModel.uiState.value as HomeUiState.Data
+        assertEquals(null, state.userInfo)
     }
 }

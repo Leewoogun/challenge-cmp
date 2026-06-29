@@ -5,5 +5,6 @@ package com.lwg.challenge.domain.model
  */
 data class LoginResult(
     val tokens: AuthTokens,
-    val userProfile: UserProfile,
+    val userId: Long,
+    val isNewUser: Boolean,
 )

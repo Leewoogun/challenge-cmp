@@ -4,6 +4,7 @@ import com.lwg.challenge.domain.model.AuthTokens
 import com.lwg.challenge.domain.model.LoginResult
 import com.lwg.challenge.domain.repository.LoginRepository
 import com.lwg.challenge.local.datastore.datasource.TokenLocalDataSource
+import com.lwg.challenge.local.datastore.datasource.UserInfoLocalDataSource
 import com.lwg.challenge.remote.api.LoginApi
 import com.lwg.challenge.remote.mapper.toLoginResult
 import com.lwg.challenge.remote.model.auth.KakaoLoginRequest
@@ -17,6 +18,7 @@ import org.koin.core.annotation.Single
 class LoginRepositoryImpl(
     private val loginApi: LoginApi,
     private val tokenLocalDataSource: TokenLocalDataSource,
+    private val userInfoLocalDataSource: UserInfoLocalDataSource,
 ) : LoginRepository {
 
     override fun loginWithKakao(
@@ -47,5 +49,6 @@ class LoginRepositoryImpl(
 
     override suspend fun clearTokens() {
         tokenLocalDataSource.clearTokens()
+        userInfoLocalDataSource.clear()
     }
 }

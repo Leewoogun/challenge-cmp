@@ -4,6 +4,7 @@ import com.lwg.challenge.domain.repository.ActiveChallengeRepository
 import com.lwg.challenge.domain.repository.FriendsRepository
 import com.lwg.challenge.domain.repository.LoginRepository
 import com.lwg.challenge.domain.repository.RecordRepository
+import com.lwg.challenge.domain.repository.UserInfoRepository
 import com.lwg.challenge.domain.usecase.GetFriendsDataUseCase
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.domain.usecase.GetStoredTokensUseCase
@@ -34,7 +35,12 @@ class UseCaseModule {
     fun provideGetHomeDataUseCase(
         recordRepository: RecordRepository,
         activeChallengeRepository: ActiveChallengeRepository,
-    ): GetHomeDataUseCase = GetHomeDataUseCase(recordRepository, activeChallengeRepository)
+        userInfoRepository: UserInfoRepository,
+    ): GetHomeDataUseCase = GetHomeDataUseCase(
+        recordRepository,
+        activeChallengeRepository,
+        userInfoRepository,
+    )
 
     @Factory
     fun provideGetFriendsDataUseCase(
