@@ -1,14 +1,12 @@
 package com.lwg.challenge.data.auth
 
 import com.lwg.challenge.local.datastore.datasource.TokenLocalDataSource
-import com.lwg.challenge.local.datastore.datasource.UserInfoLocalDataSource
 import com.lwg.challenge.remote.network.auth.TokenProvider
 import org.koin.core.annotation.Single
 
 @Single(binds = [TokenProvider::class])
 class TokenProviderImpl(
     private val tokenLocalDataSource: TokenLocalDataSource,
-    private val userInfoLocalDataSource: UserInfoLocalDataSource,
 ) : TokenProvider {
 
     override suspend fun getAccessToken(): String =
@@ -23,6 +21,5 @@ class TokenProviderImpl(
 
     override suspend fun clearTokens() {
         tokenLocalDataSource.clearTokens()
-        userInfoLocalDataSource.clear()
     }
 }

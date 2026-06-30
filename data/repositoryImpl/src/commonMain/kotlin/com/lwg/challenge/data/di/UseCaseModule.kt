@@ -9,6 +9,7 @@ import com.lwg.challenge.domain.usecase.GetFriendsDataUseCase
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.domain.usecase.GetStoredTokensUseCase
 import com.lwg.challenge.domain.usecase.LoginWithKakaoUseCase
+import com.lwg.challenge.domain.usecase.LogoutUseCase
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 
@@ -46,4 +47,10 @@ class UseCaseModule {
     fun provideGetFriendsDataUseCase(
         friendsRepository: FriendsRepository,
     ): GetFriendsDataUseCase = GetFriendsDataUseCase(friendsRepository)
+
+    @Factory
+    fun provideLogoutUseCase(
+        loginRepository: LoginRepository,
+        userInfoRepository: UserInfoRepository,
+    ): LogoutUseCase = LogoutUseCase(loginRepository, userInfoRepository)
 }

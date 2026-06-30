@@ -39,9 +39,8 @@ import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.navigation.MainAction
 import com.lwg.challenge.navigation.Route
 import com.lwg.challenge.navigation.routeSerializersModule
-import com.lwg.challenge.utils.AuthEventBus
 import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 private val savedStateConfiguration = SavedStateConfiguration {
     serializersModule = routeSerializersModule
@@ -71,10 +70,10 @@ fun MainRoute(
         }
     }
 
-    val authEventBus = koinInject<AuthEventBus>()
+    val viewModel: MainViewModel = koinViewModel()
 
-    LaunchedEffect(authEventBus) {
-        authEventBus.sessionExpired.collect {
+    LaunchedEffect(viewModel) {
+        viewModel.sessionExpired.collect {
             navigator.switchTab(Route.LoginRoute.Main)
         }
     }

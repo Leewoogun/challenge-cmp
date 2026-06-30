@@ -5,6 +5,7 @@ import com.lwg.challenge.feature.friends.di.FriendsModule
 import com.lwg.challenge.feature.home.di.HomeModule
 import com.lwg.challenge.feature.login.di.LoginModule
 import com.lwg.challenge.feature.login.di.platformLoginModule
+import com.lwg.challenge.feature.main.di.MainModule
 import com.lwg.challenge.feature.mypage.di.MyPageModule
 import com.lwg.challenge.feature.ranking.di.RankingModule
 import com.lwg.challenge.feature.splash.di.SplashModule
@@ -17,6 +18,7 @@ internal fun cookingAppDeclaration(
 ): KoinAppDeclaration = {
     modules(
         AppModule().module,
+        MainModule().module,
         HomeModule().module,
         LoginModule().module,
         platformLoginModule,
