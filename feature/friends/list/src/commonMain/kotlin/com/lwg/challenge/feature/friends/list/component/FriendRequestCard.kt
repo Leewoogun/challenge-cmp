@@ -1,4 +1,4 @@
-package com.lwg.challenge.designsystem.components.friend
+package com.lwg.challenge.feature.friends.list.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -36,7 +36,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * @param onReject 거절 버튼 콜백.
  */
 @Composable
-fun FriendRequestCard(
+internal fun FriendRequestCard(
     profileImageUrl: String?,
     nickname: String,
     onAccept: () -> Unit,

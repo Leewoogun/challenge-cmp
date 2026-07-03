@@ -1,4 +1,4 @@
-package com.lwg.challenge.designsystem.components.friend
+package com.lwg.challenge.feature.friends.list.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -31,7 +31,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * @param nickname 친구 닉네임(`bold14` + `onBackground`, 1줄 truncate).
  */
 @Composable
-fun FriendListItem(
+internal fun FriendListItem(
     profileImageUrl: String?,
     nickname: String,
     modifier: Modifier = Modifier,

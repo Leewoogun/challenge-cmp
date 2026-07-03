@@ -1,4 +1,4 @@
-package com.lwg.challenge.designsystem.components.friend
+package com.lwg.challenge.feature.friends.list.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -38,7 +38,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * @param onClickInvite 카카오톡 초대 보조 CTA 콜백. null 이면 보조 버튼을 노출하지 않는다.
  */
 @Composable
-fun FriendsEmptyState(
+internal fun FriendsEmptyState(
     title: String,
     subtitle: String,
     ctaLabel: String,

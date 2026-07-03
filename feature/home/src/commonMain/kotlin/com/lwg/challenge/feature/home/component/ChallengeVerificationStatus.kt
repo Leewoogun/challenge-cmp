@@ -1,4 +1,4 @@
-package com.lwg.challenge.designsystem.components.challenge
+package com.lwg.challenge.feature.home.component
 
 /**
  * [ChallengeCard] status pill 의 표시 상태.
@@ -7,7 +7,7 @@ package com.lwg.challenge.designsystem.components.challenge
  * 도메인의 VerificationStatus 와는 독립된 표시 전용 enum 으로 둔다.
  * 호출부(feature)에서 1:1 매핑 함수로 변환.
  */
-enum class ChallengeVerificationStatus {
+internal enum class ChallengeVerificationStatus {
     PENDING,
     VERIFIED,
     FAILED,

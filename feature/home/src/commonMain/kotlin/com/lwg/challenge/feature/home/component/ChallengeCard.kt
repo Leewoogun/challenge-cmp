@@ -1,6 +1,6 @@
 @file:OptIn(kotlin.time.ExperimentalTime::class)
 
-package com.lwg.challenge.designsystem.components.challenge
+package com.lwg.challenge.feature.home.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -50,7 +50,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * @param bet 내기 내용 (카드 하단 띠).
  */
 @Composable
-fun ChallengeCard(
+internal fun ChallengeCard(
     challengeId: Long,
     myMission: String,
     opponentNickname: String,

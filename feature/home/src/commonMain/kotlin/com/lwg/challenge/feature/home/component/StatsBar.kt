@@ -1,4 +1,4 @@
-package com.lwg.challenge.designsystem.components.challenge
+package com.lwg.challenge.feature.home.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,7 +32,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * - 연승 셀: value > 0 일 때만 "{N}🔥", 0이면 단순 "0".
  */
 @Composable
-fun StatsBar(
+internal fun StatsBar(
     win: Int,
     lose: Int,
     draw: Int,

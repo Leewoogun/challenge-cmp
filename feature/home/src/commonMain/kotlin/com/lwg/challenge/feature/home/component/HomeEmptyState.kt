@@ -1,4 +1,4 @@
-package com.lwg.challenge.designsystem.components.challenge
+package com.lwg.challenge.feature.home.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -41,7 +41,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * @param onClickCreateChallenge "챌린지 만들기" CTA 클릭.
  */
 @Composable
-fun HomeEmptyState(
+internal fun HomeEmptyState(
     type: HomeEmptyStateType,
     onClickAddFriend: () -> Unit,
     onClickCreateChallenge: () -> Unit,

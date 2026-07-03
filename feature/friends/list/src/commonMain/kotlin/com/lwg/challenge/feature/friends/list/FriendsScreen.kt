@@ -17,12 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.lwg.challenge.designsystem.components.friend.FriendsEmptyState
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserBrief
 import com.lwg.challenge.feature.friends.list.component.FriendsActionRow
+import com.lwg.challenge.feature.friends.list.component.FriendsEmptyState
 import com.lwg.challenge.feature.friends.list.component.FriendsListSection
 import com.lwg.challenge.feature.friends.list.component.ReceivedRequestsSection
 import com.lwg.challenge.feature.friends.list.contract.FriendItemState
