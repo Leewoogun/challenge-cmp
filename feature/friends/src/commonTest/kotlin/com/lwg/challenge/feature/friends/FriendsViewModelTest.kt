@@ -6,8 +6,10 @@ import app.cash.turbine.test
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserBrief
+import com.lwg.challenge.domain.model.user.UserInfo
 import com.lwg.challenge.domain.usecase.GetFriendsDataUseCase
 import com.lwg.challenge.feature.friends.contract.FriendsUiEffect
+import com.lwg.challenge.feature.friends.contract.FriendsUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -19,18 +21,21 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FriendsViewModelTest {
 
     private lateinit var fakeRepository: FakeFriendsRepository
+    private lateinit var fakeKakaoInviter: FakeKakaoInviter
+    private lateinit var fakeUserInfoRepository: FakeUserInfoRepository
 
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         fakeRepository = FakeFriendsRepository()
+        fakeKakaoInviter = FakeKakaoInviter()
+        fakeUserInfoRepository = FakeUserInfoRepository().apply { seed(sampleUserInfo()) }
     }
 
     @AfterTest
@@ -39,7 +44,19 @@ class FriendsViewModelTest {
     }
 
     private fun createViewModel(): FriendsViewModel =
-        FriendsViewModel(GetFriendsDataUseCase(fakeRepository), fakeRepository)
+        FriendsViewModel(
+            GetFriendsDataUseCase(fakeRepository),
+            fakeRepository,
+            fakeKakaoInviter,
+            fakeUserInfoRepository,
+        )
+
+    private fun sampleUserInfo(nickname: String = "우건") = UserInfo(
+        id = 1,
+        kakaoId = 1000,
+        nickname = nickname,
+        profileImageUrl = null,
+    )
 
     private fun sampleFriend(id: Long, nickname: String = "친구$id") = Friend(
         userId = id,
@@ -60,11 +77,9 @@ class FriendsViewModelTest {
         )
 
     @Test
-    fun `init 시 uiState 는 빈 상태로 진입한다`() = runTest {
+    fun `init 시 친구와 요청이 모두 없으면 Empty 상태다`() = runTest {
         val viewModel = createViewModel()
-        val state = viewModel.uiState.value
-        assertTrue(state.receivedRequests.isEmpty())
-        assertTrue(state.friends.isEmpty())
+        assertIs<FriendsUiState.Empty>(viewModel.uiState.value)
     }
 
     @Test
@@ -84,7 +99,7 @@ class FriendsViewModelTest {
         fakeRepository.friendsFlow.value = listOf(sampleFriend(100), sampleFriend(101))
 
         val viewModel = createViewModel()
-        val state = viewModel.uiState.value
+        val state = assertIs<FriendsUiState.Data>(viewModel.uiState.value)
         assertEquals(1, state.receivedRequests.size)
         assertEquals(10L, state.receivedRequests.first().requestId)
         assertEquals(2, state.friends.size)
@@ -96,7 +111,8 @@ class FriendsViewModelTest {
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(10))
 
         val viewModel = createViewModel()
-        viewModel.acceptRequest(viewModel.uiState.value.receivedRequests.first())
+        val state = assertIs<FriendsUiState.Data>(viewModel.uiState.value)
+        viewModel.acceptRequest(state.receivedRequests.first())
 
         assertEquals(listOf(10L), fakeRepository.acceptRequestCalls)
     }
@@ -106,7 +122,8 @@ class FriendsViewModelTest {
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(20))
 
         val viewModel = createViewModel()
-        viewModel.rejectRequest(viewModel.uiState.value.receivedRequests.first())
+        val state = assertIs<FriendsUiState.Data>(viewModel.uiState.value)
+        viewModel.rejectRequest(state.receivedRequests.first())
 
         assertEquals(listOf(20L), fakeRepository.rejectRequestCalls)
     }
@@ -117,7 +134,7 @@ class FriendsViewModelTest {
         fakeRepository.acceptRequestError = "이미 친구입니다"
 
         val viewModel = createViewModel()
-        val item = viewModel.uiState.value.receivedRequests.first()
+        val item = assertIs<FriendsUiState.Data>(viewModel.uiState.value).receivedRequests.first()
 
         viewModel.uiEffect.test {
             viewModel.acceptRequest(item)
@@ -134,7 +151,7 @@ class FriendsViewModelTest {
         fakeRepository.rejectRequestError = "네트워크 오류가 발생하였습니다."
 
         val viewModel = createViewModel()
-        val item = viewModel.uiState.value.receivedRequests.first()
+        val item = assertIs<FriendsUiState.Data>(viewModel.uiState.value).receivedRequests.first()
 
         viewModel.uiEffect.test {
             viewModel.rejectRequest(item)
@@ -143,5 +160,56 @@ class FriendsViewModelTest {
             assertEquals("네트워크 오류가 발생하였습니다.", effect.message)
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `inviteFriend 성공 시 캐시 닉네임으로 초대하고 메시지를 노출하지 않는다`() = runTest {
+        fakeUserInfoRepository.seed(sampleUserInfo(nickname = "도전왕"))
+        fakeKakaoInviter.result = Result.success(Unit)
+
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.inviteFriend()
+            expectNoEvents()
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        assertEquals(1, fakeKakaoInviter.callCount)
+        assertEquals("도전왕", fakeKakaoInviter.lastNickname)
+    }
+
+    @Test
+    fun `inviteFriend 실패 시 ShowMessage 가 발행된다`() = runTest {
+        fakeKakaoInviter.result = Result.failure(IllegalStateException("공유 실패"))
+
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.inviteFriend()
+            val effect = awaitItem()
+            assertIs<FriendsUiEffect.ShowMessage>(effect)
+            assertEquals("친구 초대를 보낼 수 없어요", effect.message)
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        assertEquals(1, fakeKakaoInviter.callCount)
+    }
+
+    @Test
+    fun `캐시가 null 이면 inviteFriend 는 안내 메시지를 노출하고 초대하지 않는다`() = runTest {
+        fakeUserInfoRepository.seed(null)
+
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.inviteFriend()
+            val effect = awaitItem()
+            assertIs<FriendsUiEffect.ShowMessage>(effect)
+            assertEquals("사용자 정보를 불러오는 중이에요. 잠시 후 다시 시도해주세요.", effect.message)
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        assertEquals(0, fakeKakaoInviter.callCount)
     }
 }

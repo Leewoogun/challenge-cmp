@@ -34,6 +34,9 @@ sealed interface Route : NavKey {
 
         @Serializable
         data object Main : FriendsRoute
+
+        @Serializable
+        data object Search : FriendsRoute
     }
 
     @Serializable
@@ -90,6 +93,7 @@ val routeSerializersModule = SerializersModule {
         subclass(Route.LoginRoute.Main::class)
         subclass(Route.SplashRoute.Main::class)
         subclass(Route.FriendsRoute.Main::class)
+        subclass(Route.FriendsRoute.Search::class)
         subclass(Route.RankingRoute.Main::class)
         subclass(Route.MyPageRoute.Main::class)
         subclass(Route.ChallengeDetailRoute.Main::class)

@@ -2,7 +2,10 @@ package com.lwg.challenge.feature.friends
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lwg.challenge.core.invite.KakaoInviter
+import com.lwg.challenge.domain.model.user.CacheStrategy
 import com.lwg.challenge.domain.repository.FriendsRepository
+import com.lwg.challenge.domain.repository.UserInfoRepository
 import com.lwg.challenge.domain.usecase.GetFriendsDataUseCase
 import com.lwg.challenge.feature.friends.contract.FriendItemState
 import com.lwg.challenge.feature.friends.contract.FriendRequestItemState
@@ -16,6 +19,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -31,6 +35,8 @@ import org.koin.android.annotation.KoinViewModel
 class FriendsViewModel(
     private val getFriendsDataUseCase: GetFriendsDataUseCase,
     private val friendsRepository: FriendsRepository,
+    private val kakaoInviter: KakaoInviter,
+    private val userInfoRepository: UserInfoRepository,
 ) : ViewModel() {
 
     private val refreshTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -39,17 +45,21 @@ class FriendsViewModel(
         .onStart { emit(Unit) }
         .flatMapLatest {
             getFriendsDataUseCase(onError = ::showMessage).map { data ->
-                val now = Clock.System.now()
-                FriendsUiState(
-                    receivedRequests = data.receivedRequests.map { FriendRequestItemState(it, now) },
-                    friends = data.friends.map { FriendItemState(it, now) },
-                )
+                if (data.receivedRequests.isEmpty() && data.friends.isEmpty()) {
+                    FriendsUiState.Empty
+                } else {
+                    val now = Clock.System.now()
+                    FriendsUiState.Data(
+                        receivedRequests = data.receivedRequests.map { FriendRequestItemState(it, now) },
+                        friends = data.friends.map { FriendItemState(it, now) },
+                    )
+                }
             }
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = FriendsUiState(emptyList(), emptyList()),
+            initialValue = FriendsUiState.Loading,
         )
 
     private val _modalEffect = MutableStateFlow<FriendsModalEffect>(FriendsModalEffect.Hidden)
@@ -75,6 +85,20 @@ class FriendsViewModel(
                 onSuccess = ::reload,
                 onError = ::showMessage,
             )
+        }
+    }
+
+    fun inviteFriend() {
+        viewModelScope.launch {
+            val userInfo = userInfoRepository
+                .getUserInfo(onError = {}, cacheStrategy = CacheStrategy.CACHE_FIRST)
+                .firstOrNull()
+            if (userInfo == null) {
+                showMessage("사용자 정보를 불러오는 중이에요. 잠시 후 다시 시도해주세요.")
+                return@launch
+            }
+            kakaoInviter.sendInvite(userInfo.nickname)
+                .onFailure { showMessage("친구 초대를 보낼 수 없어요") }
         }
     }
 

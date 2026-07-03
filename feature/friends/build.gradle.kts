@@ -13,6 +13,8 @@ kotlin {
             // (:core:designsystem 도 materialIconsExtended 를 commonMain 의 implementation 으로 갖지만,
             //  Feature 모듈에서 직접 import 하므로 명시 선언.)
             implementation(compose.materialIconsExtended)
+            // 친구 초대(KakaoLink) — KakaoInviter 인터페이스.
+            implementation(project(":core:invite"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -160,6 +160,7 @@ sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sql
 
 # Kakao SDK (Android only - iOS는 KakaoSDKUser pod/SPM으로 별도 통합)
 kakao-sdk-user = { module = "com.kakao.sdk:v2-user", version.ref = "kakao-sdk" }
+kakao-sdk-share = { module = "com.kakao.sdk:v2-share", version.ref = "kakao-sdk" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

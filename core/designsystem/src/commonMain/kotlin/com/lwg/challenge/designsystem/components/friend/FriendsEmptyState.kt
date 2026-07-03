@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.Icon
@@ -21,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.IconTextButton
+import com.lwg.challenge.designsystem.components.IconTextButtonStyle
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -33,6 +35,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * @param ctaLabel CTA 버튼 라벨(`medium14` + `onPrimary`).
  * @param icon 일러스트 자리 아이콘(`Icons.Filled.Group` 32.dp, primary tint).
  * @param onClickCta CTA 클릭 콜백(1차 1단계는 stub — "준비 중입니다" 스낵바).
+ * @param onClickInvite 카카오톡 초대 보조 CTA 콜백. null 이면 보조 버튼을 노출하지 않는다.
  */
 @Composable
 fun FriendsEmptyState(
@@ -42,6 +45,7 @@ fun FriendsEmptyState(
     icon: ImageVector,
     onClickCta: () -> Unit,
     modifier: Modifier = Modifier,
+    onClickInvite: (() -> Unit)? = null,
 ) {
     val primary = ChallengeTheme.colorScheme.primary
 
@@ -96,6 +100,18 @@ fun FriendsEmptyState(
                 onClick = onClickCta,
                 modifier = Modifier.fillMaxWidth(),
             )
+
+            if (onClickInvite != null) {
+                VerticalSpacer(8.dp)
+
+                IconTextButton(
+                    text = "카카오톡으로 초대하기",
+                    icon = Icons.AutoMirrored.Filled.Send,
+                    onClick = onClickInvite,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = IconTextButtonStyle.Outlined,
+                )
+            }
         }
     }
 }
@@ -115,6 +131,27 @@ private fun FriendsEmptyStatePreview() {
                 ctaLabel = "친구 추가하기",
                 icon = Icons.Filled.Group,
                 onClickCta = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun FriendsEmptyStateWithInvitePreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(24.dp),
+        ) {
+            FriendsEmptyState(
+                title = "아직 친구가 없어요",
+                subtitle = "친구를 추가하고 함께 챌린지를 시작해보세요",
+                ctaLabel = "친구 추가하기",
+                icon = Icons.Filled.Group,
+                onClickCta = {},
+                onClickInvite = {},
             )
         }
     }

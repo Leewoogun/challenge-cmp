@@ -27,6 +27,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.friends.FriendsRoute
+import com.lwg.challenge.feature.friends.FriendsSearchRoute
 import com.lwg.challenge.feature.home.HomeRoute
 import com.lwg.challenge.feature.login.LoginRoute
 import com.lwg.challenge.feature.main.component.ChallengeBottomBar
@@ -157,7 +158,8 @@ private fun MainScreen(
                     is Route.SplashRoute -> NavEntry(route) { SplashRoute() }
                     is Route.LoginRoute -> NavEntry(route) { LoginRoute() }
                     is Route.HomeRoute -> NavEntry(route) { HomeRoute() }
-                    is Route.FriendsRoute -> NavEntry(route) { FriendsRoute() }
+                    is Route.FriendsRoute.Main -> NavEntry(route) { FriendsRoute() }
+                    is Route.FriendsRoute.Search -> NavEntry(route) { FriendsSearchRoute() }
                     is Route.RankingRoute -> NavEntry(route) { RankingRoute() }
                     is Route.MyPageRoute -> NavEntry(route) { MyPageRoute() }
                     is Route.ChallengeDetailRoute.Main -> NavEntry(route) {

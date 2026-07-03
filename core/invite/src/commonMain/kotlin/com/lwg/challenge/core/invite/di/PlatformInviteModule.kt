@@ -1,0 +1,11 @@
+package com.lwg.challenge.core.invite.di
+
+import org.koin.core.module.Module
+
+/**
+ * 플랫폼별 [com.lwg.challenge.core.invite.KakaoInviter] 바인딩 모듈.
+ *
+ * feature:login 의 platformLoginModule 과 동일하게 actual class 에 `@Single` 을 붙이지 않고
+ * expect/actual val Module 로 수동 등록한다 (KSP metadata pass 가 platform-specific @Single 을 누락하기 때문).
+ */
+expect val platformInviteModule: Module
