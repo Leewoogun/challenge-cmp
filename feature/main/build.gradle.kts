@@ -10,7 +10,8 @@ kotlin {
             implementation(projects.feature.home)
             implementation(projects.feature.login)
             implementation(projects.feature.splash)
-            implementation(projects.feature.friends)
+            implementation(projects.feature.friends.list)
+            implementation(projects.feature.friends.search)
             implementation(projects.feature.ranking)
             implementation(projects.feature.mypage)
         }

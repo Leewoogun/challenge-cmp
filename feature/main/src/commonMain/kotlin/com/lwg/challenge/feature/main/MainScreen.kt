@@ -26,8 +26,8 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.feature.friends.FriendsRoute
-import com.lwg.challenge.feature.friends.FriendsSearchRoute
+import com.lwg.challenge.feature.friends.list.FriendsRoute
+import com.lwg.challenge.feature.friends.search.FriendsSearchRoute
 import com.lwg.challenge.feature.home.HomeRoute
 import com.lwg.challenge.feature.login.LoginRoute
 import com.lwg.challenge.feature.main.component.ChallengeBottomBar

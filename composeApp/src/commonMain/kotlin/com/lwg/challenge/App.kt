@@ -2,7 +2,8 @@ package com.lwg.challenge
 
 import com.lwg.challenge.core.invite.di.platformInviteModule
 import com.lwg.challenge.di.AppModule
-import com.lwg.challenge.feature.friends.di.FriendsModule
+import com.lwg.challenge.feature.friends.list.di.FriendsModule
+import com.lwg.challenge.feature.friends.search.di.FriendsSearchModule
 import com.lwg.challenge.feature.home.di.HomeModule
 import com.lwg.challenge.feature.login.di.LoginModule
 import com.lwg.challenge.feature.login.di.platformLoginModule
@@ -26,6 +27,7 @@ internal fun cookingAppDeclaration(
         platformInviteModule,
         SplashModule().module,
         FriendsModule().module,
+        FriendsSearchModule().module,
         RankingModule().module,
         MyPageModule().module,
     )
