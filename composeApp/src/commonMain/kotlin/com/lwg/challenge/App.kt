@@ -15,7 +15,7 @@ import org.koin.core.KoinApplication
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.ksp.generated.module
 
-internal fun cookingAppDeclaration(
+internal fun challengeAppDeclaration(
     additionalDeclaration: KoinApplication.() -> Unit = {},
 ): KoinAppDeclaration = {
     modules(

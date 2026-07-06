@@ -1,11 +1,31 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.challengeKotlinMultiplatform)
     alias(libs.plugins.challengeComposeMultiplatform)
+    alias(libs.plugins.buildkonfig)
 }
 
 android {
     namespace = "com.lwg.challenge.core.invite"
+}
+
+// local.properties 의 kakao_invite_template_id → BuildKonfig.KAKAO_INVITE_TEMPLATE_ID.
+// 카카오 콘솔 [메시지 템플릿 도구] 에서 만든 커스텀 템플릿 ID (composeApp 의 앱 키 주입과 동일 패턴).
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) load(file.inputStream())
+}
+val kakaoInviteTemplateId: String =
+    localProperties["kakao_invite_template_id"]?.toString()?.trim('"').orEmpty()
+
+buildkonfig {
+    packageName = "com.lwg.challenge.core.invite"
+    defaultConfigs {
+        buildConfigField(STRING, "KAKAO_INVITE_TEMPLATE_ID", kakaoInviteTemplateId)
+    }
 }
 
 kotlin {

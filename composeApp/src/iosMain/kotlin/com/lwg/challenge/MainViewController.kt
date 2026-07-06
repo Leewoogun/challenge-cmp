@@ -6,7 +6,7 @@ import org.koin.compose.KoinApplication
 
 fun MainViewController() = ComposeUIViewController {
     KoinApplication(
-        application = cookingAppDeclaration(),
+        application = challengeAppDeclaration(),
     ) {
         MainRoute()
     }

@@ -14,7 +14,7 @@ class ChallengeApplication : Application() {
         initKakaoSdk()
 
         startKoin(
-            cookingAppDeclaration {
+            challengeAppDeclaration {
                 androidContext(this@ChallengeApplication)
             },
         )
