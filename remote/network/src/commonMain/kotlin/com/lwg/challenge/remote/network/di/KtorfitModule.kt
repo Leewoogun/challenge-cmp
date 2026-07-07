@@ -3,6 +3,7 @@ package com.lwg.challenge.remote.network.di
 import com.lwg.challenge.remote.model.auth.RefreshRequest
 import com.lwg.challenge.remote.model.auth.RefreshResponse
 import com.lwg.challenge.remote.network.BuildKonfig
+import com.lwg.challenge.remote.network.auth.AuthTokenCacheInvalidator
 import com.lwg.challenge.remote.network.auth.TokenProvider
 import com.lwg.challenge.remote.network.util.ApiResultConverterFactory
 import com.lwg.challenge.remote.network.util.HttpNetworkLogger
@@ -108,6 +109,10 @@ class KtorfitModule {
             install(HttpNetworkLogger)
         }
     }
+
+    @Single
+    fun provideAuthTokenCacheInvalidator(httpClient: HttpClient): AuthTokenCacheInvalidator =
+        AuthTokenCacheInvalidator(httpClient)
 
     @Single
     fun provideKtorfit(httpClient: HttpClient): Ktorfit {

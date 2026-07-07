@@ -7,6 +7,7 @@ import com.lwg.challenge.local.datastore.datasource.TokenLocalDataSource
 import com.lwg.challenge.remote.api.LoginApi
 import com.lwg.challenge.remote.mapper.toLoginResult
 import com.lwg.challenge.remote.model.auth.KakaoLoginRequest
+import com.lwg.challenge.remote.network.auth.AuthTokenCacheInvalidator
 import com.lwg.challenge.remote.network.util.suspendOnFailureWithErrorHandling
 import com.lwg.challenge.remote.network.util.suspendOnSuccess
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +18,7 @@ import org.koin.core.annotation.Single
 class LoginRepositoryImpl(
     private val loginApi: LoginApi,
     private val tokenLocalDataSource: TokenLocalDataSource,
+    private val authTokenCacheInvalidator: AuthTokenCacheInvalidator,
 ) : LoginRepository {
 
     override fun loginWithKakao(
@@ -30,6 +32,8 @@ class LoginRepositoryImpl(
                     accessToken = result.tokens.accessToken,
                     refreshToken = result.tokens.refreshToken,
                 )
+                // Ktor Auth 는 loadTokens 결과를 캐싱하므로, 비우지 않으면 다음 요청이 옛 토큰으로 나간다
+                authTokenCacheInvalidator.invalidate()
                 emit(result)
             }
             .suspendOnFailureWithErrorHandling(onError)
@@ -47,5 +51,6 @@ class LoginRepositoryImpl(
 
     override suspend fun clearTokens() {
         tokenLocalDataSource.clearTokens()
+        authTokenCacheInvalidator.invalidate()
     }
 }

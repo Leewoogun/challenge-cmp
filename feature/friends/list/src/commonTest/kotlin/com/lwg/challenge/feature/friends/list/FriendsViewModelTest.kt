@@ -12,6 +12,8 @@ import com.lwg.challenge.feature.friends.list.contract.FriendsUiEffect
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -41,6 +43,13 @@ class FriendsViewModelTest {
     @AfterTest
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    // uiState 가 WhileSubscribed 이므로 구독자가 있어야 파이프라인이 시작된다.
+    private fun TestScope.subscribeUiState(viewModel: FriendsViewModel) {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { }
+        }
     }
 
     private fun createViewModel(): FriendsViewModel =
@@ -79,6 +88,7 @@ class FriendsViewModelTest {
     @Test
     fun `init 시 친구와 요청이 모두 없으면 Empty 상태다`() = runTest {
         val viewModel = createViewModel()
+        subscribeUiState(viewModel)
         assertIs<FriendsUiState.Empty>(viewModel.uiState.value)
     }
 
@@ -99,6 +109,7 @@ class FriendsViewModelTest {
         fakeRepository.friendsFlow.value = listOf(sampleFriend(100), sampleFriend(101))
 
         val viewModel = createViewModel()
+        subscribeUiState(viewModel)
         val state = assertIs<FriendsUiState.Data>(viewModel.uiState.value)
         assertEquals(1, state.receivedRequests.size)
         assertEquals(10L, state.receivedRequests.first().requestId)
@@ -111,6 +122,7 @@ class FriendsViewModelTest {
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(10))
 
         val viewModel = createViewModel()
+        subscribeUiState(viewModel)
         val state = assertIs<FriendsUiState.Data>(viewModel.uiState.value)
         viewModel.acceptRequest(state.receivedRequests.first())
 
@@ -122,6 +134,7 @@ class FriendsViewModelTest {
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(20))
 
         val viewModel = createViewModel()
+        subscribeUiState(viewModel)
         val state = assertIs<FriendsUiState.Data>(viewModel.uiState.value)
         viewModel.rejectRequest(state.receivedRequests.first())
 
@@ -134,6 +147,7 @@ class FriendsViewModelTest {
         fakeRepository.acceptRequestError = "이미 친구입니다"
 
         val viewModel = createViewModel()
+        subscribeUiState(viewModel)
         val item = assertIs<FriendsUiState.Data>(viewModel.uiState.value).receivedRequests.first()
 
         viewModel.uiEffect.test {
@@ -151,6 +165,7 @@ class FriendsViewModelTest {
         fakeRepository.rejectRequestError = "네트워크 오류가 발생하였습니다."
 
         val viewModel = createViewModel()
+        subscribeUiState(viewModel)
         val item = assertIs<FriendsUiState.Data>(viewModel.uiState.value).receivedRequests.first()
 
         viewModel.uiEffect.test {

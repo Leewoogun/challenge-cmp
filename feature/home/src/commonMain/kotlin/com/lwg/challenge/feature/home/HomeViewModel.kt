@@ -33,7 +33,7 @@ class HomeViewModel(
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.Eagerly,
+            started = SharingStarted.WhileSubscribed(0),
             initialValue = HomeUiState.Loading,
         )
 
