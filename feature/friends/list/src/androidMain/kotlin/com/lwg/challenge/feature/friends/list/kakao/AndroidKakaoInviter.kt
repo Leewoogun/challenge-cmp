@@ -1,8 +1,9 @@
-package com.lwg.challenge.core.invite
+package com.lwg.challenge.feature.friends.list.kakao
 
 import android.content.Context
 import android.content.Intent
 import com.kakao.sdk.share.ShareClient
+import com.lwg.challenge.feature.friends.list.BuildKonfig
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 

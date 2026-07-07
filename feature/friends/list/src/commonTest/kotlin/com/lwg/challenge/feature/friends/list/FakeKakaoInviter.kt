@@ -1,6 +1,6 @@
 package com.lwg.challenge.feature.friends.list
 
-import com.lwg.challenge.core.invite.KakaoInviter
+import com.lwg.challenge.feature.friends.list.kakao.KakaoInviter
 
 /**
  * 테스트용 [KakaoInviter] 페이크.

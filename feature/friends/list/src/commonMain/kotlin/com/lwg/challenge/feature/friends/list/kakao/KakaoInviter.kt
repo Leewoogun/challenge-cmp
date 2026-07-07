@@ -1,4 +1,4 @@
-package com.lwg.challenge.core.invite
+package com.lwg.challenge.feature.friends.list.kakao
 
 /**
  * 카카오톡 공유(KakaoLink) 로 친구 초대 메시지를 전송하는 플랫폼 wrapper.

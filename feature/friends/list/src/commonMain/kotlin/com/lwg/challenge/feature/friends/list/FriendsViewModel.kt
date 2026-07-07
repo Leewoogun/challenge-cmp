@@ -2,7 +2,7 @@ package com.lwg.challenge.feature.friends.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lwg.challenge.core.invite.KakaoInviter
+import com.lwg.challenge.feature.friends.list.kakao.KakaoInviter
 import com.lwg.challenge.domain.model.user.CacheStrategy
 import com.lwg.challenge.domain.repository.FriendsRepository
 import com.lwg.challenge.domain.repository.UserInfoRepository

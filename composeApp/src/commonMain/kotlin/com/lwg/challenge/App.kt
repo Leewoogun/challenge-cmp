@@ -1,6 +1,6 @@
 package com.lwg.challenge
 
-import com.lwg.challenge.core.invite.di.platformInviteModule
+import com.lwg.challenge.feature.friends.list.di.platformInviteModule
 import com.lwg.challenge.di.AppModule
 import com.lwg.challenge.feature.friends.list.di.FriendsModule
 import com.lwg.challenge.feature.friends.search.di.FriendsSearchModule

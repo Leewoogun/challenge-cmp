@@ -58,7 +58,6 @@ include(":core:designsystem")
 include(":core:ui")
 include(":core:utils")
 include(":core:navigation")
-include(":core:invite")
 
 // Feature
 include(":feature:main")

@@ -48,7 +48,6 @@ kotlin {
 
             implementation(projects.data.repositoryImpl)
 
-            implementation(projects.core.invite)
 
             implementation(projects.feature.main)
             implementation(projects.feature.home)

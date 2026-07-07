@@ -1,4 +1,4 @@
-package com.lwg.challenge.core.invite
+package com.lwg.challenge.feature.friends.list.kakao
 
 /**
  * iOS 카카오톡 공유(KakaoSDKShare) 연동 bridge.

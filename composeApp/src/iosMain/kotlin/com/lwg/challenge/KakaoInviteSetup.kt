@@ -1,6 +1,6 @@
 package com.lwg.challenge
 
-import com.lwg.challenge.core.invite.KakaoInviteBridge
+import com.lwg.challenge.feature.friends.list.kakao.KakaoInviteBridge
 
 interface KakaoInviteHandler {
     fun invite(

@@ -1,4 +1,4 @@
-package com.lwg.challenge.core.invite
+package com.lwg.challenge.feature.friends.list.kakao
 
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
