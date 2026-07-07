@@ -6,6 +6,8 @@
 	<true/>
 	<key>KAKAO_NATIVE_APP_KEY</key>
 	<string>$(KAKAO_NATIVE_APP_KEY)</string>
+	<key>KAKAO_INVITE_TEMPLATE_ID</key>
+	<string>$(KAKAO_INVITE_TEMPLATE_ID)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

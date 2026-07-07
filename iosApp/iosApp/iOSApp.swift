@@ -9,6 +9,7 @@ struct iOSApp: App {
     init() {
         initKakaoSdk()
         KakaoLoginSetupKt.registerKakaoLoginHandler(handler: KakaoLoginHelperImpl())
+        KakaoInviteSetupKt.registerKakaoInviteHandler(handler: KakaoInviteHelperImpl())
     }
 
     var body: some Scene {

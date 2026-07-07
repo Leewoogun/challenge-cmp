@@ -10,6 +10,7 @@
 		9AC302B52FAC19F4002F984D /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9AC302B42FAC19F4002F984D /* KakaoSDKAuth */; };
 		9AC302B72FAC19F4002F984D /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 9AC302B62FAC19F4002F984D /* KakaoSDKCommon */; };
 		9AC302B92FAC19F4002F984D /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 9AC302B82FAC19F4002F984D /* KakaoSDKUser */; };
+		9AC302BB2FAC19F4002F984D /* KakaoSDKShare in Frameworks */ = {isa = PBXBuildFile; productRef = 9AC302BA2FAC19F4002F984D /* KakaoSDKShare */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,7 @@
 				9AC302B72FAC19F4002F984D /* KakaoSDKCommon in Frameworks */,
 				9AC302B52FAC19F4002F984D /* KakaoSDKAuth in Frameworks */,
 				9AC302B92FAC19F4002F984D /* KakaoSDKUser in Frameworks */,
+				9AC302BB2FAC19F4002F984D /* KakaoSDKShare in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +99,7 @@
 				9AC302B42FAC19F4002F984D /* KakaoSDKAuth */,
 				9AC302B62FAC19F4002F984D /* KakaoSDKCommon */,
 				9AC302B82FAC19F4002F984D /* KakaoSDKUser */,
+				9AC302BA2FAC19F4002F984D /* KakaoSDKShare */,
 			);
 			productName = iosApp;
 			productReference = B9287C4B7548D9DCE2BE6070 /* Challenge.app */;
@@ -410,6 +413,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9AC302B32FAC19F4002F984D /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
 			productName = KakaoSDKUser;
+		};
+		9AC302BA2FAC19F4002F984D /* KakaoSDKShare */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9AC302B32FAC19F4002F984D /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKShare;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
