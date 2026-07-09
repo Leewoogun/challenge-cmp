@@ -12,6 +12,7 @@ kotlin {
             implementation(projects.feature.splash)
             implementation(projects.feature.friends.list)
             implementation(projects.feature.friends.search)
+            implementation(projects.feature.challenge.create)
             implementation(projects.feature.ranking)
             implementation(projects.feature.mypage)
         }

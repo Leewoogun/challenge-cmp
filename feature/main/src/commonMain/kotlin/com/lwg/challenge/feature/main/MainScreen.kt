@@ -19,13 +19,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.feature.challenge.create.ChallengeCreateRoute
 import com.lwg.challenge.feature.friends.list.FriendsRoute
 import com.lwg.challenge.feature.friends.search.FriendsSearchRoute
 import com.lwg.challenge.feature.home.HomeRoute
@@ -46,6 +47,16 @@ import org.koin.compose.viewmodel.koinViewModel
 private val savedStateConfiguration = SavedStateConfiguration {
     serializersModule = routeSerializersModule
 }
+
+/**
+ * NavEntry 의 contentKey 로 쓸 route 고유 키.
+ *
+ * nav3 기본 contentKey 는 `key.toString()` 인데, 중첩 `data object` route 는 toString 이
+ * 전부 "Main" 이라 모든 화면이 같은 키로 취급된다 — ViewModelStore/SaveableState 가
+ * 화면 간 공유되고, "Main" 이 백스택에 항상 존재해 pop 정리(onPop)가 영원히 발동하지 않는다.
+ * qualifiedName + toString 조합으로 화면별(인자 있는 route 는 인자별) 고유 키를 만든다.
+ */
+private fun NavKey.uniqueContentKey(): String = "${this::class.qualifiedName}#$this"
 
 @Composable
 fun MainRoute(
@@ -153,28 +164,25 @@ private fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            entryProvider = { route ->
-                when (route) {
-                    is Route.SplashRoute -> NavEntry(route) { SplashRoute() }
-                    is Route.LoginRoute -> NavEntry(route) { LoginRoute() }
-                    is Route.HomeRoute -> NavEntry(route) { HomeRoute() }
-                    is Route.FriendsRoute.Main -> NavEntry(route) { FriendsRoute() }
-                    is Route.FriendsRoute.Search -> NavEntry(route) { FriendsSearchRoute() }
-                    is Route.RankingRoute -> NavEntry(route) { RankingRoute() }
-                    is Route.MyPageRoute -> NavEntry(route) { MyPageRoute() }
-                    is Route.ChallengeDetailRoute.Main -> NavEntry(route) {
-                        PlaceholderScreen(
-                            title = "챌린지 상세",
-                            subtitle = "id=${route.challengeId} (준비 중)",
-                        )
-                    }
-                    is Route.ChallengeCreateRoute -> NavEntry(route) {
-                        PlaceholderScreen(title = "챌린지 만들기")
-                    }
-                    is Route.NotificationsRoute -> NavEntry(route) {
-                        PlaceholderScreen(title = "알림")
-                    }
-                    else -> NavEntry(route) {}
+            entryProvider = entryProvider {
+                entry<Route.SplashRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { SplashRoute() }
+                entry<Route.LoginRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { LoginRoute() }
+                entry<Route.HomeRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { HomeRoute() }
+                entry<Route.FriendsRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { FriendsRoute() }
+                entry<Route.FriendsRoute.Search>(clazzContentKey = { it.uniqueContentKey() }) { FriendsSearchRoute() }
+                entry<Route.RankingRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { RankingRoute() }
+                entry<Route.MyPageRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { MyPageRoute() }
+                entry<Route.ChallengeDetailRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { route ->
+                    PlaceholderScreen(
+                        title = "챌린지 상세",
+                        subtitle = "id=${route.challengeId} (준비 중)",
+                    )
+                }
+                entry<Route.ChallengeCreateRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) {
+                    ChallengeCreateRoute()
+                }
+                entry<Route.NotificationsRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) {
+                    PlaceholderScreen(title = "알림")
                 }
             },
         )

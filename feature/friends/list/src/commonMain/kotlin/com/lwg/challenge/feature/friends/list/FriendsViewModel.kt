@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -66,7 +67,7 @@ class FriendsViewModel(
     val modalEffect: StateFlow<FriendsModalEffect> = _modalEffect.asStateFlow()
 
     private val _uiEffect = MutableSharedFlow<FriendsUiEffect>()
-    val uiEffect: SharedFlow<FriendsUiEffect> = _uiEffect
+    val uiEffect: SharedFlow<FriendsUiEffect> = _uiEffect.asSharedFlow()
 
     fun acceptRequest(item: FriendRequestItemState) {
         viewModelScope.launch {
