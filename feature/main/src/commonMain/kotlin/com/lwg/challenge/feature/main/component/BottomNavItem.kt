@@ -14,22 +14,22 @@ enum class BottomNavItem(
     val label: String,
 ) {
     HOME(
-        route = Route.HomeRoute.Main,
+        route = Route.Home,
         icon = Icons.Filled.Home,
         label = "홈",
     ),
     FRIENDS(
-        route = Route.FriendsRoute.Main,
+        route = Route.Friends.List,
         icon = Icons.Filled.Group,
         label = "친구",
     ),
     RANKING(
-        route = Route.RankingRoute.Main,
+        route = Route.Ranking,
         icon = Icons.Filled.EmojiEvents,
         label = "랭킹",
     ),
     MYPAGE(
-        route = Route.MyPageRoute.Main,
+        route = Route.MyPage,
         icon = Icons.Filled.Person,
         label = "MY",
     ),

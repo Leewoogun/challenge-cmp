@@ -33,7 +33,7 @@ fun FriendsRoute(
 
     FriendsContent(
         uiState = uiState,
-        onClickAddFriend = { navigator.navigateTo(Route.FriendsRoute.Search) },
+        onClickAddFriend = { navigator.navigateTo(Route.Friends.Search) },
         onClickInvite = viewModel::inviteFriend,
         onAcceptRequest = viewModel::acceptRequest,
         onRejectRequest = viewModel::rejectRequest,

@@ -16,8 +16,8 @@ fun SplashRoute(
     LaunchedEffect(viewModel) {
         viewModel.uiEffect.collect { effect ->
             when (effect) {
-                SplashUiEffect.NavigateToHome -> navigateAction.switchTab(Route.HomeRoute.Main)
-                SplashUiEffect.NavigateToLogin -> navigateAction.switchTab(Route.LoginRoute.Main)
+                SplashUiEffect.NavigateToHome -> navigateAction.switchTab(Route.Home)
+                SplashUiEffect.NavigateToLogin -> navigateAction.switchTab(Route.Login)
             }
         }
     }

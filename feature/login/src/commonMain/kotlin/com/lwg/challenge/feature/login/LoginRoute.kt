@@ -30,7 +30,7 @@ fun LoginRoute(
                 is LoginUiEffect.ShowMessage -> mainAction.showSnackBar(effect.message)
                 is LoginUiEffect.NavigateToHome -> {
                     // TODO: isNewUser=true 일 때 온보딩 화면으로 (별도 feature). 지금은 홈으로.
-                    navigateAction.switchTab(Route.HomeRoute.Main)
+                    navigateAction.switchTab(Route.Home)
                 }
             }
         }

@@ -21,13 +21,13 @@ fun HomeRoute(
 
     HomeContent(
         uiState = uiState,
-        onBellClick = { navigateAction.navigateTo(Route.NotificationsRoute.Main) },
-        onFabClick = { navigateAction.navigateTo(Route.ChallengeCreateRoute.Main) },
+        onBellClick = { navigateAction.navigateTo(Route.Notifications) },
+        onFabClick = { navigateAction.navigateTo(Route.Challenge.Create) },
         onChallengeClick = { challengeId ->
-            navigateAction.navigateTo(Route.ChallengeDetailRoute.Main(challengeId))
+            navigateAction.navigateTo(Route.Challenge.Detail(challengeId))
         },
-        onAddFriendClick = { navigateAction.switchTab(Route.FriendsRoute.Main) },
-        onCreateChallengeClick = { navigateAction.navigateTo(Route.ChallengeCreateRoute.Main) },
+        onAddFriendClick = { navigateAction.switchTab(Route.Friends.List) },
+        onCreateChallengeClick = { navigateAction.navigateTo(Route.Challenge.Create) },
     )
 
     LaunchedEffect(viewModel) {

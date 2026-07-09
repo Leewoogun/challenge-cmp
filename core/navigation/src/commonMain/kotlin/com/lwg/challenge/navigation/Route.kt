@@ -6,98 +6,66 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
+/**
+ * 화면 route 정의. feature 모듈 구조를 미러링한다 —
+ * 단일 모듈 feature 는 평탄한 data object, 하위 모듈로 나뉜 feature(friends, challenge)만
+ * 중첩 sealed interface 로 둔다.
+ */
 sealed interface Route : NavKey {
 
     @Serializable
-    sealed interface HomeRoute : Route {
+    data object Splash : Route
+
+    @Serializable
+    data object Login : Route
+
+    @Serializable
+    data object Home : Route
+
+    @Serializable
+    data object Ranking : Route
+
+    @Serializable
+    data object MyPage : Route
+
+    /** 알림 목록. home-feed 헤더 Bell 진입. 본 feature 범위 밖 — stub PlaceholderScreen. */
+    @Serializable
+    data object Notifications : Route
+
+    @Serializable
+    sealed interface Friends : Route {
 
         @Serializable
-        data object Main : HomeRoute
+        data object List : Friends
+
+        @Serializable
+        data object Search : Friends
     }
 
     @Serializable
-    sealed interface LoginRoute : Route {
+    sealed interface Challenge : Route {
 
+        /** 챌린지 생성. home-feed FAB / 빈 상태 "챌린지 만들기" CTA 진입. */
         @Serializable
-        data object Main : LoginRoute
-    }
+        data object Create : Challenge
 
-    @Serializable
-    sealed interface SplashRoute : Route {
-
+        /** 챌린지 상세. home-feed 카드 탭 시 진입. 본 feature 범위 밖 — stub PlaceholderScreen. */
         @Serializable
-        data object Main : SplashRoute
-    }
-
-    @Serializable
-    sealed interface FriendsRoute : Route {
-
-        @Serializable
-        data object Main : FriendsRoute
-
-        @Serializable
-        data object Search : FriendsRoute
-    }
-
-    @Serializable
-    sealed interface RankingRoute : Route {
-
-        @Serializable
-        data object Main : RankingRoute
-    }
-
-    @Serializable
-    sealed interface MyPageRoute : Route {
-
-        @Serializable
-        data object Main : MyPageRoute
-    }
-
-    /**
-     * 챌린지 상세. home-feed 카드 탭 시 진입.
-     * 본 feature 범위 밖 — stub PlaceholderScreen 만 등록.
-     */
-    @Serializable
-    sealed interface ChallengeDetailRoute : Route {
-
-        @Serializable
-        data class Main(val challengeId: Long) : ChallengeDetailRoute
-    }
-
-    /**
-     * 챌린지 생성. home-feed FAB / 빈 상태 "챌린지 만들기" CTA 진입.
-     * 본 feature 범위 밖 — stub PlaceholderScreen.
-     */
-    @Serializable
-    sealed interface ChallengeCreateRoute : Route {
-
-        @Serializable
-        data object Main : ChallengeCreateRoute
-    }
-
-    /**
-     * 알림 목록. home-feed 헤더 Bell 진입.
-     * 본 feature 범위 밖 — stub PlaceholderScreen.
-     */
-    @Serializable
-    sealed interface NotificationsRoute : Route {
-
-        @Serializable
-        data object Main : NotificationsRoute
+        data class Detail(val challengeId: Long) : Challenge
     }
 }
 
 val routeSerializersModule = SerializersModule {
     polymorphic(NavKey::class) {
-        subclass(Route.HomeRoute.Main::class)
-        subclass(Route.LoginRoute.Main::class)
-        subclass(Route.SplashRoute.Main::class)
-        subclass(Route.FriendsRoute.Main::class)
-        subclass(Route.FriendsRoute.Search::class)
-        subclass(Route.RankingRoute.Main::class)
-        subclass(Route.MyPageRoute.Main::class)
-        subclass(Route.ChallengeDetailRoute.Main::class)
-        subclass(Route.ChallengeCreateRoute.Main::class)
-        subclass(Route.NotificationsRoute.Main::class)
+        subclass(Route.Splash::class)
+        subclass(Route.Login::class)
+        subclass(Route.Home::class)
+        subclass(Route.Ranking::class)
+        subclass(Route.MyPage::class)
+        subclass(Route.Notifications::class)
+        subclass(Route.Friends.List::class)
+        subclass(Route.Friends.Search::class)
+        subclass(Route.Challenge.Create::class)
+        subclass(Route.Challenge.Detail::class)
     }
 }

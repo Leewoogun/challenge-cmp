@@ -71,10 +71,10 @@ internal fun ChallengeBottomBar(
 
 private fun isSelected(currentRoute: NavKey?, item: BottomNavItem): Boolean =
     when (currentRoute) {
-        is Route.HomeRoute -> item == BottomNavItem.HOME
-        is Route.FriendsRoute -> item == BottomNavItem.FRIENDS
-        is Route.RankingRoute -> item == BottomNavItem.RANKING
-        is Route.MyPageRoute -> item == BottomNavItem.MYPAGE
+        is Route.Home -> item == BottomNavItem.HOME
+        is Route.Friends -> item == BottomNavItem.FRIENDS
+        is Route.Ranking -> item == BottomNavItem.RANKING
+        is Route.MyPage -> item == BottomNavItem.MYPAGE
         else -> false
     }
 
@@ -117,7 +117,7 @@ private fun ChallengeBottomBarPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
             ChallengeBottomBar(
-                currentRoute = Route.HomeRoute.Main,
+                currentRoute = Route.Home,
                 onTabSelected = {},
             )
         }

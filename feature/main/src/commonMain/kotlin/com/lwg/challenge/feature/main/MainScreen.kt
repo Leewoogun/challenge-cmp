@@ -52,9 +52,10 @@ private val savedStateConfiguration = SavedStateConfiguration {
  * NavEntry 의 contentKey 로 쓸 route 고유 키.
  *
  * nav3 기본 contentKey 는 `key.toString()` 인데, 중첩 `data object` route 는 toString 이
- * 전부 "Main" 이라 모든 화면이 같은 키로 취급된다 — ViewModelStore/SaveableState 가
- * 화면 간 공유되고, "Main" 이 백스택에 항상 존재해 pop 정리(onPop)가 영원히 발동하지 않는다.
+ * 단순 이름만 반환해 서로 다른 화면이 같은 키로 충돌할 수 있다(과거 전부 "Main" 이던 시절
+ * 전 화면이 ViewModelStore 를 공유하고 pop 정리가 발동하지 않는 버그의 원인이었음).
  * qualifiedName + toString 조합으로 화면별(인자 있는 route 는 인자별) 고유 키를 만든다.
+ * 새 entry 추가 시 반드시 clazzContentKey 로 지정할 것.
  */
 private fun NavKey.uniqueContentKey(): String = "${this::class.qualifiedName}#$this"
 
@@ -62,7 +63,7 @@ private fun NavKey.uniqueContentKey(): String = "${this::class.qualifiedName}#$t
 fun MainRoute(
     onFinishApp: () -> Unit = {},
 ) {
-    val backStack = rememberNavBackStack(savedStateConfiguration, Route.SplashRoute.Main)
+    val backStack = rememberNavBackStack(savedStateConfiguration, Route.Splash)
     val navigator = remember(backStack) { MainNavigator(backStack) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -86,7 +87,7 @@ fun MainRoute(
 
     LaunchedEffect(viewModel) {
         viewModel.sessionExpired.collect {
-            navigator.switchTab(Route.LoginRoute.Main)
+            navigator.switchTab(Route.Login)
         }
     }
 
@@ -123,7 +124,7 @@ private fun MainScreen(
     onBackPressed: () -> Unit,
 ) {
     val currentRoute = backStack.lastOrNull()
-    val showBottomBar = currentRoute !is Route.SplashRoute && currentRoute !is Route.LoginRoute
+    val showBottomBar = currentRoute !is Route.Splash && currentRoute !is Route.Login
 
     PlatformBackHandler(enabled = backStack.size <= 1) {
         onBackPressed()
@@ -165,23 +166,23 @@ private fun MainScreen(
                 .fillMaxSize()
                 .padding(innerPadding),
             entryProvider = entryProvider {
-                entry<Route.SplashRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { SplashRoute() }
-                entry<Route.LoginRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { LoginRoute() }
-                entry<Route.HomeRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { HomeRoute() }
-                entry<Route.FriendsRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { FriendsRoute() }
-                entry<Route.FriendsRoute.Search>(clazzContentKey = { it.uniqueContentKey() }) { FriendsSearchRoute() }
-                entry<Route.RankingRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { RankingRoute() }
-                entry<Route.MyPageRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { MyPageRoute() }
-                entry<Route.ChallengeDetailRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) { route ->
+                entry<Route.Splash>(clazzContentKey = { it.uniqueContentKey() }) { SplashRoute() }
+                entry<Route.Login>(clazzContentKey = { it.uniqueContentKey() }) { LoginRoute() }
+                entry<Route.Home>(clazzContentKey = { it.uniqueContentKey() }) { HomeRoute() }
+                entry<Route.Friends.List>(clazzContentKey = { it.uniqueContentKey() }) { FriendsRoute() }
+                entry<Route.Friends.Search>(clazzContentKey = { it.uniqueContentKey() }) { FriendsSearchRoute() }
+                entry<Route.Ranking>(clazzContentKey = { it.uniqueContentKey() }) { RankingRoute() }
+                entry<Route.MyPage>(clazzContentKey = { it.uniqueContentKey() }) { MyPageRoute() }
+                entry<Route.Challenge.Detail>(clazzContentKey = { it.uniqueContentKey() }) { route ->
                     PlaceholderScreen(
                         title = "챌린지 상세",
                         subtitle = "id=${route.challengeId} (준비 중)",
                     )
                 }
-                entry<Route.ChallengeCreateRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) {
+                entry<Route.Challenge.Create>(clazzContentKey = { it.uniqueContentKey() }) {
                     ChallengeCreateRoute()
                 }
-                entry<Route.NotificationsRoute.Main>(clazzContentKey = { it.uniqueContentKey() }) {
+                entry<Route.Notifications>(clazzContentKey = { it.uniqueContentKey() }) {
                     PlaceholderScreen(title = "알림")
                 }
             },
