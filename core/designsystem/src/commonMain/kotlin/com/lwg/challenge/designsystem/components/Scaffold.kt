@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -72,7 +74,9 @@ fun ChallengeScaffold(
         floatingActionButton = floatingActionButton,
         containerColor = containerColor,
         contentColor = contentColor,
-        contentWindowInsets = WindowInsets(0.dp),
+        // 바텀바 없이 단독으로 뜨는 화면(탭 하위 push 화면 등)에서 콘텐츠가 하단 시스템 영역에
+        // 깔리지 않게 한다. 바텀바가 있는 탭 화면은 상위에서 이미 consume 하므로 0 이 된다.
+        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom),
         modifier = modifier,
     ) {
         Column(

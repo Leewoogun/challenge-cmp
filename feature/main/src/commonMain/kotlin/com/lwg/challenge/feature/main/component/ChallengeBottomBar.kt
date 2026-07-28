@@ -57,10 +57,11 @@ internal fun ChallengeBottomBar(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                val selectedItem = BottomNavItem.find(currentRoute)
                 BottomNavItem.entries.forEach { item ->
                     BottomNavTab(
                         item = item,
-                        selected = isSelected(currentRoute, item),
+                        selected = item == selectedItem,
                         onClick = { onTabSelected(item.route) },
                     )
                 }
@@ -68,15 +69,6 @@ internal fun ChallengeBottomBar(
         }
     }
 }
-
-private fun isSelected(currentRoute: NavKey?, item: BottomNavItem): Boolean =
-    when (currentRoute) {
-        is Route.Home -> item == BottomNavItem.HOME
-        is Route.Friends -> item == BottomNavItem.FRIENDS
-        is Route.Ranking -> item == BottomNavItem.RANKING
-        is Route.MyPage -> item == BottomNavItem.MYPAGE
-        else -> false
-    }
 
 @Composable
 private fun BottomNavTab(

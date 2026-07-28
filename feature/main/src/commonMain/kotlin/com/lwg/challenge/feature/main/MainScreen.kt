@@ -1,6 +1,7 @@
 package com.lwg.challenge.feature.main
 
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -31,6 +32,7 @@ import com.lwg.challenge.feature.friends.list.FriendsRoute
 import com.lwg.challenge.feature.friends.search.FriendsSearchRoute
 import com.lwg.challenge.feature.home.HomeRoute
 import com.lwg.challenge.feature.login.LoginRoute
+import com.lwg.challenge.feature.main.component.BottomNavItem
 import com.lwg.challenge.feature.main.component.ChallengeBottomBar
 import com.lwg.challenge.feature.mypage.MyPageRoute
 import com.lwg.challenge.feature.ranking.RankingRoute
@@ -124,7 +126,7 @@ private fun MainScreen(
     onBackPressed: () -> Unit,
 ) {
     val currentRoute = backStack.lastOrNull()
-    val showBottomBar = currentRoute !is Route.Splash && currentRoute !is Route.Login
+    val showBottomBar = BottomNavItem.find(currentRoute) != null
 
     PlatformBackHandler(enabled = backStack.size <= 1) {
         onBackPressed()
@@ -162,9 +164,12 @@ private fun MainScreen(
                     onBackPressed()
                 }
             },
+            // 바텀바가 있으면 innerPadding 이 하단 시스템 영역까지 포함하므로 consume 해서
+            // 하위 ChallengeScaffold 가 같은 인셋을 이중으로 적용하지 않게 한다.
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding),
             entryProvider = entryProvider {
                 entry<Route.Splash>(clazzContentKey = { it.uniqueContentKey() }) { SplashRoute() }
                 entry<Route.Login>(clazzContentKey = { it.uniqueContentKey() }) { LoginRoute() }
