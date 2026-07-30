@@ -5,8 +5,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
+import com.lwg.challenge.designsystem.components.ChallengeTopBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.feature.friends.list.component.FriendsTopBar
 import com.lwg.challenge.feature.friends.list.contract.FriendRequestItemState
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiEffect
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiState
@@ -50,7 +50,7 @@ private fun FriendsContent(
 ) {
     ChallengeScaffold(
         statusBarColor = ChallengeTheme.colorScheme.surface,
-        topBar = { FriendsTopBar() },
+        topBar = { ChallengeTopBar(title = "친구") },
     ) {
         when (uiState) {
             FriendsUiState.Loading -> FriendsLoadingScreen()

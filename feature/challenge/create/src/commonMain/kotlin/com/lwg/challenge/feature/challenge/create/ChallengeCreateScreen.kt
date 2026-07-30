@@ -1,40 +1,72 @@
+@file:OptIn(kotlin.time.ExperimentalTime::class)
+
 package com.lwg.challenge.feature.challenge.create
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.challenge.DeadlineType
+import com.lwg.challenge.domain.model.friend.Friend
+import com.lwg.challenge.feature.challenge.create.component.FriendPickStep
+import com.lwg.challenge.feature.challenge.create.component.MissionInputStep
+import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
+import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
+import kotlin.time.Instant
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 챌린지 생성 화면 — 스펙 확정 전 스텁.
- */
+/** 챌린지 생성 위저드 본문. 단계에 따라 상대 선택 / 미션 입력을 렌더한다. */
 @Composable
-internal fun ChallengeCreateScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "챌린지 만들기",
-                style = ChallengeTheme.typography.bold16,
-                color = ChallengeTheme.colorScheme.onBackground,
-            )
+internal fun ChallengeCreateScreen(
+    uiState: ChallengeCreateUiState.Data,
+    onSelectFriend: (Long) -> Unit,
+    onClickAddFriend: () -> Unit,
+    onRetryLoadFriends: () -> Unit,
+    onMyMissionChange: (String) -> Unit,
+    onBetContentChange: (String) -> Unit,
+    onDeadlineChange: (DeadlineType) -> Unit,
+    onSubmit: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when (uiState.step) {
+        ChallengeCreateStep.FRIEND_PICK -> FriendPickStep(
+            uiState = uiState,
+            onSelectFriend = onSelectFriend,
+            onClickAddFriend = onClickAddFriend,
+            onRetryLoadFriends = onRetryLoadFriends,
+            modifier = modifier,
+        )
 
-            VerticalSpacer(4.dp)
+        ChallengeCreateStep.MISSION_INPUT -> MissionInputStep(
+            uiState = uiState,
+            onMyMissionChange = onMyMissionChange,
+            onBetContentChange = onBetContentChange,
+            onDeadlineChange = onDeadlineChange,
+            onSubmit = onSubmit,
+            modifier = modifier,
+        )
+    }
+}
 
-            Text(
-                text = "준비 중입니다",
-                style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+@Preview
+@Composable
+private fun ChallengeCreateScreenFriendPickPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier.background(ChallengeTheme.colorScheme.background)
+        ) {
+            ChallengeCreateScreen(
+                uiState = previewState(
+                    friends = listOf(previewFriend(1, "우건"), previewFriend(2, "도전왕")),
+                ),
+                onSelectFriend = {},
+                onClickAddFriend = {},
+                onRetryLoadFriends = {},
+                onMyMissionChange = {},
+                onBetContentChange = {},
+                onDeadlineChange = {},
+                onSubmit = {},
             )
         }
     }
@@ -42,10 +74,140 @@ internal fun ChallengeCreateScreen() {
 
 @Preview
 @Composable
-private fun ChallengeCreateScreenPreview() {
+private fun ChallengeCreateScreenFriendPickEmptyPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            ChallengeCreateScreen()
+            ChallengeCreateScreen(
+                uiState = previewState(friends = emptyList()),
+                onSelectFriend = {},
+                onClickAddFriend = {},
+                onRetryLoadFriends = {},
+                onMyMissionChange = {},
+                onBetContentChange = {},
+                onDeadlineChange = {},
+                onSubmit = {},
+            )
         }
     }
 }
+
+@Preview
+@Composable
+private fun ChallengeCreateScreenFriendPickLoadFailedPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            ChallengeCreateScreen(
+                uiState = previewState(friends = emptyList(), loadFailed = true),
+                onSelectFriend = {},
+                onClickAddFriend = {},
+                onRetryLoadFriends = {},
+                onMyMissionChange = {},
+                onBetContentChange = {},
+                onDeadlineChange = {},
+                onSubmit = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ChallengeCreateScreenMissionInputPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            ChallengeCreateScreen(
+                uiState = previewState(
+                    step = ChallengeCreateStep.MISSION_INPUT,
+                    friends = listOf(previewFriend(1, "우건")),
+                    selectedFriendId = 1L,
+                ),
+                onSelectFriend = {},
+                onClickAddFriend = {},
+                onRetryLoadFriends = {},
+                onMyMissionChange = {},
+                onBetContentChange = {},
+                onDeadlineChange = {},
+                onSubmit = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ChallengeCreateScreenMissionInputFilledPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            ChallengeCreateScreen(
+                uiState = previewState(
+                    step = ChallengeCreateStep.MISSION_INPUT,
+                    friends = listOf(previewFriend(1, "우건")),
+                    selectedFriendId = 1L,
+                    myMission = "오늘 운동 1시간 하기",
+                    betContent = "커피 사기",
+                ),
+                onSelectFriend = {},
+                onClickAddFriend = {},
+                onRetryLoadFriends = {},
+                onMyMissionChange = {},
+                onBetContentChange = {},
+                onDeadlineChange = {},
+                onSubmit = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ChallengeCreateScreenSubmittingPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            ChallengeCreateScreen(
+                uiState = previewState(
+                    step = ChallengeCreateStep.MISSION_INPUT,
+                    friends = listOf(previewFriend(1, "우건")),
+                    selectedFriendId = 1L,
+                    myMission = "오늘 운동 1시간 하기",
+                    betContent = "커피 사기",
+                    isSubmitting = true,
+                ),
+                onSelectFriend = {},
+                onClickAddFriend = {},
+                onRetryLoadFriends = {},
+                onMyMissionChange = {},
+                onBetContentChange = {},
+                onDeadlineChange = {},
+                onSubmit = {},
+            )
+        }
+    }
+}
+
+private fun previewFriend(id: Long, nickname: String) = Friend(
+    userId = id,
+    nickname = nickname,
+    profileImageUrl = null,
+    since = Instant.parse("2026-01-01T00:00:00Z"),
+)
+
+private fun previewState(
+    step: ChallengeCreateStep = ChallengeCreateStep.FRIEND_PICK,
+    friends: List<Friend> = emptyList(),
+    selectedFriendId: Long? = null,
+    myMission: String = "",
+    betContent: String = "",
+    isSubmitting: Boolean = false,
+    loadFailed: Boolean = false,
+) = ChallengeCreateUiState.Data(
+    step = step,
+    friends = friends,
+    selectedFriendId = selectedFriendId,
+    myMission = myMission,
+    betContent = betContent,
+    deadlineType = DeadlineType.TODAY,
+    todayDeadlineHint = "7/28 24:00",
+    tomorrowDeadlineHint = "7/29 24:00",
+    isSubmitting = isSubmitting,
+    loadFailed = loadFailed,
+)

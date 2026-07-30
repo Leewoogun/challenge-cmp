@@ -104,18 +104,37 @@ class HomeModule
 - Composable: `collectAsStateWithLifecycle()` 사용
 
 ### UI State 파싱 규칙
-- Composable에서 문자열 포맷팅/조건 판별/파생 계산 금지
-- 모든 표시용 데이터는 State/ItemState의 `get()` 프로퍼티로 제공
+- Composable에서 문자열 포맷팅/조건 판별/파생 계산 금지. 모든 표시용 데이터는 State의 `get()` 으로 제공
+- **파생값이 없으면 도메인 모델을 그대로 UiState에 담는다** — 게터만 위임하는 ItemState 는 만들지 않는다
+- 도메인 모델은 `compose_compiler_config.conf` 에 등록돼 stable 로 취급되므로 그대로 넘겨도 skipping 이 동작한다
 
 ```kotlin
-// ✅ ItemState에서 get()으로 파싱
 @Immutable
-data class SomeItemState(private val model: SomeDomainModel) {
-    val dateText: String get() = "${model.date.substring(0, 4)}-${model.date.substring(4, 6)}"
+data class Data(
+    // ✅ 파생값 없음 → 도메인 모델 그대로
+    val friends: List<Friend>,
+    val selectedFriendId: Long?,
+    // ✅ 파생값 여러 개 → ItemState 로 승격
+    val challenges: List<ChallengeItemState>,
+) : SomeUiState {
+
+    // 화면 단위 파생값은 Data 의 get()
+    val isFriendsEmpty: Boolean get() = friends.isEmpty()
+
+    // 아이템 1개에만 의존하는 파생값은 Data 의 fun (호출부: `uiState::isActionable`)
+    fun isActionable(item: ChallengeItemState): Boolean = ...
+}
+
+@Immutable
+data class ChallengeItemState(private val model: Challenge) {
+    val dateText: String get() = ...
     val isError: Boolean get() = model.statusCode == "50"
 }
-// ❌ Composable에서 직접 파싱
 ```
+
+`get()` 주의: 매 호출마다 계산되며 캐시되지 않는다.
+- 값 타입(String/Boolean/Int) 반환은 사실상 무료 — 그냥 쓴다
+- **새 참조 객체(List/Map/람다)를 반환하면 금지** — 매번 다른 인스턴스라 하위 Composable 의 skipping 이 깨진다. 생성자 `val` 로 고정하거나 ViewModel 매핑 시점에 확정할 것
 
 ### Compose Preview 규칙 (필수)
 - 새 `@Composable` UI를 작성/수정하면 **반드시 같은 파일 하단에 `@Preview` 를 함께 작성한다** (Screen / Component / designsystem 공용 컴포넌트 모두 해당)

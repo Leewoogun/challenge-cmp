@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lwg.challenge.feature.home.contract.HomeUiEffect
 import com.lwg.challenge.feature.home.contract.HomeUiState
+import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.navigation.Route
@@ -28,6 +29,11 @@ fun HomeRoute(
         },
         onAddFriendClick = { navigateAction.switchTab(Route.Friends.List) },
         onCreateChallengeClick = { navigateAction.navigateTo(Route.Challenge.Create) },
+        onAcceptClick = viewModel::openAcceptDialog,
+        onRejectClick = viewModel::rejectChallenge,
+        onAcceptMissionChange = viewModel::updateAcceptMission,
+        onAcceptSubmit = viewModel::submitAccept,
+        onAcceptDismiss = viewModel::dismissAcceptDialog,
     )
 
     LaunchedEffect(viewModel) {
@@ -47,6 +53,11 @@ private fun HomeContent(
     onChallengeClick: (Long) -> Unit,
     onAddFriendClick: () -> Unit,
     onCreateChallengeClick: () -> Unit,
+    onAcceptClick: (ReceivedChallengeItemState) -> Unit,
+    onRejectClick: (ReceivedChallengeItemState) -> Unit,
+    onAcceptMissionChange: (String) -> Unit,
+    onAcceptSubmit: () -> Unit,
+    onAcceptDismiss: () -> Unit,
 ) {
     when (uiState) {
         HomeUiState.Loading -> HomeLoadingScreen(
@@ -60,6 +71,11 @@ private fun HomeContent(
             onChallengeClick = onChallengeClick,
             onAddFriendClick = onAddFriendClick,
             onCreateChallengeClick = onCreateChallengeClick,
+            onAcceptClick = onAcceptClick,
+            onRejectClick = onRejectClick,
+            onAcceptMissionChange = onAcceptMissionChange,
+            onAcceptSubmit = onAcceptSubmit,
+            onAcceptDismiss = onAcceptDismiss,
         )
     }
 }

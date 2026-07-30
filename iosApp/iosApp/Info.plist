@@ -27,5 +27,22 @@
 		<string>kakaolink</string>
 		<string>kakaoplus</string>
 	</array>
+	<!--
+	  로컬 개발 서버(사설 IP, 평문 HTTP) 에 연결하기 위한 로컬 네트워크 권한 용도 설명.
+	  iOS 14+ 는 사설 대역 IP 로의 unicast 연결에 로컬 네트워크 권한을 요구하며, 이 키가 없으면
+	  권한 안내를 띄울 수 없어 연결이 실패한다.
+
+	  ATS(NSAppTransportSecurity) 키를 두지 않는 이유: iOS 10+ 는 숫자 IP 로의 평문 로드를 ATS 로
+	  막지 않는다. NSAllowsLocalNetworking 은 .local / unqualified 호스트명 전용이라 여기서는 no-op 이고,
+	  넣으면 "ATS 를 처리했다" 는 잘못된 인상만 남는다.
+
+	  ⚠️ 이 키는 release 빌드에도 들어간다. 운영은 HTTPS 도메인을 쓰므로 실제 로컬 네트워크 접근은
+	  없지만, 스토어 심사에서 용도 설명을 요구받을 수 있다. 불필요해지면 그때 debug 전용 plist 로 분리할 것.
+
+	  ⚠️ iOS 시뮬레이터는 LNP 를 강제하지 않는다. 시뮬레이터에서 통과해도 실기기에서는 권한 팝업이 뜨고,
+	  거부하면 연결이 실패하므로 실기기 검증이 별도로 필요하다.
+	-->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>같은 네트워크의 개발 서버에 연결해 챌린지 정보를 주고받습니다.</string>
 </dict>
 </plist>

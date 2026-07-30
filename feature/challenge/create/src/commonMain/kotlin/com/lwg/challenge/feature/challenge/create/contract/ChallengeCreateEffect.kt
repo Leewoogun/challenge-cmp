@@ -8,4 +8,7 @@ sealed interface ChallengeCreateUiEffect {
 
     @Immutable
     data class ShowMessage(val message: String) : ChallengeCreateUiEffect
+
+    @Immutable
+    data object NavigateBack : ChallengeCreateUiEffect
 }

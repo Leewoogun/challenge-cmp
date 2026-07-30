@@ -30,14 +30,18 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ActiveChallenge
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
+import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.feature.home.component.AcceptChallengeDialog
 import com.lwg.challenge.feature.home.component.ChallengeCard
 import com.lwg.challenge.feature.home.component.ChallengeVerificationStatus
 import com.lwg.challenge.feature.home.component.HomeEmptyState
 import com.lwg.challenge.feature.home.component.HomeEmptyStateType
 import com.lwg.challenge.feature.home.component.HomeTopBar
 import com.lwg.challenge.feature.home.component.StatsBar
+import com.lwg.challenge.feature.home.component.receivedChallengesSection
 import com.lwg.challenge.feature.home.contract.HomeEmptyType
 import com.lwg.challenge.feature.home.contract.HomeUiState
+import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
 import kotlin.time.Instant
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -49,6 +53,11 @@ internal fun HomeScreen(
     onChallengeClick: (Long) -> Unit,
     onAddFriendClick: () -> Unit,
     onCreateChallengeClick: () -> Unit,
+    onAcceptClick: (ReceivedChallengeItemState) -> Unit,
+    onRejectClick: (ReceivedChallengeItemState) -> Unit,
+    onAcceptMissionChange: (String) -> Unit,
+    onAcceptSubmit: () -> Unit,
+    onAcceptDismiss: () -> Unit,
 ) {
     ChallengeScaffold(
         statusBarColor = ChallengeTheme.colorScheme.surface,
@@ -81,11 +90,37 @@ internal fun HomeScreen(
                         currentStreak = uiState.record.currentStreak,
                     )
                 }
+                // 0건이면 섹션 통째로 미노출 — 전용 빈 상태 카드를 두지 않는다 (design.md §2.4).
+                if (uiState.receivedChallenges.isNotEmpty()) {
+                    receivedChallengesSection(
+                        challenges = uiState.receivedChallenges,
+                        onAccept = onAcceptClick,
+                        onReject = onRejectClick,
+                        isActionable = uiState::isActionable,
+                    )
+                }
                 challengesSection(
                     uiState = uiState,
                     onChallengeClick = onChallengeClick,
                     onAddFriendClick = onAddFriendClick,
                     onCreateChallengeClick = onCreateChallengeClick,
+                )
+            }
+
+            uiState.acceptTarget?.let { target ->
+                AcceptChallengeDialog(
+                    missionLabelText = target.missionLabelText,
+                    challengerMission = target.challengerMission,
+                    betContent = target.betContent,
+                    deadlineText = target.deadlineText,
+                    myMission = uiState.acceptMission,
+                    onMyMissionChange = onAcceptMissionChange,
+                    counterText = uiState.acceptMissionCounterText,
+                    counterAtMax = uiState.isAcceptMissionAtMax,
+                    canSubmit = uiState.canSubmitAccept,
+                    isSubmitting = uiState.isSubmittingAccept,
+                    onSubmit = onAcceptSubmit,
+                    onDismiss = onAcceptDismiss,
                 )
             }
         }
@@ -228,6 +263,37 @@ private val previewChallenges = listOf(
     ),
 )
 
+private val previewNow = Instant.parse("2026-06-27T09:00:00Z")
+
+private val previewReceivedChallenges = listOf(
+    ReceivedChallengeItemState(
+        model = ReceivedChallenge(
+            challengeId = 501L,
+            challengerId = 3L,
+            challengerNickname = "도윤",
+            challengerProfileImageUrl = null,
+            challengerMission = "아침 6시 기상하기",
+            betContent = "치킨 사기 🍗",
+            deadline = Instant.parse("2026-06-27T09:40:00Z"),
+            createdAt = Instant.parse("2026-06-27T08:00:00Z"),
+        ),
+        now = previewNow,
+    ),
+    ReceivedChallengeItemState(
+        model = ReceivedChallenge(
+            challengeId = 502L,
+            challengerId = 4L,
+            challengerNickname = "민지",
+            challengerProfileImageUrl = null,
+            challengerMission = "10000보 걷기",
+            betContent = "커피 사기 ☕",
+            deadline = Instant.parse("2026-06-28T12:00:00Z"),
+            createdAt = Instant.parse("2026-06-27T07:00:00Z"),
+        ),
+        now = previewNow,
+    ),
+)
+
 @Preview
 @Composable
 private fun HomeScreenDataPreview() {
@@ -243,6 +309,11 @@ private fun HomeScreenDataPreview() {
                 onChallengeClick = {},
                 onAddFriendClick = {},
                 onCreateChallengeClick = {},
+                onAcceptClick = {},
+                onRejectClick = {},
+                onAcceptMissionChange = {},
+                onAcceptSubmit = {},
+                onAcceptDismiss = {},
             )
         }
     }
@@ -263,6 +334,11 @@ private fun HomeScreenFirstUserPreview() {
                 onChallengeClick = {},
                 onAddFriendClick = {},
                 onCreateChallengeClick = {},
+                onAcceptClick = {},
+                onRejectClick = {},
+                onAcceptMissionChange = {},
+                onAcceptSubmit = {},
+                onAcceptDismiss = {},
             )
         }
     }
@@ -283,6 +359,37 @@ private fun HomeScreenNoActiveChallengePreview() {
                 onChallengeClick = {},
                 onAddFriendClick = {},
                 onCreateChallengeClick = {},
+                onAcceptClick = {},
+                onRejectClick = {},
+                onAcceptMissionChange = {},
+                onAcceptSubmit = {},
+                onAcceptDismiss = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun HomeScreenWithReceivedChallengesPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            HomeScreen(
+                uiState = HomeUiState.Data(
+                    record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
+                    challenges = previewChallenges,
+                    receivedChallenges = previewReceivedChallenges,
+                ),
+                onBellClick = {},
+                onFabClick = {},
+                onChallengeClick = {},
+                onAddFriendClick = {},
+                onCreateChallengeClick = {},
+                onAcceptClick = {},
+                onRejectClick = {},
+                onAcceptMissionChange = {},
+                onAcceptSubmit = {},
+                onAcceptDismiss = {},
             )
         }
     }

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.IconTextButton
 import com.lwg.challenge.designsystem.components.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.ui.components.ProfilePlaceholder
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
