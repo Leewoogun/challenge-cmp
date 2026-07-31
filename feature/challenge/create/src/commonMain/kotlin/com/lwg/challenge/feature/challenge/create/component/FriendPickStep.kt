@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.challenge.create.component
 
 import androidx.compose.foundation.background
@@ -23,7 +21,7 @@ import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
-import kotlin.time.Instant
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** step0 — 대결 상대 선택. design.md §1.2. */
@@ -137,7 +135,7 @@ private fun previewFriend(id: Long, nickname: String) = Friend(
     userId = id,
     nickname = nickname,
     profileImageUrl = null,
-    since = Instant.parse("2026-01-01T00:00:00Z"),
+    since = LocalDateTime.parse("2026-01-01T00:00:00"),
 )
 
 private fun previewState(

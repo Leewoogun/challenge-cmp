@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.friends.list
 
 import app.cash.turbine.test
@@ -18,12 +16,12 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FriendsViewModelTest {
@@ -71,7 +69,7 @@ class FriendsViewModelTest {
         userId = id,
         nickname = nickname,
         profileImageUrl = null,
-        since = Instant.parse("2026-01-01T00:00:00Z"),
+        since = LocalDateTime.parse("2026-01-01T00:00:00"),
     )
 
     private fun sampleRequest(id: Long, fromUserId: Long = id, nickname: String = "요청$id") =
@@ -82,7 +80,7 @@ class FriendsViewModelTest {
                 nickname = nickname,
                 profileImageUrl = null,
             ),
-            requestedAt = Instant.parse("2026-06-01T00:00:00Z"),
+            requestedAt = LocalDateTime.parse("2026-06-01T00:00:00"),
         )
 
     @Test
@@ -115,6 +113,16 @@ class FriendsViewModelTest {
         assertEquals(10L, state.receivedRequests.first().requestId)
         assertEquals(2, state.friends.size)
         assertEquals(listOf(100L, 101L), state.friends.map { it.userId })
+    }
+
+    @Test
+    fun `since 가 null 이면 sinceText 는 - 로 표기된다`() = runTest {
+        fakeRepository.friendsFlow.value = listOf(sampleFriend(100).copy(since = null))
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        val state = assertIs<FriendsUiState.Data>(viewModel.uiState.value)
+        assertEquals("-", state.friends.first().sinceText)
     }
 
     @Test

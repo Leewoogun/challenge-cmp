@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.friends.list.component
 
 import androidx.compose.foundation.background
@@ -15,8 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.feature.friends.list.contract.FriendItemState
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -49,7 +46,7 @@ internal fun FriendsListSection(
 @Preview
 @Composable
 private fun FriendsListSectionPreview() {
-    val now = Clock.System.now()
+    val now = LocalDateTime.parse("2026-06-27T12:00:00")
     ChallengeTheme {
         Box(
             modifier = Modifier
@@ -58,8 +55,8 @@ private fun FriendsListSectionPreview() {
         ) {
             FriendsListSection(
                 friends = listOf(
-                    FriendItemState(Friend(userId = 1, nickname = "우건", profileImageUrl = null, since = now - 3.days), now),
-                    FriendItemState(Friend(userId = 2, nickname = "도전자", profileImageUrl = null, since = now - 10.days), now),
+                    FriendItemState(Friend(userId = 1, nickname = "우건", profileImageUrl = null, since = LocalDateTime.parse("2026-06-24T12:00:00")), now),
+                    FriendItemState(Friend(userId = 2, nickname = "도전자", profileImageUrl = null, since = LocalDateTime.parse("2026-06-17T12:00:00")), now),
                 ),
             )
         }

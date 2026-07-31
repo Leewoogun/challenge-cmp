@@ -1,8 +1,6 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.domain.model.challenge
 
-import kotlin.time.Instant
+import kotlinx.datetime.LocalDateTime
 
 /**
  * 내가 받은 도전장 1건 (응답 대기 중).
@@ -13,8 +11,8 @@ import kotlin.time.Instant
  * @property challengerProfileImageUrl 프로필 이미지. 카카오 프로필 미설정 시 null
  * @property challengerMission 상대가 스스로에게 건 미션
  * @property betContent 내기 내용
- * @property deadline 마감 시각. 마감 임박 표시는 표시 시점에 계산
- * @property createdAt 도전장 생성 시각
+ * @property deadline 마감 시각 (KST). 마감 임박 표시는 표시 시점에 계산
+ * @property createdAt 도전장 생성 시각 (KST). 파싱 실패 시 null
  */
 data class ReceivedChallenge(
     val challengeId: Long,
@@ -23,6 +21,6 @@ data class ReceivedChallenge(
     val challengerProfileImageUrl: String?,
     val challengerMission: String,
     val betContent: String,
-    val deadline: Instant,
-    val createdAt: Instant,
+    val deadline: LocalDateTime,
+    val createdAt: LocalDateTime?,
 )

@@ -12,6 +12,8 @@ import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.feature.home.contract.HomeEmptyType
 import com.lwg.challenge.feature.home.contract.HomeUiEffect
 import com.lwg.challenge.feature.home.contract.HomeUiState
+import com.lwg.challenge.utils.datetime.KST
+import com.lwg.challenge.utils.datetime.nowKst
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -21,6 +23,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -29,10 +34,9 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
@@ -69,12 +73,16 @@ class HomeViewModelTest {
         }
     }
 
+    // ViewModel 이 내부에서 nowKst() 를 재측정하므로 픽스처도 실제 시계 기준 상대값으로 만든다.
+    private fun LocalDateTime.plus(duration: Duration): LocalDateTime =
+        (toInstant(KST) + duration).toLocalDateTime(KST)
+
     private fun receivedChallenge(
         challengeId: Long = 1L,
         nickname: String = "민수",
         mission: String = "책 30페이지 읽기",
         bet: String = "커피 사기",
-        deadline: Instant = Clock.System.now() + 3.hours,
+        deadline: LocalDateTime = nowKst().plus(3.hours),
     ) = ReceivedChallenge(
         challengeId = challengeId,
         challengerId = challengeId * 10,
@@ -83,7 +91,7 @@ class HomeViewModelTest {
         challengerMission = mission,
         betContent = bet,
         deadline = deadline,
-        createdAt = Clock.System.now(),
+        createdAt = nowKst(),
     )
 
     @Test
@@ -131,7 +139,7 @@ class HomeViewModelTest {
             myMission = "오늘 운동 1시간 하기",
             opponentNickname = "민수",
             opponentMission = "책 30페이지 읽기",
-            deadline = Instant.parse("2026-12-31T23:59:59Z"),
+            deadline = LocalDateTime.parse("2026-12-31T23:59:59"),
             myVerificationStatus = VerificationStatus.PENDING,
             opponentVerificationStatus = VerificationStatus.VERIFIED,
             bet = "커피 사기 ☕",
@@ -439,12 +447,12 @@ class HomeViewModelTest {
 
     @Test
     fun `마감까지 1시간 이하면 isUrgent 이고 넘으면 아니다`() = runTest {
-        val now = Clock.System.now()
+        val now = nowKst()
         fakeRecord.record = UserRecord.Empty
         fakeChallenges.challenges = emptyList()
         fakeChallengeRepo.challenges = listOf(
-            receivedChallenge(challengeId = 91L, deadline = now + 30.minutes),
-            receivedChallenge(challengeId = 92L, deadline = now + 3.hours),
+            receivedChallenge(challengeId = 91L, deadline = now.plus(30.minutes)),
+            receivedChallenge(challengeId = 92L, deadline = now.plus(3.hours)),
         )
 
         val viewModel = createViewModel()

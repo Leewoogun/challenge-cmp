@@ -2,30 +2,27 @@
 
 package com.lwg.challenge.utils.datetime
 
-import kotlin.time.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toInstant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 /**
  * 챌린지 마감 시각(deadline)을 한국어 상대 시간 텍스트로 변환.
  *
  * 카드 UI 의 우상단 "5시간 32분" 같은 표기에 사용한다.
- * - 1시간 이상 남음: "X시간 Y분"
+ * - 1시간 이상 남음: "X시간 Y분" (정각이면 "X시간")
  * - 1분 ~ 1시간: "X분"
  * - 1분 미만(양수): "곧 마감"
  * - 이미 지난 시각(또는 0): "마감"
  *
- * @param now 현재 시각. 기본값은 [Clock.System.now()]. 테스트에서는 고정 Instant 주입.
- *
- * 주의: Kotlin 2.2 부터 `kotlin.time.Instant` / `kotlin.time.Clock` 이 신설되었고
- * `kotlinx.datetime.Instant` 는 `kotlin.time.Instant` 의 typealias 로 통합됨.
- * 둘 다 [ExperimentalTime] 마커를 요구해 파일 단위로 @OptIn 처리.
+ * @param now 현재 시각(KST). 기본값은 [nowKst]. 테스트에서는 고정값 주입.
  */
-fun Instant.toRelativeKoreanString(now: Instant = Clock.System.now()): String {
-    val remaining: Duration = this - now
+fun LocalDateTime.toRelativeKoreanString(now: LocalDateTime = nowKst()): String {
+    // LocalDateTime 끼리는 직접 뺄 수 없어 KST 순간으로 환산해 간격을 구한다.
+    val remaining: Duration = this.toInstant(KST) - now.toInstant(KST)
 
     if (remaining <= 0.seconds) return "마감"
     if (remaining < 1.minutes) return "곧 마감"

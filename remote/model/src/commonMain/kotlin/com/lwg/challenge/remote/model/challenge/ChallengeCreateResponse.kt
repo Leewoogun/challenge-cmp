@@ -1,6 +1,10 @@
 package com.lwg.challenge.remote.model.challenge
 
 import com.lwg.challenge.remote.model.BaseResponse
+import com.lwg.challenge.remote.model.serializer.WireLocalDateSerializer
+import com.lwg.challenge.remote.model.serializer.WireLocalDateTimeSerializer
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 /**
@@ -25,8 +29,10 @@ data class ChallengeCreateResponse(
 data class ChallengeCreateData(
     val challengeId: Long = 0L,
     val status: String = "",
-    /** 평문 ISO date (예: "2026-07-28"). */
-    val challengeDate: String = "",
-    /** ISO-8601 UTC. */
-    val deadline: String = "",
+    /** "yyyy-MM-dd" (예: "2026-07-28"). */
+    @Serializable(with = WireLocalDateSerializer::class)
+    val challengeDate: LocalDate? = null,
+    /** "yyyy-MM-dd HH:mm:ss" (KST). 포맷이 어긋나면 null. */
+    @Serializable(with = WireLocalDateTimeSerializer::class)
+    val deadline: LocalDateTime? = null,
 )

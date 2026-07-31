@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.home.component
 
 import androidx.compose.foundation.background
@@ -15,9 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -89,7 +85,7 @@ private fun ReceivedChallengesHeaderPreview() {
 }
 
 internal fun previewReceivedChallenges(): List<ReceivedChallengeItemState> {
-    val now = Clock.System.now()
+    val now = LocalDateTime.parse("2026-06-27T09:00:00")
     return listOf(
         ReceivedChallengeItemState(
             ReceivedChallenge(
@@ -99,8 +95,8 @@ internal fun previewReceivedChallenges(): List<ReceivedChallengeItemState> {
                 challengerProfileImageUrl = null,
                 challengerMission = "아침 6시 기상하기",
                 betContent = "치킨 사기 🍗",
-                deadline = now + 5.hours,
-                createdAt = now - 1.hours,
+                deadline = LocalDateTime.parse("2026-06-27T14:00:00"),
+                createdAt = LocalDateTime.parse("2026-06-27T08:00:00"),
             ),
             now,
         ),
@@ -112,8 +108,8 @@ internal fun previewReceivedChallenges(): List<ReceivedChallengeItemState> {
                 challengerProfileImageUrl = null,
                 challengerMission = "10000보 걷기",
                 betContent = "커피 사기 ☕",
-                deadline = now + 42.minutes,
-                createdAt = now - 2.hours,
+                deadline = LocalDateTime.parse("2026-06-27T09:42:00"),
+                createdAt = LocalDateTime.parse("2026-06-27T07:00:00"),
             ),
             now,
         ),

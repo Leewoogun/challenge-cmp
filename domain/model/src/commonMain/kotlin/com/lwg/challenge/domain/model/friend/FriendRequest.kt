@@ -1,20 +1,18 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.domain.model.friend
 
-import kotlin.time.Instant
+import kotlinx.datetime.LocalDateTime
 
 /**
  * 받은 친구 요청 1건 (PENDING).
  *
  * @property requestId `friendships.id` (PENDING row)
  * @property fromUser 요청 보낸 사용자
- * @property requestedAt 요청 시각 (friendships.created_at)
+ * @property requestedAt 요청 시각 (friendships.created_at, KST). 파싱 실패 시 null
  */
 data class FriendRequest(
     val requestId: Long,
     val fromUser: UserBrief,
-    val requestedAt: Instant,
+    val requestedAt: LocalDateTime?,
 )
 
 /**

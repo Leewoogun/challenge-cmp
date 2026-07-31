@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.challenge.create
 
 import app.cash.turbine.test
@@ -17,6 +15,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -24,7 +23,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import kotlin.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ChallengeCreateViewModelTest {
@@ -64,7 +62,7 @@ class ChallengeCreateViewModelTest {
         userId = id,
         nickname = nickname,
         profileImageUrl = null,
-        since = Instant.parse("2026-01-01T00:00:00Z"),
+        since = LocalDateTime.parse("2026-01-01T00:00:00"),
     )
 
     @Test

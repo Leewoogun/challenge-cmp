@@ -1,8 +1,6 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.domain.model
 
-import kotlin.time.Instant
+import kotlinx.datetime.LocalDateTime
 
 /**
  * 홈 화면에 노출되는 진행 중 챌린지 1건.
@@ -11,7 +9,7 @@ import kotlin.time.Instant
  * @property myMission 현재 사용자의 미션 (예: "오늘 운동 1시간 하기")
  * @property opponentNickname 상대 닉네임
  * @property opponentMission 상대 미션
- * @property deadline 마감 시각 (ISO-8601 UTC). 상대 시간 텍스트는 표시 시점에 변환.
+ * @property deadline 마감 시각 (KST). 상대 시간 텍스트는 표시 시점에 변환.
  * @property myVerificationStatus 현재 사용자 인증 상태
  * @property opponentVerificationStatus 상대 인증 상태
  * @property bet 내기 내용 (예: "커피 사기 ☕")
@@ -21,7 +19,7 @@ data class ActiveChallenge(
     val myMission: String,
     val opponentNickname: String,
     val opponentMission: String,
-    val deadline: Instant,
+    val deadline: LocalDateTime,
     val myVerificationStatus: VerificationStatus,
     val opponentVerificationStatus: VerificationStatus,
     val bet: String,

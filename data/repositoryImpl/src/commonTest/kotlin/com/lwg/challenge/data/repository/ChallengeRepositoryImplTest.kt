@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.data.repository
 
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
@@ -23,11 +21,12 @@ import com.lwg.challenge.remote.model.challenge.RejectChallengeResponse
 import com.lwg.challenge.remote.network.util.ApiResult
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Instant
 
 class ChallengeRepositoryImplTest {
 
@@ -38,9 +37,9 @@ class ChallengeRepositoryImplTest {
         challengerProfileImageUrl = null,
         challengerMission = "오늘 운동 1시간 하기",
         betContent = "커피 사기",
-        challengeDate = "2026-07-28",
-        deadline = "2026-07-28T15:00:00Z",
-        createdAt = "2026-07-28T02:11:00Z",
+        challengeDate = LocalDate(2026, 7, 28),
+        deadline = LocalDateTime(2026, 7, 28, 15, 0, 0),
+        createdAt = LocalDateTime(2026, 7, 28, 2, 11, 0),
     )
 
     private val expectedReceived = ReceivedChallenge(
@@ -50,8 +49,8 @@ class ChallengeRepositoryImplTest {
         challengerProfileImageUrl = null,
         challengerMission = "오늘 운동 1시간 하기",
         betContent = "커피 사기",
-        deadline = Instant.parse("2026-07-28T15:00:00Z"),
-        createdAt = Instant.parse("2026-07-28T02:11:00Z"),
+        deadline = LocalDateTime(2026, 7, 28, 15, 0, 0),
+        createdAt = LocalDateTime(2026, 7, 28, 2, 11, 0),
     )
 
     private val createInput = ChallengeCreateInput(
@@ -104,19 +103,36 @@ class ChallengeRepositoryImplTest {
     }
 
     @Test
-    fun `getReceivedChallenges - 시간 파싱 실패 시 DISTANT_PAST 폴백`() = runTest {
+    fun `getReceivedChallenges - deadline 이 null 인 항목은 제외되고 onError 1회`() = runTest {
         val api = FakeChallengeApi(
             receivedResult = receivedSuccess(
-                receivedDto.copy(deadline = "2026-07-28 15:00", createdAt = ""),
+                receivedDto,
+                receivedDto.copy(challengeId = 8L, deadline = null),
             ),
         )
         val repository = ChallengeRepositoryImpl(api)
 
-        val emitted = repository.getReceivedChallenges(onError = {}).toList()
+        val errors = mutableListOf<String>()
+        val emitted = repository.getReceivedChallenges(onError = { errors.add(it) }).toList()
+
+        assertEquals(listOf(listOf(expectedReceived)), emitted)
+        assertEquals(listOf("일부 항목을 불러오지 못했어요"), errors)
+    }
+
+    @Test
+    fun `getReceivedChallenges - createdAt 이 null 이어도 항목 유지하고 onError 미발화`() = runTest {
+        val api = FakeChallengeApi(
+            receivedResult = receivedSuccess(receivedDto.copy(createdAt = null)),
+        )
+        val repository = ChallengeRepositoryImpl(api)
+
+        val errors = mutableListOf<String>()
+        val emitted = repository.getReceivedChallenges(onError = { errors.add(it) }).toList()
 
         val challenge = emitted.single().single()
-        assertEquals(Instant.DISTANT_PAST, challenge.deadline)
-        assertEquals(Instant.DISTANT_PAST, challenge.createdAt)
+        assertNull(challenge.createdAt)
+        assertEquals(expectedReceived.deadline, challenge.deadline)
+        assertEquals(emptyList(), errors)
     }
 
     @Test
@@ -127,8 +143,8 @@ class ChallengeRepositoryImplTest {
                     ChallengeCreateData(
                         challengeId = 7L,
                         status = "PENDING",
-                        challengeDate = "2026-07-28",
-                        deadline = "2026-07-28T15:00:00Z",
+                        challengeDate = LocalDate(2026, 7, 28),
+                        deadline = LocalDateTime(2026, 7, 28, 15, 0, 0),
                     ),
                 ),
             ),

@@ -1,6 +1,10 @@
 package com.lwg.challenge.remote.model.challenge
 
 import com.lwg.challenge.remote.model.BaseResponse
+import com.lwg.challenge.remote.model.serializer.WireLocalDateSerializer
+import com.lwg.challenge.remote.model.serializer.WireLocalDateTimeSerializer
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 /**
@@ -17,8 +21,8 @@ import kotlinx.serialization.Serializable
  *         "challengerMission": "오늘 운동 1시간 하기",
  *         "betContent": "커피 사기",
  *         "challengeDate": "2026-07-28",
- *         "deadline": "2026-07-28T15:00:00Z",
- *         "createdAt": "2026-07-28T02:11:00Z" }
+ *         "deadline": "2026-07-28 15:00:00",
+ *         "createdAt": "2026-07-28 02:11:00" }
  *     ]
  *   } }
  * ```
@@ -44,10 +48,13 @@ data class ReceivedChallengeDto(
     val challengerProfileImageUrl: String? = null,
     val challengerMission: String = "",
     val betContent: String = "",
-    /** 평문 ISO date (예: "2026-07-28"). 매핑하지 않고 버린다. */
-    val challengeDate: String = "",
-    /** ISO-8601 UTC. 매퍼에서 [kotlin.time.Instant] 로 파싱. */
-    val deadline: String = "",
-    /** ISO-8601 UTC. 매퍼에서 [kotlin.time.Instant] 로 파싱. */
-    val createdAt: String = "",
+    /** "yyyy-MM-dd" (예: "2026-07-28"). 매핑하지 않고 버린다. */
+    @Serializable(with = WireLocalDateSerializer::class)
+    val challengeDate: LocalDate? = null,
+    /** "yyyy-MM-dd HH:mm:ss" (KST). 포맷이 어긋나면 null. */
+    @Serializable(with = WireLocalDateTimeSerializer::class)
+    val deadline: LocalDateTime? = null,
+    /** "yyyy-MM-dd HH:mm:ss" (KST). 포맷이 어긋나면 null. */
+    @Serializable(with = WireLocalDateTimeSerializer::class)
+    val createdAt: LocalDateTime? = null,
 )

@@ -59,6 +59,10 @@ kotlin {
             implementation(projects.feature.ranking)
             implementation(projects.feature.mypage)
         }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
     }
 }
 

@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.home
 
 import androidx.lifecycle.ViewModel
@@ -10,6 +8,7 @@ import com.lwg.challenge.feature.home.contract.HomeUiEffect
 import com.lwg.challenge.feature.home.contract.HomeUiState
 import com.lwg.challenge.feature.home.contract.MAX_ACCEPT_MISSION_LENGTH
 import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
+import com.lwg.challenge.utils.datetime.nowKst
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +24,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
 import org.koin.android.annotation.KoinViewModel
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -46,10 +44,11 @@ class HomeViewModel(
         .flatMapLatest {
             getHomeDataUseCase(::showMessage).map { data ->
                 // now 는 매핑 시점에 1회만 측정한다 — 항목마다 재측정하면 임박 판정이 서로 어긋난다.
-                val now = Clock.System.now()
+                val now = nowKst()
                 HomeUiState.Data(
                     record = data.record,
                     challenges = data.challenges,
+                    now = now,
                     userInfo = data.userInfo,
                     receivedChallenges = data.receivedChallenges.map {
                         ReceivedChallengeItemState(it, now)

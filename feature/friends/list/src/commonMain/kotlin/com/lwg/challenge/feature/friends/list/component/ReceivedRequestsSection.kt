@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.friends.list.component
 
 import androidx.compose.foundation.background
@@ -17,8 +15,7 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserBrief
 import com.lwg.challenge.feature.friends.list.contract.FriendRequestItemState
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -62,7 +59,7 @@ internal fun ReceivedRequestsSection(
 @Preview
 @Composable
 private fun ReceivedRequestsSectionPreview() {
-    val now = Clock.System.now()
+    val now = LocalDateTime.parse("2026-06-27T12:00:00")
     ChallengeTheme {
         Box(
             modifier = Modifier
@@ -75,7 +72,7 @@ private fun ReceivedRequestsSectionPreview() {
                         FriendRequest(
                             requestId = 1,
                             fromUser = UserBrief(userId = 1, nickname = "도전왕", profileImageUrl = null),
-                            requestedAt = now - 1.days,
+                            requestedAt = LocalDateTime.parse("2026-06-26T12:00:00"),
                         ),
                         now,
                     ),
@@ -83,7 +80,7 @@ private fun ReceivedRequestsSectionPreview() {
                         FriendRequest(
                             requestId = 2,
                             fromUser = UserBrief(userId = 2, nickname = "우건", profileImageUrl = null),
-                            requestedAt = now - 2.days,
+                            requestedAt = LocalDateTime.parse("2026-06-25T12:00:00"),
                         ),
                         now,
                     ),

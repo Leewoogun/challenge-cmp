@@ -12,6 +12,7 @@ import com.lwg.challenge.feature.friends.list.contract.FriendRequestItemState
 import com.lwg.challenge.feature.friends.list.contract.FriendsModalEffect
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiEffect
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiState
+import com.lwg.challenge.utils.datetime.nowKst
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,11 +28,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import org.koin.android.annotation.KoinViewModel
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @KoinViewModel
 class FriendsViewModel(
     private val getFriendsDataUseCase: GetFriendsDataUseCase,
@@ -49,7 +48,7 @@ class FriendsViewModel(
                 if (data.receivedRequests.isEmpty() && data.friends.isEmpty()) {
                     FriendsUiState.Empty
                 } else {
-                    val now = Clock.System.now()
+                    val now = nowKst()
                     FriendsUiState.Data(
                         receivedRequests = data.receivedRequests.map { FriendRequestItemState(it, now) },
                         friends = data.friends.map { FriendItemState(it, now) },

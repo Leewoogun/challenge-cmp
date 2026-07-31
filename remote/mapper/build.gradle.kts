@@ -13,5 +13,8 @@ kotlin {
             implementation(projects.domain.model)
             implementation(projects.remote.model)
         }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
     }
 }

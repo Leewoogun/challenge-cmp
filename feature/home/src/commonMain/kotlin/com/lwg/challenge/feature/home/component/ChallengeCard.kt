@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.home.component
 
 import androidx.compose.foundation.BorderStroke
@@ -21,15 +19,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.utils.datetime.toRelativeKoreanString
-import kotlin.time.Instant
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -41,7 +36,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * @param myMission 현재 사용자의 미션 (강조 표시).
  * @param opponentNickname 상대 닉네임 ("vs {opponent}" / "{opponent}의 미션" 에 노출).
  * @param opponentMission 상대 미션 (톤 다운).
- * @param deadline 마감 시각(Instant). 내부에서 [toRelativeKoreanString] 으로 상대 시간 변환.
+ * @param remainingText 마감까지 남은 시간 표기. 변환은 State 책임(`HomeUiState.Data.deadlineTextOf`).
  * @param myVerificationStatus 현재 사용자 인증 상태 (status pill 색/아이콘/라벨 결정).
  * @param opponentVerificationStatus 상대 인증 상태.
  * @param bet 내기 내용 (카드 하단 띠).
@@ -52,7 +47,7 @@ internal fun ChallengeCard(
     myMission: String,
     opponentNickname: String,
     opponentMission: String,
-    deadline: Instant,
+    remainingText: String,
     myVerificationStatus: ChallengeVerificationStatus,
     opponentVerificationStatus: ChallengeVerificationStatus,
     bet: String,
@@ -61,8 +56,6 @@ internal fun ChallengeCard(
 ) {
     @Suppress("UNUSED_VARIABLE")
     val id = challengeId
-
-    val remainingText = remember(deadline) { deadline.toRelativeKoreanString() }
 
     Surface(
         modifier = modifier
@@ -253,7 +246,7 @@ private fun ChallengeCardPreview() {
                 myMission = "오늘 운동 1시간 하기",
                 opponentNickname = "우건",
                 opponentMission = "책 30페이지 읽기",
-                deadline = Instant.parse("2026-06-27T10:00:00Z"),
+                remainingText = "3시간 남음",
                 myVerificationStatus = ChallengeVerificationStatus.VERIFIED,
                 opponentVerificationStatus = ChallengeVerificationStatus.PENDING,
                 bet = "커피 사기 ☕",
@@ -264,7 +257,7 @@ private fun ChallengeCardPreview() {
                 myMission = "물 2L 마시기",
                 opponentNickname = "민지",
                 opponentMission = "10000보 걷기",
-                deadline = Instant.parse("2026-06-27T22:00:00Z"),
+                remainingText = "곧 마감",
                 myVerificationStatus = ChallengeVerificationStatus.FAILED,
                 opponentVerificationStatus = ChallengeVerificationStatus.VERIFIED,
                 bet = "점심 사기 🍚",

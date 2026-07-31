@@ -1,6 +1,8 @@
 package com.lwg.challenge.remote.model.friend
 
 import com.lwg.challenge.remote.model.BaseResponse
+import com.lwg.challenge.remote.model.serializer.WireLocalDateTimeSerializer
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 /**
@@ -12,12 +14,12 @@ import kotlinx.serialization.Serializable
  *     "requests": [
  *       { "id": 901,
  *         "fromUser": { "id": 42, "nickname": "민수", "profileImageUrl": "..." },
- *         "requestedAt": "2026-06-24T18:00:00Z" }
+ *         "requestedAt": "2026-06-24 18:00:00" }
  *     ]
  *   } }
  * ```
  *
- * `id` 는 `friendships.id` (PENDING). `requestedAt` 은 ISO-8601 UTC (friendships.created_at).
+ * `id` 는 `friendships.id` (PENDING). `requestedAt` 은 "yyyy-MM-dd HH:mm:ss" (KST) (friendships.created_at).
  * `created_at DESC` 정렬. 받은 요청 없으면 빈 배열.
  */
 @Serializable
@@ -34,8 +36,9 @@ data class ReceivedRequestListData(
 data class FriendRequestDto(
     val id: Long = 0L,
     val fromUser: UserBriefDto = UserBriefDto(),
-    /** ISO-8601 UTC. 매퍼에서 [kotlin.time.Instant] 로 파싱. */
-    val requestedAt: String = "",
+    /** "yyyy-MM-dd HH:mm:ss" (KST). 포맷이 어긋나면 null. */
+    @Serializable(with = WireLocalDateTimeSerializer::class)
+    val requestedAt: LocalDateTime? = null,
 )
 
 @Serializable

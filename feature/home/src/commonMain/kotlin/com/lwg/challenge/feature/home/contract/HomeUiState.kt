@@ -5,6 +5,8 @@ import androidx.compose.runtime.Stable
 import com.lwg.challenge.domain.model.ActiveChallenge
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.user.UserInfo
+import com.lwg.challenge.utils.datetime.toRelativeKoreanString
+import kotlinx.datetime.LocalDateTime
 
 /** 수락 다이얼로그 미션 입력 최대 길이. 서버 검증(trim 기준 1~100자)과 동일한 상한. */
 const val MAX_ACCEPT_MISSION_LENGTH = 100
@@ -19,6 +21,9 @@ sealed interface HomeUiState {
     data class Data(
         val record: UserRecord,
         val challenges: List<ActiveChallenge>,
+        // 매핑 시점에 1회 측정해 주입한다 — 카드마다 Composable 에서 재측정하면 남은 시간 표기가
+        // 서로 어긋나고 테스트가 불가능해진다 (ReceivedChallengeItemState 선례).
+        val now: LocalDateTime,
         val userInfo: UserInfo? = null,
         val receivedChallenges: List<ReceivedChallengeItemState> = emptyList(),
         val acceptTarget: ReceivedChallengeItemState? = null,
@@ -34,6 +39,14 @@ sealed interface HomeUiState {
                 challenges.isEmpty() -> HomeEmptyType.NO_ACTIVE_CHALLENGE
                 else -> HomeEmptyType.NONE
             }
+
+        /** 전적 4개 값이 모두 0이면 강조 색을 죽인다. */
+        val isRecordMuted: Boolean get() = record.isEmpty
+        val streakText: String
+            get() = if (record.currentStreak > 0) "${record.currentStreak}🔥" else "0"
+
+        fun deadlineTextOf(challenge: ActiveChallenge): String =
+            challenge.deadline.toRelativeKoreanString(now)
 
         /** 서버 검증이 trim 기준이라 카운터도 trim 으로 센다. */
         val acceptMissionCount: Int get() = acceptMission.trim().length

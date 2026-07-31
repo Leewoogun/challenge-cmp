@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.home
 
 import androidx.compose.foundation.background
@@ -42,7 +40,7 @@ import com.lwg.challenge.feature.home.component.receivedChallengesSection
 import com.lwg.challenge.feature.home.contract.HomeEmptyType
 import com.lwg.challenge.feature.home.contract.HomeUiState
 import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
-import kotlin.time.Instant
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -87,7 +85,8 @@ internal fun HomeScreen(
                         win = uiState.record.win,
                         lose = uiState.record.lose,
                         draw = uiState.record.draw,
-                        currentStreak = uiState.record.currentStreak,
+                        streakText = uiState.streakText,
+                        muted = uiState.isRecordMuted,
                     )
                 }
                 // 0건이면 섹션 통째로 미노출 — 전용 빈 상태 카드를 두지 않는다 (design.md §2.4).
@@ -172,7 +171,7 @@ private fun LazyListScope.challengesSection(
                 myMission = challenge.myMission,
                 opponentNickname = challenge.opponentNickname,
                 opponentMission = challenge.opponentMission,
-                deadline = challenge.deadline,
+                remainingText = uiState.deadlineTextOf(challenge),
                 myVerificationStatus = challenge.myVerificationStatus.toDesignSystem(),
                 opponentVerificationStatus = challenge.opponentVerificationStatus.toDesignSystem(),
                 bet = challenge.bet,
@@ -246,7 +245,7 @@ private val previewChallenges = listOf(
         myMission = "오늘 운동 1시간 하기",
         opponentNickname = "우건",
         opponentMission = "책 30페이지 읽기",
-        deadline = Instant.parse("2026-06-27T10:00:00Z"),
+        deadline = LocalDateTime.parse("2026-06-27T10:00:00"),
         myVerificationStatus = VerificationStatus.VERIFIED,
         opponentVerificationStatus = VerificationStatus.PENDING,
         bet = "커피 사기 ☕",
@@ -256,14 +255,14 @@ private val previewChallenges = listOf(
         myMission = "물 2L 마시기",
         opponentNickname = "민지",
         opponentMission = "10000보 걷기",
-        deadline = Instant.parse("2026-06-27T22:00:00Z"),
+        deadline = LocalDateTime.parse("2026-06-27T22:00:00"),
         myVerificationStatus = VerificationStatus.PENDING,
         opponentVerificationStatus = VerificationStatus.FAILED,
         bet = "점심 사기 🍚",
     ),
 )
 
-private val previewNow = Instant.parse("2026-06-27T09:00:00Z")
+private val previewNow = LocalDateTime.parse("2026-06-27T09:00:00")
 
 private val previewReceivedChallenges = listOf(
     ReceivedChallengeItemState(
@@ -274,8 +273,8 @@ private val previewReceivedChallenges = listOf(
             challengerProfileImageUrl = null,
             challengerMission = "아침 6시 기상하기",
             betContent = "치킨 사기 🍗",
-            deadline = Instant.parse("2026-06-27T09:40:00Z"),
-            createdAt = Instant.parse("2026-06-27T08:00:00Z"),
+            deadline = LocalDateTime.parse("2026-06-27T09:40:00"),
+            createdAt = LocalDateTime.parse("2026-06-27T08:00:00"),
         ),
         now = previewNow,
     ),
@@ -287,8 +286,8 @@ private val previewReceivedChallenges = listOf(
             challengerProfileImageUrl = null,
             challengerMission = "10000보 걷기",
             betContent = "커피 사기 ☕",
-            deadline = Instant.parse("2026-06-28T12:00:00Z"),
-            createdAt = Instant.parse("2026-06-27T07:00:00Z"),
+            deadline = LocalDateTime.parse("2026-06-28T12:00:00"),
+            createdAt = LocalDateTime.parse("2026-06-27T07:00:00"),
         ),
         now = previewNow,
     ),
@@ -303,6 +302,7 @@ private fun HomeScreenDataPreview() {
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
                     challenges = previewChallenges,
+                    now = previewNow,
                 ),
                 onBellClick = {},
                 onFabClick = {},
@@ -328,6 +328,7 @@ private fun HomeScreenFirstUserPreview() {
                 uiState = HomeUiState.Data(
                     record = UserRecord.Empty,
                     challenges = emptyList(),
+                    now = previewNow,
                 ),
                 onBellClick = {},
                 onFabClick = {},
@@ -353,6 +354,7 @@ private fun HomeScreenNoActiveChallengePreview() {
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 8, lose = 5, draw = 2, currentStreak = 0),
                     challenges = emptyList(),
+                    now = previewNow,
                 ),
                 onBellClick = {},
                 onFabClick = {},
@@ -378,6 +380,7 @@ private fun HomeScreenWithReceivedChallengesPreview() {
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
                     challenges = previewChallenges,
+                    now = previewNow,
                     receivedChallenges = previewReceivedChallenges,
                 ),
                 onBellClick = {},

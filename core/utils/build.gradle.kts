@@ -20,7 +20,8 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kermit)
             implementation(libs.kotlinx.coroutines.core)
-            // home-feed 상대 시간 헬퍼(InstantFormat)는 stdlib 의 kotlin.time API 만 사용 — 추가 의존성 불필요.
+            // 서버 시간 규약(KST, `yyyy-MM-dd HH:mm:ss`)의 LocalDateTime 파싱과 타임존 산술에 사용
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

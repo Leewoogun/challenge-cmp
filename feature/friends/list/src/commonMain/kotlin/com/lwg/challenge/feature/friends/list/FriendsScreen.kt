@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.friends.list
 
 import androidx.compose.foundation.background
@@ -28,8 +26,7 @@ import com.lwg.challenge.feature.friends.list.component.ReceivedRequestsSection
 import com.lwg.challenge.feature.friends.list.contract.FriendItemState
 import com.lwg.challenge.feature.friends.list.contract.FriendRequestItemState
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiState
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -168,24 +165,20 @@ private fun FriendsScreenRequestsAndFriendsPreview() {
     }
 }
 
-private fun previewFriends(): List<FriendItemState> {
-    val now = Clock.System.now()
-    return listOf(
-        FriendItemState(Friend(userId = 1, nickname = "우건", profileImageUrl = null, since = now - 3.days), now),
-        FriendItemState(Friend(userId = 2, nickname = "도전자", profileImageUrl = null, since = now - 10.days), now),
-    )
-}
+private val previewNow = LocalDateTime.parse("2026-06-27T12:00:00")
 
-private fun previewRequests(): List<FriendRequestItemState> {
-    val now = Clock.System.now()
-    return listOf(
-        FriendRequestItemState(
-            FriendRequest(
-                requestId = 10,
-                fromUser = UserBrief(userId = 3, nickname = "도전왕", profileImageUrl = null),
-                requestedAt = now - 1.days,
-            ),
-            now,
+private fun previewFriends(): List<FriendItemState> = listOf(
+    FriendItemState(Friend(userId = 1, nickname = "우건", profileImageUrl = null, since = LocalDateTime.parse("2026-06-24T12:00:00")), previewNow),
+    FriendItemState(Friend(userId = 2, nickname = "도전자", profileImageUrl = null, since = LocalDateTime.parse("2026-06-17T12:00:00")), previewNow),
+)
+
+private fun previewRequests(): List<FriendRequestItemState> = listOf(
+    FriendRequestItemState(
+        FriendRequest(
+            requestId = 10,
+            fromUser = UserBrief(userId = 3, nickname = "도전왕", profileImageUrl = null),
+            requestedAt = LocalDateTime.parse("2026-06-26T12:00:00"),
         ),
-    )
-}
+        previewNow,
+    ),
+)

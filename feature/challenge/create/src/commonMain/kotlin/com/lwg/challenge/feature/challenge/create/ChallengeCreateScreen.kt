@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.feature.challenge.create
 
 import androidx.compose.foundation.background
@@ -13,7 +11,7 @@ import com.lwg.challenge.feature.challenge.create.component.FriendPickStep
 import com.lwg.challenge.feature.challenge.create.component.MissionInputStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
-import kotlin.time.Instant
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 챌린지 생성 위저드 본문. 단계에 따라 상대 선택 / 미션 입력을 렌더한다. */
@@ -188,7 +186,7 @@ private fun previewFriend(id: Long, nickname: String) = Friend(
     userId = id,
     nickname = nickname,
     profileImageUrl = null,
-    since = Instant.parse("2026-01-01T00:00:00Z"),
+    since = LocalDateTime.parse("2026-01-01T00:00:00"),
 )
 
 private fun previewState(

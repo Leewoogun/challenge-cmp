@@ -1,5 +1,3 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
-
 package com.lwg.challenge.remote.mapper
 
 import com.lwg.challenge.domain.model.friend.Friend
@@ -14,13 +12,12 @@ import com.lwg.challenge.remote.model.friend.ReceivedFriendRequestsResponse
 import com.lwg.challenge.remote.model.friend.UserBriefDto
 import com.lwg.challenge.remote.model.friend.UserSearchDto
 import com.lwg.challenge.remote.model.friend.UserSearchResponse
-import kotlin.time.Instant
 
 /**
  * Friend DTO → Domain 매핑.
  *
- * 시간 변환: DTO 의 `String` (ISO-8601 UTC) → Domain 의 [Instant].
- * 파싱 실패 시 [Instant.DISTANT_PAST] (백엔드 계약상 발생하면 안 되지만 방어적 처리).
+ * 시간 파싱은 DTO 직렬화기(WireLocalDateTimeSerializer)가 하고, 실패는 null 로 도착한다.
+ * `since` / `requestedAt` 은 치명 필드가 아니라 null 이어도 항목을 유지한다.
  *
  * Relation 매핑: 알 수 없는 값은 [Relation.NONE] 으로 fallback ([Relation.fromCode]).
  */
@@ -43,7 +40,7 @@ fun FriendDto.toFriend(): Friend = Friend(
     userId = id,
     nickname = nickname,
     profileImageUrl = profileImageUrl,
-    since = parseInstant(since),
+    since = since,
 )
 
 fun ReceivedFriendRequestsResponse.toFriendRequests(): List<FriendRequest> =
@@ -52,7 +49,7 @@ fun ReceivedFriendRequestsResponse.toFriendRequests(): List<FriendRequest> =
 fun FriendRequestDto.toFriendRequest(): FriendRequest = FriendRequest(
     requestId = id,
     fromUser = fromUser.toUserBrief(),
-    requestedAt = parseInstant(requestedAt),
+    requestedAt = requestedAt,
 )
 
 fun UserBriefDto.toUserBrief(): UserBrief = UserBrief(
@@ -60,7 +57,3 @@ fun UserBriefDto.toUserBrief(): UserBrief = UserBrief(
     nickname = nickname,
     profileImageUrl = profileImageUrl,
 )
-
-private fun parseInstant(value: String): Instant = runCatching {
-    Instant.parse(value)
-}.getOrDefault(Instant.DISTANT_PAST)

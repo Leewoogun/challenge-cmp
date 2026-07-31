@@ -27,27 +27,24 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  *
  * design.md §4.2 props 명세 그대로.
  * - 4개 셀: 승 / 패 / 무 / 연승
- * - 톤 분기는 컴포넌트 내부 책임. 4값 모두 0이면 신규 사용자로 간주, 4개 셀 전부 muted 톤.
- *   하나라도 0이 아니면 셀별 의미 색(승=primary, 패=error, 무=onBackground, 연승=warning).
- * - 연승 셀: value > 0 일 때만 "{N}🔥", 0이면 단순 "0".
+ * - [muted] 이면 4개 셀 전부 muted 톤, 아니면 셀별 의미 색
+ *   (승=primary, 패=error, 무=onBackground, 연승=warning). 판정은 State 책임.
  */
 @Composable
 internal fun StatsBar(
     win: Int,
     lose: Int,
     draw: Int,
-    currentStreak: Int,
+    streakText: String,
+    muted: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val isAllZero = win == 0 && lose == 0 && draw == 0 && currentStreak == 0
     val mutedColor = ChallengeTheme.colorScheme.onSurfaceVariant
 
-    val winColor = if (isAllZero) mutedColor else ChallengeTheme.colorScheme.primary
-    val loseColor = if (isAllZero) mutedColor else ChallengeTheme.colorScheme.error
-    val drawColor = if (isAllZero) mutedColor else ChallengeTheme.colorScheme.onBackground
-    val streakColor = if (isAllZero) mutedColor else ChallengeTheme.colorScheme.warning
-
-    val streakText = if (currentStreak > 0) "${currentStreak}🔥" else "0"
+    val winColor = if (muted) mutedColor else ChallengeTheme.colorScheme.primary
+    val loseColor = if (muted) mutedColor else ChallengeTheme.colorScheme.error
+    val drawColor = if (muted) mutedColor else ChallengeTheme.colorScheme.onBackground
+    val streakColor = if (muted) mutedColor else ChallengeTheme.colorScheme.warning
 
     Row(
         modifier = modifier
@@ -115,7 +112,7 @@ private fun StatsBarPreview() {
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(16.dp),
         ) {
-            StatsBar(win = 12, lose = 3, draw = 1, currentStreak = 4)
+            StatsBar(win = 12, lose = 3, draw = 1, streakText = "4🔥", muted = false)
         }
     }
 }
@@ -129,7 +126,7 @@ private fun StatsBarEmptyPreview() {
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(16.dp),
         ) {
-            StatsBar(win = 0, lose = 0, draw = 0, currentStreak = 0)
+            StatsBar(win = 0, lose = 0, draw = 0, streakText = "0", muted = true)
         }
     }
 }
