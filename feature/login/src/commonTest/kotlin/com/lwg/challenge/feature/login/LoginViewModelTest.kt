@@ -4,9 +4,13 @@ import app.cash.turbine.test
 import com.lwg.challenge.domain.model.AuthTokens
 import com.lwg.challenge.domain.model.LoginResult
 import com.lwg.challenge.domain.usecase.LoginWithKakaoUseCase
+import com.lwg.challenge.domain.usecase.LoginWithTestAccountUseCase
+import com.lwg.challenge.domain.usecase.LogoutUseCase
 import com.lwg.challenge.feature.login.contract.LoginUiEffect
 import com.lwg.challenge.feature.login.contract.LoginUiState
+import com.lwg.challenge.feature.login.contract.TestAccount
 import com.lwg.challenge.feature.login.kakao.KakaoAuthResult
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -17,18 +21,23 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
 
     private lateinit var fakeRepository: FakeLoginRepository
+    private lateinit var fakeUserInfoRepository: FakeUserInfoRepository
     private lateinit var fakeKakaoAuthClient: FakeKakaoAuthClient
 
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         fakeRepository = FakeLoginRepository()
+        fakeUserInfoRepository = FakeUserInfoRepository()
         fakeKakaoAuthClient = FakeKakaoAuthClient()
     }
 
@@ -41,6 +50,10 @@ class LoginViewModelTest {
         return LoginViewModel(
             kakaoAuthClient = fakeKakaoAuthClient,
             loginWithKakaoUseCase = LoginWithKakaoUseCase(fakeRepository),
+            loginWithTestAccountUseCase = LoginWithTestAccountUseCase(
+                logoutUseCase = LogoutUseCase(fakeRepository, fakeUserInfoRepository),
+                loginRepository = fakeRepository,
+            ),
         )
     }
 
@@ -107,5 +120,125 @@ class LoginViewModelTest {
             assertEquals("카카오 로그인이 만료되었습니다. 다시 시도해주세요", effect.message)
         }
         assertIs<LoginUiState.Idle>(viewModel.uiState.value)
+    }
+
+    @Test
+    fun `테스트 로그인 성공 시 NavigateToHome UiEffect 를 발행하고 선택한 계정 번호가 전달된다`() = runTest {
+        fakeRepository.testLoginResponse = FakeLoginRepository.TestLoginResponse.Success(
+            result = LoginResult(
+                tokens = AuthTokens("a", "r"),
+                userId = 2L,
+                isNewUser = false,
+            ),
+        )
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.loginWithTestAccount(TestAccount.TESTER_2)
+            assertIs<LoginUiEffect.NavigateToHome>(awaitItem())
+        }
+        assertEquals(2, fakeRepository.lastTestUserNo)
+        assertIs<LoginUiState.Idle>(viewModel.uiState.value)
+    }
+
+    @Test
+    fun `테스트 로그인 성공 시 isNewUser 가 카카오와 동일하게 그대로 전달된다`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            fakeRepository.testLoginResponse = FakeLoginRepository.TestLoginResponse.Success(
+                result = LoginResult(
+                    tokens = AuthTokens("a", "r"),
+                    userId = 1L,
+                    isNewUser = true,
+                ),
+            )
+            viewModel.loginWithTestAccount(TestAccount.TESTER_1)
+            val first = awaitItem()
+            assertIs<LoginUiEffect.NavigateToHome>(first)
+            assertEquals(true, first.isNewUser)
+
+            fakeRepository.testLoginResponse = FakeLoginRepository.TestLoginResponse.Success(
+                result = LoginResult(
+                    tokens = AuthTokens("a", "r"),
+                    userId = 1L,
+                    isNewUser = false,
+                ),
+            )
+            viewModel.loginWithTestAccount(TestAccount.TESTER_1)
+            val second = awaitItem()
+            assertIs<LoginUiEffect.NavigateToHome>(second)
+            assertEquals(false, second.isNewUser)
+        }
+    }
+
+    @Test
+    fun `서버가 테스트 로그인 미지원 응답 시 isUnavailable 로 비활성화되고 ShowMessage 를 1회 발행한다`() = runTest {
+        fakeRepository.testLoginResponse = FakeLoginRepository.TestLoginResponse.Unsupported
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.loginWithTestAccount(TestAccount.TESTER_1)
+            val effect = awaitItem()
+            assertIs<LoginUiEffect.ShowMessage>(effect)
+            assertEquals("이 서버는 테스트 로그인을 지원하지 않아요", effect.message)
+            expectNoEvents()
+        }
+        val testLoginState = viewModel.testLoginState.value
+        assertTrue(testLoginState.isUnavailable)
+        assertFalse(testLoginState.isEnabled)
+        assertNotNull(testLoginState.caption)
+        assertIs<LoginUiState.Idle>(viewModel.uiState.value)
+    }
+
+    @Test
+    fun `테스트 로그인 일반 실패 시 ShowMessage 만 발행하고 isUnavailable 은 false 를 유지한다`() = runTest {
+        fakeRepository.testLoginResponse = FakeLoginRepository.TestLoginResponse.Error(
+            message = "서버에 문제가 발생했어요",
+        )
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.loginWithTestAccount(TestAccount.TESTER_1)
+            val effect = awaitItem()
+            assertIs<LoginUiEffect.ShowMessage>(effect)
+            assertEquals("서버에 문제가 발생했어요", effect.message)
+            expectNoEvents()
+        }
+        assertFalse(viewModel.testLoginState.value.isUnavailable)
+        assertIs<LoginUiState.Idle>(viewModel.uiState.value)
+    }
+
+    @Test
+    fun `테스트 로그인 진행 중 재호출하면 중복 요청이 나가지 않는다`() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        fakeRepository.testLoginGate = gate
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.loginWithTestAccount(TestAccount.TESTER_1)
+            assertIs<LoginUiState.Loading>(viewModel.uiState.value)
+
+            viewModel.loginWithTestAccount(TestAccount.TESTER_2)
+            assertEquals(1, fakeRepository.callLog.count { it == "loginWithTestAccount" })
+            assertEquals(1, fakeRepository.lastTestUserNo)
+
+            gate.complete(Unit)
+            assertIs<LoginUiEffect.NavigateToHome>(awaitItem())
+            expectNoEvents()
+        }
+        assertIs<LoginUiState.Idle>(viewModel.uiState.value)
+    }
+
+    @Test
+    fun `테스트 로그인 요청 전에 LogoutUseCase 가 먼저 실행되어 토큰과 UserInfo 캐시를 비운다`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.loginWithTestAccount(TestAccount.TESTER_1)
+            assertIs<LoginUiEffect.NavigateToHome>(awaitItem())
+        }
+        assertEquals(listOf("clearTokens", "loginWithTestAccount"), fakeRepository.callLog)
+        assertEquals(1, fakeUserInfoRepository.clearUserInfoCacheCallCount)
     }
 }

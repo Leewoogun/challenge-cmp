@@ -6,6 +6,7 @@ import com.lwg.challenge.domain.model.ActiveChallenge
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.user.UserInfo
 import com.lwg.challenge.utils.datetime.toRelativeKoreanString
+import com.lwg.challenge.utils.isDebug
 import kotlinx.datetime.LocalDateTime
 
 /** 수락 다이얼로그 미션 입력 최대 길이. 서버 검증(trim 기준 1~100자)과 동일한 상한. */
@@ -58,6 +59,9 @@ sealed interface HomeUiState {
 
         fun isActionable(item: ReceivedChallengeItemState): Boolean =
             item.challengeId !in inFlightIds
+
+        /** debug 빌드에서만 노출하는 현재 로그인 계정 표기. release 에서는 null. */
+        val debugAccountLabel: String? get() = if (isDebug) userInfo?.nickname else null
     }
 }
 

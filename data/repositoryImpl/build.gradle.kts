@@ -39,6 +39,10 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.turbine)
+            // AuthTokenCacheInvalidator 는 HttpClient 를 요구하는 final 클래스라 fake 가 불가능해
+            // MockEngine 클라이언트로 실물을 생성한다 (Auth 플러그인이 없어 invalidate 는 no-op)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.mock)
         }
     }
 }

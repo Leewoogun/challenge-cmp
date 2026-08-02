@@ -63,6 +63,7 @@ internal fun HomeScreen(
             HomeTopBar(
                 hasUnreadNotification = false,
                 onBellClick = onBellClick,
+                debugAccountLabel = uiState.debugAccountLabel,
             )
         },
         floatingActionButton = {

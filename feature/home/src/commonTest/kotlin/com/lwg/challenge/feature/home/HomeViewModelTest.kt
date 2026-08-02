@@ -14,6 +14,7 @@ import com.lwg.challenge.feature.home.contract.HomeUiEffect
 import com.lwg.challenge.feature.home.contract.HomeUiState
 import com.lwg.challenge.utils.datetime.KST
 import com.lwg.challenge.utils.datetime.nowKst
+import com.lwg.challenge.utils.isDebug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -443,6 +444,39 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         assertEquals(callCountBeforeReject + 1, fakeChallengeRepo.callCount)
+    }
+
+    // isDebug 는 테스트 실행 타깃의 빌드 타입에 따라 달라지므로 양쪽 분기를 모두 고정한다.
+    @Test
+    fun `userInfo 가 있으면 debug 빌드에서만 debugAccountLabel 이 닉네임이다`() = runTest {
+        fakeRecord.record = UserRecord.Empty
+        fakeChallenges.challenges = emptyList()
+        fakeUserInfo.seedCache(
+            UserInfo(id = 12, kakaoId = 999, nickname = "이우건", profileImageUrl = null),
+        )
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        val state = viewModel.uiState.value as HomeUiState.Data
+
+        if (isDebug) {
+            assertEquals("이우건", state.debugAccountLabel)
+        } else {
+            assertNull(state.debugAccountLabel)
+        }
+    }
+
+    @Test
+    fun `userInfo 가 null 이면 debugAccountLabel 도 null 이다`() = runTest {
+        fakeRecord.record = UserRecord.Empty
+        fakeChallenges.challenges = emptyList()
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        val state = viewModel.uiState.value as HomeUiState.Data
+
+        assertNull(state.userInfo)
+        assertNull(state.debugAccountLabel)
     }
 
     @Test

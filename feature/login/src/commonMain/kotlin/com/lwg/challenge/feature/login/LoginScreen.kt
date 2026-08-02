@@ -19,13 +19,18 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.login.component.BackgroundDecor
 import com.lwg.challenge.feature.login.component.LoginButtonSection
 import com.lwg.challenge.feature.login.component.ChallengeSection
+import com.lwg.challenge.feature.login.component.TestLoginSection
 import com.lwg.challenge.feature.login.contract.LoginUiState
+import com.lwg.challenge.feature.login.contract.TestAccount
+import com.lwg.challenge.feature.login.contract.TestLoginUiState
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun LoginScreen(
     uiState: LoginUiState,
+    testLoginState: TestLoginUiState,
     onLoginClick: () -> Unit,
+    onTestAccountClick: (TestAccount) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -52,6 +57,12 @@ internal fun LoginScreen(
                 onLoginClick = onLoginClick,
             )
 
+            TestLoginSection(
+                state = testLoginState,
+                isLoginInProgress = uiState is LoginUiState.Loading,
+                onAccountClick = onTestAccountClick,
+            )
+
             VerticalSpacer(height = 8.dp)
         }
 
@@ -74,7 +85,9 @@ private fun LoginScreenIdlePreview() {
     ChallengeTheme {
         LoginScreen(
             uiState = LoginUiState.Idle,
+            testLoginState = TestLoginUiState(isVisible = true),
             onLoginClick = {},
+            onTestAccountClick = {},
         )
     }
 }
@@ -85,7 +98,9 @@ private fun LoginScreenLoadingPreview() {
     ChallengeTheme {
         LoginScreen(
             uiState = LoginUiState.Loading,
+            testLoginState = TestLoginUiState(isVisible = true),
             onLoginClick = {},
+            onTestAccountClick = {},
         )
     }
 }

@@ -11,6 +11,7 @@ import com.lwg.challenge.domain.usecase.GetFriendsDataUseCase
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.domain.usecase.GetStoredTokensUseCase
 import com.lwg.challenge.domain.usecase.LoginWithKakaoUseCase
+import com.lwg.challenge.domain.usecase.LoginWithTestAccountUseCase
 import com.lwg.challenge.domain.usecase.LogoutUseCase
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
@@ -28,6 +29,12 @@ class UseCaseModule {
     fun provideLoginWithKakaoUseCase(
         loginRepository: LoginRepository,
     ): LoginWithKakaoUseCase = LoginWithKakaoUseCase(loginRepository)
+
+    @Factory
+    fun provideLoginWithTestAccountUseCase(
+        logoutUseCase: LogoutUseCase,
+        loginRepository: LoginRepository,
+    ): LoginWithTestAccountUseCase = LoginWithTestAccountUseCase(logoutUseCase, loginRepository)
 
     @Factory
     fun provideGetStoredTokensUseCase(

@@ -3,11 +3,16 @@ package com.lwg.challenge.feature.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lwg.challenge.domain.usecase.LoginWithKakaoUseCase
+import com.lwg.challenge.domain.usecase.LoginWithTestAccountUseCase
 import com.lwg.challenge.feature.login.contract.LoginUiEffect
 import com.lwg.challenge.feature.login.contract.LoginUiState
+import com.lwg.challenge.feature.login.contract.TEST_LOGIN_UNSUPPORTED_MESSAGE
+import com.lwg.challenge.feature.login.contract.TestAccount
+import com.lwg.challenge.feature.login.contract.TestLoginUiState
 import com.lwg.challenge.feature.login.kakao.KakaoAuthClient
 import com.lwg.challenge.feature.login.kakao.KakaoAuthResult
 import com.lwg.challenge.utils.flow.withData
+import com.lwg.challenge.utils.isDebug
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,6 +27,7 @@ import org.koin.android.annotation.KoinViewModel
 class LoginViewModel(
     private val kakaoAuthClient: KakaoAuthClient,
     private val loginWithKakaoUseCase: LoginWithKakaoUseCase,
+    private val loginWithTestAccountUseCase: LoginWithTestAccountUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
@@ -29,6 +35,9 @@ class LoginViewModel(
 
     private val _uiEffect = MutableSharedFlow<LoginUiEffect>()
     val uiEffect: SharedFlow<LoginUiEffect> = _uiEffect.asSharedFlow()
+
+    private val _testLoginState = MutableStateFlow(TestLoginUiState(isVisible = isDebug))
+    val testLoginState: StateFlow<TestLoginUiState> = _testLoginState.asStateFlow()
 
     fun login() {
         _uiState.withData<LoginUiState.Loading> { return }
@@ -57,6 +66,29 @@ class LoginViewModel(
 
             _uiState.update { LoginUiState.Idle }
         }
+    }
+
+    fun loginWithTestAccount(account: TestAccount) {
+        _uiState.withData<LoginUiState.Loading> { return }
+
+        viewModelScope.launch {
+            _uiState.update { LoginUiState.Loading }
+
+            loginWithTestAccountUseCase(
+                testUserNo = account.no,
+                onError = ::showMessage,
+                onUnsupported = ::markTestLoginUnavailable,
+            ).collect { result ->
+                _uiEffect.emit(LoginUiEffect.NavigateToHome(isNewUser = result.isNewUser))
+            }
+
+            _uiState.update { LoginUiState.Idle }
+        }
+    }
+
+    private fun markTestLoginUnavailable() {
+        _testLoginState.update { it.copy(isUnavailable = true) }
+        showMessage(TEST_LOGIN_UNSUPPORTED_MESSAGE)
     }
 
     private fun showMessage(message: String) {
