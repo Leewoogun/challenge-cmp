@@ -7,14 +7,18 @@ import androidx.compose.ui.Modifier
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.friend.Friend
+import com.lwg.challenge.domain.model.signature.Signature
+import com.lwg.challenge.domain.model.signature.SignaturePoint
+import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.feature.challenge.create.component.FriendPickStep
 import com.lwg.challenge.feature.challenge.create.component.MissionInputStep
+import com.lwg.challenge.feature.challenge.create.component.OathStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/** 챌린지 생성 위저드 본문. 단계에 따라 상대 선택 / 미션 입력을 렌더한다. */
+/** 챌린지 생성 위저드 본문. 단계에 따라 상대 선택 / 미션 입력 / 영혼의 맹세를 렌더한다. */
 @Composable
 internal fun ChallengeCreateScreen(
     uiState: ChallengeCreateUiState.Data,
@@ -24,6 +28,8 @@ internal fun ChallengeCreateScreen(
     onMyMissionChange: (String) -> Unit,
     onBetContentChange: (String) -> Unit,
     onDeadlineChange: (DeadlineType) -> Unit,
+    onNext: () -> Unit,
+    onSignatureChange: (Signature) -> Unit,
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -41,6 +47,13 @@ internal fun ChallengeCreateScreen(
             onMyMissionChange = onMyMissionChange,
             onBetContentChange = onBetContentChange,
             onDeadlineChange = onDeadlineChange,
+            onNext = onNext,
+            modifier = modifier,
+        )
+
+        ChallengeCreateStep.OATH -> OathStep(
+            uiState = uiState,
+            onSignatureChange = onSignatureChange,
             onSubmit = onSubmit,
             modifier = modifier,
         )
@@ -64,6 +77,8 @@ private fun ChallengeCreateScreenFriendPickPreview() {
                 onMyMissionChange = {},
                 onBetContentChange = {},
                 onDeadlineChange = {},
+                onNext = {},
+                onSignatureChange = {},
                 onSubmit = {},
             )
         }
@@ -83,6 +98,8 @@ private fun ChallengeCreateScreenFriendPickEmptyPreview() {
                 onMyMissionChange = {},
                 onBetContentChange = {},
                 onDeadlineChange = {},
+                onNext = {},
+                onSignatureChange = {},
                 onSubmit = {},
             )
         }
@@ -102,6 +119,8 @@ private fun ChallengeCreateScreenFriendPickLoadFailedPreview() {
                 onMyMissionChange = {},
                 onBetContentChange = {},
                 onDeadlineChange = {},
+                onNext = {},
+                onSignatureChange = {},
                 onSubmit = {},
             )
         }
@@ -125,6 +144,8 @@ private fun ChallengeCreateScreenMissionInputPreview() {
                 onMyMissionChange = {},
                 onBetContentChange = {},
                 onDeadlineChange = {},
+                onNext = {},
+                onSignatureChange = {},
                 onSubmit = {},
             )
         }
@@ -150,6 +171,36 @@ private fun ChallengeCreateScreenMissionInputFilledPreview() {
                 onMyMissionChange = {},
                 onBetContentChange = {},
                 onDeadlineChange = {},
+                onNext = {},
+                onSignatureChange = {},
+                onSubmit = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ChallengeCreateScreenOathPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            ChallengeCreateScreen(
+                uiState = previewState(
+                    step = ChallengeCreateStep.OATH,
+                    friends = listOf(previewFriend(1, "우건")),
+                    selectedFriendId = 1L,
+                    myMission = "오늘 운동 1시간 하기",
+                    betContent = "커피 사기",
+                    signature = previewSignature(),
+                ),
+                onSelectFriend = {},
+                onClickAddFriend = {},
+                onRetryLoadFriends = {},
+                onMyMissionChange = {},
+                onBetContentChange = {},
+                onDeadlineChange = {},
+                onNext = {},
+                onSignatureChange = {},
                 onSubmit = {},
             )
         }
@@ -163,11 +214,12 @@ private fun ChallengeCreateScreenSubmittingPreview() {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
             ChallengeCreateScreen(
                 uiState = previewState(
-                    step = ChallengeCreateStep.MISSION_INPUT,
+                    step = ChallengeCreateStep.OATH,
                     friends = listOf(previewFriend(1, "우건")),
                     selectedFriendId = 1L,
                     myMission = "오늘 운동 1시간 하기",
                     betContent = "커피 사기",
+                    signature = previewSignature(),
                     isSubmitting = true,
                 ),
                 onSelectFriend = {},
@@ -176,6 +228,8 @@ private fun ChallengeCreateScreenSubmittingPreview() {
                 onMyMissionChange = {},
                 onBetContentChange = {},
                 onDeadlineChange = {},
+                onNext = {},
+                onSignatureChange = {},
                 onSubmit = {},
             )
         }
@@ -189,12 +243,26 @@ private fun previewFriend(id: Long, nickname: String) = Friend(
     since = LocalDateTime.parse("2026-01-01T00:00:00"),
 )
 
+private fun previewSignature() = Signature(
+    strokes = listOf(
+        SignatureStroke(
+            listOf(
+                SignaturePoint(120, 620),
+                SignaturePoint(300, 360),
+                SignaturePoint(480, 640),
+                SignaturePoint(700, 400),
+            ),
+        ),
+    ),
+)
+
 private fun previewState(
     step: ChallengeCreateStep = ChallengeCreateStep.FRIEND_PICK,
     friends: List<Friend> = emptyList(),
     selectedFriendId: Long? = null,
     myMission: String = "",
     betContent: String = "",
+    signature: Signature = Signature.Empty,
     isSubmitting: Boolean = false,
     loadFailed: Boolean = false,
 ) = ChallengeCreateUiState.Data(
@@ -206,6 +274,7 @@ private fun previewState(
     deadlineType = DeadlineType.TODAY,
     todayDeadlineHint = "7/28 24:00",
     tomorrowDeadlineHint = "7/29 24:00",
+    signature = signature,
     isSubmitting = isSubmitting,
     loadFailed = loadFailed,
 )

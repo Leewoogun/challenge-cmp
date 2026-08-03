@@ -17,11 +17,13 @@ import com.lwg.challenge.utils.datetime.nowKst
 import com.lwg.challenge.utils.isDebug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDateTime
@@ -302,105 +304,35 @@ class HomeViewModelTest {
         assertEquals(HomeEmptyType.NO_ACTIVE_CHALLENGE, state.emptyType)
     }
 
+    /**
+     * 수락은 별도 라우트(맹세 화면)로 빠져 홈 ViewModel 에 성공 콜백이 없다. 맹세 후 홈이 갱신되는
+     * 유일한 근거가 `WhileSubscribed(0)` + `refreshTrigger.onStart` 조합의 이 재구독 재조회다.
+     * 이 동작이 깨지면 수락에 성공해도 받은 도전장이 홈에 그대로 남는다.
+     */
     @Test
-    fun `openAcceptDialog 는 대상을 세팅하고 dismissAcceptDialog 는 해제한다`() = runTest {
+    fun `구독이 끊겼다 다시 붙으면 목록을 재조회한다`() = runTest {
         fakeRecord.record = UserRecord.Empty
         fakeChallenges.challenges = emptyList()
-        fakeChallengeRepo.challenges = listOf(receivedChallenge(challengeId = 71L))
+        fakeChallengeRepo.challenges = listOf(receivedChallenge(challengeId = 95L))
 
         val viewModel = createViewModel()
-        subscribeUiState(viewModel)
-        val item = (viewModel.uiState.value as HomeUiState.Data).receivedChallenges.first()
 
-        viewModel.openAcceptDialog(item)
-        assertEquals(item, (viewModel.uiState.value as HomeUiState.Data).acceptTarget)
-
-        viewModel.dismissAcceptDialog()
-        assertNull((viewModel.uiState.value as HomeUiState.Data).acceptTarget)
-    }
-
-    @Test
-    fun `updateAcceptMission 은 최대 길이로 잘린다`() = runTest {
-        fakeRecord.record = UserRecord.Empty
-        fakeChallenges.challenges = emptyList()
-
-        val viewModel = createViewModel()
-        subscribeUiState(viewModel)
-
-        viewModel.updateAcceptMission("가".repeat(101))
-
-        val state = viewModel.uiState.value as HomeUiState.Data
-        assertEquals(100, state.acceptMission.length)
-    }
-
-    @Test
-    fun `submitAccept 성공 시 trim 된 미션으로 요청하고 목록을 재조회한다`() = runTest {
-        fakeRecord.record = UserRecord.Empty
-        fakeChallenges.challenges = emptyList()
-        fakeChallengeRepo.challenges = listOf(receivedChallenge(challengeId = 77L))
-
-        val viewModel = createViewModel()
-        subscribeUiState(viewModel)
-        val item = (viewModel.uiState.value as HomeUiState.Data).receivedChallenges.first()
-        val callCountBeforeSubmit = fakeChallengeRepo.callCount
-
-        viewModel.openAcceptDialog(item)
-        viewModel.updateAcceptMission("  물 2L 마시기  ")
-        viewModel.submitAccept()
-        advanceUntilIdle()
-
-        assertEquals(77L, fakeChallengeRepo.lastAcceptedId)
-        assertEquals("물 2L 마시기", fakeChallengeRepo.lastAcceptedMission)
-        assertEquals(callCountBeforeSubmit + 1, fakeChallengeRepo.callCount)
-        assertNull((viewModel.uiState.value as HomeUiState.Data).acceptTarget)
-    }
-
-    @Test
-    fun `submitAccept 실패 시 ShowMessage 를 발행하고 제출 상태를 풀고 재조회한다`() = runTest {
-        fakeRecord.record = UserRecord.Empty
-        fakeChallenges.challenges = emptyList()
-        fakeChallengeRepo.challenges = listOf(receivedChallenge(challengeId = 78L))
-        fakeChallengeRepo.acceptError = "이미 응답한 도전장이에요"
-
-        val viewModel = createViewModel()
-        subscribeUiState(viewModel)
-        val item = (viewModel.uiState.value as HomeUiState.Data).receivedChallenges.first()
-        val callCountBeforeSubmit = fakeChallengeRepo.callCount
-
-        viewModel.openAcceptDialog(item)
-        viewModel.updateAcceptMission("물 2L 마시기")
-
-        viewModel.uiEffect.test {
-            viewModel.submitAccept()
-            val effect = awaitItem()
-            assertIs<HomeUiEffect.ShowMessage>(effect)
-            assertEquals("이미 응답한 도전장이에요", effect.message)
-            cancelAndIgnoreRemainingEvents()
+        val subscription = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { }
         }
-        advanceUntilIdle()
+        assertEquals(1, fakeChallengeRepo.callCount)
 
-        val state = viewModel.uiState.value as HomeUiState.Data
-        assertFalse(state.isSubmittingAccept)
-        assertEquals(callCountBeforeSubmit + 1, fakeChallengeRepo.callCount)
-    }
+        // 맹세 화면 push 로 홈 컴포지션이 dispose 되는 상황. stopTimeout 이 0이라도 STOP 은
+        // 스케줄러를 한 번 돌려야 실제로 발화하므로 runCurrent 가 필요하다.
+        subscription.cancelAndJoin()
+        runCurrent()
 
-    @Test
-    fun `submitAccept 를 연속 호출해도 수락 요청은 1회만 나간다`() = runTest {
-        fakeRecord.record = UserRecord.Empty
-        fakeChallenges.challenges = emptyList()
-        fakeChallengeRepo.challenges = listOf(receivedChallenge(challengeId = 79L))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { }
+        }
+        runCurrent()
 
-        val viewModel = createViewModel()
-        subscribeUiState(viewModel)
-        val item = (viewModel.uiState.value as HomeUiState.Data).receivedChallenges.first()
-
-        viewModel.openAcceptDialog(item)
-        viewModel.updateAcceptMission("물 2L 마시기")
-        viewModel.submitAccept()
-        viewModel.submitAccept()
-        advanceUntilIdle()
-
-        assertEquals(1, fakeChallengeRepo.acceptCallCount)
+        assertEquals(2, fakeChallengeRepo.callCount)
     }
 
     @Test

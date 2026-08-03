@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SportsKabaddi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
@@ -15,8 +17,10 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.ui.components.LabeledInputField
+import com.lwg.challenge.ui.components.LoadingIconButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.DeadlineType
+import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -34,7 +38,7 @@ internal fun MissionInputStep(
     onMyMissionChange: (String) -> Unit,
     onBetContentChange: (String) -> Unit,
     onDeadlineChange: (DeadlineType) -> Unit,
-    onSubmit: () -> Unit,
+    onNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -82,11 +86,13 @@ internal fun MissionInputStep(
                 enabled = !uiState.isSubmitting,
             )
 
-            SubmitButton(
-                text = "챌린지 걸기",
-                enabled = uiState.canSubmit,
-                loading = uiState.isSubmitting,
-                onClick = onSubmit,
+            // 제출은 맹세 step 에서만 일어나므로 이 버튼은 단계 이동만 한다 — loading 상태가 없다.
+            LoadingIconButton(
+                text = "다음",
+                icon = Icons.Filled.SportsKabaddi,
+                enabled = uiState.canProceedToOath,
+                loading = false,
+                onClick = onNext,
             )
         }
     }
@@ -102,7 +108,7 @@ private fun MissionInputStepEmptyPreview() {
                 onMyMissionChange = {},
                 onBetContentChange = {},
                 onDeadlineChange = {},
-                onSubmit = {},
+                onNext = {},
             )
         }
     }
@@ -122,7 +128,7 @@ private fun MissionInputStepFilledPreview() {
                 onMyMissionChange = {},
                 onBetContentChange = {},
                 onDeadlineChange = {},
-                onSubmit = {},
+                onNext = {},
             )
         }
     }
@@ -142,7 +148,7 @@ private fun MissionInputStepSubmittingPreview() {
                 onMyMissionChange = {},
                 onBetContentChange = {},
                 onDeadlineChange = {},
-                onSubmit = {},
+                onNext = {},
             )
         }
     }
@@ -162,6 +168,7 @@ private fun previewState(
     deadlineType = deadlineType,
     todayDeadlineHint = "7/28 24:00",
     tomorrowDeadlineHint = "7/29 24:00",
+    signature = Signature.Empty,
     isSubmitting = isSubmitting,
     loadFailed = false,
 )

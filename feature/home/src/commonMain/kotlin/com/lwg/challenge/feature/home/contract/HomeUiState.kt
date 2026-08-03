@@ -9,9 +9,6 @@ import com.lwg.challenge.utils.datetime.toRelativeKoreanString
 import com.lwg.challenge.utils.isDebug
 import kotlinx.datetime.LocalDateTime
 
-/** 수락 다이얼로그 미션 입력 최대 길이. 서버 검증(trim 기준 1~100자)과 동일한 상한. */
-const val MAX_ACCEPT_MISSION_LENGTH = 100
-
 @Stable
 sealed interface HomeUiState {
 
@@ -27,9 +24,6 @@ sealed interface HomeUiState {
         val now: LocalDateTime,
         val userInfo: UserInfo? = null,
         val receivedChallenges: List<ReceivedChallengeItemState> = emptyList(),
-        val acceptTarget: ReceivedChallengeItemState? = null,
-        val acceptMission: String = "",
-        val isSubmittingAccept: Boolean = false,
         val inFlightIds: Set<Long> = emptySet(),
     ) : HomeUiState {
         val emptyType: HomeEmptyType
@@ -48,14 +42,6 @@ sealed interface HomeUiState {
 
         fun deadlineTextOf(challenge: ActiveChallenge): String =
             challenge.deadline.toRelativeKoreanString(now)
-
-        /** 서버 검증이 trim 기준이라 카운터도 trim 으로 센다. */
-        val acceptMissionCount: Int get() = acceptMission.trim().length
-        val acceptMissionCounterText: String
-            get() = "$acceptMissionCount/$MAX_ACCEPT_MISSION_LENGTH"
-        val isAcceptMissionAtMax: Boolean get() = acceptMissionCount >= MAX_ACCEPT_MISSION_LENGTH
-        val canSubmitAccept: Boolean
-            get() = !isSubmittingAccept && acceptMissionCount in 1..MAX_ACCEPT_MISSION_LENGTH
 
         fun isActionable(item: ReceivedChallengeItemState): Boolean =
             item.challengeId !in inFlightIds

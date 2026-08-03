@@ -1,10 +1,14 @@
 package com.lwg.challenge.data.repository
 
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
+import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
 import com.lwg.challenge.remote.api.ChallengeApi
+import com.lwg.challenge.remote.mapper.SignatureCodec
 import com.lwg.challenge.remote.mapper.toBody
+import com.lwg.challenge.remote.mapper.toChallengeDetail
 import com.lwg.challenge.remote.mapper.toReceivedChallenges
 import com.lwg.challenge.remote.model.challenge.AcceptChallengeBody
 import com.lwg.challenge.remote.network.util.suspendOnFailureWithErrorHandling
@@ -41,13 +45,28 @@ class ChallengeRepositoryImpl(
             .suspendOnFailureWithErrorHandling(onError)
     }
 
+    override suspend fun getChallengeDetail(
+        challengeId: Long,
+        onSuccess: (ChallengeDetail) -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        challengeApi.getChallengeDetail(challengeId)
+            .suspendOnSuccess {
+                // deadline 이 없으면 매퍼가 null 을 준다. 계약서를 그릴 수 없으니 성공으로 위장하지 않는다.
+                val detail = response.toChallengeDetail()
+                if (detail == null) onError("챌린지 정보를 불러오지 못했어요") else onSuccess(detail)
+            }
+            .suspendOnFailureWithErrorHandling(onError)
+    }
+
     override suspend fun acceptChallenge(
         challengeId: Long,
         myMission: String,
+        signature: Signature,
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     ) {
-        challengeApi.acceptChallenge(challengeId, AcceptChallengeBody(myMission))
+        challengeApi.acceptChallenge(challengeId, AcceptChallengeBody(myMission, SignatureCodec.encode(signature)))
             .suspendOnSuccess { onSuccess() }
             .suspendOnFailureWithErrorHandling(onError)
     }

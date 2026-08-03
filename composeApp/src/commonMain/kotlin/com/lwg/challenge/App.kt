@@ -3,6 +3,8 @@ package com.lwg.challenge
 import com.lwg.challenge.feature.friends.list.di.platformInviteModule
 import com.lwg.challenge.di.AppModule
 import com.lwg.challenge.feature.challenge.create.di.ChallengeCreateModule
+import com.lwg.challenge.feature.challenge.detail.di.ChallengeDetailModule
+import com.lwg.challenge.feature.challenge.oath.di.OathModule
 import com.lwg.challenge.feature.friends.list.di.FriendsModule
 import com.lwg.challenge.feature.friends.search.di.FriendsSearchModule
 import com.lwg.challenge.feature.home.di.HomeModule
@@ -32,6 +34,8 @@ internal fun challengeAppDeclaration(
         RankingModule().module,
         MyPageModule().module,
         ChallengeCreateModule().module,
+        OathModule().module,
+        ChallengeDetailModule().module,
     )
     additionalDeclaration()
 }

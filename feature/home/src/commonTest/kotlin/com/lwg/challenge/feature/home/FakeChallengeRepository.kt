@@ -1,7 +1,9 @@
 package com.lwg.challenge.feature.home
 
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
+import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,7 +21,14 @@ class FakeChallengeRepository : ChallengeRepository {
         private set
     var lastAcceptedMission: String? = null
         private set
+    var lastAcceptedSignature: Signature? = null
+        private set
     var acceptCallCount: Int = 0
+        private set
+
+    var detail: ChallengeDetail? = null
+    var detailError: String? = null
+    var lastDetailId: Long? = null
         private set
 
     var rejectError: String? = null
@@ -42,15 +51,31 @@ class FakeChallengeRepository : ChallengeRepository {
         }
     }
 
+    override suspend fun getChallengeDetail(
+        challengeId: Long,
+        onSuccess: (ChallengeDetail) -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        lastDetailId = challengeId
+        val current = detail
+        val currentError = detailError
+        when {
+            currentError != null -> onError(currentError)
+            current != null -> onSuccess(current)
+        }
+    }
+
     override suspend fun acceptChallenge(
         challengeId: Long,
         myMission: String,
+        signature: Signature,
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     ) {
         acceptCallCount += 1
         lastAcceptedId = challengeId
         lastAcceptedMission = myMission
+        lastAcceptedSignature = signature
         acceptError.let { if (it == null) onSuccess() else onError(it) }
     }
 

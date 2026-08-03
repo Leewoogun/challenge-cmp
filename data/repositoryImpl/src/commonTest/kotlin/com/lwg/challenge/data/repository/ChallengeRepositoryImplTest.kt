@@ -2,8 +2,13 @@ package com.lwg.challenge.data.repository
 
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.DeadlineType
+import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.domain.model.signature.Signature
+import com.lwg.challenge.domain.model.signature.SignaturePoint
+import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.remote.api.ChallengeApi
+import com.lwg.challenge.remote.mapper.SignatureCodec
 import com.lwg.challenge.remote.model.challenge.AcceptChallengeBody
 import com.lwg.challenge.remote.model.challenge.AcceptChallengeData
 import com.lwg.challenge.remote.model.challenge.AcceptChallengeResponse
@@ -12,6 +17,10 @@ import com.lwg.challenge.remote.model.challenge.CancelChallengeResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateBody
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateData
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateResponse
+import com.lwg.challenge.remote.model.challenge.ChallengeDetailData
+import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
+import com.lwg.challenge.remote.model.challenge.ContractDto
+import com.lwg.challenge.remote.model.challenge.ContractPartyDto
 import com.lwg.challenge.remote.model.challenge.DeadlineTypeDto
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengeDto
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengesData
@@ -53,11 +62,46 @@ class ChallengeRepositoryImplTest {
         createdAt = LocalDateTime(2026, 7, 28, 2, 11, 0),
     )
 
+    private val signature = Signature(
+        listOf(SignatureStroke(listOf(SignaturePoint(123, 456), SignaturePoint(130, 460)))),
+    )
+
+    private val encodedSignature = SignatureCodec.encode(signature)
+
     private val createInput = ChallengeCreateInput(
         opponentId = 42L,
         myMission = "오늘 운동 1시간 하기",
         betContent = "커피 사기",
         deadlineType = DeadlineType.TODAY,
+        signature = signature,
+    )
+
+    private val detailData = ChallengeDetailData(
+        challengeId = 7L,
+        status = "IN_PROGRESS",
+        challengeDate = LocalDate(2026, 8, 3),
+        deadline = LocalDateTime(2026, 8, 4, 0, 0, 0),
+        betContent = "커피 사기",
+        challenger = ContractPartyDto(
+            userId = 1L,
+            nickname = "이우건",
+            profileImageUrl = null,
+            mission = "운동 1시간",
+        ),
+        opponent = ContractPartyDto(
+            userId = 14L,
+            nickname = "테스터1",
+            profileImageUrl = null,
+            mission = "책 30페이지",
+        ),
+        contract = ContractDto(
+            content = "계약서 본문",
+            isFinalized = false,
+            challengerSignature = SignatureCodec.encode(
+                Signature(listOf(SignatureStroke(listOf(SignaturePoint(123, 456))))),
+            ),
+            challengerSignedAt = LocalDateTime(2026, 8, 3, 11, 20, 0),
+        ),
     )
 
     private fun receivedSuccess(vararg dto: ReceivedChallengeDto) = ApiResult.Success(
@@ -163,6 +207,7 @@ class ChallengeRepositoryImplTest {
                 myMission = "오늘 운동 1시간 하기",
                 betContent = "커피 사기",
                 deadlineType = DeadlineTypeDto.TODAY,
+                signature = encodedSignature,
             ),
             api.capturedCreateBody,
         )
@@ -184,7 +229,7 @@ class ChallengeRepositoryImplTest {
     }
 
     @Test
-    fun `acceptChallenge 성공 - onSuccess 호출, myMission 이 body 로 전달`() = runTest {
+    fun `acceptChallenge 성공 - onSuccess 호출, myMission 과 서명이 body 로 전달`() = runTest {
         val api = FakeChallengeApi(
             acceptResult = ApiResult.Success(
                 AcceptChallengeResponse(AcceptChallengeData(challengeId = 7L, status = "IN_PROGRESS")),
@@ -193,11 +238,11 @@ class ChallengeRepositoryImplTest {
         val repository = ChallengeRepositoryImpl(api)
 
         var successCount = 0
-        repository.acceptChallenge(7L, "책 30페이지 읽기", onSuccess = { successCount++ }, onError = {})
+        repository.acceptChallenge(7L, "책 30페이지 읽기", signature, onSuccess = { successCount++ }, onError = {})
 
         assertEquals(1, successCount)
         assertEquals(7L, api.capturedAcceptId)
-        assertEquals(AcceptChallengeBody("책 30페이지 읽기"), api.capturedAcceptBody)
+        assertEquals(AcceptChallengeBody("책 30페이지 읽기", encodedSignature), api.capturedAcceptBody)
     }
 
     @Test
@@ -212,12 +257,61 @@ class ChallengeRepositoryImplTest {
         repository.acceptChallenge(
             challengeId = 7L,
             myMission = "책 30페이지 읽기",
+            signature = signature,
             onSuccess = { successCalled = true },
             onError = { errors.add(it) },
         )
 
         assertTrue(!successCalled)
         assertEquals(listOf("이미 처리된 챌린지예요"), errors)
+    }
+
+    @Test
+    fun `getChallengeDetail 성공 - 도메인으로 매핑돼 onSuccess 로 전달`() = runTest {
+        val api = FakeChallengeApi(detailResult = ApiResult.Success(ChallengeDetailResponse(detailData)))
+        val repository = ChallengeRepositoryImpl(api)
+
+        val details = mutableListOf<ChallengeDetail>()
+        val errors = mutableListOf<String>()
+        repository.getChallengeDetail(7L, onSuccess = { details.add(it) }, onError = { errors.add(it) })
+
+        assertEquals(7L, api.capturedDetailId)
+        assertEquals(emptyList(), errors)
+        val detail = details.single()
+        assertEquals(7L, detail.challengeId)
+        assertEquals("이우건", detail.challenger.nickname)
+        assertEquals("테스터1", detail.opponent.nickname)
+        assertEquals(LocalDateTime(2026, 8, 3, 11, 20, 0), detail.contract.challengerSignedAt)
+    }
+
+    @Test
+    fun `getChallengeDetail - deadline 이 null 이면 onError 호출하고 onSuccess 미호출`() = runTest {
+        val api = FakeChallengeApi(
+            detailResult = ApiResult.Success(ChallengeDetailResponse(detailData.copy(deadline = null))),
+        )
+        val repository = ChallengeRepositoryImpl(api)
+
+        var successCalled = false
+        val errors = mutableListOf<String>()
+        repository.getChallengeDetail(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+
+        assertTrue(!successCalled)
+        assertEquals(listOf("챌린지 정보를 불러오지 못했어요"), errors)
+    }
+
+    @Test
+    fun `getChallengeDetail 실패 - onError 호출, onSuccess 미호출`() = runTest {
+        val api = FakeChallengeApi(
+            detailResult = ApiResult.Failure.CustomError(code = 700, message = "챌린지를 찾을 수 없어요"),
+        )
+        val repository = ChallengeRepositoryImpl(api)
+
+        var successCalled = false
+        val errors = mutableListOf<String>()
+        repository.getChallengeDetail(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+
+        assertTrue(!successCalled)
+        assertEquals(listOf("챌린지를 찾을 수 없어요"), errors)
     }
 
     @Test
@@ -284,6 +378,7 @@ class ChallengeRepositoryImplTest {
 private class FakeChallengeApi(
     private val createResult: ApiResult<ChallengeCreateResponse> = ApiResult.Success(ChallengeCreateResponse()),
     private val receivedResult: ApiResult<ReceivedChallengesResponse> = ApiResult.Success(ReceivedChallengesResponse()),
+    private val detailResult: ApiResult<ChallengeDetailResponse> = ApiResult.Success(ChallengeDetailResponse()),
     private val acceptResult: ApiResult<AcceptChallengeResponse> = ApiResult.Success(AcceptChallengeResponse()),
     private val rejectResult: ApiResult<RejectChallengeResponse> = ApiResult.Success(RejectChallengeResponse()),
     private val cancelResult: ApiResult<CancelChallengeResponse> = ApiResult.Success(CancelChallengeResponse()),
@@ -292,6 +387,8 @@ private class FakeChallengeApi(
     var getReceivedCallCount = 0
         private set
     var capturedCreateBody: ChallengeCreateBody? = null
+        private set
+    var capturedDetailId: Long? = null
         private set
     var capturedAcceptId: Long? = null
         private set
@@ -310,6 +407,11 @@ private class FakeChallengeApi(
     override suspend fun getReceivedChallenges(): ApiResult<ReceivedChallengesResponse> {
         getReceivedCallCount++
         return receivedResult
+    }
+
+    override suspend fun getChallengeDetail(challengeId: Long): ApiResult<ChallengeDetailResponse> {
+        capturedDetailId = challengeId
+        return detailResult
     }
 
     override suspend fun acceptChallenge(

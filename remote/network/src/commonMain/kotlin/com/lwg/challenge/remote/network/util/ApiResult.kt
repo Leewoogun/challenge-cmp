@@ -51,6 +51,7 @@ inline fun <T : BaseResponse> ApiResult<T>.suspendOnFailureWithErrorHandling(
 
             is ApiResult.Failure.UnknownApiError -> {
                 Logger.e("UnknownApiError: ${throwable.message}", throwable)
+                onError("요청을 처리하지 못했어요")
             }
 
             is ApiResult.Failure.CustomError -> {

@@ -76,6 +76,9 @@ kotlin {
             // Utils (Logger)
             implementation(projects.core.utils)
         }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }

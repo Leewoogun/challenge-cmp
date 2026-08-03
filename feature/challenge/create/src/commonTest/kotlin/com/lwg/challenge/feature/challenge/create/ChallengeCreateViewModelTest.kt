@@ -3,6 +3,9 @@ package com.lwg.challenge.feature.challenge.create
 import app.cash.turbine.test
 import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.friend.Friend
+import com.lwg.challenge.domain.model.signature.Signature
+import com.lwg.challenge.domain.model.signature.SignaturePoint
+import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.domain.usecase.CreateChallengeUseCase
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiEffect
@@ -63,6 +66,12 @@ class ChallengeCreateViewModelTest {
         nickname = nickname,
         profileImageUrl = null,
         since = LocalDateTime.parse("2026-01-01T00:00:00"),
+    )
+
+    private fun sampleSignature() = Signature(
+        strokes = listOf(
+            SignatureStroke(listOf(SignaturePoint(10, 20), SignaturePoint(30, 40))),
+        ),
     )
 
     @Test
@@ -154,35 +163,117 @@ class ChallengeCreateViewModelTest {
     }
 
     @Test
-    fun `미션이 공백뿐이면 제출할 수 없다`() = runTest {
+    fun `미션이 공백뿐이면 맹세 단계로 넘어갈 수 없다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
 
         viewModel.updateMyMission("   ")
         viewModel.updateBetContent("커피 사기")
 
-        assertFalse(viewModel.data().canSubmit)
+        assertFalse(viewModel.data().canProceedToOath)
     }
 
     @Test
-    fun `내기를 입력하지 않으면 제출할 수 없다`() = runTest {
+    fun `내기를 입력하지 않으면 맹세 단계로 넘어갈 수 없다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
 
         viewModel.updateMyMission("오늘 운동 1시간 하기")
 
-        assertFalse(viewModel.data().canSubmit)
+        assertFalse(viewModel.data().canProceedToOath)
     }
 
     @Test
-    fun `미션과 내기가 모두 유효하면 제출할 수 있다`() = runTest {
+    fun `미션과 내기가 모두 유효하면 맹세 단계로 넘어갈 수 있다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
 
         viewModel.updateMyMission("오늘 운동 1시간 하기")
         viewModel.updateBetContent("커피 사기")
 
+        assertTrue(viewModel.data().canProceedToOath)
+    }
+
+    @Test
+    fun `goToOathStep 은 미션과 내기가 유효할 때만 맹세 단계로 넘어간다`() = runTest {
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        viewModel.selectFriend(7L)
+
+        viewModel.updateMyMission("오늘 운동 1시간 하기")
+        viewModel.goToOathStep()
+        assertEquals(ChallengeCreateStep.MISSION_INPUT, viewModel.data().step)
+
+        viewModel.updateBetContent("커피 사기")
+        viewModel.goToOathStep()
+        assertEquals(ChallengeCreateStep.OATH, viewModel.data().step)
+    }
+
+    @Test
+    fun `goToPreviousStep 은 맹세에서 미션 입력 그리고 상대 선택으로 한 단계씩 내려간다`() = runTest {
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        viewModel.selectFriend(7L)
+        viewModel.updateMyMission("오늘 운동 1시간 하기")
+        viewModel.updateBetContent("커피 사기")
+        viewModel.goToOathStep()
+        assertEquals(ChallengeCreateStep.OATH, viewModel.data().step)
+
+        viewModel.goToPreviousStep()
+        assertEquals(ChallengeCreateStep.MISSION_INPUT, viewModel.data().step)
+
+        viewModel.goToPreviousStep()
+        assertEquals(ChallengeCreateStep.FRIEND_PICK, viewModel.data().step)
+
+        // 첫 단계에서는 더 내려갈 곳이 없다 — 화면을 벗어나는 건 Route 의 popBackStack 책임이다.
+        viewModel.goToPreviousStep()
+        assertEquals(ChallengeCreateStep.FRIEND_PICK, viewModel.data().step)
+    }
+
+    @Test
+    fun `서명이 비어 있으면 제출할 수 없고 획을 하나 그으면 제출할 수 있다`() = runTest {
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        viewModel.updateMyMission("오늘 운동 1시간 하기")
+        viewModel.updateBetContent("커피 사기")
+
+        assertFalse(viewModel.data().canSubmit)
+
+        viewModel.updateSignature(sampleSignature())
+
         assertTrue(viewModel.data().canSubmit)
+    }
+
+    @Test
+    fun `clearSignature 후에는 제출할 수 없다`() = runTest {
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        viewModel.updateMyMission("오늘 운동 1시간 하기")
+        viewModel.updateBetContent("커피 사기")
+        viewModel.updateSignature(sampleSignature())
+        assertTrue(viewModel.data().canSubmit)
+
+        viewModel.clearSignature()
+
+        val state = viewModel.data()
+        assertTrue(state.signature.isEmpty)
+        assertFalse(state.canSubmit)
+    }
+
+    @Test
+    fun `서명이 비어 있으면 submit 해도 생성 요청이 나가지 않는다`() = runTest {
+        fakeFriendsRepository.friendsFlow.value = listOf(sampleFriend(9))
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        viewModel.selectFriend(9L)
+        viewModel.updateMyMission("오늘 운동 1시간 하기")
+        viewModel.updateBetContent("커피 사기")
+
+        viewModel.submit()
+
+        assertTrue(fakeChallengeRepository.createCalls.isEmpty())
+        assertFalse(viewModel.data().isSubmitting)
     }
 
     @Test
@@ -244,6 +335,7 @@ class ChallengeCreateViewModelTest {
         viewModel.updateMyMission("오늘 운동 1시간 하기")
         viewModel.updateBetContent("커피 사기")
         viewModel.selectDeadline(DeadlineType.TOMORROW)
+        viewModel.updateSignature(sampleSignature())
 
         viewModel.uiEffect.test {
             viewModel.submit()
@@ -257,6 +349,7 @@ class ChallengeCreateViewModelTest {
         assertEquals("오늘 운동 1시간 하기", input.myMission)
         assertEquals("커피 사기", input.betContent)
         assertEquals(DeadlineType.TOMORROW, input.deadlineType)
+        assertEquals(sampleSignature(), input.signature)
     }
 
     @Test
@@ -269,6 +362,7 @@ class ChallengeCreateViewModelTest {
         viewModel.selectFriend(9L)
         viewModel.updateMyMission("오늘 운동 1시간 하기")
         viewModel.updateBetContent("커피 사기")
+        viewModel.updateSignature(sampleSignature())
 
         viewModel.uiEffect.test {
             viewModel.submit()
@@ -294,6 +388,7 @@ class ChallengeCreateViewModelTest {
         viewModel.selectFriend(9L)
         viewModel.updateMyMission("오늘 운동 1시간 하기")
         viewModel.updateBetContent("커피 사기")
+        viewModel.updateSignature(sampleSignature())
 
         viewModel.submit()
         viewModel.submit()

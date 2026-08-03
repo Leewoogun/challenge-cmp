@@ -1,7 +1,9 @@
 package com.lwg.challenge.domain.repository
 
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
+import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.domain.model.signature.Signature
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -23,9 +25,19 @@ interface ChallengeRepository {
         onError: (String) -> Unit,
     )
 
+    /**
+     * 화면 진입 시 1회 + 재시도만 있어 관찰 대상이 아니다. Flow 가 아니라 suspend + 콜백으로 둔다.
+     */
+    suspend fun getChallengeDetail(
+        challengeId: Long,
+        onSuccess: (ChallengeDetail) -> Unit,
+        onError: (String) -> Unit,
+    )
+
     suspend fun acceptChallenge(
         challengeId: Long,
         myMission: String,
+        signature: Signature,
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     )

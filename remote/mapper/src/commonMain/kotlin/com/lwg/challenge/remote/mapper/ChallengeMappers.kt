@@ -42,6 +42,7 @@ fun ChallengeCreateInput.toBody(): ChallengeCreateBody = ChallengeCreateBody(
     myMission = myMission,
     betContent = betContent,
     deadlineType = deadlineType.toDto(),
+    signature = SignatureCodec.encode(signature),
 )
 
 fun DeadlineType.toDto(): DeadlineTypeDto = when (this) {

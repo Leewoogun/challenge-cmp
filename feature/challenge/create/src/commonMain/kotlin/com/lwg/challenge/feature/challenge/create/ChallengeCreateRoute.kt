@@ -8,6 +8,7 @@ import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.ChallengeTopBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.DeadlineType
+import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.feature.challenge.create.component.ChallengeCreateLoading
 import com.lwg.challenge.feature.challenge.create.component.WizardProgressBar
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
@@ -37,9 +38,10 @@ fun ChallengeCreateRoute(
 
     ChallengeCreateContent(
         uiState = uiState,
-        // 시스템 백 버튼은 단계 전환을 하지 않는다 — PlatformBackHandler 가 :feature:main 에 있어 이 모듈에서 못 쓴다.
+        // 단계 되돌리기는 TopBar 뒤로가기만 한다. PlatformBackHandler 가 :core:ui 로 옮겨져 이제 쓸 수는
+        // 있으나, 위저드의 시스템 백 동작을 맞추는 건 별도 작업이라 여기서는 손대지 않는다.
         onBack = {
-            if (uiState.step == ChallengeCreateStep.MISSION_INPUT) {
+            if (uiState.step != ChallengeCreateStep.FRIEND_PICK) {
                 viewModel.goToPreviousStep()
             } else {
                 navigator.popBackStack()
@@ -51,6 +53,8 @@ fun ChallengeCreateRoute(
         onMyMissionChange = viewModel::updateMyMission,
         onBetContentChange = viewModel::updateBetContent,
         onDeadlineChange = viewModel::selectDeadline,
+        onNext = viewModel::goToOathStep,
+        onSignatureChange = viewModel::updateSignature,
         onSubmit = viewModel::submit,
     )
 }
@@ -65,6 +69,8 @@ private fun ChallengeCreateContent(
     onMyMissionChange: (String) -> Unit,
     onBetContentChange: (String) -> Unit,
     onDeadlineChange: (DeadlineType) -> Unit,
+    onNext: () -> Unit,
+    onSignatureChange: (Signature) -> Unit,
     onSubmit: () -> Unit,
 ) {
     ChallengeScaffold(
@@ -88,6 +94,8 @@ private fun ChallengeCreateContent(
                 onMyMissionChange = onMyMissionChange,
                 onBetContentChange = onBetContentChange,
                 onDeadlineChange = onDeadlineChange,
+                onNext = onNext,
+                onSignatureChange = onSignatureChange,
                 onSubmit = onSubmit,
             )
         }

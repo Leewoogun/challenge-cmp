@@ -28,6 +28,8 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.challenge.create.ChallengeCreateRoute
+import com.lwg.challenge.feature.challenge.detail.ChallengeDetailRoute
+import com.lwg.challenge.feature.challenge.oath.OathRoute
 import com.lwg.challenge.feature.friends.list.FriendsRoute
 import com.lwg.challenge.feature.friends.search.FriendsSearchRoute
 import com.lwg.challenge.feature.home.HomeRoute
@@ -38,6 +40,7 @@ import com.lwg.challenge.feature.mypage.MyPageRoute
 import com.lwg.challenge.feature.ranking.RankingRoute
 import com.lwg.challenge.feature.splash.SplashRoute
 import com.lwg.challenge.ui.components.PlaceholderScreen
+import com.lwg.challenge.ui.components.PlatformBackHandler
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.navigation.MainAction
@@ -183,13 +186,13 @@ private fun MainScreen(
                 entry<Route.Ranking>(clazzContentKey = { it.uniqueContentKey() }) { RankingRoute() }
                 entry<Route.MyPage>(clazzContentKey = { it.uniqueContentKey() }) { MyPageRoute() }
                 entry<Route.Challenge.Detail>(clazzContentKey = { it.uniqueContentKey() }) { route ->
-                    PlaceholderScreen(
-                        title = "챌린지 상세",
-                        subtitle = "id=${route.challengeId} (준비 중)",
-                    )
+                    ChallengeDetailRoute(challengeId = route.challengeId)
                 }
                 entry<Route.Challenge.Create>(clazzContentKey = { it.uniqueContentKey() }) {
                     ChallengeCreateRoute()
+                }
+                entry<Route.Challenge.Oath>(clazzContentKey = { it.uniqueContentKey() }) { route ->
+                    OathRoute(challengeId = route.challengeId)
                 }
                 entry<Route.Notifications>(clazzContentKey = { it.uniqueContentKey() }) {
                     PlaceholderScreen(title = "알림")

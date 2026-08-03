@@ -6,7 +6,6 @@ import com.lwg.challenge.domain.repository.ChallengeRepository
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.feature.home.contract.HomeUiEffect
 import com.lwg.challenge.feature.home.contract.HomeUiState
-import com.lwg.challenge.feature.home.contract.MAX_ACCEPT_MISSION_LENGTH
 import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
 import com.lwg.challenge.utils.datetime.nowKst
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,7 +33,7 @@ class HomeViewModel(
 ) : ViewModel() {
 
     private val refreshTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    private val _acceptForm = MutableStateFlow(AcceptFormState())
+    private val _inFlightIds = MutableStateFlow<Set<Long>>(emptySet())
 
     private val _uiEffect = Channel<HomeUiEffect>(Channel.BUFFERED)
     val uiEffect: Flow<HomeUiEffect> = _uiEffect.receiveAsFlow()
@@ -57,66 +56,22 @@ class HomeViewModel(
             }
         }
 
-    val uiState: StateFlow<HomeUiState> = combine(homeDataFlow, _acceptForm) { data, form ->
-        data.copy(
-            acceptTarget = form.target,
-            acceptMission = form.mission,
-            isSubmittingAccept = form.isSubmitting,
-            inFlightIds = form.inFlightIds,
-        )
+    // WhileSubscribed(0) 는 성능 최적화가 아니라 수락 후 홈 갱신의 유일한 근거다. 맹세 화면이 push 되면
+    // 홈 컴포지션이 dispose 돼 구독자가 0이 되고, 돌아와 재구독하는 순간 upstream 이 재시작되며
+    // refreshTrigger.onStart 가 다시 발화해 목록을 새로 읽는다. 홈에는 수락 완료를 알 다른 경로가 없다.
+    val uiState: StateFlow<HomeUiState> = combine(homeDataFlow, _inFlightIds) { data, inFlightIds ->
+        data.copy(inFlightIds = inFlightIds)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(0),
         initialValue = HomeUiState.Loading,
     )
 
-    fun openAcceptDialog(item: ReceivedChallengeItemState) {
-        _acceptForm.update { it.copy(target = item, mission = "") }
-    }
-
-    fun dismissAcceptDialog() {
-        if (_acceptForm.value.isSubmitting) return
-        _acceptForm.update { it.copy(target = null, mission = "") }
-    }
-
-    fun updateAcceptMission(value: String) {
-        _acceptForm.update { it.copy(mission = value.take(MAX_ACCEPT_MISSION_LENGTH)) }
-    }
-
-    fun submitAccept() {
-        val form = _acceptForm.value
-        val challengeId = form.target?.challengeId ?: return
-        if (form.isSubmitting) return
-
-        _acceptForm.update {
-            it.copy(isSubmitting = true, inFlightIds = it.inFlightIds + challengeId)
-        }
-
-        viewModelScope.launch {
-            challengeRepository.acceptChallenge(
-                challengeId = challengeId,
-                myMission = form.mission.trim(),
-                onSuccess = {
-                    closeAcceptDialog(challengeId)
-                    // 받은 도전장과 진행 중 목록을 GetHomeDataUseCase 가 함께 물고 있어 reload 1회로 둘 다 갱신된다.
-                    reload()
-                    showMessage("챌린지가 시작됐어요")
-                },
-                // 계약상 모바일은 실패 code 를 구분하지 않는다. 어떤 실패든 스낵바 + 목록 재조회로 통일한다.
-                onError = { message ->
-                    closeAcceptDialog(challengeId)
-                    showMessage(message)
-                    reload()
-                },
-            )
-        }
-    }
-
     fun rejectChallenge(item: ReceivedChallengeItemState) {
         val challengeId = item.challengeId
-        if (challengeId in _acceptForm.value.inFlightIds) return
+        if (challengeId in _inFlightIds.value) return
 
-        _acceptForm.update { it.copy(inFlightIds = it.inFlightIds + challengeId) }
+        _inFlightIds.update { it + challengeId }
 
         viewModelScope.launch {
             challengeRepository.rejectChallenge(
@@ -127,18 +82,7 @@ class HomeViewModel(
                     reload()
                 },
             )
-            _acceptForm.update { it.copy(inFlightIds = it.inFlightIds - challengeId) }
-        }
-    }
-
-    private fun closeAcceptDialog(challengeId: Long) {
-        _acceptForm.update {
-            it.copy(
-                target = null,
-                mission = "",
-                isSubmitting = false,
-                inFlightIds = it.inFlightIds - challengeId,
-            )
+            _inFlightIds.update { it - challengeId }
         }
     }
 
@@ -151,11 +95,4 @@ class HomeViewModel(
             _uiEffect.send(HomeUiEffect.ShowMessage(message))
         }
     }
-
-    private data class AcceptFormState(
-        val target: ReceivedChallengeItemState? = null,
-        val mission: String = "",
-        val isSubmitting: Boolean = false,
-        val inFlightIds: Set<Long> = emptySet(),
-    )
 }

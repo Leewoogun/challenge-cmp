@@ -49,9 +49,16 @@ sealed interface Route : NavKey {
         @Serializable
         data object Create : Challenge
 
-        /** 챌린지 상세. home-feed 카드 탭 시 진입. 본 feature 범위 밖 — stub PlaceholderScreen. */
+        /** 챌린지 상세(계약서 + 양측 서명). home-feed 카드 탭 시 진입. */
         @Serializable
         data class Detail(val challengeId: Long) : Challenge
+
+        /**
+         * 상대방 맹세 화면. 홈 '받은 도전장' 수락 탭 진입.
+         * 수락+서명이 단일 원자 요청이라 이 화면을 통과해야 챌린지가 시작된다.
+         */
+        @Serializable
+        data class Oath(val challengeId: Long) : Challenge
     }
 }
 
@@ -67,5 +74,6 @@ val routeSerializersModule = SerializersModule {
         subclass(Route.Friends.Search::class)
         subclass(Route.Challenge.Create::class)
         subclass(Route.Challenge.Detail::class)
+        subclass(Route.Challenge.Oath::class)
     }
 }

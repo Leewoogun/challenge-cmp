@@ -1,7 +1,9 @@
 package com.lwg.challenge.feature.challenge.create
 
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
+import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -33,9 +35,16 @@ class FakeChallengeRepository : ChallengeRepository {
         createError.let { if (it == null) onSuccess(createdChallengeId) else onError(it) }
     }
 
+    override suspend fun getChallengeDetail(
+        challengeId: Long,
+        onSuccess: (ChallengeDetail) -> Unit,
+        onError: (String) -> Unit,
+    ) = Unit
+
     override suspend fun acceptChallenge(
         challengeId: Long,
         myMission: String,
+        signature: Signature,
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     ) = Unit

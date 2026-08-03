@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.DeadlineType
+import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.FriendsRepository
 import com.lwg.challenge.domain.usecase.CreateChallengeUseCase
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
@@ -72,6 +73,7 @@ class ChallengeCreateViewModel(
                 deadlineType = form.deadlineType,
                 todayDeadlineHint = todayDeadlineHint,
                 tomorrowDeadlineHint = tomorrowDeadlineHint,
+                signature = form.signature,
                 isSubmitting = form.isSubmitting,
                 loadFailed = loadFailed,
             )
@@ -93,8 +95,27 @@ class ChallengeCreateViewModel(
         }
     }
 
+    fun goToOathStep() {
+        _form.update { form ->
+            val canProceed = !form.isSubmitting &&
+                form.myMission.trim().length in 1..MAX_INPUT_LENGTH &&
+                form.betContent.trim().length in 1..MAX_INPUT_LENGTH
+            if (form.step == ChallengeCreateStep.MISSION_INPUT && canProceed) {
+                form.copy(step = ChallengeCreateStep.OATH)
+            } else {
+                form
+            }
+        }
+    }
+
     fun goToPreviousStep() {
-        _form.update { it.copy(step = ChallengeCreateStep.FRIEND_PICK) }
+        _form.update { form ->
+            when (form.step) {
+                ChallengeCreateStep.OATH -> form.copy(step = ChallengeCreateStep.MISSION_INPUT)
+                ChallengeCreateStep.MISSION_INPUT -> form.copy(step = ChallengeCreateStep.FRIEND_PICK)
+                ChallengeCreateStep.FRIEND_PICK -> form
+            }
+        }
     }
 
     fun updateMyMission(value: String) {
@@ -109,6 +130,14 @@ class ChallengeCreateViewModel(
         _form.update { it.copy(deadlineType = type) }
     }
 
+    fun updateSignature(value: Signature) {
+        _form.update { it.copy(signature = value) }
+    }
+
+    fun clearSignature() {
+        _form.update { it.copy(signature = Signature.Empty) }
+    }
+
     fun retryLoadFriends() {
         refreshTrigger.tryEmit(Unit)
     }
@@ -116,6 +145,8 @@ class ChallengeCreateViewModel(
     fun submit() {
         val form = _form.value
         val opponentId = form.selectedFriendId ?: return
+        // 빈 서명은 서버가 거부한다 — 요청을 내보내기 전에 막는다.
+        if (form.signature.isEmpty) return
         if (form.isSubmitting) return
 
         _form.update { it.copy(isSubmitting = true) }
@@ -127,6 +158,7 @@ class ChallengeCreateViewModel(
                     myMission = form.myMission.trim(),
                     betContent = form.betContent.trim(),
                     deadlineType = form.deadlineType,
+                    signature = form.signature,
                 ),
                 onSuccess = { navigateBack() },
                 onError = { message ->
@@ -155,6 +187,7 @@ class ChallengeCreateViewModel(
         val myMission: String = "",
         val betContent: String = "",
         val deadlineType: DeadlineType = DeadlineType.TODAY,
+        val signature: Signature = Signature.Empty,
         val isSubmitting: Boolean = false,
     )
 }

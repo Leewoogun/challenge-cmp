@@ -19,6 +19,7 @@ import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.friend.Friend
+import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
 import kotlinx.datetime.LocalDateTime
@@ -151,6 +152,7 @@ private fun previewState(
     deadlineType = DeadlineType.TODAY,
     todayDeadlineHint = "7/28 24:00",
     tomorrowDeadlineHint = "7/29 24:00",
+    signature = Signature.Empty,
     isSubmitting = false,
     loadFailed = loadFailed,
 )

@@ -5,6 +5,7 @@ import com.lwg.challenge.remote.model.challenge.AcceptChallengeResponse
 import com.lwg.challenge.remote.model.challenge.CancelChallengeResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateBody
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateResponse
+import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengesResponse
 import com.lwg.challenge.remote.model.challenge.RejectChallengeResponse
 import com.lwg.challenge.remote.network.util.ApiResult
@@ -26,6 +27,12 @@ interface ChallengeApi {
     suspend fun createChallenge(
         @Body body: ChallengeCreateBody,
     ): ApiResult<ChallengeCreateResponse>
+
+    /** GET /api/v1/challenges/{id} — 챌린지 상세 + 계약서 + 양측 서명. */
+    @GET("api/v1/challenges/{id}")
+    suspend fun getChallengeDetail(
+        @Path("id") challengeId: Long,
+    ): ApiResult<ChallengeDetailResponse>
 
     /** GET /api/v1/challenges/received — 받은 도전장 목록 (PENDING, 마감 미경과). `created_at DESC`. */
     @GET("api/v1/challenges/received")

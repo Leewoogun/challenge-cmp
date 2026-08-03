@@ -29,7 +29,6 @@ import com.lwg.challenge.domain.model.ActiveChallenge
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
-import com.lwg.challenge.feature.home.component.AcceptChallengeDialog
 import com.lwg.challenge.feature.home.component.ChallengeCard
 import com.lwg.challenge.feature.home.component.ChallengeVerificationStatus
 import com.lwg.challenge.feature.home.component.HomeEmptyState
@@ -53,9 +52,6 @@ internal fun HomeScreen(
     onCreateChallengeClick: () -> Unit,
     onAcceptClick: (ReceivedChallengeItemState) -> Unit,
     onRejectClick: (ReceivedChallengeItemState) -> Unit,
-    onAcceptMissionChange: (String) -> Unit,
-    onAcceptSubmit: () -> Unit,
-    onAcceptDismiss: () -> Unit,
 ) {
     ChallengeScaffold(
         statusBarColor = ChallengeTheme.colorScheme.surface,
@@ -70,59 +66,40 @@ internal fun HomeScreen(
             HomeFab(onClick = onFabClick)
         },
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    start = 20.dp,
-                    end = 20.dp,
-                    top = 16.dp,
-                    bottom = 96.dp,
-                ),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                item(key = "record") {
-                    StatsBar(
-                        win = uiState.record.win,
-                        lose = uiState.record.lose,
-                        draw = uiState.record.draw,
-                        streakText = uiState.streakText,
-                        muted = uiState.isRecordMuted,
-                    )
-                }
-                // 0건이면 섹션 통째로 미노출 — 전용 빈 상태 카드를 두지 않는다 (design.md §2.4).
-                if (uiState.receivedChallenges.isNotEmpty()) {
-                    receivedChallengesSection(
-                        challenges = uiState.receivedChallenges,
-                        onAccept = onAcceptClick,
-                        onReject = onRejectClick,
-                        isActionable = uiState::isActionable,
-                    )
-                }
-                challengesSection(
-                    uiState = uiState,
-                    onChallengeClick = onChallengeClick,
-                    onAddFriendClick = onAddFriendClick,
-                    onCreateChallengeClick = onCreateChallengeClick,
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                top = 16.dp,
+                bottom = 96.dp,
+            ),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item(key = "record") {
+                StatsBar(
+                    win = uiState.record.win,
+                    lose = uiState.record.lose,
+                    draw = uiState.record.draw,
+                    streakText = uiState.streakText,
+                    muted = uiState.isRecordMuted,
                 )
             }
-
-            uiState.acceptTarget?.let { target ->
-                AcceptChallengeDialog(
-                    missionLabelText = target.missionLabelText,
-                    challengerMission = target.challengerMission,
-                    betContent = target.betContent,
-                    deadlineText = target.deadlineText,
-                    myMission = uiState.acceptMission,
-                    onMyMissionChange = onAcceptMissionChange,
-                    counterText = uiState.acceptMissionCounterText,
-                    counterAtMax = uiState.isAcceptMissionAtMax,
-                    canSubmit = uiState.canSubmitAccept,
-                    isSubmitting = uiState.isSubmittingAccept,
-                    onSubmit = onAcceptSubmit,
-                    onDismiss = onAcceptDismiss,
+            // 0건이면 섹션 통째로 미노출 — 전용 빈 상태 카드를 두지 않는다 (design.md §2.4).
+            if (uiState.receivedChallenges.isNotEmpty()) {
+                receivedChallengesSection(
+                    challenges = uiState.receivedChallenges,
+                    onAccept = onAcceptClick,
+                    onReject = onRejectClick,
+                    isActionable = uiState::isActionable,
                 )
             }
+            challengesSection(
+                uiState = uiState,
+                onChallengeClick = onChallengeClick,
+                onAddFriendClick = onAddFriendClick,
+                onCreateChallengeClick = onCreateChallengeClick,
+            )
         }
     }
 }
@@ -312,9 +289,6 @@ private fun HomeScreenDataPreview() {
                 onCreateChallengeClick = {},
                 onAcceptClick = {},
                 onRejectClick = {},
-                onAcceptMissionChange = {},
-                onAcceptSubmit = {},
-                onAcceptDismiss = {},
             )
         }
     }
@@ -338,9 +312,6 @@ private fun HomeScreenFirstUserPreview() {
                 onCreateChallengeClick = {},
                 onAcceptClick = {},
                 onRejectClick = {},
-                onAcceptMissionChange = {},
-                onAcceptSubmit = {},
-                onAcceptDismiss = {},
             )
         }
     }
@@ -364,9 +335,6 @@ private fun HomeScreenNoActiveChallengePreview() {
                 onCreateChallengeClick = {},
                 onAcceptClick = {},
                 onRejectClick = {},
-                onAcceptMissionChange = {},
-                onAcceptSubmit = {},
-                onAcceptDismiss = {},
             )
         }
     }
@@ -391,9 +359,6 @@ private fun HomeScreenWithReceivedChallengesPreview() {
                 onCreateChallengeClick = {},
                 onAcceptClick = {},
                 onRejectClick = {},
-                onAcceptMissionChange = {},
-                onAcceptSubmit = {},
-                onAcceptDismiss = {},
             )
         }
     }
