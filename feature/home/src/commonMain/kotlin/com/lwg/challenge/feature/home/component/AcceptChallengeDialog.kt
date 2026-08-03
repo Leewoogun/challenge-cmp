@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.lwg.challenge.designsystem.components.IconTextButton
+import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.LabeledInputField
 import org.jetbrains.compose.ui.tooling.preview.Preview

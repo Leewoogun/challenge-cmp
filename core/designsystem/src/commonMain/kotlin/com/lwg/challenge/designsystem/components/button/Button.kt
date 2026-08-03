@@ -1,4 +1,4 @@
-package com.lwg.challenge.designsystem.components
+package com.lwg.challenge.designsystem.components.button
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.LabeledDivider
-import com.lwg.challenge.designsystem.components.NormalButton
+import com.lwg.challenge.designsystem.components.button.NormalButton
 import com.lwg.challenge.designsystem.theme.BrandColors
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import kotlinx.coroutines.delay

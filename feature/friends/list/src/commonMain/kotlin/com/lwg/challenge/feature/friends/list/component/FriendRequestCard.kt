@@ -19,8 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.lwg.challenge.designsystem.components.IconTextButton
-import com.lwg.challenge.designsystem.components.IconTextButtonStyle
+import com.lwg.challenge.designsystem.components.button.IconTextButton
+import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.ProfilePlaceholder
 import org.jetbrains.compose.ui.tooling.preview.Preview

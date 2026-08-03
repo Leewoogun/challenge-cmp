@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.lwg.challenge.designsystem.components.NormalButton
+import com.lwg.challenge.designsystem.components.button.NormalButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.PlaceholderScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview

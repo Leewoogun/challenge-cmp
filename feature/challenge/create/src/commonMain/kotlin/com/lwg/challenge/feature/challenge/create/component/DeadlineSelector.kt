@@ -1,33 +1,20 @@
 package com.lwg.challenge.feature.challenge.create.component
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.components.button.SelectedButton
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.DeadlineType
@@ -65,15 +52,17 @@ internal fun DeadlineSelector(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             DeadlineType.entries.forEach { type ->
-                DeadlineOption(
-                    type = type,
-                    hintText = when (type) {
+                SelectedButton(
+                    text = type.label,
+                    supportingText = when (type) {
                         DeadlineType.TODAY -> todayHintText
                         DeadlineType.TOMORROW -> tomorrowHintText
                     },
+                    leadingIcon = Icons.Filled.Schedule,
                     selected = type == value,
                     enabled = enabled,
                     onClick = { onValueChange(type) },
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -87,80 +76,6 @@ internal fun DeadlineSelector(
         )
     }
 }
-
-@Composable
-private fun RowScope.DeadlineOption(
-    type: DeadlineType,
-    hintText: String,
-    selected: Boolean,
-    enabled: Boolean,
-    onClick: () -> Unit,
-) {
-    val primary = ChallengeTheme.colorScheme.primary
-    val shape = RoundedCornerShape(12.dp)
-    val labelColor = if (selected) primary else ChallengeTheme.colorScheme.onSurfaceVariant
-    val hintColor = if (selected) {
-        primary.copy(alpha = 0.80f)
-    } else {
-        ChallengeTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.70f)
-    }
-
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .height(60.dp)
-            .clip(shape)
-            .background(if (selected) primary.copy(alpha = 0.10f) else ChallengeTheme.colorScheme.secondary)
-            .then(
-                if (selected) {
-                    Modifier.border(border = BorderStroke(1.dp, primary), shape = shape)
-                } else {
-                    Modifier
-                },
-            )
-            .clickable(enabled = enabled, onClick = onClick)
-            .semantics {
-                role = Role.RadioButton
-                this.selected = selected
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Schedule,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = labelColor,
-                )
-
-                Text(
-                    text = type.label,
-                    style = ChallengeTheme.typography.medium14,
-                    color = labelColor,
-                )
-            }
-
-            Text(
-                text = hintText,
-                style = ChallengeTheme.typography.medium12,
-                color = hintColor,
-            )
-        }
-    }
-}
-
-private val DeadlineType.label: String
-    get() = when (this) {
-        DeadlineType.TODAY -> "오늘 자정"
-        DeadlineType.TOMORROW -> "내일 자정"
-    }
 
 @Preview
 @Composable

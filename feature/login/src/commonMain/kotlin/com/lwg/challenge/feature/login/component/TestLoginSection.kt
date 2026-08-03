@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.LabeledDivider
-import com.lwg.challenge.designsystem.components.NormalButton
+import com.lwg.challenge.designsystem.components.button.NormalButton
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.login.contract.TestAccount
