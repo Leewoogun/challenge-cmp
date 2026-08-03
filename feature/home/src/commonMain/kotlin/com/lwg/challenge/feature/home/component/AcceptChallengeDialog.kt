@@ -36,6 +36,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.lwg.challenge.designsystem.components.IconTextButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.ui.components.LabeledInputField
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -110,7 +111,7 @@ internal fun AcceptChallengeDialog(
                     deadlineText = deadlineText,
                 )
 
-                MissionInputField(
+                LabeledInputField(
                     label = "나의 미션",
                     value = myMission,
                     onValueChange = onMyMissionChange,

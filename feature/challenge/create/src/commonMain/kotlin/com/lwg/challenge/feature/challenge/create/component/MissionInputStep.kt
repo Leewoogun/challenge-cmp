@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.ui.components.LabeledInputField
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
@@ -23,7 +24,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 /**
  * step1 — 미션 · 내기 · 마감 입력. design.md §1.3.
  *
- * 키보드가 올라오면 CTA 가 가려지므로 세로 스크롤 + imePadding 을 건다.
+ * 키보드가 올라오면 CTA 가 가려지므로 세로 스크롤을 건다.
+ * `imePadding()` 은 걸지 않는다 — [ChallengeScaffold] 의 contentWindowInsets(safeDrawing)가
+ * 이미 IME 를 포함해 본문 높이를 줄여주므로, 여기서 또 걸면 키보드 높이만큼 두 번 밀린다.
  */
 @Composable
 internal fun MissionInputStep(
@@ -37,7 +40,6 @@ internal fun MissionInputStep(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
             .padding(top = 16.dp, bottom = 20.dp),
@@ -50,7 +52,7 @@ internal fun MissionInputStep(
         VerticalSpacer(24.dp)
 
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            MissionInputField(
+            LabeledInputField(
                 label = "나의 미션",
                 value = uiState.myMission,
                 onValueChange = onMyMissionChange,
@@ -61,7 +63,7 @@ internal fun MissionInputStep(
                 enabled = !uiState.isSubmitting,
             )
 
-            MissionInputField(
+            LabeledInputField(
                 label = "내기 (진 사람이 해야 할 것)",
                 value = uiState.betContent,
                 onValueChange = onBetContentChange,
