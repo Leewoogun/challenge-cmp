@@ -71,7 +71,9 @@ fun MainRoute(
     val scope = rememberCoroutineScope()
     var backPressedOnce by remember { mutableStateOf(false) }
 
-    val mainAction = remember(snackbarHostState, scope) {
+    val viewModel: MainViewModel = koinViewModel()
+
+    val mainAction = remember(snackbarHostState, scope, viewModel) {
         object : MainAction {
             override fun showSnackBar(message: String) {
                 scope.launch {
@@ -82,13 +84,15 @@ fun MainRoute(
             override fun finishApp() {
                 onFinishApp()
             }
+
+            override fun logout() {
+                viewModel.logout()
+            }
         }
     }
 
-    val viewModel: MainViewModel = koinViewModel()
-
     LaunchedEffect(viewModel) {
-        viewModel.sessionExpired.collect {
+        viewModel.loggedOut.collect {
             navigator.switchTab(Route.Login)
         }
     }
