@@ -306,7 +306,7 @@ class HomeViewModelTest {
 
     /**
      * 수락은 별도 라우트(맹세 화면)로 빠져 홈 ViewModel 에 성공 콜백이 없다. 맹세 후 홈이 갱신되는
-     * 유일한 근거가 `WhileSubscribed(0)` + `refreshTrigger.onStart` 조합의 이 재구독 재조회다.
+     * 유일한 근거가 `WhileSubscribed(0)` 의 이 재구독 재조회다.
      * 이 동작이 깨지면 수락에 성공해도 받은 도전장이 홈에 그대로 남는다.
      */
     @Test
@@ -333,6 +333,26 @@ class HomeViewModelTest {
         runCurrent()
 
         assertEquals(2, fakeChallengeRepo.callCount)
+    }
+
+    @Test
+    fun `restart 하면 구독을 유지한 채 목록을 재조회하고 직전 값을 잃지 않는다`() = runTest {
+        fakeRecord.record = UserRecord(win = 7, lose = 3, draw = 2, currentStreak = 3)
+        fakeChallenges.challenges = emptyList()
+        fakeChallengeRepo.challenges = listOf(receivedChallenge(challengeId = 96L))
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        assertEquals(1, fakeChallengeRepo.callCount)
+
+        viewModel.uiState.restart()
+        runCurrent()
+
+        assertEquals(2, fakeChallengeRepo.callCount)
+        // STOP 은 replay 캐시를 비우지 않으므로 재조회 중에도 Loading 으로 되돌아가지 않는다.
+        val state = viewModel.uiState.value
+        assertIs<HomeUiState.Data>(state)
+        assertEquals(7, state.record.win)
     }
 
     @Test
