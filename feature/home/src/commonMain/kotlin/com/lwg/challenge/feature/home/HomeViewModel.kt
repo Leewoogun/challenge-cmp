@@ -10,13 +10,14 @@ import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
 import com.lwg.challenge.utils.datetime.nowKst
 import com.lwg.challenge.utils.flow.TriggerStateFlow
 import com.lwg.challenge.utils.flow.triggerStateIn
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -29,8 +30,8 @@ class HomeViewModel(
 
     private val _inFlightIds = MutableStateFlow<Set<Long>>(emptySet())
 
-    private val _uiEffect = Channel<HomeUiEffect>(Channel.BUFFERED)
-    val uiEffect: Flow<HomeUiEffect> = _uiEffect.receiveAsFlow()
+    private val _uiEffect = MutableSharedFlow<HomeUiEffect>()
+    val uiEffect: SharedFlow<HomeUiEffect> = _uiEffect.asSharedFlow()
 
     private val homeDataFlow: Flow<HomeUiState.Data> = getHomeDataUseCase(::showMessage)
         .map { data ->
@@ -47,9 +48,6 @@ class HomeViewModel(
             )
         }
 
-    // WhileSubscribed(0) 는 성능 최적화가 아니라 수락 후 홈 갱신의 유일한 근거다. 맹세 화면이 push 되면
-    // 홈 컴포지션이 dispose 돼 구독자가 0이 되고, 돌아와 재구독하는 순간 upstream 이 재시작되며
-    // 목록을 새로 읽는다. 수락은 별도 라우트로 빠져 홈에 성공 콜백이 오지 않으므로 다른 경로가 없다.
     val uiState: TriggerStateFlow<HomeUiState> =
         combine(homeDataFlow, _inFlightIds) { data, inFlightIds ->
             data.copy(inFlightIds = inFlightIds)
@@ -80,7 +78,7 @@ class HomeViewModel(
 
     private fun showMessage(message: String) {
         viewModelScope.launch {
-            _uiEffect.send(HomeUiEffect.ShowMessage(message))
+            _uiEffect.emit(HomeUiEffect.ShowMessage(message))
         }
     }
 }

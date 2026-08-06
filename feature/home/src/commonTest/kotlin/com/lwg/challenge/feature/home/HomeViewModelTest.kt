@@ -70,6 +70,8 @@ class HomeViewModelTest {
         )
 
     // uiState 가 WhileSubscribed 이므로 구독자가 있어야 파이프라인이 시작된다.
+    // 초기 로딩 실패의 ShowMessage 를 검증하는 테스트는 이 호출을 `uiEffect.test { }` 안에 둬야 한다 —
+    // uiEffect 가 replay 0 SharedFlow 라 collector 가 붙기 전에 emit 된 이펙트는 그대로 버려진다.
     private fun TestScope.subscribeUiState(viewModel: HomeViewModel) {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect { }
@@ -165,12 +167,13 @@ class HomeViewModelTest {
         fakeChallenges.challenges = emptyList()
 
         val viewModel = createViewModel()
-        subscribeUiState(viewModel)
 
         viewModel.uiEffect.test {
+            subscribeUiState(viewModel)
             val effect = awaitItem()
             assertIs<HomeUiEffect.ShowMessage>(effect)
             assertEquals("전적 조회 실패", effect.message)
+            cancelAndIgnoreRemainingEvents()
         }
         assertIs<HomeUiState.Loading>(viewModel.uiState.value)
     }
@@ -181,12 +184,13 @@ class HomeViewModelTest {
         fakeChallenges.error = "챌린지 조회 실패"
 
         val viewModel = createViewModel()
-        subscribeUiState(viewModel)
 
         viewModel.uiEffect.test {
+            subscribeUiState(viewModel)
             val effect = awaitItem()
             assertIs<HomeUiEffect.ShowMessage>(effect)
             assertEquals("챌린지 조회 실패", effect.message)
+            cancelAndIgnoreRemainingEvents()
         }
         assertIs<HomeUiState.Loading>(viewModel.uiState.value)
     }
@@ -240,12 +244,13 @@ class HomeViewModelTest {
         fakeUserInfo.error = "유저 조회 실패"
 
         val viewModel = createViewModel()
-        subscribeUiState(viewModel)
 
         viewModel.uiEffect.test {
+            subscribeUiState(viewModel)
             val effect = awaitItem()
             assertIs<HomeUiEffect.ShowMessage>(effect)
             assertEquals("유저 조회 실패", effect.message)
+            cancelAndIgnoreRemainingEvents()
         }
         val state = viewModel.uiState.value as HomeUiState.Data
         assertEquals(null, state.userInfo)
@@ -277,9 +282,9 @@ class HomeViewModelTest {
         fakeChallengeRepo.error = "받은 도전장 조회 실패"
 
         val viewModel = createViewModel()
-        subscribeUiState(viewModel)
 
         viewModel.uiEffect.test {
+            subscribeUiState(viewModel)
             val effect = awaitItem()
             assertIs<HomeUiEffect.ShowMessage>(effect)
             assertEquals("받은 도전장 조회 실패", effect.message)

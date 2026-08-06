@@ -249,5 +249,4 @@ private fun previewOathData(
     myMission = myMission,
     signature = signature,
     isSubmitting = isSubmitting,
-    showExitConfirm = false,
 )

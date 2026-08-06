@@ -13,7 +13,8 @@ import com.lwg.challenge.feature.friends.list.contract.FriendsModalEffect
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiEffect
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiState
 import com.lwg.challenge.utils.datetime.nowKst
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.lwg.challenge.utils.flow.TriggerStateFlow
+import com.lwg.challenge.utils.flow.triggerStateIn
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,15 +23,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @KoinViewModel
 class FriendsViewModel(
     private val getFriendsDataUseCase: GetFriendsDataUseCase,
@@ -39,24 +36,19 @@ class FriendsViewModel(
     private val userInfoRepository: UserInfoRepository,
 ) : ViewModel() {
 
-    private val refreshTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-
-    val uiState: StateFlow<FriendsUiState> = refreshTrigger
-        .onStart { emit(Unit) }
-        .flatMapLatest {
-            getFriendsDataUseCase(onError = ::showMessage).map { data ->
-                if (data.receivedRequests.isEmpty() && data.friends.isEmpty()) {
-                    FriendsUiState.Empty
-                } else {
-                    val now = nowKst()
-                    FriendsUiState.Data(
-                        receivedRequests = data.receivedRequests.map { FriendRequestItemState(it, now) },
-                        friends = data.friends.map { FriendItemState(it, now) },
-                    )
-                }
+    val uiState: TriggerStateFlow<FriendsUiState> = getFriendsDataUseCase(onError = ::showMessage)
+        .map { data ->
+            if (data.receivedRequests.isEmpty() && data.friends.isEmpty()) {
+                FriendsUiState.Empty
+            } else {
+                val now = nowKst()
+                FriendsUiState.Data(
+                    receivedRequests = data.receivedRequests.map { FriendRequestItemState(it, now) },
+                    friends = data.friends.map { FriendItemState(it, now) },
+                )
             }
         }
-        .stateIn(
+        .triggerStateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(0),
             initialValue = FriendsUiState.Loading,
@@ -72,7 +64,7 @@ class FriendsViewModel(
         viewModelScope.launch {
             friendsRepository.acceptRequest(
                 requestId = item.requestId,
-                onSuccess = ::reload,
+                onSuccess = uiState::restart,
                 onError = ::showMessage,
             )
         }
@@ -82,7 +74,7 @@ class FriendsViewModel(
         viewModelScope.launch {
             friendsRepository.rejectRequest(
                 requestId = item.requestId,
-                onSuccess = ::reload,
+                onSuccess = uiState::restart,
                 onError = ::showMessage,
             )
         }
@@ -110,9 +102,5 @@ class FriendsViewModel(
         viewModelScope.launch {
             _uiEffect.emit(FriendsUiEffect.ShowMessage(message))
         }
-    }
-
-    private fun reload() {
-        refreshTrigger.tryEmit(Unit)
     }
 }

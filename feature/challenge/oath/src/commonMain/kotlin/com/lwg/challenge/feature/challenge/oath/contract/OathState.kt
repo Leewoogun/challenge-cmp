@@ -37,7 +37,6 @@ sealed interface OathUiState {
         val myMission: String,
         val signature: Signature,
         val isSubmitting: Boolean,
-        val showExitConfirm: Boolean,
     ) : OathUiState {
 
         /** 서버 검증이 trim 기준이라 카운터도 trim 으로 센다. */

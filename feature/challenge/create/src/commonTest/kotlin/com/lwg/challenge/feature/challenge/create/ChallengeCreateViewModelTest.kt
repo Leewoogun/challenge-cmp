@@ -76,7 +76,7 @@ class ChallengeCreateViewModelTest {
 
     @Test
     fun `init 시 친구 목록을 1회 조회하고 상대 선택 단계로 진입한다`() = runTest {
-        fakeFriendsRepository.friendsFlow.value = listOf(sampleFriend(1), sampleFriend(2))
+        fakeFriendsRepository.friends = listOf(sampleFriend(1), sampleFriend(2))
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
@@ -126,7 +126,7 @@ class ChallengeCreateViewModelTest {
         assertTrue(viewModel.data().loadFailed)
 
         fakeFriendsRepository.error = null
-        fakeFriendsRepository.friendsFlow.value = listOf(sampleFriend(1))
+        fakeFriendsRepository.friends = listOf(sampleFriend(1))
         viewModel.retryLoadFriends()
 
         assertEquals(2, fakeFriendsRepository.callCount)
@@ -137,7 +137,7 @@ class ChallengeCreateViewModelTest {
 
     @Test
     fun `selectFriend 는 선택을 저장하고 미션 입력 단계로 넘어간다`() = runTest {
-        fakeFriendsRepository.friendsFlow.value = listOf(sampleFriend(7))
+        fakeFriendsRepository.friends = listOf(sampleFriend(7))
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
@@ -150,7 +150,7 @@ class ChallengeCreateViewModelTest {
 
     @Test
     fun `goToPreviousStep 은 상대 선택 단계로 돌아가되 선택값을 유지한다`() = runTest {
-        fakeFriendsRepository.friendsFlow.value = listOf(sampleFriend(7))
+        fakeFriendsRepository.friends = listOf(sampleFriend(7))
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
@@ -262,7 +262,7 @@ class ChallengeCreateViewModelTest {
 
     @Test
     fun `서명이 비어 있으면 submit 해도 생성 요청이 나가지 않는다`() = runTest {
-        fakeFriendsRepository.friendsFlow.value = listOf(sampleFriend(9))
+        fakeFriendsRepository.friends = listOf(sampleFriend(9))
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
@@ -327,7 +327,7 @@ class ChallengeCreateViewModelTest {
 
     @Test
     fun `submit 성공 시 입력값 그대로 생성 요청하고 NavigateBack 을 발행한다`() = runTest {
-        fakeFriendsRepository.friendsFlow.value = listOf(sampleFriend(9))
+        fakeFriendsRepository.friends = listOf(sampleFriend(9))
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
@@ -354,7 +354,7 @@ class ChallengeCreateViewModelTest {
 
     @Test
     fun `submit 실패 시 메시지를 노출하고 제출 상태와 입력값을 되돌린다`() = runTest {
-        fakeFriendsRepository.friendsFlow.value = listOf(sampleFriend(9))
+        fakeFriendsRepository.friends = listOf(sampleFriend(9))
         fakeChallengeRepository.createError = "친구가 아닌 사용자입니다."
 
         val viewModel = createViewModel()
@@ -381,7 +381,7 @@ class ChallengeCreateViewModelTest {
 
     @Test
     fun `submit 을 연속 호출해도 생성 요청은 1회만 나간다`() = runTest {
-        fakeFriendsRepository.friendsFlow.value = listOf(sampleFriend(9))
+        fakeFriendsRepository.friends = listOf(sampleFriend(9))
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)

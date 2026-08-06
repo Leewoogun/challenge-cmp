@@ -14,7 +14,8 @@ import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiEffe
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
 import com.lwg.challenge.feature.challenge.create.contract.MAX_INPUT_LENGTH
 import com.lwg.challenge.utils.datetime.kstDeadlineHintText
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.lwg.challenge.utils.flow.TriggerStateFlow
+import com.lwg.challenge.utils.flow.triggerStateIn
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,15 +23,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @KoinViewModel
 class ChallengeCreateViewModel(
     private val friendsRepository: FriendsRepository,
@@ -42,27 +40,23 @@ class ChallengeCreateViewModel(
     private val todayDeadlineHint = kstDeadlineHintText(daysAhead = 0)
     private val tomorrowDeadlineHint = kstDeadlineHintText(daysAhead = 1)
 
-    private val refreshTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     private val _loadFailed = MutableStateFlow(false)
     private val _form = MutableStateFlow(FormState())
 
-    private val friendsFlow = refreshTrigger
-        .onStart { emit(Unit) }
-        .flatMapLatest {
-            _loadFailed.update { false }
-            friendsRepository
-                .listFriends(
-                    onError = { message ->
-                        _loadFailed.update { true }
-                        showMessage(message)
-                    },
-                )
-                // 실패한 Flow 는 emit 없이 완료되므로 combine 이 영원히 대기해 화면이 Loading 에 갇힌다.
-                // 빈 목록을 흘려 파이프라인을 진행시키고, 실패 여부는 loadFailed 로 따로 전달한다.
-                .onEmpty { emit(emptyList()) }
-        }
+    private val friendsFlow = friendsRepository
+        .listFriends(
+            onError = { message ->
+                _loadFailed.update { true }
+                showMessage(message)
+            },
+        )
+        // 재시도(restart)마다 상류가 다시 수집되므로, 직전 실패 표시는 여기서 지운다.
+        .onStart { _loadFailed.update { false } }
+        // 실패한 Flow 는 emit 없이 완료되므로 combine 이 영원히 대기해 화면이 Loading 에 갇힌다.
+        // 빈 목록을 흘려 파이프라인을 진행시키고, 실패 여부는 loadFailed 로 따로 전달한다.
+        .onEmpty { emit(emptyList()) }
 
-    val uiState: StateFlow<ChallengeCreateUiState> =
+    val uiState: TriggerStateFlow<ChallengeCreateUiState> =
         combine(friendsFlow, _form, _loadFailed) { friends, form, loadFailed ->
             ChallengeCreateUiState.Data(
                 step = form.step,
@@ -77,7 +71,7 @@ class ChallengeCreateViewModel(
                 isSubmitting = form.isSubmitting,
                 loadFailed = loadFailed,
             )
-        }.stateIn(
+        }.triggerStateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(0),
             initialValue = ChallengeCreateUiState.Loading,
@@ -139,7 +133,7 @@ class ChallengeCreateViewModel(
     }
 
     fun retryLoadFriends() {
-        refreshTrigger.tryEmit(Unit)
+        uiState.restart()
     }
 
     fun submit() {

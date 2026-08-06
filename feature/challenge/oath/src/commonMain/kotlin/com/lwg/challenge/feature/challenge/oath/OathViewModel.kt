@@ -6,6 +6,7 @@ import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
 import com.lwg.challenge.feature.challenge.oath.contract.MAX_OATH_MISSION_LENGTH
+import com.lwg.challenge.feature.challenge.oath.contract.OathModalEffect
 import com.lwg.challenge.feature.challenge.oath.contract.OathUiEffect
 import com.lwg.challenge.feature.challenge.oath.contract.OathUiState
 import com.lwg.challenge.utils.datetime.nowKst
@@ -33,6 +34,9 @@ class OathViewModel(
 
     private val _uiState = MutableStateFlow<OathUiState>(OathUiState.Loading)
     val uiState: StateFlow<OathUiState> = _uiState.asStateFlow()
+
+    private val _modalEffect = MutableStateFlow<OathModalEffect>(OathModalEffect.Hidden)
+    val modalEffect: StateFlow<OathModalEffect> = _modalEffect.asStateFlow()
 
     private val _uiEffect = MutableSharedFlow<OathUiEffect>()
     val uiEffect: SharedFlow<OathUiEffect> = _uiEffect.asSharedFlow()
@@ -88,22 +92,24 @@ class OathViewModel(
 
     /** 제출 중에는 결과를 모른 채 화면을 잃게 되므로 이탈 자체를 막는다. */
     fun requestExit() {
-        val data = _uiState.value as? OathUiState.Data
-        if (data?.isSubmitting == true) return
+        _uiState.withData<OathUiState.Data> { data ->
+            if (data.isSubmitting) return
 
-        if (data?.isDirty == true) {
-            _uiState.updateWithData<OathUiState, OathUiState.Data> { it.copy(showExitConfirm = true) }
-        } else {
-            navigateBack()
+            if (data.isDirty) {
+                _modalEffect.update { OathModalEffect.ExitConfirm }
+                return
+            }
         }
+
+        navigateBack()
     }
 
     fun confirmExit() {
         navigateBack()
     }
 
-    fun dismissExitConfirm() {
-        _uiState.updateWithData<OathUiState, OathUiState.Data> { it.copy(showExitConfirm = false) }
+    fun dismiss() {
+        _modalEffect.update { OathModalEffect.Hidden }
     }
 
     private fun load() {
@@ -144,7 +150,6 @@ class OathViewModel(
             myMission = previous?.myMission.orEmpty(),
             signature = previous?.signature ?: Signature.Empty,
             isSubmitting = false,
-            showExitConfirm = previous?.showExitConfirm ?: false,
         )
     }
 

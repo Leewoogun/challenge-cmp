@@ -7,6 +7,7 @@ import com.lwg.challenge.domain.model.challenge.ContractParty
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
+import com.lwg.challenge.feature.challenge.oath.contract.OathModalEffect
 import com.lwg.challenge.feature.challenge.oath.contract.OathUiEffect
 import com.lwg.challenge.feature.challenge.oath.contract.OathUiState
 import kotlinx.coroutines.Dispatchers
@@ -110,7 +111,7 @@ class OathViewModelTest {
         assertEquals("", state.myMission)
         assertTrue(state.signature.isEmpty)
         assertFalse(state.isSubmitting)
-        assertFalse(state.showExitConfirm)
+        assertEquals(OathModalEffect.Hidden, viewModel.modalEffect.value)
     }
 
     @Test
@@ -251,7 +252,7 @@ class OathViewModelTest {
             assertEquals(OathUiEffect.NavigateBack, awaitItem())
         }
 
-        assertFalse(viewModel.data().showExitConfirm)
+        assertEquals(OathModalEffect.Hidden, viewModel.modalEffect.value)
     }
 
     @Test
@@ -265,7 +266,7 @@ class OathViewModelTest {
             expectNoEvents()
         }
 
-        assertTrue(viewModel.data().showExitConfirm)
+        assertEquals(OathModalEffect.ExitConfirm, viewModel.modalEffect.value)
     }
 
     @Test
@@ -279,18 +280,33 @@ class OathViewModelTest {
             expectNoEvents()
         }
 
-        assertTrue(viewModel.data().showExitConfirm)
+        assertEquals(OathModalEffect.ExitConfirm, viewModel.modalEffect.value)
+    }
+
+    // Data 가 아닌 상태에서도 뒤로가기는 막히지 않아야 한다. 계약서를 못 불러온 화면에 갇히면
+    // 사용자가 앱을 종료하는 것 말고는 빠져나갈 방법이 없다.
+    @Test
+    fun `Error 상태의 requestExit 은 확인 없이 바로 화면을 닫는다`() = runTest {
+        fakeChallengeRepository.detailError = "네트워크 오류가 발생하였습니다."
+        val viewModel = createViewModel()
+        assertIs<OathUiState.Error>(viewModel.uiState.value)
+
+        viewModel.uiEffect.test {
+            viewModel.requestExit()
+
+            assertEquals(OathUiEffect.NavigateBack, awaitItem())
+        }
     }
 
     @Test
-    fun `confirmExit 은 화면을 닫고 dismissExitConfirm 은 확인을 내린다`() = runTest {
+    fun `confirmExit 은 화면을 닫고 dismiss 는 모달을 내린다`() = runTest {
         val viewModel = createViewModel()
         viewModel.updateMyMission("책 30페이지 읽기")
         viewModel.requestExit()
-        assertTrue(viewModel.data().showExitConfirm)
+        assertEquals(OathModalEffect.ExitConfirm, viewModel.modalEffect.value)
 
-        viewModel.dismissExitConfirm()
-        assertFalse(viewModel.data().showExitConfirm)
+        viewModel.dismiss()
+        assertEquals(OathModalEffect.Hidden, viewModel.modalEffect.value)
 
         viewModel.uiEffect.test {
             viewModel.confirmExit()
@@ -314,7 +330,7 @@ class OathViewModelTest {
             expectNoEvents()
         }
 
-        assertFalse(viewModel.data().showExitConfirm)
+        assertEquals(OathModalEffect.Hidden, viewModel.modalEffect.value)
     }
 
     @Test
