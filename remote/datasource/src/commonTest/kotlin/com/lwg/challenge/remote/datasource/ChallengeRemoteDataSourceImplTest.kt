@@ -34,6 +34,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -281,7 +282,7 @@ class ChallengeRemoteDataSourceImplTest {
         assertEquals(7L, detail.challengeId)
         assertEquals("이우건", detail.challenger.nickname)
         assertEquals("테스터1", detail.opponent.nickname)
-        assertEquals(LocalDateTime(2026, 8, 3, 11, 20, 0), detail.contract.challengerSignedAt)
+        assertEquals(LocalDateTime(2026, 8, 3, 11, 20, 0), assertNotNull(detail.contract).challengerSignedAt)
     }
 
     @Test

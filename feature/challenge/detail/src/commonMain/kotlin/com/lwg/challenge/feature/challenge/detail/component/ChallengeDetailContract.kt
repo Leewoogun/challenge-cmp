@@ -20,6 +20,7 @@ import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
+import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import com.lwg.challenge.ui.components.ContractCard
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -30,6 +31,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * 로만 렌더되고 `pointerInput` 이 없어서, 입력 화면과 달리 드래그가 "획 긋기"와 경합하지 않는다.
  *
  * `contract.content` 문자열은 그리지 않는다. 계약서는 구조화된 필드로 조립한다.
+ *
+ * 계약 조건 행은 계약서 유무와 무관하게(챌린지 최상위 필드에서 오므로) 항상 그린다. 계약서가 없으면
+ * [ChallengeDetailUiState.Data.signatures] 가 null 이라 `footer` 를 넘기지 않게 되고,
+ * [ContractCard] 가 divider 까지 통째로 생략한다.
  */
 @Composable
 internal fun ChallengeDetailContract(
@@ -50,31 +55,33 @@ internal fun ChallengeDetailContract(
             deadlineText = uiState.deadlineText,
             opponentMission = uiState.opponentMission,
             myMissionLabel = uiState.myMissionLabel,
-            footer = {
-                Text(
-                    text = "서명",
-                    style = ChallengeTheme.typography.medium10,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
-                )
-
-                VerticalSpacer(8.dp)
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    SignatureColumn(
-                        signature = uiState.mySignature,
-                        emptyHint = uiState.mySignatureHint,
-                        label = uiState.myLabel,
-                        modifier = Modifier.weight(1f),
+            footer = uiState.signatures?.let { signatures ->
+                {
+                    Text(
+                        text = "서명",
+                        style = ChallengeTheme.typography.medium10,
+                        color = ChallengeTheme.colorScheme.onSurfaceVariant,
                     )
-                    SignatureColumn(
-                        signature = uiState.opponentSignature,
-                        emptyHint = uiState.opponentSignatureHint,
-                        label = uiState.opponentLabel,
-                        modifier = Modifier.weight(1f),
-                    )
+
+                    VerticalSpacer(8.dp)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        SignatureColumn(
+                            signature = signatures.mySignature,
+                            emptyHint = signatures.mySignatureHint,
+                            label = uiState.myLabel,
+                            modifier = Modifier.weight(1f),
+                        )
+                        SignatureColumn(
+                            signature = signatures.opponentSignature,
+                            emptyHint = signatures.opponentSignatureHint,
+                            label = uiState.opponentLabel,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
                 }
             },
         )
@@ -141,6 +148,15 @@ private fun ChallengeDetailContractUnknownPerspectivePreview() {
     }
 }
 
+/** 계약서 없음(soul-oath 이전 생성) — 계약 조건은 그대로 나오고 서명 블록만 divider 째로 빠진다. */
+@Preview
+@Composable
+private fun ChallengeDetailContractNoContractPreview() {
+    PreviewContainer {
+        ChallengeDetailContract(uiState = previewData(signatures = null))
+    }
+}
+
 @Composable
 private fun PreviewContainer(content: @Composable () -> Unit) {
     ChallengeTheme {
@@ -163,23 +179,36 @@ private fun previewSignature() = Signature(
     ),
 )
 
+private fun previewSignatures(
+    opponentSignature: Signature? = previewSignature(),
+    opponentSignatureHint: String = "서명 대기 중",
+    isFinalized: Boolean = true,
+) = SignatureSection(
+    mySignature = previewSignature(),
+    mySignatureHint = "서명 대기 중",
+    opponentSignature = opponentSignature,
+    opponentSignatureHint = opponentSignatureHint,
+    isFinalized = isFinalized,
+)
+
 private fun previewData(
     myLabel: String = "나",
     opponentMission: String? = "오늘 운동 1시간 하기",
     opponentSignature: Signature? = previewSignature(),
     opponentSignatureHint: String = "서명 대기 중",
     isFinalized: Boolean = true,
+    signatures: SignatureSection? = previewSignatures(
+        opponentSignature = opponentSignature,
+        opponentSignatureHint = opponentSignatureHint,
+        isFinalized = isFinalized,
+    ),
 ) = ChallengeDetailUiState.Data(
     myLabel = myLabel,
     myMissionLabel = "${myLabel}의 미션",
     myMission = "책 30페이지 읽기",
-    mySignature = previewSignature(),
-    mySignatureHint = "서명 대기 중",
     opponentNickname = "우건",
     opponentMission = opponentMission,
-    opponentSignature = opponentSignature,
-    opponentSignatureHint = opponentSignatureHint,
     betContent = "커피 사기",
     deadlineText = "5시간 32분",
-    isFinalized = isFinalized,
+    signatures = signatures,
 )

@@ -3,6 +3,7 @@ package com.lwg.challenge.feature.challenge.detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
+import com.lwg.challenge.domain.model.challenge.Contract
 import com.lwg.challenge.domain.model.challenge.SignatureSlotState
 import com.lwg.challenge.domain.model.user.CacheStrategy
 import com.lwg.challenge.domain.repository.ChallengeRepository
@@ -12,6 +13,7 @@ import com.lwg.challenge.feature.challenge.detail.contract.MY_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.MY_MISSION_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_NOT_SIGNED_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_UNREADABLE_HINT
+import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import com.lwg.challenge.utils.datetime.nowKst
 import com.lwg.challenge.utils.datetime.toRelativeKoreanString
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,21 +98,27 @@ class ChallengeDetailViewModel(
             myLabel = myLabel,
             myMissionLabel = myMissionLabel,
             myMission = me.mission,
-            mySignature = if (isMeOpponent) contract.opponentSignature else contract.challengerSignature,
-            mySignatureHint = signatureHint(
-                if (isMeOpponent) contract.opponentSignatureState else contract.challengerSignatureState,
-            ),
             opponentNickname = other.nickname,
             opponentMission = other.mission,
-            opponentSignature = if (isMeOpponent) contract.challengerSignature else contract.opponentSignature,
-            opponentSignatureHint = signatureHint(
-                if (isMeOpponent) contract.challengerSignatureState else contract.opponentSignatureState,
-            ),
             betContent = betContent,
             deadlineText = deadline.toRelativeKoreanString(now),
-            isFinalized = contract.isFinalized,
+            // 계약서가 없으면(soul-oath 이전 생성) 서명 묶음 자체가 없다. 빈 값으로 채우면 있지도
+            // 않은 맹세를 '서명 대기 중' 으로 그리게 된다.
+            signatures = contract?.toSignatureSection(isMeOpponent),
         )
     }
+
+    private fun Contract.toSignatureSection(isMeOpponent: Boolean): SignatureSection = SignatureSection(
+        mySignature = if (isMeOpponent) opponentSignature else challengerSignature,
+        mySignatureHint = signatureHint(
+            if (isMeOpponent) opponentSignatureState else challengerSignatureState,
+        ),
+        opponentSignature = if (isMeOpponent) challengerSignature else opponentSignature,
+        opponentSignatureHint = signatureHint(
+            if (isMeOpponent) challengerSignatureState else opponentSignatureState,
+        ),
+        isFinalized = isFinalized,
+    )
 
     /**
      * 서명이 비어 보이는 이유를 문구로 확정한다.

@@ -60,18 +60,19 @@ class ChallengeDetailMapperTest {
     @Test
     fun `양측 서명이 있는 정상 응답 - 모든 필드 매핑되고 두 슬롯 모두 SIGNED`() {
         val detail = assertNotNull(response().toChallengeDetail())
+        val contract = assertNotNull(detail.contract)
 
         assertEquals(7L, detail.challengeId)
         assertEquals("IN_PROGRESS", detail.status)
         assertEquals(LocalDate(2026, 8, 3), detail.challengeDate)
         assertEquals(LocalDateTime(2026, 8, 4, 0, 0, 0), detail.deadline)
         assertEquals("커피 사기", detail.betContent)
-        assertEquals("나는 나의 미션을 완수할 것을 맹세한다.", detail.contract.content)
-        assertEquals(true, detail.contract.isFinalized)
-        assertEquals(LocalDateTime(2026, 8, 3, 11, 20, 0), detail.contract.challengerSignedAt)
-        assertEquals(LocalDateTime(2026, 8, 3, 12, 5, 0), detail.contract.opponentSignedAt)
-        assertEquals(SignatureSlotState.SIGNED, detail.contract.challengerSignatureState)
-        assertEquals(SignatureSlotState.SIGNED, detail.contract.opponentSignatureState)
+        assertEquals("나는 나의 미션을 완수할 것을 맹세한다.", contract.content)
+        assertEquals(true, contract.isFinalized)
+        assertEquals(LocalDateTime(2026, 8, 3, 11, 20, 0), contract.challengerSignedAt)
+        assertEquals(LocalDateTime(2026, 8, 3, 12, 5, 0), contract.opponentSignedAt)
+        assertEquals(SignatureSlotState.SIGNED, contract.challengerSignatureState)
+        assertEquals(SignatureSlotState.SIGNED, contract.opponentSignatureState)
     }
 
     @Test
@@ -87,12 +88,13 @@ class ChallengeDetailMapperTest {
                 ),
             ).toChallengeDetail(),
         )
+        val mapped = assertNotNull(detail.contract)
 
-        assertEquals(false, detail.contract.isFinalized)
-        assertEquals(SignatureSlotState.NOT_SIGNED, detail.contract.opponentSignatureState)
-        assertNull(detail.contract.opponentSignature)
-        assertNull(detail.contract.opponentSignedAt)
-        assertEquals(SignatureSlotState.SIGNED, detail.contract.challengerSignatureState)
+        assertEquals(false, mapped.isFinalized)
+        assertEquals(SignatureSlotState.NOT_SIGNED, mapped.opponentSignatureState)
+        assertNull(mapped.opponentSignature)
+        assertNull(mapped.opponentSignedAt)
+        assertEquals(SignatureSlotState.SIGNED, mapped.challengerSignatureState)
     }
 
     @Test
@@ -102,10 +104,11 @@ class ChallengeDetailMapperTest {
                 data.copy(contract = contract.copy(opponentSignature = "not-a-signature")),
             ).toChallengeDetail(),
         )
+        val mapped = assertNotNull(detail.contract)
 
-        assertEquals(SignatureSlotState.UNREADABLE, detail.contract.opponentSignatureState)
-        assertNull(detail.contract.opponentSignature)
-        assertEquals(LocalDateTime(2026, 8, 3, 12, 5, 0), detail.contract.opponentSignedAt)
+        assertEquals(SignatureSlotState.UNREADABLE, mapped.opponentSignatureState)
+        assertNull(mapped.opponentSignature)
+        assertEquals(LocalDateTime(2026, 8, 3, 12, 5, 0), mapped.opponentSignedAt)
     }
 
     @Test
@@ -115,9 +118,10 @@ class ChallengeDetailMapperTest {
                 data.copy(contract = contract.copy(opponentSignature = "")),
             ).toChallengeDetail(),
         )
+        val mapped = assertNotNull(detail.contract)
 
-        assertEquals(SignatureSlotState.UNREADABLE, detail.contract.opponentSignatureState)
-        assertEquals(LocalDateTime(2026, 8, 3, 12, 5, 0), detail.contract.opponentSignedAt)
+        assertEquals(SignatureSlotState.UNREADABLE, mapped.opponentSignatureState)
+        assertEquals(LocalDateTime(2026, 8, 3, 12, 5, 0), mapped.opponentSignedAt)
     }
 
     @Test
@@ -136,9 +140,10 @@ class ChallengeDetailMapperTest {
     @Test
     fun `서명 왕복 - encode 한 문자열이 원본 Signature 로 그대로 복원된다`() {
         val detail = assertNotNull(response().toChallengeDetail())
+        val mapped = assertNotNull(detail.contract)
 
-        assertEquals(challengerSignature, detail.contract.challengerSignature)
-        assertEquals(opponentSignature, detail.contract.opponentSignature)
+        assertEquals(challengerSignature, mapped.challengerSignature)
+        assertEquals(opponentSignature, mapped.opponentSignature)
     }
 
     @Test

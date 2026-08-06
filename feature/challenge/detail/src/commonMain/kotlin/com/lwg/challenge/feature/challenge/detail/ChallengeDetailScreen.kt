@@ -11,6 +11,7 @@ import com.lwg.challenge.feature.challenge.detail.component.ChallengeDetailContr
 import com.lwg.challenge.feature.challenge.detail.component.ChallengeDetailError
 import com.lwg.challenge.feature.challenge.detail.component.ChallengeDetailLoading
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
+import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -95,6 +96,15 @@ private fun ChallengeDetailScreenUnreadableSignaturePreview() {
     }
 }
 
+/** 계약서 없음(soul-oath 이전 생성) — 에러가 아니라 서명 블록만 빠진 정상 화면이다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenNoContractPreview() {
+    ChallengeTheme {
+        PreviewChallengeDetailScreen(uiState = previewData(signatures = null))
+    }
+}
+
 @Composable
 private fun PreviewChallengeDetailScreen(uiState: ChallengeDetailUiState) {
     ChallengeDetailScreen(
@@ -121,17 +131,20 @@ private fun previewData(
     opponentSignature: Signature? = previewSignature(),
     opponentSignatureHint: String = "서명 대기 중",
     isFinalized: Boolean = true,
+    signatures: SignatureSection? = SignatureSection(
+        mySignature = previewSignature(),
+        mySignatureHint = "서명 대기 중",
+        opponentSignature = opponentSignature,
+        opponentSignatureHint = opponentSignatureHint,
+        isFinalized = isFinalized,
+    ),
 ) = ChallengeDetailUiState.Data(
     myLabel = "나",
     myMissionLabel = "나의 미션",
     myMission = "책 30페이지 읽기",
-    mySignature = previewSignature(),
-    mySignatureHint = "서명 대기 중",
     opponentNickname = "우건",
     opponentMission = "오늘 운동 1시간 하기",
-    opponentSignature = opponentSignature,
-    opponentSignatureHint = opponentSignatureHint,
     betContent = "커피 사기",
     deadlineText = "5시간 32분",
-    isFinalized = isFinalized,
+    signatures = signatures,
 )

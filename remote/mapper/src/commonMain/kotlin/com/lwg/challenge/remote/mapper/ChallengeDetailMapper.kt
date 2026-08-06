@@ -21,6 +21,10 @@ import com.lwg.challenge.remote.model.challenge.ContractPartyDto
  * `challenger` / `opponent` 는 역할 그대로 옮긴다. '나 / 상대' 관점 변환은 하지 않는다.
  * `mission` 의 null 은 빈 문자열로 뭉개지 않는다 — '아직 미션이 없음'(PENDING) 과 '빈 미션'을
  * 같은 값으로 만들면 화면이 빈 행을 그리게 된다.
+ *
+ * `contract` 의 null 은 `deadline` 과 달리 전체 매핑 실패로 승격하지 않는다. soul-oath 도입 이전에
+ * 만들어진 챌린지는 계약서가 없고, 그건 계약이 허용하는 정상 상태다 — 빈 `Contract` 로 채우면
+ * `IN_PROGRESS` 인데 `isFinalized = false` 인 없는 맹세를 날조하게 된다.
  */
 fun ChallengeDetailResponse.toChallengeDetail(): ChallengeDetail? {
     val deadline = data.deadline ?: return null
@@ -32,7 +36,7 @@ fun ChallengeDetailResponse.toChallengeDetail(): ChallengeDetail? {
         betContent = data.betContent,
         challenger = data.challenger.toContractParty(),
         opponent = data.opponent.toContractParty(),
-        contract = data.contract.toContract(),
+        contract = data.contract?.toContract(),
     )
 }
 

@@ -12,6 +12,7 @@ import com.lwg.challenge.feature.challenge.detail.contract.MY_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.MY_MISSION_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_NOT_SIGNED_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_UNREADABLE_HINT
+import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -71,6 +72,8 @@ class ChallengeDetailViewModelTest {
     private fun ChallengeDetailViewModel.data(): ChallengeDetailUiState.Data =
         assertIs<ChallengeDetailUiState.Data>(uiState.value)
 
+    private fun ChallengeDetailViewModel.signatures(): SignatureSection = assertNotNull(data().signatures)
+
     private fun userInfo(id: Long) = UserInfo(
         id = id,
         kakaoId = 100L + id,
@@ -92,6 +95,14 @@ class ChallengeDetailViewModelTest {
         opponentSignature: Signature? = opponentSignature(),
         opponentSignedAt: LocalDateTime? = PAST_DEADLINE,
         isFinalized: Boolean = true,
+        contract: Contract? = Contract(
+            content = "영혼의 맹세",
+            isFinalized = isFinalized,
+            challengerSignature = challengerSignature,
+            challengerSignedAt = challengerSignedAt,
+            opponentSignature = opponentSignature,
+            opponentSignedAt = opponentSignedAt,
+        ),
     ) = ChallengeDetail(
         challengeId = CHALLENGE_ID,
         status = "IN_PROGRESS",
@@ -110,14 +121,7 @@ class ChallengeDetailViewModelTest {
             profileImageUrl = null,
             mission = OPPONENT_MISSION,
         ),
-        contract = Contract(
-            content = "영혼의 맹세",
-            isFinalized = isFinalized,
-            challengerSignature = challengerSignature,
-            challengerSignedAt = challengerSignedAt,
-            opponentSignature = opponentSignature,
-            opponentSignedAt = opponentSignedAt,
-        ),
+        contract = contract,
     )
 
     @Test
@@ -150,52 +154,59 @@ class ChallengeDetailViewModelTest {
     fun `내가 challenger 면 challenger 쪽이 나로 매핑된다`() = runTest {
         fakeUserInfoRepository.userInfo = userInfo(CHALLENGER_ID)
 
-        val state = createViewModel().data()
+        val viewModel = createViewModel()
+        val state = viewModel.data()
+        val signatures = viewModel.signatures()
 
         assertEquals(MY_LABEL, state.myLabel)
         assertEquals(CHALLENGER_MISSION, state.myMission)
-        assertEquals(challengerSignature(), state.mySignature)
+        assertEquals(challengerSignature(), signatures.mySignature)
         assertEquals(OPPONENT_NICKNAME, state.opponentNickname)
         assertEquals(OPPONENT_MISSION, state.opponentMission)
-        assertEquals(opponentSignature(), state.opponentSignature)
+        assertEquals(opponentSignature(), signatures.opponentSignature)
     }
 
     @Test
     fun `내가 opponent 면 양쪽이 정확히 뒤집힌다`() = runTest {
         fakeUserInfoRepository.userInfo = userInfo(OPPONENT_ID)
 
-        val state = createViewModel().data()
+        val viewModel = createViewModel()
+        val state = viewModel.data()
+        val signatures = viewModel.signatures()
 
         assertEquals(MY_LABEL, state.myLabel)
         assertEquals(OPPONENT_MISSION, state.myMission)
-        assertEquals(opponentSignature(), state.mySignature)
+        assertEquals(opponentSignature(), signatures.mySignature)
         assertEquals(CHALLENGER_NICKNAME, state.opponentNickname)
         assertEquals(CHALLENGER_MISSION, state.opponentMission)
-        assertEquals(challengerSignature(), state.opponentSignature)
+        assertEquals(challengerSignature(), signatures.opponentSignature)
     }
 
     @Test
     fun `userInfo 조회가 실패하면 나로 추측하지 않고 challenger 를 실명으로 왼쪽에 둔다`() = runTest {
         fakeUserInfoRepository.error = "사용자 정보를 불러오지 못했습니다."
 
-        val state = createViewModel().data()
+        val viewModel = createViewModel()
+        val state = viewModel.data()
+        val signatures = viewModel.signatures()
 
         assertEquals(CHALLENGER_NICKNAME, state.myLabel)
         assertEquals(CHALLENGER_MISSION, state.myMission)
-        assertEquals(challengerSignature(), state.mySignature)
+        assertEquals(challengerSignature(), signatures.mySignature)
         assertEquals(OPPONENT_NICKNAME, state.opponentNickname)
-        assertEquals(opponentSignature(), state.opponentSignature)
+        assertEquals(opponentSignature(), signatures.opponentSignature)
     }
 
     @Test
     fun `userId 가 양쪽 어디와도 맞지 않아도 관점 미상으로 처리한다`() = runTest {
         fakeUserInfoRepository.userInfo = userInfo(id = 999L)
 
-        val state = createViewModel().data()
+        val viewModel = createViewModel()
+        val state = viewModel.data()
 
         assertEquals(CHALLENGER_NICKNAME, state.myLabel)
         assertEquals(CHALLENGER_MISSION, state.myMission)
-        assertEquals(challengerSignature(), state.mySignature)
+        assertEquals(challengerSignature(), viewModel.signatures().mySignature)
         assertEquals(OPPONENT_NICKNAME, state.opponentNickname)
     }
 
@@ -207,10 +218,10 @@ class ChallengeDetailViewModelTest {
             isFinalized = false,
         )
 
-        val state = createViewModel().data()
+        val signatures = createViewModel().signatures()
 
-        assertNull(state.opponentSignature)
-        assertEquals(SIGNATURE_NOT_SIGNED_HINT, state.opponentSignatureHint)
+        assertNull(signatures.opponentSignature)
+        assertEquals(SIGNATURE_NOT_SIGNED_HINT, signatures.opponentSignatureHint)
     }
 
     @Test
@@ -220,19 +231,19 @@ class ChallengeDetailViewModelTest {
             opponentSignedAt = PAST_DEADLINE,
         )
 
-        val state = createViewModel().data()
+        val signatures = createViewModel().signatures()
 
-        assertNull(state.opponentSignature)
-        assertEquals(SIGNATURE_UNREADABLE_HINT, state.opponentSignatureHint)
+        assertNull(signatures.opponentSignature)
+        assertEquals(SIGNATURE_UNREADABLE_HINT, signatures.opponentSignatureHint)
     }
 
     @Test
     fun `양측 서명이 완료되면 두 서명이 모두 있고 계약이 완결로 온다`() = runTest {
-        val state = createViewModel().data()
+        val signatures = createViewModel().signatures()
 
-        assertNotNull(state.mySignature)
-        assertNotNull(state.opponentSignature)
-        assertTrue(state.isFinalized)
+        assertNotNull(signatures.mySignature)
+        assertNotNull(signatures.opponentSignature)
+        assertTrue(signatures.isFinalized)
     }
 
     @Test
@@ -260,5 +271,33 @@ class ChallengeDetailViewModelTest {
 
         assertEquals("${CHALLENGER_NICKNAME}의 미션", state.myMissionLabel)
         assertEquals(CHALLENGER_NICKNAME, state.myLabel)
+    }
+
+    /** soul-oath 이전에 만들어진 챌린지. 계약서가 없는 건 오류가 아니라 정상 상태다. */
+    @Test
+    fun `계약서가 없으면 서명 묶음만 빠지고 계약 조건은 그대로 나온다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(contract = null)
+
+        val state = createViewModel().data()
+
+        assertNull(
+            state.signatures,
+            "없는 맹세를 '서명 대기 중' 으로 그리지 않도록 묶음 자체가 없어야 한다",
+        )
+        assertEquals(CHALLENGER_MISSION, state.myMission)
+        assertEquals(OPPONENT_MISSION, state.opponentMission)
+        assertEquals(OPPONENT_NICKNAME, state.opponentNickname)
+        assertEquals("커피 사기", state.betContent)
+        assertEquals("마감", state.deadlineText)
+    }
+
+    @Test
+    fun `계약서가 있으면 서명 묶음이 채워진다`() = runTest {
+        val signatures = createViewModel().signatures()
+
+        assertEquals(challengerSignature(), signatures.mySignature)
+        assertEquals(opponentSignature(), signatures.opponentSignature)
+        assertEquals(SIGNATURE_NOT_SIGNED_HINT, signatures.mySignatureHint)
+        assertTrue(signatures.isFinalized)
     }
 }

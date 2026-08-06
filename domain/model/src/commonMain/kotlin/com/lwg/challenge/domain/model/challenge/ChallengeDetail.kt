@@ -13,6 +13,8 @@ import kotlinx.datetime.LocalDateTime
  * @property status 챌린지 진행 상태 문자열. 계약 완결 여부는 이 값이 아니라 [Contract.isFinalized] 가 정한다
  * @property challengeDate 챌린지 기준 날짜 (KST). 포맷이 어긋나면 null
  * @property deadline 마감 시각 (KST)
+ * @property contract soul-oath 도입 이전에 만들어진 챌린지는 계약서가 없어 null 이다. 정상 상태이며
+ *   계약 §3.1 nullable 표에 등재돼 있다 — 챌린지 자체는 계약서 없이도 온전하다
  */
 data class ChallengeDetail(
     val challengeId: Long,
@@ -22,7 +24,7 @@ data class ChallengeDetail(
     val betContent: String,
     val challenger: ContractParty,
     val opponent: ContractParty,
-    val contract: Contract,
+    val contract: Contract?,
 )
 
 /**

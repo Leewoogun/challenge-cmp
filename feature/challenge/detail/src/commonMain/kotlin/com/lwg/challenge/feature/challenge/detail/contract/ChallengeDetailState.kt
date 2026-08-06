@@ -31,8 +31,6 @@ sealed interface ChallengeDetailUiState {
      *   관점을 모르는 채 "나" 라고 부르면 계약서를 잘못 읽게 되므로 그럴 땐 역할 그대로 보여준다.
      * @property myMissionLabel [myLabel] 과 같은 판정에서 함께 나온다. 서명 라벨만 실명으로 낮추고
      *   계약서 행은 "나의 미션" 으로 두면 한 카드 안에서 관점을 안다/모른다가 엇갈린다.
-     * @property mySignatureHint [mySignature] 가 `null` 일 때만 쓰인다. 미서명과 디코드 실패는
-     *   시각이 같고 문구만 달라, 어느 쪽인지 판정한 ViewModel 이 문구를 확정해 내려보낸다.
      * @property myMission 아직 맹세하지 않았으면 `null` — 빈 문자열로 뭉개면 값 없는 행을 그린다.
      * @property opponentMission 상대가 아직 맹세하지 않았으면(`PENDING`) `null` 이고 행 자체가 빠진다.
      */
@@ -41,17 +39,32 @@ sealed interface ChallengeDetailUiState {
         val myLabel: String,
         val myMissionLabel: String,
         val myMission: String?,
-        val mySignature: Signature?,
-        val mySignatureHint: String,
         val opponentNickname: String,
         val opponentMission: String?,
-        val opponentSignature: Signature?,
-        val opponentSignatureHint: String,
         val betContent: String,
         val deadlineText: String,
-        val isFinalized: Boolean,
+        /** 계약서가 없는 챌린지(soul-oath 이전 생성)면 null. 서명 블록을 통째로 그리지 않는다. */
+        val signatures: SignatureSection?,
     ) : ChallengeDetailUiState {
 
         val opponentLabel: String get() = opponentNickname
     }
 }
+
+/**
+ * 서명 2-up 한 묶음. 계약서가 있을 때만 존재한다.
+ *
+ * 다섯 값을 [ChallengeDetailUiState.Data] 에 평탄하게 두고 `hasContract` 를 따로 들면 일부만
+ * 그리는 실수가 가능해진다 — 계약서가 없으면 이 다섯이 통째로 없으므로 묶음 자체를 nullable 로 둔다.
+ *
+ * @property mySignatureHint [mySignature] 가 `null` 일 때만 쓰인다. 미서명과 디코드 실패는
+ *   시각이 같고 문구만 달라, 어느 쪽인지 판정한 ViewModel 이 문구를 확정해 내려보낸다.
+ */
+@Immutable
+data class SignatureSection(
+    val mySignature: Signature?,
+    val mySignatureHint: String,
+    val opponentSignature: Signature?,
+    val opponentSignatureHint: String,
+    val isFinalized: Boolean,
+)

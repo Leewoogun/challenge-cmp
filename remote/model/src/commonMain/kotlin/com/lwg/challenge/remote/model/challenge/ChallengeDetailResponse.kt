@@ -57,7 +57,11 @@ data class ChallengeDetailData(
     val betContent: String = "",
     val challenger: ContractPartyDto = ContractPartyDto(),
     val opponent: ContractPartyDto = ContractPartyDto(),
-    val contract: ContractDto = ContractDto(),
+    /**
+     * soul-oath 도입 이전에 만들어진 챌린지는 계약서가 없다. 정상 상태이며 계약 §3.1 nullable
+     * 표에 등재돼 있다.
+     */
+    val contract: ContractDto? = null,
 )
 
 @Serializable

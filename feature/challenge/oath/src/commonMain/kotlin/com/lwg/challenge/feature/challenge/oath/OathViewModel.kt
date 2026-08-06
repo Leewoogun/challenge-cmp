@@ -144,7 +144,7 @@ class OathViewModel(
             challengeId = challengeId,
             challengerNickname = challenger.nickname,
             challengerMission = challenger.mission.orEmpty(),
-            challengerSignature = contract.challengerSignature,
+            challengerSignature = contract?.challengerSignature,
             betContent = betContent,
             deadlineText = deadline.toRelativeKoreanString(now),
             myMission = previous?.myMission.orEmpty(),

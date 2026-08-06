@@ -25,6 +25,11 @@ import kotlin.test.assertTrue
  * IN_PROGRESS 와 PENDING 두 상태를 모두 고정한다. 처음에는 IN_PROGRESS 만 떠 뒀는데, 그건
  * 유일하게 동작하는 상태였고 화면이 실제로 여는 PENDING 은 역직렬화가 깨져 있었다.
  * 실서버에서 떴다는 사실이 대표 응답을 떴다는 뜻은 아니다.
+ *
+ * 세 번째 픽스처([nullMaxWireResponse])는 성격이 다르다. 앞의 둘은 실서버에서 뜬 것이라
+ * "지금 존재하는 것"만 덮는다. 이건 계약 §3.1 nullable 표에서 파생한 "계약이 허용하는 것" 이고,
+ * 모든 nullable 이 동시에 null 인 조합은 실서버로 만들 수 없어 backend-dev 가 서버 테스트에서
+ * 합성해 넘겼다.
  */
 class ChallengeDetailWireFixtureTest {
 
@@ -45,9 +50,16 @@ class ChallengeDetailWireFixtureTest {
     private val pendingWireResponse =
         """{"data":{"challengeId":21,"status":"PENDING","challengeDate":"2026-08-04","deadline":"2026-08-05 00:00:00","betContent":"Coffee","challenger":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":"Run5km"},"opponent":{"userId":15,"nickname":"테스터2","profileImageUrl":null,"mission":null},"contract":{"content":"영혼의 맹세","isFinalized":false,"challengerSignature":"{\"v\":1,\"g\":1000,\"s\":[[93,204,99,217,104,229]]}","challengerSignedAt":"2026-08-03 14:10:59","opponentSignature":null,"opponentSignedAt":null}},"error":false,"code":200,"message":""}"""
 
+    // 계약 §3.1 nullable 표의 모든 항목이 동시에 null 인 "null 최대" 응답. contract 자체가 null 인
+    // 챌린지는 soul-oath 도입 이전에 만들어진 것이라 계약서가 없다 — 오류가 아니라 정상 상태다.
+    private val nullMaxWireResponse =
+        """{"data":{"challengeId":7,"status":"IN_PROGRESS","challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":1,"nickname":"이우건","profileImageUrl":null,"mission":null},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":null},"contract":null},"error":false,"code":200,"message":""}"""
+
     private fun parse(): ChallengeDetailResponse = json.decodeFromString(wireResponse)
 
     private fun parsePending(): ChallengeDetailResponse = json.decodeFromString(pendingWireResponse)
+
+    private fun parseNullMax(): ChallengeDetailResponse = json.decodeFromString(nullMaxWireResponse)
 
     @Test
     fun `실서버 응답 원문이 ChallengeDetailResponse 로 역직렬화된다`() {
@@ -88,7 +100,7 @@ class ChallengeDetailWireFixtureTest {
 
     @Test
     fun `양측 서명이 문자열에서 디코드되고 두 슬롯 모두 SIGNED 다`() {
-        val contract = assertNotNull(parse().toChallengeDetail()).contract
+        val contract = assertNotNull(assertNotNull(parse().toChallengeDetail()).contract)
 
         val challengerSignature = assertNotNull(contract.challengerSignature)
         val opponentSignature = assertNotNull(contract.opponentSignature)
@@ -104,7 +116,8 @@ class ChallengeDetailWireFixtureTest {
 
     @Test
     fun `평탄 배열이 x y 쌍으로 정확히 복원된다`() {
-        val signature = assertNotNull(assertNotNull(parse().toChallengeDetail()).contract.challengerSignature)
+        val signature =
+            assertNotNull(assertNotNull(assertNotNull(parse().toChallengeDetail()).contract).challengerSignature)
 
         assertEquals(SignaturePoint(123, 456), signature.strokes[0].points[0])
         assertEquals(SignaturePoint(130, 460), signature.strokes[0].points[1])
@@ -115,26 +128,28 @@ class ChallengeDetailWireFixtureTest {
     fun `바이트 왕복 - 서버가 돌려준 서명 문자열과 코덱이 만든 문자열이 완전히 같다`() {
         val response = parse()
         val detail = assertNotNull(response.toChallengeDetail())
+        val wireContract = assertNotNull(response.data.contract)
+        val domainContract = assertNotNull(detail.contract)
 
         val roundTripMeaning =
             "서버가 저장·반환하는 서명 문자열과 SignatureCodec 이 만들어내는 문자열이 바이트 단위로 같아야 한다. " +
                 "다르면 앱이 다시 저장하는 순간 서버 데이터의 표현이 바뀐다"
 
         assertEquals(
-            assertNotNull(response.data.contract.challengerSignature),
-            SignatureCodec.encode(assertNotNull(detail.contract.challengerSignature)),
+            assertNotNull(wireContract.challengerSignature),
+            SignatureCodec.encode(assertNotNull(domainContract.challengerSignature)),
             roundTripMeaning,
         )
         assertEquals(
-            assertNotNull(response.data.contract.opponentSignature),
-            SignatureCodec.encode(assertNotNull(detail.contract.opponentSignature)),
+            assertNotNull(wireContract.opponentSignature),
+            SignatureCodec.encode(assertNotNull(domainContract.opponentSignature)),
             roundTripMeaning,
         )
     }
 
     @Test
     fun `확정된 계약의 서명 시각이 파싱된다`() {
-        val contract = assertNotNull(parse().toChallengeDetail()).contract
+        val contract = assertNotNull(assertNotNull(parse().toChallengeDetail()).contract)
 
         assertTrue(contract.isFinalized)
         assertEquals(LocalDateTime(2026, 8, 3, 13, 37, 12), contract.challengerSignedAt)
@@ -178,10 +193,64 @@ class ChallengeDetailWireFixtureTest {
 
     @Test
     fun `PENDING 계약은 미확정이고 챌린저만 서명돼 있다`() {
-        val contract = assertNotNull(parsePending().toChallengeDetail()).contract
+        val contract = assertNotNull(assertNotNull(parsePending().toChallengeDetail()).contract)
 
         assertFalse(contract.isFinalized)
         assertEquals(SignatureSlotState.SIGNED, contract.challengerSignatureState)
         assertEquals(SignatureSlotState.NOT_SIGNED, contract.opponentSignatureState)
+    }
+
+    @Test
+    fun `contract 가 null 인 응답 원문이 역직렬화된다`() {
+        val response = parseNullMax()
+
+        assertEquals(200, response.code)
+        assertFalse(response.error)
+        assertEquals(7L, response.data.challengeId)
+        assertNull(response.data.contract)
+    }
+
+    @Test
+    fun `contract 가 null 이어도 도메인 모델로 매핑되고 계약서만 null 로 남는다`() {
+        val detail = assertNotNull(
+            parseNullMax().toChallengeDetail(),
+            "계약서가 없다고 상세 전체를 버리면 안 된다. deadline 과 달리 계약서 없이도 챌린지는 성립한다",
+        )
+
+        assertNull(
+            detail.contract,
+            "soul-oath 이전에 만들어진 챌린지다. 빈 Contract 로 채우면 없던 맹세를 날조하게 된다",
+        )
+    }
+
+    @Test
+    fun `contract 가 null 이어도 최상위 필드는 그대로 매핑된다`() {
+        val detail = assertNotNull(parseNullMax().toChallengeDetail())
+
+        assertEquals(7L, detail.challengeId)
+        assertEquals("IN_PROGRESS", detail.status)
+        assertEquals("커피 사기", detail.betContent)
+        assertEquals(LocalDate(2026, 8, 3), detail.challengeDate)
+        assertEquals(LocalDateTime(2026, 8, 4, 0, 0, 0), detail.deadline)
+        assertEquals("이우건", detail.challenger.nickname)
+        assertEquals("테스터1", detail.opponent.nickname)
+    }
+
+    @Test
+    fun `양측 미션이 모두 null 로 남고 빈 문자열로 뭉개지지 않는다`() {
+        val detail = assertNotNull(parseNullMax().toChallengeDetail())
+
+        assertNull(detail.challenger.mission)
+        assertNull(detail.opponent.mission)
+        assertNotEquals("", detail.challenger.mission)
+        assertNotEquals("", detail.opponent.mission)
+    }
+
+    @Test
+    fun `양측 profileImageUrl 이 null 로 남는다`() {
+        val detail = assertNotNull(parseNullMax().toChallengeDetail())
+
+        assertNull(detail.challenger.profileImageUrl)
+        assertNull(detail.opponent.profileImageUrl)
     }
 }

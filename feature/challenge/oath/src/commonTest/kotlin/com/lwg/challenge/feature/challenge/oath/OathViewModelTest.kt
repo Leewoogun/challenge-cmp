@@ -24,6 +24,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -107,7 +108,7 @@ class OathViewModelTest {
         assertEquals("마감", state.deadlineText)
         assertEquals("우건의 미션", state.challengerMissionLabel)
         assertEquals("우건의 서명", state.challengerSignatureLabel)
-        assertEquals(sampleDetail().contract.challengerSignature, state.challengerSignature)
+        assertEquals(assertNotNull(sampleDetail().contract).challengerSignature, state.challengerSignature)
         assertEquals("", state.myMission)
         assertTrue(state.signature.isEmpty)
         assertFalse(state.isSubmitting)
