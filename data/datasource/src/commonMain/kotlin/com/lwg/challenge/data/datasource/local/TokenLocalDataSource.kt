@@ -1,4 +1,4 @@
-package com.lwg.challenge.local.datastore.datasource
+package com.lwg.challenge.data.datasource.local
 
 import kotlinx.coroutines.flow.Flow
 

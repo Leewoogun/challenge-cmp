@@ -1,6 +1,6 @@
 package com.lwg.challenge.data.auth
 
-import com.lwg.challenge.local.datastore.datasource.TokenLocalDataSource
+import com.lwg.challenge.data.datasource.local.TokenLocalDataSource
 import com.lwg.challenge.remote.network.auth.TokenProvider
 import org.koin.core.annotation.Single
 

@@ -14,6 +14,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.domain.model)
             implementation(projects.domain.repository)
+            implementation(projects.data.datasource)
             implementation(projects.core.utils)
 
             implementation(libs.androidx.datastore.core)

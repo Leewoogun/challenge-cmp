@@ -71,53 +71,83 @@ fun UserInfo.toUserPrefs(): UserPrefs {
 }
 ```
 
-### 3단계: LocalDataSource 인터페이스
+### 3단계: DataStore 저장소
 
-**위치**: `core/domain/src/commonMain/kotlin/com/lwg/cooking/domain/repository/` 또는 별도 인터페이스
-
-```kotlin
-interface UserLocalRepository {
-    fun observeUser(): Flow<UserInfo?>
-    suspend fun getUser(): UserInfo?
-    suspend fun saveUser(userInfo: UserInfo)
-    suspend fun deleteUser()
-}
-```
-
-### 4단계: LocalDataSource 구현
-
-**위치**: `core/data/src/commonMain/kotlin/com/lwg/cooking/data/local/`
+**위치**: `local/datastore/src/commonMain/kotlin/com/lwg/challenge/local/datastore/datastore/`
 
 **규칙**:
+- 이름은 `XxxDataStore` — 이 클래스가 **파일 I/O 전담**이다 (인터페이스 없음)
 - `@Single` Koin annotation 사용
-- DataStore 주입
+- `createDataStore(serializer, defaultValue, fileName)` 로 DataStore 를 직접 만든다
 - Flow 조회: `.data.map { prefs -> prefs.toDomain() }` 파이프라인
 
 ```kotlin
-package com.lwg.cooking.data.local
+package com.lwg.challenge.local.datastore.datastore
 
-import com.lwg.cooking.data.local.mapper.toUserInfo
-import com.lwg.cooking.data.local.mapper.toUserPrefs
-import com.lwg.cooking.data.local.model.UserPrefs
-import com.lwg.cooking.domain.model.user.UserInfo
-import com.lwg.cooking.domain.repository.UserLocalRepository
+import com.lwg.challenge.domain.model.user.UserInfo
+import com.lwg.challenge.local.datastore.createDataStore
+import com.lwg.challenge.local.datastore.mapper.toDomain
+import com.lwg.challenge.local.datastore.mapper.toPrefs
+import com.lwg.challenge.local.datastore.model.UserPrefs
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
 
 @Single
-class UserLocalRepositoryImpl(
-    private val dataStore: DataStore<UserPrefs>,
-) : UserLocalRepository {
+class UserDataStore {
 
-    override fun observeUser(): Flow<UserInfo?> {
-        return dataStore.data.map { prefs ->
-            if (prefs.userName.isEmpty()) null else prefs.toUserInfo()
-        }
+    private val dataStore = createDataStore(
+        serializer = UserPrefs.serializer(),
+        defaultValue = UserPrefs(),
+        fileName = "user",
+    )
+
+    fun observeUser(): Flow<UserInfo?> =
+        dataStore.data.map { if (it.userName.isEmpty()) null else it.toDomain() }
+
+    suspend fun saveUser(userInfo: UserInfo) {
+        dataStore.updateData { userInfo.toPrefs() }
     }
+}
+```
+
+### 4단계: LocalDataSource 인터페이스 + 구현
+
+Repository 는 `XxxDataStore` 를 직접 보지 않고 이 인터페이스만 주입받는다.
+
+**인터페이스 위치**: `data/datasource/src/commonMain/kotlin/com/lwg/challenge/data/datasource/local/`
+
+```kotlin
+package com.lwg.challenge.data.datasource.local
+
+interface UserLocalDataSource {
+    fun observeUser(): Flow<UserInfo?>
+    suspend fun saveUser(userInfo: UserInfo)
+}
+```
+
+**구현 위치**: `local/datastore/src/commonMain/kotlin/com/lwg/challenge/local/datastore/datasourceImpl/`
+
+**규칙**:
+- `@Single(binds = [XxxLocalDataSource::class])`, 클래스는 `internal`
+- `XxxDataStore` 를 주입받아 위임한다 — 여기에 로직을 두지 않는다
+
+```kotlin
+package com.lwg.challenge.local.datastore.datasourceImpl
+
+import com.lwg.challenge.data.datasource.local.UserLocalDataSource
+import com.lwg.challenge.local.datastore.datastore.UserDataStore
+import org.koin.core.annotation.Single
+
+@Single(binds = [UserLocalDataSource::class])
+internal class UserLocalDataSourceImpl(
+    private val userDataStore: UserDataStore,
+) : UserLocalDataSource {
+
+    override fun observeUser(): Flow<UserInfo?> = userDataStore.observeUser()
 
     override suspend fun saveUser(userInfo: UserInfo) {
-        dataStore.updateData { userInfo.toUserPrefs() }
+        userDataStore.saveUser(userInfo)
     }
 }
 ```

@@ -28,13 +28,21 @@ $ARGUMENTS 를 기반으로 Remote API Data Layer를 구현합니다.
 :remote:model          # DTO (Request/Response, BaseResponse)
 :remote:mapper         # DTO → Domain Model 변환 확장 함수
                        # 의존: :domain:model, :remote:model
-:local:datastore       # DataStore 기반 LocalDataSource (토큰 등)
+:remote:datasource     # RemoteDataSourceImpl — Api 호출 + Mapper + ApiResult 처리
+                       # 의존: :data:datasource, :remote:api/model/mapper/network
+:data:datasource       # DataSource 인터페이스 (remote/ + local/), 도메인 모델 반환
+:local:datastore       # DataStore 저장소(XxxDataStore) + LocalDataSourceImpl (토큰 등)
 :data:repositoryImpl   # Repository 구현체, Koin 모듈
-                       # 의존: :domain:*, :remote:*, :local:*
+                       # 의존: :domain:*, :data:datasource (Api 직접 의존 금지)
 :domain:model          # 순수 Domain Model
 :domain:repository     # Repository 인터페이스
 :domain:usecase        # UseCase
 ```
+
+**호출 흐름**: `RepositoryImpl` → `XxxRemoteDataSource`(IF) → `XxxRemoteDataSourceImpl` → `XxxApi`
+
+DTO 매핑과 `ApiResult` 분기는 **RemoteDataSourceImpl 이 전담**한다. Repository 는 캐시 전략·세션
+영속화처럼 여러 DataSource 를 엮는 정책만 갖는다.
 
 ## Repository 메서드 반환 규칙 (필수)
 
@@ -148,24 +156,33 @@ fun RecipeResponse.toRecipe(): Recipe {
 }
 ```
 
-### 4단계: RepositoryImpl 구현
+### 4단계: RemoteDataSource 인터페이스 + 구현
 
-**위치**: `data/repositoryImpl/src/commonMain/kotlin/com/lwg/challenge/data/repository/`
+**인터페이스 위치**: `data/datasource/src/commonMain/kotlin/com/lwg/challenge/data/datasource/remote/`
+**구현 위치**: `remote/datasource/src/commonMain/kotlin/com/lwg/challenge/remote/datasource/`
 
 **규칙**:
-- `@Single` Koin annotation 사용
-- API 인터페이스 주입 (`:remote:api`)
-- 로컬 저장이 필요하면 `LocalDataSource` 주입 (`:local:datastore`)
-- 패키지: `com.lwg.challenge.data.repository`
+- 인터페이스 시그니처는 Repository 와 동일한 반환 규칙(`Flow<T>` / `onSuccess`+`onError`)을 따른다
+- 구현체는 `@Single(binds = [XxxRemoteDataSource::class])`
 - **Domain Model 반환 메서드는 반드시 `Flow<T>` + Mapper 사용** — DTO를 직접 반환하거나 nullable로 반환하지 않는다
 - 실패 시 `onError(message)` 호출 후 emit하지 않음 (Flow가 비어있는 것이 곧 실패)
 - **`suspendOnSuccess` 람다 안에서 직접 `this@flow.emit(...)` 호출** — 임시 `var`에 담았다가 람다 밖에서 emit하지 않는다
 
 ```kotlin
-package com.lwg.challenge.data.repository
+// :data:datasource
+package com.lwg.challenge.data.datasource.remote
 
+interface RecipeRemoteDataSource {
+    fun getRecipeList(page: Int, onError: (String) -> Unit): Flow<List<Recipe>>
+}
+```
+
+```kotlin
+// :remote:datasource
+package com.lwg.challenge.remote.datasource
+
+import com.lwg.challenge.data.datasource.remote.RecipeRemoteDataSource
 import com.lwg.challenge.domain.model.recipe.Recipe
-import com.lwg.challenge.domain.repository.RecipeRepository
 import com.lwg.challenge.remote.api.RecipeApi
 import com.lwg.challenge.remote.mapper.toRecipe
 import com.lwg.challenge.remote.network.util.suspendOnFailureWithErrorHandling
@@ -174,10 +191,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.koin.core.annotation.Single
 
-@Single
-class RecipeRepositoryImpl(
+@Single(binds = [RecipeRemoteDataSource::class])
+class RecipeRemoteDataSourceImpl(
     private val recipeApi: RecipeApi,
-) : RecipeRepository {
+) : RecipeRemoteDataSource {
 
     override fun getRecipeList(
         page: Int,
@@ -205,18 +222,46 @@ override fun getRecipeList(...): Flow<List<Recipe>> = flow {
 }
 ```
 
-### 5단계: Koin 모듈 등록
+### 5단계: RepositoryImpl 구현
+
+**위치**: `data/repositoryImpl/src/commonMain/kotlin/com/lwg/challenge/data/repository/`
+
+**규칙**:
+- `@Single(binds = [XxxRepository::class])` Koin annotation 사용
+- **DataSource 만 주입한다** (`:data:datasource`). Api·Mapper·`ApiResult` 를 직접 다루지 않는다
+- 단일 DataSource 를 그대로 노출하는 메서드는 위임 한 줄로 끝난다
+- 캐시 전략, 세션 영속화처럼 **여러 DataSource 를 엮는 정책만** 여기에 둔다
+
+```kotlin
+@Single(binds = [RecipeRepository::class])
+class RecipeRepositoryImpl(
+    private val recipeRemoteDataSource: RecipeRemoteDataSource,
+) : RecipeRepository {
+
+    override fun getRecipeList(
+        page: Int,
+        onError: (String) -> Unit,
+    ): Flow<List<Recipe>> = recipeRemoteDataSource.getRecipeList(page, onError)
+}
+```
+
+### 6단계: Koin 모듈 등록
 
 **위치**: `data/repositoryImpl/src/commonMain/kotlin/com/lwg/challenge/data/di/DataModule.kt`
 
-기존 DataModule에 `@ComponentScan`이 설정되어 있으면 `@Single` 어노테이션으로 자동 등록됩니다.
+각 모듈의 `@ComponentScan` 이 `@Single` 을 자동 등록합니다 — `RemoteDataSourceModule` 은
+`:remote:datasource` 를, `RepositoryModule` 은 `:data:repositoryImpl` 을 스캔합니다.
+`DataModule` 이 둘을 include 하므로 신규 파일은 별도 등록이 필요 없습니다.
 
-API 인터페이스의 Koin 등록은 `:remote:network`의 NetworkModule에서 Ktorfit builder로 제공합니다.
+API 인터페이스의 Koin 등록은 `:remote:api` 의 `ApiModule`(→ `RemoteDataSourceModule` 이 include)에서
+Ktorfit builder로 제공합니다.
 
 ## 빌드 검증
 
 ```bash
-./gradlew :remote:mapper:compileCommonMainKotlinMetadata :data:repositoryImpl:compileCommonMainKotlinMetadata
+./gradlew :remote:mapper:compileCommonMainKotlinMetadata \
+          :remote:datasource:compileCommonMainKotlinMetadata \
+          :data:repositoryImpl:compileCommonMainKotlinMetadata
 ```
 
 ## 체크리스트
@@ -225,6 +270,8 @@ API 인터페이스의 Koin 등록은 `:remote:network`의 NetworkModule에서 K
 - [ ] Response 필드에 기본값이 설정되어 있는지 (BaseResponse 상속)
 - [ ] API 인터페이스가 `:remote:api`에 있고 Ktorfit 어노테이션을 사용하는지
 - [ ] **Mapper가 `:remote:mapper` 모듈에 있는지** (`:data:repositoryImpl` 아님)
-- [ ] RepositoryImpl이 `:data:repositoryImpl`에 있고 `@Single` Koin 어노테이션이 있는지
-- [ ] 로컬 저장이 필요하면 `:local:datastore`의 LocalDataSource 주입
+- [ ] DataSource 인터페이스가 `:data:datasource`에 있는지
+- [ ] **RemoteDataSourceImpl이 `:remote:datasource`에 있고 Api·Mapper·ApiResult 를 전담하는지**
+- [ ] RepositoryImpl이 `:data:repositoryImpl`에 있고 **DataSource 만 주입받는지** (Api 직접 주입 금지)
+- [ ] 로컬 저장이 필요하면 `:data:datasource`의 LocalDataSource 인터페이스를 주입 (구현은 `:local:datastore`)
 - [ ] Koin 모듈에 등록되었는지

@@ -54,8 +54,11 @@ Kotlin Multiplatform (KMP) + Compose Multiplatform 기반 애플리케이션. �
 :remote:api                    # Ktorfit API 인터페이스
 :remote:model                  # DTO + Serializable
 :remote:mapper                 # DTO ↔ Domain 매퍼
-:data:repositoryImpl           # Repository 구현체 (Remote + Local 결합)
-:local:datastore               # DataStore 기반 LocalDataSource
+:remote:datasource             # RemoteDataSource 구현체 (Api 호출 + Mapper + ApiResult 처리)
+:data:datasource               # DataSource 인터페이스 (remote/ + local/, 도메인 모델 반환)
+:data:repositoryImpl           # Repository 구현체 (DataSource 조합)
+:local:datastore               # DataStore 저장소 + LocalDataSource 구현체
+:local:database                # Room DB + LocalDataSource
 :feature:main                  # 메인 Navigation 코디네이터 (BottomNav)
 :feature:home                  # 홈 화면
 :feature:{name}                # 각 기능별 Feature 모듈
@@ -63,6 +66,21 @@ Kotlin Multiplatform (KMP) + Compose Multiplatform 기반 애플리케이션. �
 
 > 이전 가이드의 `:core:domain` / `:core:network` / `:core:data` 단일 모듈은 ADR-0003에 따라
 > `:domain:*` / `:remote:*` / `:data:*` 다중 모듈로 세분화됨.
+
+### 데이터 레이어 계층
+
+```
+RepositoryImpl (:data:repositoryImpl)     캐시 전략·세션 영속화 등 조합 정책만
+      ↓ 인터페이스
+XxxRemoteDataSource / XxxLocalDataSource (:data:datasource)   도메인 모델 반환
+      ↑ 구현
+XxxRemoteDataSourceImpl (:remote:datasource) → :remote:api (Ktorfit)
+XxxLocalDataSourceImpl  (:local:datastore/datasourceImpl) → XxxDataStore (:local:datastore/datastore)
+```
+
+- **Repository 는 Api 를 직접 주입받지 않는다.** DTO 매핑·`ApiResult` 처리는 전부 RemoteDataSource 책임
+- `XxxDataStore` 는 DataStore 파일 I/O 전담. Repository 는 `XxxLocalDataSource` 인터페이스만 본다
+- Koin: `RemoteDataSourceModule` 이 `ApiModule` 을 include 하고, `DataModule` 이 그것을 include
 
 ### Clean Architecture 의존성 규칙
 - ✅ Feature → Domain, Data → Domain

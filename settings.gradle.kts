@@ -43,10 +43,12 @@ include(":domain:usecase")
 // Remote
 include(":remote:network")
 include(":remote:api")
+include(":remote:datasource")
 include(":remote:model")
 include(":remote:mapper")
 
 // Data
+include(":data:datasource")
 include(":data:repositoryImpl")
 
 // Local

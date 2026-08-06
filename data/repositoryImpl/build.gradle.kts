@@ -16,13 +16,14 @@ kotlin {
             implementation(projects.domain.repository)
             implementation(projects.domain.usecase)
 
-            // Local
-            implementation(projects.local.datastore)
+            // DataSource (Repository 가 의존하는 유일한 데이터 경로)
+            implementation(projects.data.datasource)
 
-            // Remote
-            implementation(projects.remote.api)
-            implementation(projects.remote.model)
-            implementation(projects.remote.mapper)
+            // DataSource 구현 모듈 — DataModule 이 Koin 모듈로 include 하기 위해서만 필요
+            implementation(projects.local.datastore)
+            implementation(projects.remote.datasource)
+
+            // AuthTokenCacheInvalidator
             implementation(projects.remote.network)
 
             // Utils (AuthEventBus)

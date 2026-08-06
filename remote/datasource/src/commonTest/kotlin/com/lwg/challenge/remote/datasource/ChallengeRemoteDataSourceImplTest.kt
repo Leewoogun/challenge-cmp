@@ -1,4 +1,4 @@
-package com.lwg.challenge.data.repository
+package com.lwg.challenge.remote.datasource
 
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.DeadlineType
@@ -37,7 +37,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class ChallengeRepositoryImplTest {
+class ChallengeRemoteDataSourceImplTest {
 
     private val receivedDto = ReceivedChallengeDto(
         challengeId = 7L,
@@ -111,10 +111,10 @@ class ChallengeRepositoryImplTest {
     @Test
     fun `getReceivedChallenges 성공 - DTO 가 도메인으로 매핑돼 1회 emit`() = runTest {
         val api = FakeChallengeApi(receivedResult = receivedSuccess(receivedDto))
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         val errors = mutableListOf<String>()
-        val emitted = repository.getReceivedChallenges(onError = { errors.add(it) }).toList()
+        val emitted = dataSource.getReceivedChallenges(onError = { errors.add(it) }).toList()
 
         assertEquals(listOf(listOf(expectedReceived)), emitted)
         assertNull(emitted.single().single().challengerProfileImageUrl)
@@ -127,10 +127,10 @@ class ChallengeRepositoryImplTest {
         val api = FakeChallengeApi(
             receivedResult = ApiResult.Failure.CustomError(code = 700, message = "챌린지를 찾을 수 없어요"),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         val errors = mutableListOf<String>()
-        val emitted = repository.getReceivedChallenges(onError = { errors.add(it) }).toList()
+        val emitted = dataSource.getReceivedChallenges(onError = { errors.add(it) }).toList()
 
         assertEquals(emptyList(), emitted)
         assertEquals(listOf("챌린지를 찾을 수 없어요"), errors)
@@ -139,9 +139,9 @@ class ChallengeRepositoryImplTest {
     @Test
     fun `getReceivedChallenges 빈 배열 - emptyList emit`() = runTest {
         val api = FakeChallengeApi(receivedResult = receivedSuccess())
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
-        val emitted = repository.getReceivedChallenges(onError = {}).toList()
+        val emitted = dataSource.getReceivedChallenges(onError = {}).toList()
 
         assertEquals(listOf(emptyList<ReceivedChallenge>()), emitted)
     }
@@ -154,10 +154,10 @@ class ChallengeRepositoryImplTest {
                 receivedDto.copy(challengeId = 8L, deadline = null),
             ),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         val errors = mutableListOf<String>()
-        val emitted = repository.getReceivedChallenges(onError = { errors.add(it) }).toList()
+        val emitted = dataSource.getReceivedChallenges(onError = { errors.add(it) }).toList()
 
         assertEquals(listOf(listOf(expectedReceived)), emitted)
         assertEquals(listOf("일부 항목을 불러오지 못했어요"), errors)
@@ -168,10 +168,10 @@ class ChallengeRepositoryImplTest {
         val api = FakeChallengeApi(
             receivedResult = receivedSuccess(receivedDto.copy(createdAt = null)),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         val errors = mutableListOf<String>()
-        val emitted = repository.getReceivedChallenges(onError = { errors.add(it) }).toList()
+        val emitted = dataSource.getReceivedChallenges(onError = { errors.add(it) }).toList()
 
         val challenge = emitted.single().single()
         assertNull(challenge.createdAt)
@@ -193,11 +193,11 @@ class ChallengeRepositoryImplTest {
                 ),
             ),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         val successIds = mutableListOf<Long>()
         val errors = mutableListOf<String>()
-        repository.createChallenge(createInput, onSuccess = { successIds.add(it) }, onError = { errors.add(it) })
+        dataSource.createChallenge(createInput, onSuccess = { successIds.add(it) }, onError = { errors.add(it) })
 
         assertEquals(listOf(7L), successIds)
         assertEquals(emptyList(), errors)
@@ -218,11 +218,11 @@ class ChallengeRepositoryImplTest {
         val api = FakeChallengeApi(
             createResult = ApiResult.Failure.CustomError(code = 700, message = "친구에게만 챌린지를 걸 수 있어요"),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         var successCalled = false
         val errors = mutableListOf<String>()
-        repository.createChallenge(createInput, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+        dataSource.createChallenge(createInput, onSuccess = { successCalled = true }, onError = { errors.add(it) })
 
         assertTrue(!successCalled)
         assertEquals(listOf("친구에게만 챌린지를 걸 수 있어요"), errors)
@@ -235,10 +235,10 @@ class ChallengeRepositoryImplTest {
                 AcceptChallengeResponse(AcceptChallengeData(challengeId = 7L, status = "IN_PROGRESS")),
             ),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         var successCount = 0
-        repository.acceptChallenge(7L, "책 30페이지 읽기", signature, onSuccess = { successCount++ }, onError = {})
+        dataSource.acceptChallenge(7L, "책 30페이지 읽기", signature, onSuccess = { successCount++ }, onError = {})
 
         assertEquals(1, successCount)
         assertEquals(7L, api.capturedAcceptId)
@@ -250,11 +250,11 @@ class ChallengeRepositoryImplTest {
         val api = FakeChallengeApi(
             acceptResult = ApiResult.Failure.CustomError(code = 705, message = "이미 처리된 챌린지예요"),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         var successCalled = false
         val errors = mutableListOf<String>()
-        repository.acceptChallenge(
+        dataSource.acceptChallenge(
             challengeId = 7L,
             myMission = "책 30페이지 읽기",
             signature = signature,
@@ -269,11 +269,11 @@ class ChallengeRepositoryImplTest {
     @Test
     fun `getChallengeDetail 성공 - 도메인으로 매핑돼 onSuccess 로 전달`() = runTest {
         val api = FakeChallengeApi(detailResult = ApiResult.Success(ChallengeDetailResponse(detailData)))
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         val details = mutableListOf<ChallengeDetail>()
         val errors = mutableListOf<String>()
-        repository.getChallengeDetail(7L, onSuccess = { details.add(it) }, onError = { errors.add(it) })
+        dataSource.getChallengeDetail(7L, onSuccess = { details.add(it) }, onError = { errors.add(it) })
 
         assertEquals(7L, api.capturedDetailId)
         assertEquals(emptyList(), errors)
@@ -289,11 +289,11 @@ class ChallengeRepositoryImplTest {
         val api = FakeChallengeApi(
             detailResult = ApiResult.Success(ChallengeDetailResponse(detailData.copy(deadline = null))),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         var successCalled = false
         val errors = mutableListOf<String>()
-        repository.getChallengeDetail(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+        dataSource.getChallengeDetail(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
 
         assertTrue(!successCalled)
         assertEquals(listOf("챌린지 정보를 불러오지 못했어요"), errors)
@@ -304,11 +304,11 @@ class ChallengeRepositoryImplTest {
         val api = FakeChallengeApi(
             detailResult = ApiResult.Failure.CustomError(code = 700, message = "챌린지를 찾을 수 없어요"),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         var successCalled = false
         val errors = mutableListOf<String>()
-        repository.getChallengeDetail(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+        dataSource.getChallengeDetail(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
 
         assertTrue(!successCalled)
         assertEquals(listOf("챌린지를 찾을 수 없어요"), errors)
@@ -321,10 +321,10 @@ class ChallengeRepositoryImplTest {
                 RejectChallengeResponse(RejectChallengeData(challengeId = 7L, status = "REJECTED")),
             ),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         var successCount = 0
-        repository.rejectChallenge(7L, onSuccess = { successCount++ }, onError = {})
+        dataSource.rejectChallenge(7L, onSuccess = { successCount++ }, onError = {})
 
         assertEquals(1, successCount)
         assertEquals(7L, api.capturedRejectId)
@@ -335,11 +335,11 @@ class ChallengeRepositoryImplTest {
         val api = FakeChallengeApi(
             rejectResult = ApiResult.Failure.CustomError(code = 705, message = "마감이 지난 챌린지예요"),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         var successCalled = false
         val errors = mutableListOf<String>()
-        repository.rejectChallenge(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+        dataSource.rejectChallenge(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
 
         assertTrue(!successCalled)
         assertEquals(listOf("마감이 지난 챌린지예요"), errors)
@@ -350,10 +350,10 @@ class ChallengeRepositoryImplTest {
         val api = FakeChallengeApi(
             cancelResult = ApiResult.Success(CancelChallengeResponse(CancelChallengeData(challengeId = 7L))),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         var successCount = 0
-        repository.cancelChallenge(7L, onSuccess = { successCount++ }, onError = {})
+        dataSource.cancelChallenge(7L, onSuccess = { successCount++ }, onError = {})
 
         assertEquals(1, successCount)
         assertEquals(7L, api.capturedCancelId)
@@ -364,11 +364,11 @@ class ChallengeRepositoryImplTest {
         val api = FakeChallengeApi(
             cancelResult = ApiResult.Failure.CustomError(code = 700, message = "내가 보낸 도전장이 아니에요"),
         )
-        val repository = ChallengeRepositoryImpl(api)
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         var successCalled = false
         val errors = mutableListOf<String>()
-        repository.cancelChallenge(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+        dataSource.cancelChallenge(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
 
         assertTrue(!successCalled)
         assertEquals(listOf("내가 보낸 도전장이 아니에요"), errors)

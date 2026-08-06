@@ -1,14 +1,14 @@
-package com.lwg.challenge.local.datastore.datasource
+package com.lwg.challenge.local.datastore.datastore
 
+import com.lwg.challenge.domain.model.AppSettings
 import com.lwg.challenge.local.datastore.createDataStore
 import com.lwg.challenge.local.datastore.model.AppSettingsPrefs
-import com.lwg.challenge.domain.model.AppSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
 
 @Single
-internal class AppSettingsLocalDataSource {
+internal class AppSettingsDataStore {
 
     private val dataStore = createDataStore(
         serializer = AppSettingsPrefs.serializer(),

@@ -1,7 +1,7 @@
 package com.lwg.challenge.data.di
 
 import com.lwg.challenge.local.datastore.di.DataStoreModule
-import com.lwg.challenge.remote.api.di.ApiModule
+import com.lwg.challenge.remote.datasource.di.RemoteDataSourceModule
 import com.lwg.challenge.remote.network.di.NetworkModule
 import org.koin.core.annotation.Module
 
@@ -11,7 +11,7 @@ import org.koin.core.annotation.Module
 @Module(
     includes = [
         NetworkModule::class,
-        ApiModule::class,
+        RemoteDataSourceModule::class,
         RepositoryModule::class,
         UseCaseModule::class,
         DataStoreModule::class,
