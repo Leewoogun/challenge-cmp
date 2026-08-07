@@ -13,6 +13,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -31,11 +35,14 @@ import com.lwg.challenge.ui.components.signature.SignatureSlot
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 계약서 확인 → 미션 입력 → 서명 → 제출.
+ * 계약서 확인 → 미션 입력 → 서명까지를 한 스크롤 흐름으로 두고, 제출 버튼만 하단에 고정한다.
  *
- * **서명 캔버스는 스크롤 영역 밖 고정 슬롯에 둔다.** 캔버스 위 드래그가 "획 긋기"인지 "부모 스크롤"인지
- * 모호해져 획이 끊기기 때문이다. 이 화면이 다이얼로그가 아니라 전체 화면인 이유가 바로 이 배치를
- * 가능하게 하려는 것이므로, 캔버스를 위쪽 스크롤 Column 으로 옮기지 말 것.
+ * **미션 입력과 서명란은 반드시 같은 스크롤 안에 있어야 한다.** 서명란만 고정 슬롯으로 빼면
+ * 미션 입력이 스크롤 위로 숨어, 서명까지 마치고도 버튼이 왜 비활성인지 모르는 상태가 된다.
+ *
+ * 대신 캔버스 위 드래그가 부모 스크롤로 새는 것을 막아야 한다. [SignatureField] 는 포인터를
+ * 매 이벤트 consume 하지만, 획을 긋는 동안에는 스크롤 자체를 잠가 이중으로 막는다
+ * (`onDrawingChange` → `verticalScroll(enabled = ...)`).
  *
  * `imePadding()` 은 걸지 않는다 — [ChallengeScaffold] 의 contentWindowInsets(safeDrawing)가
  * 이미 IME 를 포함해 본문 높이를 줄여주므로, 여기서 또 걸면 키보드 높이만큼 두 번 밀린다.
@@ -48,6 +55,7 @@ internal fun OathForm(
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var isSigning by remember { mutableStateOf(false) }
     val challengerSignature = uiState.challengerSignature
     val challengerSignatureFooter: (@Composable ColumnScope.() -> Unit)? =
         if (challengerSignature == null) {
@@ -74,7 +82,8 @@ internal fun OathForm(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
+                // 획을 긋는 동안 스크롤을 잠근다 — 캔버스 드래그가 스크롤로 새면 획이 끊긴다.
+                .verticalScroll(rememberScrollState(), enabled = !isSigning)
                 .padding(horizontal = 20.dp)
                 .padding(top = 16.dp),
         ) {
@@ -118,14 +127,8 @@ internal fun OathForm(
                 readOnly = uiState.isSubmitting,
             )
 
-            VerticalSpacer(16.dp)
-        }
+            VerticalSpacer(20.dp)
 
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 20.dp),
-        ) {
             Text(
                 text = "서명란",
                 style = ChallengeTheme.typography.medium12,
@@ -139,18 +142,22 @@ internal fun OathForm(
                 onSignatureChange = onSignatureChange,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isSubmitting,
+                onDrawingChange = { isSigning = it },
             )
 
             VerticalSpacer(16.dp)
-
-            LoadingIconButton(
-                text = "맹세한다! 🔥",
-                icon = Icons.Filled.Check,
-                enabled = uiState.canSubmit,
-                loading = uiState.isSubmitting,
-                onClick = onSubmit,
-            )
         }
+
+        LoadingIconButton(
+            text = "맹세한다! 🔥",
+            icon = Icons.Filled.Check,
+            enabled = uiState.canSubmit,
+            loading = uiState.isSubmitting,
+            onClick = onSubmit,
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 20.dp),
+        )
     }
 }
 

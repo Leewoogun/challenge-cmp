@@ -39,6 +39,7 @@ fun SignatureField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     emptyHint: String = "여기에 서명하세요",
+    onDrawingChange: (Boolean) -> Unit = {},
 ) {
     val isEmpty = signature.isEmpty
     val hintColor = ChallengeTheme.colorScheme.onSurfaceVariant
@@ -64,6 +65,7 @@ fun SignatureField(
                 onSignatureChange = onSignatureChange,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = enabled,
+                onDrawingChange = onDrawingChange,
             )
 
             if (isEmpty) {

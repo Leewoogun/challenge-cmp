@@ -47,6 +47,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  *
  * [MAX_POINTS] / [MAX_STROKES] 를 넘는 입력은 **조용히 무시**한다(예외 없음).
  *
+ * 캔버스가 스크롤 컨테이너 안에 놓이면 [onDrawingChange] 로 획을 긋는 동안을 알려준다.
+ * 포인터를 매 이벤트 consume 하므로 부모 스크롤이 제스처를 가져가지 않지만, 호출부가
+ * 스크롤 자체를 잠글 수 있게 신호를 열어 둔다.
+ *
  * 정규화 좌표는 캔버스 비율에 의존한다. 입력과 렌더의 비율이 다르면 서명이 왜곡되므로
  * **컴포넌트가 비율(2:1)을 고정한다.** 호출부는 폭만 정한다. 획 굵기도 같은 이유로 폭에
  * 비례시켜 내부에서 계산한다 — 호출부가 정하면 [SignatureView] 와 어긋난다.
@@ -60,10 +64,12 @@ fun SignatureCanvas(
     modifier: Modifier = Modifier,
     strokeColor: Color = ChallengeTheme.colorScheme.primary,
     enabled: Boolean = true,
+    onDrawingChange: (Boolean) -> Unit = {},
 ) {
     val canvasSize = remember { mutableStateOf(IntSize.Zero) }
     val latestSignature = rememberUpdatedState(signature)
     val latestOnChange = rememberUpdatedState(onSignatureChange)
+    val latestOnDrawingChange = rememberUpdatedState(onDrawingChange)
     val activeStroke = remember { ActiveStroke() }
 
     Canvas(
@@ -75,6 +81,7 @@ fun SignatureCanvas(
                 awaitEachGesture {
                     val down = awaitFirstDown()
                     down.consume()
+                    latestOnDrawingChange.value(true)
                     activeStroke.begin(
                         point = quantize(down.position, canvasSize.value),
                         strokeCount = latestSignature.value.strokeCount,
@@ -99,6 +106,7 @@ fun SignatureCanvas(
                     val finished = activeStroke.finish(
                         budget = MAX_POINTS - latestSignature.value.pointCount,
                     )
+                    latestOnDrawingChange.value(false)
                     if (finished != null) {
                         val current = latestSignature.value
                         latestOnChange.value(

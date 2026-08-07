@@ -105,6 +105,7 @@ class OathViewModel(
     }
 
     fun confirmExit() {
+        dismiss()
         navigateBack()
     }
 
