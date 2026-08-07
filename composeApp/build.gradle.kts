@@ -70,6 +70,8 @@ kotlin {
             // App.kt 가 platformPushModule 을 직접 참조한다. :feature:main 이 :core:push 를
             // implementation 으로 물고 있어 전이되지 않으므로 명시 선언.
             implementation(projects.core.push)
+            // App.kt 가 platformPermissionModule 을 직접 참조한다.
+            implementation(projects.core.permission)
 
             implementation(projects.feature.main)
             implementation(projects.feature.home)

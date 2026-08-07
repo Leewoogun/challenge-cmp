@@ -20,12 +20,8 @@ kotlin {
             implementation(projects.domain.model)
         }
         androidMain.dependencies {
-            // PlatformBackHandler 의 android actual 이 BackHandler 를,
-            // NotificationPermissionEffect 가 rememberLauncherForActivityResult 를 쓴다.
+            // PlatformBackHandler 의 android actual 이 BackHandler 를 쓴다.
             implementation(libs.androidx.activity.compose)
-            // NotificationPermissionEffect 의 ContextCompat.checkSelfPermission.
-            // activity-compose 를 타고 전이로도 들어오지만, 직접 쓰는 API 라 :core:designsystem 처럼 명시한다.
-            implementation(libs.androidx.core.ktx)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

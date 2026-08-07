@@ -14,6 +14,7 @@ import com.lwg.challenge.feature.main.di.MainModule
 import com.lwg.challenge.feature.mypage.di.MyPageModule
 import com.lwg.challenge.feature.ranking.di.RankingModule
 import com.lwg.challenge.feature.splash.di.SplashModule
+import com.lwg.challenge.permission.di.platformPermissionModule
 import com.lwg.challenge.push.di.platformPushModule
 import org.koin.core.KoinApplication
 import org.koin.dsl.KoinAppDeclaration
@@ -30,6 +31,7 @@ internal fun challengeAppDeclaration(
         platformLoginModule,
         platformInviteModule,
         platformPushModule,
+        platformPermissionModule,
         SplashModule().module,
         FriendsModule().module,
         FriendsSearchModule().module,

@@ -17,6 +17,8 @@ kotlin {
             implementation(projects.feature.challenge.detail)
             implementation(projects.feature.ranking)
             implementation(projects.feature.mypage)
+
+            implementation(projects.core.permission)
         }
     }
 }

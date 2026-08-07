@@ -39,7 +39,6 @@ import com.lwg.challenge.feature.main.component.ChallengeBottomBar
 import com.lwg.challenge.feature.mypage.MyPageRoute
 import com.lwg.challenge.feature.ranking.RankingRoute
 import com.lwg.challenge.feature.splash.SplashRoute
-import com.lwg.challenge.ui.components.NotificationPermissionEffect
 import com.lwg.challenge.ui.components.PlaceholderScreen
 import com.lwg.challenge.ui.components.PlatformBackHandler
 import com.lwg.challenge.navigation.LocalMainAction
@@ -107,7 +106,9 @@ fun MainRoute(
         it != null && it !is Route.Splash && it !is Route.Login
     }
 
-    NotificationPermissionEffect(enabled = isAuthenticatedArea)
+    LaunchedEffect(isAuthenticatedArea) {
+        if (isAuthenticatedArea) viewModel.requestNotificationPermission()
+    }
 
     ChallengeTheme {
         CompositionLocalProvider(

@@ -61,6 +61,7 @@ include(":core:ui")
 include(":core:utils")
 include(":core:navigation")
 include(":core:push")
+include(":core:permission")
 
 // Feature
 include(":feature:main")
