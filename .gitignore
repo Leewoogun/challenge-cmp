@@ -6,6 +6,11 @@ xcuserdata
 !src/**/build/
 local.properties
 iosApp/Configuration/Secrets.xcconfig
+
+# Firebase — 프로젝트별 설정 파일. Firebase 콘솔에서 내려받아 composeApp/ 에 둔다.
+**/google-services.json
+**/GoogleService-Info.plist
+
 .idea
 .DS_Store
 captures

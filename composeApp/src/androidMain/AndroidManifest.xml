@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".ChallengeApplication"
@@ -55,6 +56,26 @@
                       android:host="oauth" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".push.ChallengeFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!--
+            백그라운드 수신 시에는 onMessageReceived 가 호출되지 않고 시스템이 직접 표시하므로,
+            그때 쓸 채널/아이콘을 여기서 알려줘야 한다.
+            channel id 는 NotificationChannels.kt 가 생성하는 채널과 같은 string 리소스를 참조한다.
+        -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/notification_channel_id" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
     </application>
 
 </manifest>

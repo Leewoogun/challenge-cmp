@@ -12,4 +12,5 @@ plugins {
     alias(libs.plugins.roborazzi) apply false
     alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.buildkonfig) apply false
+    alias(libs.plugins.googleServices) apply false
 }

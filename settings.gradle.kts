@@ -60,6 +60,7 @@ include(":core:designsystem")
 include(":core:ui")
 include(":core:utils")
 include(":core:navigation")
+include(":core:push")
 
 // Feature
 include(":feature:main")

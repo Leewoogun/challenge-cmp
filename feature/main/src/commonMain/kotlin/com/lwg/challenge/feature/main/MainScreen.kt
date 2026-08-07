@@ -39,6 +39,7 @@ import com.lwg.challenge.feature.main.component.ChallengeBottomBar
 import com.lwg.challenge.feature.mypage.MyPageRoute
 import com.lwg.challenge.feature.ranking.RankingRoute
 import com.lwg.challenge.feature.splash.SplashRoute
+import com.lwg.challenge.ui.components.NotificationPermissionEffect
 import com.lwg.challenge.ui.components.PlaceholderScreen
 import com.lwg.challenge.ui.components.PlatformBackHandler
 import com.lwg.challenge.navigation.LocalMainAction
@@ -99,6 +100,14 @@ fun MainRoute(
             navigator.switchTab(Route.Login)
         }
     }
+
+    // Splash/Login 을 벗어난 순간이 곧 인증 영역 진입이다. 자동 로그인 경로도 같은 지점을 지난다.
+    // 알림 권한은 이때 묻는다 — 로그인 전에 물으면 왜 필요한지 알 수 없는 시점에 뜬다.
+    val isAuthenticatedArea = backStack.lastOrNull().let {
+        it != null && it !is Route.Splash && it !is Route.Login
+    }
+
+    NotificationPermissionEffect(enabled = isAuthenticatedArea)
 
     ChallengeTheme {
         CompositionLocalProvider(

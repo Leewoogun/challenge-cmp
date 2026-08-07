@@ -44,6 +44,8 @@ moko-resources = "0.24.3"
 room = "2.7.1"
 sqlite = "2.5.1"
 kakao-sdk = "2.20.6"
+firebase-bom = "34.17.0"
+google-services = "4.4.2"
 
 
 [libraries]
@@ -162,6 +164,10 @@ sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sql
 kakao-sdk-user = { module = "com.kakao.sdk:v2-user", version.ref = "kakao-sdk" }
 kakao-sdk-share = { module = "com.kakao.sdk:v2-share", version.ref = "kakao-sdk" }
 
+# Firebase (Android only - BoM 이 버전을 관장하므로 개별 아티팩트에 version 을 적지 않는다)
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
@@ -179,6 +185,7 @@ roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 room = { id = "androidx.room", version.ref = "room" }
 mokoResources = { id = "dev.icerock.mobile.multiplatform-resources", version.ref = "moko-resources" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
+googleServices = { id = "com.google.gms.google-services", version.ref = "google-services" }
 
 # Custom Plugins
 challengeKmpIos = { id = "challenge.kmp.ios" }

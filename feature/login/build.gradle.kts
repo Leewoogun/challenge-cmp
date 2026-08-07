@@ -11,6 +11,8 @@ kotlin {
         commonMain.dependencies {
             // LoginScreen 의 Hero 스탬프 아이콘(LocalFireDepartment, AutoAwesome) 사용.
             implementation(compose.materialIconsExtended)
+            // 로그인 성공 직후 FCM 토큰을 등록한다.
+            implementation(projects.core.push)
         }
         androidMain.dependencies {
             // 카카오 OAuth (Android) — App-to-App + 카카오 계정 웹 fallback 까지 SDK 가 처리.

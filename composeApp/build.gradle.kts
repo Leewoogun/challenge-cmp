@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.challengeComposeMultiplatform)
     alias(libs.plugins.challengeKspKoin)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.googleServices)
 }
 
 // local.properties 의 kakao_native_app_key 를 두 곳에 주입:
@@ -40,6 +41,24 @@ kotlin {
             // KakaoSdk.init 호출용. (feature:login 의 v2-user 가 transitively 가져오지만
             // composeApp 의 ChallengeApplication 에서 직접 import 하므로 명시적으로 추가)
             implementation(libs.kakao.sdk.user)
+            // firebase-messaging 은 Android 전용 아티팩트라 androidMain 에만 둔다.
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.messaging)
+
+            // ChallengeFirebaseMessagingService 전용.
+            // NotificationCompat / NotificationChannelCompat
+            implementation(libs.androidx.core.ktx)
+            // KoinComponent / by inject() — Activity·ViewModel 밖(Service)에서 주입받는 유일한 지점
+            implementation(libs.koin.core)
+            // commonMain 의 projects.data.repositoryImpl 은 domain 모듈을 implementation 으로만
+            // 물고 있어 전이되지 않는다. Service 가 UseCase/Repository/AuthTokens 를 직접 참조하므로 명시.
+            implementation(projects.domain.usecase)
+            implementation(projects.domain.repository)
+            implementation(projects.domain.model)
+            // Logger
+            implementation(projects.core.utils)
+            // Service 가 자체 CoroutineScope 를 들고 Flow 를 수집한다
+            implementation(libs.kotlinx.coroutines.core)
         }
 
         commonMain.dependencies {
@@ -48,6 +67,9 @@ kotlin {
 
             implementation(projects.data.repositoryImpl)
 
+            // App.kt 가 platformPushModule 을 직접 참조한다. :feature:main 이 :core:push 를
+            // implementation 으로 물고 있어 전이되지 않으므로 명시 선언.
+            implementation(projects.core.push)
 
             implementation(projects.feature.main)
             implementation(projects.feature.home)

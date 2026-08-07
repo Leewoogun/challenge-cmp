@@ -32,6 +32,8 @@ class LoginViewModelTest {
     private lateinit var fakeRepository: FakeLoginRepository
     private lateinit var fakeUserInfoRepository: FakeUserInfoRepository
     private lateinit var fakeKakaoAuthClient: FakeKakaoAuthClient
+    private lateinit var fakeFcmTokenProvider: FakeFcmTokenProvider
+    private lateinit var fakeFcmTokenRepository: FakeFcmTokenRepository
 
     @BeforeTest
     fun setup() {
@@ -39,6 +41,8 @@ class LoginViewModelTest {
         fakeRepository = FakeLoginRepository()
         fakeUserInfoRepository = FakeUserInfoRepository()
         fakeKakaoAuthClient = FakeKakaoAuthClient()
+        fakeFcmTokenProvider = FakeFcmTokenProvider()
+        fakeFcmTokenRepository = FakeFcmTokenRepository()
     }
 
     @AfterTest
@@ -54,6 +58,8 @@ class LoginViewModelTest {
                 logoutUseCase = LogoutUseCase(fakeRepository, fakeUserInfoRepository),
                 loginRepository = fakeRepository,
             ),
+            fcmTokenProvider = fakeFcmTokenProvider,
+            fcmTokenRepository = fakeFcmTokenRepository,
         )
     }
 
@@ -240,5 +246,79 @@ class LoginViewModelTest {
         }
         assertEquals(listOf("clearTokens", "loginWithTestAccount"), fakeRepository.callLog)
         assertEquals(1, fakeUserInfoRepository.clearUserInfoCacheCallCount)
+    }
+
+    @Test
+    fun `카카오 로그인 성공 - FCM 토큰을 1회 등록한다`() = runTest {
+        fakeKakaoAuthClient.result = KakaoAuthResult.Success(accessToken = "real-kakao-token")
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.login()
+            assertIs<LoginUiEffect.NavigateToHome>(awaitItem())
+        }
+
+        assertEquals(1, fakeFcmTokenRepository.updateCallCount)
+        assertEquals("fcm-token-1", fakeFcmTokenRepository.lastFcmToken)
+    }
+
+    @Test
+    fun `테스트 로그인 성공 - 카카오와 같은 경로로 FCM 토큰을 등록한다`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.loginWithTestAccount(TestAccount.TESTER_1)
+            assertIs<LoginUiEffect.NavigateToHome>(awaitItem())
+        }
+
+        assertEquals(1, fakeFcmTokenRepository.updateCallCount)
+    }
+
+    @Test
+    fun `로그인 실패 - FCM 토큰을 등록하지 않는다`() = runTest {
+        fakeKakaoAuthClient.result = KakaoAuthResult.Success(accessToken = "real-kakao-token")
+        fakeRepository.loginResponse = FakeLoginRepository.LoginResponse.Error("로그인 실패")
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.login()
+            assertIs<LoginUiEffect.ShowMessage>(awaitItem())
+        }
+
+        assertEquals(0, fakeFcmTokenRepository.updateCallCount)
+    }
+
+    @Test
+    fun `accessToken 이 비어 있으면 등록을 건너뛴다`() = runTest {
+        fakeKakaoAuthClient.result = KakaoAuthResult.Success(accessToken = "real-kakao-token")
+        fakeRepository.loginResponse = FakeLoginRepository.LoginResponse.Success(
+            result = LoginResult(
+                tokens = AuthTokens(accessToken = "", refreshToken = "ref"),
+                userId = 10L,
+                isNewUser = false,
+            ),
+        )
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.login()
+            assertIs<LoginUiEffect.NavigateToHome>(awaitItem())
+        }
+
+        assertEquals(0, fakeFcmTokenRepository.updateCallCount)
+    }
+
+    @Test
+    fun `FCM 토큰 획득 실패해도 홈으로 이동한다`() = runTest {
+        fakeKakaoAuthClient.result = KakaoAuthResult.Success(accessToken = "real-kakao-token")
+        fakeFcmTokenProvider.token = null
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            viewModel.login()
+            assertIs<LoginUiEffect.NavigateToHome>(awaitItem())
+        }
+
+        assertEquals(0, fakeFcmTokenRepository.updateCallCount)
     }
 }
