@@ -4,14 +4,6 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * Raw color palette for the Challenge (MAENGSE) design system — 단일 다크 톤.
- *
- * **Feature 코드는 이 raw 토큰을 직접 import 하지 않는다.** 다음 경로로만 색에 접근한다:
- * - 시멘틱 색상: `ChallengeTheme.colorScheme.<name>`
- * - 그라데이션: `ChallengeTheme.brushes.<name>`
- * - 외부 브랜드: `BrandColors.<name>`
- *
- * 토큰 이름은 색상 자체(orange1, black2 등)를 가리키고, 의미(primary/background)는
- * `ChallengeColorScheme.kt` 의 `DefaultChallengeColorScheme` 에서 매핑한다.
  */
 
 internal val orange1 = Color(0xFFE97A3D)

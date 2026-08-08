@@ -20,13 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 점(dot) + 텍스트로 구성된 캡슐 형태의 상태/카테고리 뱃지.
- *
- * Lovable의 "SOUL CONTRACT" 뱃지와 같은 시각 패턴 — 반투명 채움 + 가는 보더 + 작은 점.
- *
- * 기본 색상은 `primary` 톤. 다른 톤이 필요하면 [accentColor] 로 오버라이드한다.
- */
+/** 점 + 텍스트로 구성된 캡슐 형태의 상태/카테고리 뱃지. */
 @Composable
 fun StatusPillBadge(
     text: String,

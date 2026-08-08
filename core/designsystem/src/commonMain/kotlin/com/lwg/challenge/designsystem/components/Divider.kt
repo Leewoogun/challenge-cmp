@@ -18,12 +18,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 디자인 시스템 표준 구분선.
- *
- * - 1dp 얇은 라인: 리스트 row 사이, 섹션 내부 분리 → [HorizontalDivider] / [VerticalDivider]
- * - 10dp 굵은 라인: 화면을 큼직한 섹션으로 나눌 때 → [HorizontalDivider10] / [VerticalDivider10]
- *
- * 색상은 `ChallengeTheme.colorScheme.outline` (얇은 라인) /
- * `surfaceVariant` (굵은 라인) 을 기본으로 사용.
  */
 @Composable
 fun HorizontalDivider(

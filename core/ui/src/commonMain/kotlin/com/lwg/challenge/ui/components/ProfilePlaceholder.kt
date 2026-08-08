@@ -21,12 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 프로필 이미지 자리. 이미지 로더 부재로 닉네임 첫 글자 이니셜만 렌더한다.
- *
- * 기본 시각은 48.dp / 12.dp 라운드 사각 + `secondary` 채움. 다른 크기·모양이 필요하면
- * [size] / [shape] 로 오버라이드한다.
- */
+/** 프로필 이미지 자리. 이미지 로더 부재로 닉네임 첫 글자 이니셜만 렌더한다. */
 @Composable
 fun ProfilePlaceholder(
     nickname: String,

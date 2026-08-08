@@ -46,14 +46,7 @@ object SelectedButtonDefaults {
 }
 
 /**
- * 선택 상태를 가지는 버튼. 2-up 카드형 선택지(마감 선택 등)에 쓴다.
- *
- * 선택되면 primary 톤(옅은 배경 + 1dp 테두리 + primary 텍스트)으로, 아니면 secondary 배경으로 그린다.
- *
- * 폭은 호출부가 정한다 — `Row` 안에서 `Modifier.weight(1f)` 로 균등 분할하는 것이 기본 사용법이다.
- *
- * @param role 접근성 역할. 여러 개 중 하나만 고르면 [Role.RadioButton](기본), 개별 on/off 면 [Role.Checkbox].
- *   스크린 리더가 "선택됨/선택 안 됨"을 읽어주는 근거가 된다.
+ * 선택 상태를 가지는 버튼.
  */
 @Composable
 fun SelectedButton(

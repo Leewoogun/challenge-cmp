@@ -22,14 +22,7 @@ import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 아이콘 + 텍스트 CTA 에 in-flight 인디케이터를 더한 버튼.
- *
- * [IconTextButton] 에는 content 슬롯이 없어 인디케이터를 넣을 수 없다. 그래서 [loading] 일 때만
- * 같은 시각 스펙(52.dp / R12 / primary)의 [Button] 으로 대체 렌더한다.
- *
- * 위저드(생성) 와 맹세 화면이 같은 CTA 스펙을 쓰므로 `:core:ui` 에 둔다.
- */
+/** 아이콘 + 텍스트 CTA 에 in-flight 인디케이터를 더한 버튼. */
 @Composable
 fun LoadingIconButton(
     text: String,

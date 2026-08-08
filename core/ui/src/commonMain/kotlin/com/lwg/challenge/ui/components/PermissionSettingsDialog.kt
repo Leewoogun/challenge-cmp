@@ -12,13 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 권한이 영구 거부됐을 때의 유일한 복구 경로 안내.
- *
- * 시스템 프롬프트가 더는 뜨지 않는 상태(`PermissionStatus.DENIED_ALWAYS`)에서만 쓴다.
- * 한 번 거부한 것뿐이라면 다음 진입에서 다시 물을 수 있으니 이 다이얼로그를 띄우지 않는다 —
- * 거부 직후에 설정으로 보내는 건 강요로 읽힌다.
- */
+/** 권한이 영구 거부(`DENIED_ALWAYS`)됐을 때만 띄우는 설정 안내 다이얼로그. */
 @Composable
 fun PermissionSettingsDialog(
     title: String,

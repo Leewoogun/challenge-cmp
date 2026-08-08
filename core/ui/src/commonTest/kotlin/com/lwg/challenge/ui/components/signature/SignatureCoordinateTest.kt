@@ -8,10 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-/**
- * 좌표 변환은 굵기를 인자로 받는 순수 함수라 Compose 없이 왕복을 검증할 수 있다.
- * 수집과 렌더가 같은 인셋을 쓰는지가 여기서 깨지면 그리는 위치와 보이는 위치가 어긋난다.
- */
+/** 수집과 렌더가 같은 인셋을 쓰는지 검증한다 — 깨지면 손가락 위치와 획이 어긋난다. */
 class SignatureCoordinateTest {
 
     // 입력 캔버스(2:1)를 px 로 흉내낸 값. 굵기는 폭의 0.9% 라 인셋은 2.7px.

@@ -23,22 +23,9 @@ import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/** [myMission] 이 없을 때 값 자리에 채우는 대체 문구. */
 private const val EMPTY_VALUE_TEXT = "—"
 
-/**
- * 챌린지 계약 내용을 보여주는 "영혼의 맹세" 카드.
- *
- * 위저드 맹세 step · 상대 맹세 화면 · 챌린지 상세 세 곳이 같은 계약서를 보여줘야 해서
- * `:core:ui` 에 둔다. 서명란은 화면마다 다르므로 [footer] 슬롯으로 위임한다.
- *
- * @param myMission 아직 미션이 정해지지 않았으면 `null`/공백 — 값 자리에 [EMPTY_VALUE_TEXT] 를 채운다.
- * @param opponentMission 상대가 이미 건 미션. 생성 위저드처럼 아직 상대 미션이 없는 화면은 `null` 로 두면
- *   행 자체가 빠진다 — 빈 칸을 남기면 "상대가 아직 안 정했다" 가 아니라 "정보가 없다" 로 읽힌다.
- * @param opponentMissionLabel [opponentMission] 행의 라벨. 닉네임을 붙일지는 화면이 정한다.
- * @param myMissionLabel 관점(누가 '나'인지)을 모를 때 상세 화면이 실제 닉네임으로 대체한다.
- *   라벨만 "나" 라고 말하고 실제로는 상대 데이터면 계약서를 잘못 읽게 된다.
- */
+/** 챌린지 계약 내용을 보여주는 "영혼의 맹세" 카드. 서명란은 [footer] 슬롯으로 위임한다. */
 @Composable
 fun ContractCard(
     opponentNickname: String,
@@ -210,7 +197,6 @@ private fun ContractCardWithOpponentMissionPreview() {
     }
 }
 
-/** 관점 미상 — 두 미션 행 모두 "나" 없이 실명 라벨로 나온다. */
 @Preview
 @Composable
 private fun ContractCardCustomMyMissionLabelPreview() {

@@ -41,7 +41,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  *
  * - [Basic] : 한 줄 높이([ChallengeInputFieldDefaults.MinHeight])에 맞추고 세로 중앙 정렬.
  * - [FixedHeight] : dp 가 아니라 줄 수로 높이를 고정하고(minLines = maxLines) 상단 정렬.
- *   여러 줄 입력 전제라 내부에서 `singleLine` 을 끈다.
  */
 @Stable
 sealed interface InputFieldType {
@@ -64,15 +63,6 @@ object ChallengeInputFieldDefaults {
 
 /**
  * 공용 텍스트 입력 필드.
- *
- * Material3 `TextField` 는 고정 높이와 indicator 를 강제해 디자인과 맞지 않아
- * [BasicTextField] + decorationBox 로 직접 구성한다.
- *
- * 포커스 상태는 내부에서 관리한다 — 테두리 강조만을 위해 호출부가 상태를 들고 있을 이유가 없다.
- * 값 갱신 이외의 포커스 반응이 필요하면 [onFocusChanged] 로 받는다.
- *
- * @param readOnly 입력만 막고 포커스·커서는 유지한다(제출 in-flight 등).
- *   포커스 자체를 막으려면 [enabled] 를 쓴다.
  */
 @Composable
 fun ChallengeInputField(

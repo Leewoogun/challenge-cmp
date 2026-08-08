@@ -6,29 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 
-/**
- * Challenge (MAENGSE) Root Theme — 단일 다크 톤.
- *
- * 색에 접근하는 정식 경로:
- * - 시멘틱 색상  → `ChallengeTheme.colorScheme.<name>`
- * - 그라데이션   → `ChallengeTheme.brushes.<name>`
- * - 외부 브랜드  → `BrandColors.<name>`
- *
- * Material3 컴포넌트(Surface/Scaffold 등)와의 호환을 위해 내부적으로 동일 색상의
- * Material3 [androidx.compose.material3.ColorScheme] 도 함께 제공한다.
- * 단, **Feature 코드는 `MaterialTheme.colorScheme.X` 를 직접 호출하지 않는다.**
- *
- * ```
- * ChallengeTheme {
- *     Text(
- *         text = "...",
- *         color = ChallengeTheme.colorScheme.onBackground,
- *         style = ChallengeTheme.typography.medium16,
- *     )
- *     Box(Modifier.background(ChallengeTheme.brushes.fire))
- * }
- * ```
- */
 @Composable
 fun ChallengeTheme(
     content: @Composable () -> Unit,

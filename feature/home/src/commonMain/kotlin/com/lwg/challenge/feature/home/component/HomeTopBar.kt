@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.lwg.challenge.designsystem.components.ChallengeTopBar
+import com.lwg.challenge.designsystem.components.ChallengeBaseTopBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -29,7 +29,7 @@ internal fun HomeTopBar(
     modifier: Modifier = Modifier,
     debugAccountLabel: String? = null,
 ) {
-    ChallengeTopBar(
+    ChallengeBaseTopBar(
         modifier = modifier,
         containerColor = ChallengeTheme.colorScheme.surface.copy(alpha = 0.95f),
         title = {

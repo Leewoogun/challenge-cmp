@@ -9,8 +9,6 @@ import androidx.compose.ui.graphics.Color
  *
  * Feature 코드는 `ChallengeTheme.colorScheme.<name>` 으로만 색에 접근한다.
  * (Material3 [androidx.compose.material3.MaterialTheme.colorScheme] 직접 사용 금지)
- *
- * 단일 다크 톤만 운영하며, 라이트 모드는 지원하지 않는다.
  */
 @Immutable
 data class ChallengeColorScheme(

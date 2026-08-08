@@ -24,14 +24,7 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 서명 입력란 한 세트 — 배경 · 빈 상태 안내 · 캔버스 · "다시 그리기".
- *
- * [SignatureCanvas] 는 좌표 수집과 렌더만 하고 배경/테두리를 그리지 않으므로 그 껍데기를 여기서 씌운다.
- * 위저드 맹세 step 과 상대 맹세 화면이 같은 입력란을 써야 해서 `:core:ui` 에 둔다.
- *
- * 높이는 지정하지 않는다 — [SignatureCanvas] 가 비율(2:1)을 고정하므로 호출부는 폭만 정한다.
- */
+/** 서명 입력란 한 세트 — 배경 · 빈 상태 안내 · 캔버스 · "다시 그리기". */
 @Composable
 fun SignatureField(
     signature: Signature,
@@ -79,7 +72,6 @@ fun SignatureField(
             }
         }
 
-        // 빈 상태에서는 지울 게 없다 — 자리조차 차지하지 않도록 아예 그리지 않는다.
         if (!isEmpty) {
             TextButton(
                 onClick = { onSignatureChange(Signature.Empty) },

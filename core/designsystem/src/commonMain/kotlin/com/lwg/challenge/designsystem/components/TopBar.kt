@@ -36,16 +36,9 @@ object ChallengeTopBarDefaults {
 
 /**
  * 슬롯 기반 공용 상단바. `[navigationIcon] [title] [actions]` 를 한 줄에 배치한다.
- *
- * [title] / [actions] 는 [RowScope] 이므로 남는 폭 배분은 호출부가 `Modifier.weight` 로 정한다
- * (검색 입력창처럼 title 이 폭을 모두 먹는 경우 대응).
- * 텍스트 제목 + 뒤로가기 조합이면 아래 String 오버로드를 쓴다.
- *
- * [navigationIcon] 이 있으면 좌측 여백을 주지 않는다 — 아이콘 버튼의 자체 내부 여백이 그 역할을 한다.
- * 유무를 알아야 여백을 계산할 수 있어 빈 람다가 아니라 nullable 로 받는다.
  */
 @Composable
-fun ChallengeTopBar(
+fun ChallengeBaseTopBar(
     modifier: Modifier = Modifier,
     containerColor: Color = ChallengeTheme.colorScheme.surface,
     navigationIcon: (@Composable () -> Unit)? = null,
@@ -76,8 +69,6 @@ fun ChallengeTopBar(
 
 /**
  * 텍스트 제목 상단바. [onBack] 이 null 이면 뒤로가기 버튼을 그리지 않는다.
- *
- * 제목이 남는 폭을 차지하므로 [actions] 는 항상 우측 정렬된다.
  */
 @Composable
 fun ChallengeTopBar(
@@ -89,7 +80,7 @@ fun ChallengeTopBar(
     titleColor: Color = ChallengeTheme.colorScheme.onBackground,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
-    ChallengeTopBar(
+    ChallengeBaseTopBar(
         modifier = modifier,
         containerColor = containerColor,
         navigationIcon = onBack?.let { { ChallengeTopBarBackButton(onClick = it) } },
@@ -176,7 +167,7 @@ private fun ChallengeTopBarWithActionsPreview() {
 private fun ChallengeTopBarSlotPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            ChallengeTopBar(
+            ChallengeBaseTopBar(
                 navigationIcon = { ChallengeTopBarBackButton(onClick = {}) },
                 title = {
                     Text(

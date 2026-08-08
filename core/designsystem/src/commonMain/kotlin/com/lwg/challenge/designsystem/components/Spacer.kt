@@ -11,12 +11,6 @@ import androidx.compose.ui.unit.Dp
 
 /**
  * 디자인 시스템 표준 Spacer.
- *
- * - Dp 버전: 고정 크기 여백
- * - Float 버전 (Row/ColumnScope 내): `weight()` 기반 가변 여백
- *
- * Compose 의 `Spacer + Modifier.height/width` 조합 대신 이 컴포넌트를 사용하여
- * UI 코드의 가독성과 일관성을 확보한다.
  */
 @Composable
 fun VerticalSpacer(

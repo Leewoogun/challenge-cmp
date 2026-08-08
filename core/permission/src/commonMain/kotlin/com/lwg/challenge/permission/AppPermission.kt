@@ -2,10 +2,6 @@ package com.lwg.challenge.permission
 
 /**
  * 이 앱이 요구하는 런타임 권한.
- *
- * moko 의 `Permission` 을 그대로 노출하지 않는 이유: 권한 라이브러리는 언제든 갈아끼울 수 있어야
- * 하고, 호출부(ViewModel)가 특정 라이브러리 타입을 알 이유가 없다.
- *
  * 새 권한을 추가할 때는 이 enum 과 `PermissionManagerImpl` 의 매핑, 그리고 `build.gradle.kts` 의
  * `moko-permissions-*` 아티팩트 세 곳을 함께 손본다.
  */
@@ -18,13 +14,6 @@ enum class AppPermission {
     CAMERA,
 }
 
-/**
- * 권한 상태.
- *
- * [DENIED] 와 [DENIED_ALWAYS] 를 나누는 이유가 이 타입의 존재 이유다 — 전자는 다시 물어볼 수
- * 있지만 후자는 시스템 프롬프트가 더 뜨지 않아 설정 앱으로 안내하는 수밖에 없다.
- * 특히 iOS 는 프롬프트가 앱 생애 1회뿐이라 한 번 거부되면 곧바로 [DENIED_ALWAYS] 가 된다.
- */
 enum class PermissionStatus {
 
     GRANTED,

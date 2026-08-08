@@ -19,14 +19,7 @@ import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 라벨 + 입력 필드 + 글자 수 카운터 한 세트.
- *
- * @param counterText "{길이}/{최대}". 계산은 State 책임 — 서버 검증이 trim 기준이면 카운터도 trim 으로 세야 하는데
- *   그 판단이 화면마다 다르다. null 이면 카운터를 그리지 않는다.
- * @param counterAtMax 상한 도달 여부. true 면 카운터가 warning 색으로 바뀐다.
- * @param readOnly 입력만 막고 포커스는 유지(제출 in-flight 등). 포커스까지 막으려면 [enabled] 사용.
- */
+/** 라벨 + 입력 필드 + 글자 수 카운터 한 세트. */
 @Composable
 fun LabeledInputField(
     label: String,

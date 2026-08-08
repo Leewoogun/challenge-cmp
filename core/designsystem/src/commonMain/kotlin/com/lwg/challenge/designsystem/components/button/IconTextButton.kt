@@ -31,10 +31,7 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 아이콘 + 텍스트 CTA 버튼. 빈 상태 카드(친구/홈) 등 "아이콘이 앞에 붙는 버튼"을 위한 공용 컴포넌트.
- *
- * [IconTextButtonStyle.Filled] (강조 배경) / [IconTextButtonStyle.Outlined] (테두리) 두 스타일 지원.
- * 단순 텍스트 버튼은 [NormalButton] 을 사용한다.
+ * 아이콘 + 텍스트 CTA 버튼.
  */
 @Composable
 fun IconTextButton(

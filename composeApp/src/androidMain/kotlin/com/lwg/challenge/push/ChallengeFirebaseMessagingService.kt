@@ -22,10 +22,6 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-/**
- * 서버는 `notification` + `data` 혼합 페이로드를 보낸다. 백그라운드에서는 시스템이 자동 표시하고
- * 이 콜백이 호출되지 않으므로, 여기서의 표시 책임은 사실상 포그라운드 수신분이다.
- */
 class ChallengeFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
 
     private val fcmTokenRepository: FcmTokenRepository by inject()
@@ -47,7 +43,6 @@ class ChallengeFirebaseMessagingService : FirebaseMessagingService(), KoinCompon
         super.onNewToken(token)
 
         scope.launch {
-            // 로그아웃 상태에서 등록하면 이 기기가 직전 계정의 알림을 계속 받게 된다.
             if (!getStoredTokensUseCase().isValid) return@launch
 
             fcmTokenRepository.updateFcmToken(

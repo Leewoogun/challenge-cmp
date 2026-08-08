@@ -20,9 +20,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 양쪽에 1px 구분선이 있고 가운데 짧은 라벨 텍스트가 들어가는 시각 패턴.
- *
- * Material 3에는 라벨 포함 Divider가 없어 별도 컴포넌트로 둔다. 로그인 화면의
- * "한 번 서명하면 무를 수 없음" 같은 강조 캡션에 사용한다.
  */
 @Composable
 fun LabeledDivider(

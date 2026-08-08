@@ -8,10 +8,6 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * 프로젝트 그라데이션 브러시.
- *
- * 접근: `ChallengeTheme.brushes.<name>`.
- * 색상 stops는 [ChallengeColorScheme]의 gradientPrimaryStart/End, gradientCardStart/End,
- * glowPrimary 에서 가져온다.
  */
 @Immutable
 data class ChallengeBrushes(

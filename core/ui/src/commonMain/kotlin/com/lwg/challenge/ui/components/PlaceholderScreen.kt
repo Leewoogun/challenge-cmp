@@ -14,14 +14,7 @@ import androidx.compose.ui.Modifier
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 후속 feature 개발 전 임시 화면용 공통 placeholder.
- *
- * 다크 배경 + 화면명(bold18) + 보조 문구(medium14) 두 줄. 친구/랭킹/MY 등 BottomBar 라우팅 검증용으로 사용.
- *
- * @param title 화면명 (예: "친구", "랭킹", "MY")
- * @param subtitle 보조 문구. 기본값 "준비 중"
- */
+/** 후속 feature 개발 전 임시 화면용 공통 placeholder. */
 @Composable
 fun PlaceholderScreen(
     title: String,
