@@ -69,14 +69,13 @@ class ChallengeFirebaseMessagingService : FirebaseMessagingService(), KoinCompon
         showNotification(
             title = notification.title.orEmpty(),
             body = notification.body.orEmpty(),
-            type = message.data[KEY_TYPE],
-            // FCM data 는 값이 전부 문자열로 도착한다. 서버가 숫자로 보내도 여기선 "7" 이다.
-            challengeId = message.data[KEY_CHALLENGE_ID]?.toLongOrNull(),
+            data = message.data,
         )
     }
 
-    private fun showNotification(title: String, body: String, type: String?, challengeId: Long?) {
-        val notificationId = buildNotificationId(challengeId)
+    private fun showNotification(title: String, body: String, data: Map<String, String>) {
+        // FCM data 는 값이 전부 문자열로 도착한다. 서버가 숫자로 보내도 여기선 "7" 이다.
+        val notificationId = buildNotificationId(data[PushEvent.KEY_CHALLENGE_ID]?.toLongOrNull())
 
         val notification = NotificationCompat.Builder(this, notificationChannelId(this))
             .setSmallIcon(R.drawable.ic_notification)
@@ -85,7 +84,7 @@ class ChallengeFirebaseMessagingService : FirebaseMessagingService(), KoinCompon
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
-            .setContentIntent(contentIntent(notificationId, type, challengeId))
+            .setContentIntent(contentIntent(notificationId, data))
             .build()
 
         if (ActivityCompat.checkSelfPermission(
@@ -98,44 +97,24 @@ class ChallengeFirebaseMessagingService : FirebaseMessagingService(), KoinCompon
         NotificationManagerCompat.from(this).notify(notificationId, notification)
     }
 
-    /**
-     * 딥링크 라우팅은 이번 범위 밖이다. type/challengeId 를 extra 로 실어만 두고 소비하지 않으므로
-     * MainActivity 는 평소대로 splash → 자동 로그인 → 홈 순서로 열린다.
-     * 후속 작업이 이 extra 를 읽는 것만으로 상세 진입을 붙일 수 있다.
-     */
+    /** data 를 키·타입 그대로 실어 FCM 이 백그라운드에서 만드는 런처 인텐트와 extras 모양을 맞춘다. */
     private fun contentIntent(
         notificationId: Int,
-        type: String?,
-        challengeId: Long?,
+        data: Map<String, String>,
     ): PendingIntent {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            type?.let { putExtra(EXTRA_NOTIFICATION_TYPE, it) }
-            challengeId?.let { putExtra(EXTRA_CHALLENGE_ID, it) }
+            data.forEach { (key, value) -> putExtra(key, value) }
         }
 
         return PendingIntent.getActivity(
             this,
             notificationId,
             intent,
-            // FLAG_IMMUTABLE 미지정 시 Android 12+ 에서 크래시한다.
-            // UPDATE_CURRENT 가 없으면 같은 requestCode 재사용 시 예전 extra 가 그대로 남는다.
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
     }
 
-    /**
-     * 같은 도전장 알림은 겹쳐 쌓이지 않도록 id 를 재사용하고, 식별자가 없는 알림은
-     * 매번 다른 id 를 줘서 여러 건이 함께 남게 한다.
-     */
     private fun buildNotificationId(challengeId: Long?): Int =
         challengeId?.toInt() ?: (System.currentTimeMillis() and Int.MAX_VALUE.toLong()).toInt()
-
-    companion object {
-        const val EXTRA_NOTIFICATION_TYPE = "extra_notification_type"
-        const val EXTRA_CHALLENGE_ID = "extra_challenge_id"
-
-        private const val KEY_TYPE = "type"
-        private const val KEY_CHALLENGE_ID = "challengeId"
-    }
 }

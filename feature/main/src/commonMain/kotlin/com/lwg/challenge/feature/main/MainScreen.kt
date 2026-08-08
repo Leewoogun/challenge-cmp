@@ -107,7 +107,18 @@ fun MainRoute(
     }
 
     LaunchedEffect(isAuthenticatedArea) {
+        viewModel.setAuthenticatedArea(isAuthenticatedArea)
         if (isAuthenticatedArea) viewModel.requestNotificationPermission()
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.pushNavigation.collect { route ->
+            if (backStack.lastOrNull() == route) return@collect
+
+            // 탭 루트가 목적지면 백스택을 정리한다 — 뒤로가기가 알림 전 화면으로 돌아가면 혼란스럽다.
+            if (BottomNavItem.find(route) != null) navigator.switchTab(route)
+            else navigator.navigateTo(route)
+        }
     }
 
     ChallengeTheme {

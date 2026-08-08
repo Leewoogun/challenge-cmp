@@ -19,6 +19,12 @@ kotlin {
             implementation(projects.feature.mypage)
 
             implementation(projects.core.permission)
+            implementation(projects.core.push)
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.turbine)
         }
     }
 }

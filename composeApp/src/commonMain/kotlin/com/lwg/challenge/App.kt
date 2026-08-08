@@ -16,6 +16,7 @@ import com.lwg.challenge.feature.ranking.di.RankingModule
 import com.lwg.challenge.feature.splash.di.SplashModule
 import com.lwg.challenge.permission.di.platformPermissionModule
 import com.lwg.challenge.push.di.platformPushModule
+import com.lwg.challenge.push.di.pushModule
 import org.koin.core.KoinApplication
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.ksp.generated.module
@@ -31,6 +32,7 @@ internal fun challengeAppDeclaration(
         platformLoginModule,
         platformInviteModule,
         platformPushModule,
+        pushModule,
         platformPermissionModule,
         SplashModule().module,
         FriendsModule().module,
