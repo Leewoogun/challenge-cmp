@@ -26,11 +26,20 @@ kotlin {
 
             // Coroutines
             implementation(libs.kotlinx.coroutines.core)
+
+            // multipart 본문(MultiPartFormDataContent) 조립
+            implementation(libs.ktor.client.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.turbine)
+            // multipart 회귀 테스트가 운영과 같은 파이프라인(DefaultRequest+ContentNegotiation)을
+            // 실제 Ktorfit 으로 재현한다
+            implementation(libs.ktor.client.mock)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktorfit.lib)
         }
     }
 }

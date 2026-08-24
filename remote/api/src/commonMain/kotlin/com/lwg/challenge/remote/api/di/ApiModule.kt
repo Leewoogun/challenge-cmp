@@ -6,12 +6,14 @@ import com.lwg.challenge.remote.api.FriendsApi
 import com.lwg.challenge.remote.api.LoginApi
 import com.lwg.challenge.remote.api.RecordApi
 import com.lwg.challenge.remote.api.UserApi
+import com.lwg.challenge.remote.api.VerificationApi
 import com.lwg.challenge.remote.api.createActiveChallengeApi
 import com.lwg.challenge.remote.api.createChallengeApi
 import com.lwg.challenge.remote.api.createFriendsApi
 import com.lwg.challenge.remote.api.createLoginApi
 import com.lwg.challenge.remote.api.createRecordApi
 import com.lwg.challenge.remote.api.createUserApi
+import com.lwg.challenge.remote.api.createVerificationApi
 import de.jensklingenberg.ktorfit.Ktorfit
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
@@ -36,4 +38,7 @@ class ApiModule {
 
     @Single
     fun provideUserApi(ktorfit: Ktorfit): UserApi = ktorfit.createUserApi()
+
+    @Single
+    fun provideVerificationApi(ktorfit: Ktorfit): VerificationApi = ktorfit.createVerificationApi()
 }

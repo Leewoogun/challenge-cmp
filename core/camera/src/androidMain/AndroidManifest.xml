@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      CAMERA 권한을 선언하면 시스템 카메라 인텐트(TakePicture)조차 이 앱이 권한을 보유해야 동작한다.
+      그래서 호출부가 :core:permission 의 PermissionManager 로 CAMERA 를 먼저 받은 뒤 capture() 를 불러야 한다.
+    -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- required=false: 카메라 없는 기기에서 설치 자체를 막지 않는다. 실행 시 NO_CAMERA 실패로 처리된다. -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <application>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/camera_file_paths" />
+        </provider>
+    </application>
+</manifest>

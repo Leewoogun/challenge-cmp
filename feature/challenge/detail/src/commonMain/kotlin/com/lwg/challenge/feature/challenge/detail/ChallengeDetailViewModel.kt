@@ -13,6 +13,7 @@ import com.lwg.challenge.feature.challenge.detail.contract.MY_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.MY_MISSION_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_NOT_SIGNED_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_UNREADABLE_HINT
+import com.lwg.challenge.feature.challenge.detail.contract.STATUS_IN_PROGRESS
 import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import com.lwg.challenge.utils.datetime.nowKst
 import com.lwg.challenge.utils.datetime.toRelativeKoreanString
@@ -105,6 +106,7 @@ class ChallengeDetailViewModel(
             // 계약서가 없으면(soul-oath 이전 생성) 서명 묶음 자체가 없다. 빈 값으로 채우면 있지도
             // 않은 맹세를 '서명 대기 중' 으로 그리게 된다.
             signatures = contract?.toSignatureSection(isMeOpponent),
+            canVerify = status == STATUS_IN_PROGRESS,
         )
     }
 

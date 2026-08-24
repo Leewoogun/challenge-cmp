@@ -30,6 +30,7 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.challenge.create.ChallengeCreateRoute
 import com.lwg.challenge.feature.challenge.detail.ChallengeDetailRoute
 import com.lwg.challenge.feature.challenge.oath.OathRoute
+import com.lwg.challenge.feature.challenge.verify.VerifyRoute
 import com.lwg.challenge.feature.friends.list.FriendsRoute
 import com.lwg.challenge.feature.friends.search.FriendsSearchRoute
 import com.lwg.challenge.feature.home.HomeRoute
@@ -214,6 +215,9 @@ private fun MainScreen(
                 }
                 entry<Route.Challenge.Oath>(clazzContentKey = { it.uniqueContentKey() }) { route ->
                     OathRoute(challengeId = route.challengeId)
+                }
+                entry<Route.Challenge.Verify>(clazzContentKey = { it.uniqueContentKey() }) { route ->
+                    VerifyRoute(challengeId = route.challengeId)
                 }
                 entry<Route.Notifications>(clazzContentKey = { it.uniqueContentKey() }) {
                     PlaceholderScreen(title = "알림")

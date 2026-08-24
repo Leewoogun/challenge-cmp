@@ -93,4 +93,6 @@ private fun PushEvent.toRoute(): Route = when (this) {
     is PushEvent.ChallengeAccepted -> Route.Challenge.Detail(challengeId)
     // 거절된 챌린지는 계약서가 없어 상세에 볼 것이 없다.
     is PushEvent.ChallengeRejected -> Route.Home
+    // 거절과 반대로 볼 것(상대 인증 사진)이 생겼고, 그 사진은 상세에서만 보인다. 홈 카드는 상태 뱃지뿐.
+    is PushEvent.OpponentVerified -> Route.Challenge.Detail(challengeId)
 }

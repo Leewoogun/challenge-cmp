@@ -9,6 +9,8 @@ sealed interface PushEvent {
 
     data class ChallengeRejected(val challengeId: Long) : PushEvent
 
+    data class OpponentVerified(val challengeId: Long) : PushEvent
+
     companion object {
         const val KEY_TYPE = "type"
         const val KEY_CHALLENGE_ID = "challengeId"
@@ -19,6 +21,7 @@ sealed interface PushEvent {
         private const val TYPE_CHALLENGE_REQUEST = "CHALLENGE_REQUEST"
         private const val TYPE_CHALLENGE_ACCEPTED = "CHALLENGE_ACCEPTED"
         private const val TYPE_CHALLENGE_REJECTED = "CHALLENGE_REJECTED"
+        private const val TYPE_OPPONENT_VERIFIED = "OPPONENT_VERIFIED"
 
         /**
          * FCM `data` 를 이벤트로 읽는다. 값은 전부 문자열로 도착해 숫자도 "7" 이다.
@@ -31,6 +34,7 @@ sealed interface PushEvent {
                 TYPE_CHALLENGE_REQUEST -> challengeId?.let(::ChallengeRequest)
                 TYPE_CHALLENGE_ACCEPTED -> challengeId?.let(::ChallengeAccepted)
                 TYPE_CHALLENGE_REJECTED -> challengeId?.let(::ChallengeRejected)
+                TYPE_OPPONENT_VERIFIED -> challengeId?.let(::OpponentVerified)
                 else -> null
             }
         }

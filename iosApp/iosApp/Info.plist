@@ -44,5 +44,11 @@
 	-->
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>같은 네트워크의 개발 서버에 연결해 챌린지 정보를 주고받습니다.</string>
+	<!--
+	  챌린지 인증 사진 촬영(:core:camera) 용도 설명. 이 키가 없으면 카메라 접근 시점에 앱이 크래시한다.
+	  촬영 전용이라(기획서 §2.5 — 갤러리 선택 불가) NSPhotoLibrary* 키는 선언하지 않는다.
+	-->
+	<key>NSCameraUsageDescription</key>
+	<string>미션 수행을 인증하는 사진을 촬영하기 위해 카메라를 사용합니다.</string>
 </dict>
 </plist>

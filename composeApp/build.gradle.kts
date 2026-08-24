@@ -82,6 +82,7 @@ kotlin {
             implementation(projects.feature.challenge.create)
             implementation(projects.feature.challenge.oath)
             implementation(projects.feature.challenge.detail)
+            implementation(projects.feature.challenge.verify)
             implementation(projects.feature.ranking)
             implementation(projects.feature.mypage)
         }

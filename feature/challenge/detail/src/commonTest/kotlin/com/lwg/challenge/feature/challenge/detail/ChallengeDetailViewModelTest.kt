@@ -25,6 +25,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -90,6 +91,7 @@ class ChallengeDetailViewModelTest {
     )
 
     private fun sampleDetail(
+        status: String = "IN_PROGRESS",
         challengerSignature: Signature? = challengerSignature(),
         challengerSignedAt: LocalDateTime? = PAST_DEADLINE,
         opponentSignature: Signature? = opponentSignature(),
@@ -105,7 +107,7 @@ class ChallengeDetailViewModelTest {
         ),
     ) = ChallengeDetail(
         challengeId = CHALLENGE_ID,
-        status = "IN_PROGRESS",
+        status = status,
         challengeDate = LocalDate.parse("2026-01-01"),
         deadline = PAST_DEADLINE,
         betContent = "커피 사기",
@@ -299,5 +301,21 @@ class ChallengeDetailViewModelTest {
         assertEquals(opponentSignature(), signatures.opponentSignature)
         assertEquals(SIGNATURE_NOT_SIGNED_HINT, signatures.mySignatureHint)
         assertTrue(signatures.isFinalized)
+    }
+
+    @Test
+    fun `IN_PROGRESS 면 인증 진입점이 열린다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(status = "IN_PROGRESS")
+
+        assertTrue(createViewModel().data().canVerify)
+    }
+
+    @Test
+    fun `IN_PROGRESS 가 아니면 인증 진입점이 닫힌다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(status = "COMPLETED")
+        assertFalse(createViewModel().data().canVerify)
+
+        fakeChallengeRepository.detail = sampleDetail(status = "PENDING")
+        assertFalse(createViewModel().data().canVerify)
     }
 }

@@ -59,6 +59,10 @@ sealed interface Route : NavKey {
          */
         @Serializable
         data class Oath(val challengeId: Long) : Challenge
+
+        /** 인증 사진 촬영·제출. 챌린지 상세의 인증 CTA 진입. */
+        @Serializable
+        data class Verify(val challengeId: Long) : Challenge
     }
 }
 
@@ -75,5 +79,6 @@ val routeSerializersModule = SerializersModule {
         subclass(Route.Challenge.Create::class)
         subclass(Route.Challenge.Detail::class)
         subclass(Route.Challenge.Oath::class)
+        subclass(Route.Challenge.Verify::class)
     }
 }

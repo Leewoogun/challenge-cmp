@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.challenge.detail.component
+package com.lwg.challenge.feature.challenge.detail.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,15 +10,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
+import com.lwg.challenge.feature.challenge.detail.component.SignatureColumn
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
 import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import com.lwg.challenge.ui.components.ContractCard
@@ -37,88 +41,107 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * [ContractCard] 가 divider 까지 통째로 생략한다.
  */
 @Composable
-internal fun ChallengeDetailContract(
+internal fun ChallengeDetailScreen(
     uiState: ChallengeDetailUiState.Data,
+    onVerifyClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
-            .padding(top = 16.dp, bottom = 20.dp),
-    ) {
-        ContractCard(
-            opponentNickname = uiState.opponentNickname,
-            myMission = uiState.myMission,
-            betContent = uiState.betContent,
-            deadlineText = uiState.deadlineText,
-            opponentMission = uiState.opponentMission,
-            myMissionLabel = uiState.myMissionLabel,
-            footer = uiState.signatures?.let { signatures ->
-                {
-                    Text(
-                        text = "서명",
-                        style = ChallengeTheme.typography.medium10,
-                        color = ChallengeTheme.colorScheme.onSurfaceVariant,
-                    )
-
-                    VerticalSpacer(8.dp)
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        SignatureColumn(
-                            signature = signatures.mySignature,
-                            emptyHint = signatures.mySignatureHint,
-                            label = uiState.myLabel,
-                            modifier = Modifier.weight(1f),
+    Column(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(top = 16.dp, bottom = 20.dp),
+        ) {
+            ContractCard(
+                opponentNickname = uiState.opponentNickname,
+                myMission = uiState.myMission,
+                betContent = uiState.betContent,
+                deadlineText = uiState.deadlineText,
+                opponentMission = uiState.opponentMission,
+                myMissionLabel = uiState.myMissionLabel,
+                footer = uiState.signatures?.let { signatures ->
+                    {
+                        Text(
+                            text = "서명",
+                            style = ChallengeTheme.typography.medium10,
+                            color = ChallengeTheme.colorScheme.onSurfaceVariant,
                         )
-                        SignatureColumn(
-                            signature = signatures.opponentSignature,
-                            emptyHint = signatures.opponentSignatureHint,
-                            label = uiState.opponentLabel,
-                            modifier = Modifier.weight(1f),
-                        )
+
+                        VerticalSpacer(8.dp)
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            SignatureColumn(
+                                signature = signatures.mySignature,
+                                emptyHint = signatures.mySignatureHint,
+                                label = uiState.myLabel,
+                                modifier = Modifier.weight(1f),
+                            )
+                            SignatureColumn(
+                                signature = signatures.opponentSignature,
+                                emptyHint = signatures.opponentSignatureHint,
+                                label = uiState.opponentLabel,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
-                }
-            },
-        )
+                },
+            )
+        }
+
+        // 계약서가 길어도 인증 액션이 스크롤에 밀려 사라지지 않도록 스크롤 밖에 고정한다.
+        if (uiState.canVerify) {
+            IconTextButton(
+                text = "인증하기",
+                icon = Icons.Filled.PhotoCamera,
+                onClick = onVerifyClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 20.dp),
+                textStyle = ChallengeTheme.typography.bold16,
+            )
+        }
     }
 }
 
 @Preview
 @Composable
-private fun ChallengeDetailContractBothSignedPreview() {
+private fun ChallengeDetailScreenBothSignedPreview() {
     PreviewContainer {
-        ChallengeDetailContract(uiState = previewData())
+        ChallengeDetailScreen(uiState = previewData(), onVerifyClick = {})
     }
 }
 
 @Preview
 @Composable
-private fun ChallengeDetailContractOpponentNotSignedPreview() {
+private fun ChallengeDetailScreenOpponentNotSignedPreview() {
     PreviewContainer {
-        ChallengeDetailContract(
+        ChallengeDetailScreen(
             uiState = previewData(
                 opponentSignature = null,
                 opponentSignatureHint = "서명 대기 중",
                 isFinalized = false,
             ),
+            onVerifyClick = {},
         )
     }
 }
 
 @Preview
 @Composable
-private fun ChallengeDetailContractUnreadablePreview() {
+private fun ChallengeDetailScreenUnreadablePreview() {
     PreviewContainer {
-        ChallengeDetailContract(
+        ChallengeDetailScreen(
             uiState = previewData(
                 opponentSignature = null,
                 opponentSignatureHint = "서명을 불러오지 못했어요",
             ),
+            onVerifyClick = {},
         )
     }
 }
@@ -126,15 +149,16 @@ private fun ChallengeDetailContractUnreadablePreview() {
 /** PENDING — 상대가 아직 미션을 걸지 않아 상대 미션 행이 통째로 빠진다. */
 @Preview
 @Composable
-private fun ChallengeDetailContractOpponentMissionMissingPreview() {
+private fun ChallengeDetailScreenOpponentMissionMissingPreview() {
     PreviewContainer {
-        ChallengeDetailContract(
+        ChallengeDetailScreen(
             uiState = previewData(
                 opponentMission = null,
                 opponentSignature = null,
                 opponentSignatureHint = "서명 대기 중",
                 isFinalized = false,
             ),
+            onVerifyClick = {},
         )
     }
 }
@@ -142,18 +166,36 @@ private fun ChallengeDetailContractOpponentMissionMissingPreview() {
 /** 관점 미상 — 라벨이 "나" 가 아니라 챌린저 실명으로 나온다. */
 @Preview
 @Composable
-private fun ChallengeDetailContractUnknownPerspectivePreview() {
+private fun ChallengeDetailScreenUnknownPerspectivePreview() {
     PreviewContainer {
-        ChallengeDetailContract(uiState = previewData(myLabel = "우건"))
+        ChallengeDetailScreen(uiState = previewData(myLabel = "우건"), onVerifyClick = {})
     }
 }
 
 /** 계약서 없음(soul-oath 이전 생성) — 계약 조건은 그대로 나오고 서명 블록만 divider 째로 빠진다. */
 @Preview
 @Composable
-private fun ChallengeDetailContractNoContractPreview() {
+private fun ChallengeDetailScreenNoContractPreview() {
     PreviewContainer {
-        ChallengeDetailContract(uiState = previewData(signatures = null))
+        ChallengeDetailScreen(uiState = previewData(signatures = null), onVerifyClick = {})
+    }
+}
+
+/** IN_PROGRESS — 인증 CTA 가 스크롤 밖 하단에 고정되어 나온다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenCanVerifyPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(uiState = previewData(canVerify = true), onVerifyClick = {})
+    }
+}
+
+/** 비-IN_PROGRESS — 인증 CTA 가 나오지 않는다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenCannotVerifyPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(uiState = previewData(canVerify = false), onVerifyClick = {})
     }
 }
 
@@ -202,6 +244,7 @@ private fun previewData(
         opponentSignatureHint = opponentSignatureHint,
         isFinalized = isFinalized,
     ),
+    canVerify: Boolean = false,
 ) = ChallengeDetailUiState.Data(
     myLabel = myLabel,
     myMissionLabel = "${myLabel}의 미션",
@@ -211,4 +254,5 @@ private fun previewData(
     betContent = "커피 사기",
     deadlineText = "5시간 32분",
     signatures = signatures,
+    canVerify = canVerify,
 )

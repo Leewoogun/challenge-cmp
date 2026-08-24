@@ -176,4 +176,16 @@ class MainViewModelTest {
             assertEquals(Route.Home, awaitItem())
         }
     }
+
+    @Test
+    fun `OPPONENT_VERIFIED 는 상세로 간다`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.pushNavigation.test {
+            viewModel.setAuthenticatedArea(true)
+            pushEventBus.emit(PushEvent.OpponentVerified(7L))
+
+            assertEquals(Route.Challenge.Detail(7L), awaitItem())
+        }
+    }
 }

@@ -29,6 +29,13 @@ class PushEventTest {
     }
 
     @Test
+    fun `OPPONENT_VERIFIED 데이터를 OpponentVerified 로 읽는다`() {
+        val event = PushEvent.from(mapOf("type" to "OPPONENT_VERIFIED", "challengeId" to "7"))
+
+        assertEquals(PushEvent.OpponentVerified(7L), event)
+    }
+
+    @Test
     fun `모르는 type 이면 null 을 반환한다`() {
         assertNull(PushEvent.from(mapOf("type" to "REMIND", "challengeId" to "7")))
     }
