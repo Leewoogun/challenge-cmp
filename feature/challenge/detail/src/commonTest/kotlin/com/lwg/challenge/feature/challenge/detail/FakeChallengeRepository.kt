@@ -5,6 +5,7 @@ import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
@@ -23,6 +24,9 @@ class FakeChallengeRepository : ChallengeRepository {
 
     var detailCallCount: Int = 0
 
+    /** 조회가 끝나기 전 상태를 관찰하려는 테스트용. 0 이면 즉시 응답한다. */
+    var detailDelayMillis: Long = 0
+
     override fun getReceivedChallenges(
         onError: (String) -> Unit,
     ): Flow<List<ReceivedChallenge>> = emptyFlow()
@@ -39,6 +43,7 @@ class FakeChallengeRepository : ChallengeRepository {
         onError: (String) -> Unit,
     ) {
         detailCallCount++
+        if (detailDelayMillis > 0) delay(detailDelayMillis)
         val error = detailError
         val current = detail
         when {

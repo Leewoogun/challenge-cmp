@@ -6,6 +6,7 @@ import com.lwg.challenge.domain.model.verification.VerificationSubmitOutcome
 import com.lwg.challenge.remote.api.VerificationApi
 import com.lwg.challenge.remote.mapper.toChallengeVerifications
 import com.lwg.challenge.remote.mapper.toSubmitResult
+import com.lwg.challenge.remote.network.BuildKonfig
 import com.lwg.challenge.remote.network.util.ApiResult
 import com.lwg.challenge.remote.network.util.suspendOnFailureWithErrorHandling
 import com.lwg.challenge.remote.network.util.suspendOnSuccess
@@ -61,7 +62,7 @@ class VerificationRemoteDataSourceImpl(
         onError: (String) -> Unit,
     ) {
         verificationApi.getVerifications(challengeId)
-            .suspendOnSuccess { onSuccess(response.toChallengeVerifications()) }
+            .suspendOnSuccess { onSuccess(response.toChallengeVerifications(BuildKonfig.BASE_URL)) }
             .suspendOnFailureWithErrorHandling(onError)
     }
 }

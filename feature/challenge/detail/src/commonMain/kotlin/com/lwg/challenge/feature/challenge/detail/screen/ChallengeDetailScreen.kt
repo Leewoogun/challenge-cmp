@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,129 +11,255 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
-import com.lwg.challenge.feature.challenge.detail.component.SignatureColumn
+import com.lwg.challenge.feature.challenge.detail.component.MissionCard
+import com.lwg.challenge.feature.challenge.detail.component.OathSummaryCard
+import com.lwg.challenge.feature.challenge.detail.component.VerificationPhoto
+import com.lwg.challenge.feature.challenge.detail.component.VsHeaderCard
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
+import com.lwg.challenge.feature.challenge.detail.contract.DeadlineTone
+import com.lwg.challenge.feature.challenge.detail.contract.MyMissionSlot
 import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
-import com.lwg.challenge.ui.components.ContractCard
+import com.lwg.challenge.feature.challenge.detail.contract.VerificationSection
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
+private const val VERIFY_CTA_TEXT = "인증하기"
+
+/** CTA 는 버튼 자체가 여백을 가져서 사진(12dp)보다 위 간격을 넉넉히 준다. */
+private val CtaFooterSpacing = 16.dp
+private val PhotoFooterSpacing = 12.dp
+
 /**
- * 확정된 계약서 + 양측 서명. 읽기 전용이다.
+ * 상세 본문. VS 헤더 → 나의 미션 → 상대 미션 → 영혼의 맹세 순으로 한 스크롤에 쌓는다.
  *
- * 본문 전체를 `verticalScroll` 로 감싸도 안전하다 — 서명은 [com.lwg.challenge.ui.components.signature.SignatureView]
- * 로만 렌더되고 `pointerInput` 이 없어서, 입력 화면과 달리 드래그가 "획 긋기"와 경합하지 않는다.
+ * 본문 전체를 `verticalScroll` 로 감싸도 안전하다 — 서명은
+ * [com.lwg.challenge.ui.components.signature.SignatureView] 로만 렌더되고 `pointerInput` 이 없어서,
+ * 입력 화면과 달리 드래그가 "획 긋기"와 경합하지 않는다.
  *
- * `contract.content` 문자열은 그리지 않는다. 계약서는 구조화된 필드로 조립한다.
+ * 계약서의 `content` 문자열은 그리지 않는다. 계약 조건은 구조화된 필드로 조립한다.
  *
- * 계약 조건 행은 계약서 유무와 무관하게(챌린지 최상위 필드에서 오므로) 항상 그린다. 계약서가 없으면
- * [ChallengeDetailUiState.Data.signatures] 가 null 이라 `footer` 를 넘기지 않게 되고,
- * [ContractCard] 가 divider 까지 통째로 생략한다.
+ * @param onRetry 전체 재조회. 인증 현황만 다시 받는 경로가 없어 상세까지 함께 다시 받는다.
  */
 @Composable
 internal fun ChallengeDetailScreen(
     uiState: ChallengeDetailUiState.Data,
     onVerifyClick: () -> Unit,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
-                .padding(top = 16.dp, bottom = 20.dp),
-        ) {
-            ContractCard(
-                opponentNickname = uiState.opponentNickname,
-                myMission = uiState.myMission,
-                betContent = uiState.betContent,
-                deadlineText = uiState.deadlineText,
-                opponentMission = uiState.opponentMission,
-                myMissionLabel = uiState.myMissionLabel,
-                footer = uiState.signatures?.let { signatures ->
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp)
+            .padding(top = 8.dp, bottom = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        VsHeaderCard(
+            myNickname = uiState.myLabel,
+            opponentNickname = uiState.opponentNickname,
+            deadlineText = uiState.deadlineText,
+            deadlineColor = deadlineColorOf(uiState.deadlineTone),
+        )
+
+        MissionCard(
+            label = uiState.myMissionLabel,
+            mission = uiState.myMission,
+            status = uiState.myVerificationStatus,
+            footerSpacing = if (uiState.myMissionSlot == MyMissionSlot.MY_PHOTO) {
+                PhotoFooterSpacing
+            } else {
+                CtaFooterSpacing
+            },
+            footer = when (uiState.myMissionSlot) {
+                // 인증 CTA 는 스크롤 밖 고정에서 이 카드 안으로 들어왔다. 재구성으로 "나의 미션" 이
+                // VS 헤더 바로 다음에 와 진입 시 첫 화면에 들어오고, 계약서는 아래로 내려갔다.
+                // 카드 안에 두면 어느 미션에 대한 인증인지가 버튼과 붙는 이득도 함께 얻는다.
+                MyMissionSlot.VERIFY_CTA -> {
                     {
-                        Text(
-                            text = "서명",
-                            style = ChallengeTheme.typography.medium10,
-                            color = ChallengeTheme.colorScheme.onSurfaceVariant,
-                        )
-
-                        VerticalSpacer(8.dp)
-
-                        Row(
+                        IconTextButton(
+                            text = VERIFY_CTA_TEXT,
+                            icon = Icons.Filled.PhotoCamera,
+                            onClick = onVerifyClick,
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            SignatureColumn(
-                                signature = signatures.mySignature,
-                                emptyHint = signatures.mySignatureHint,
-                                label = uiState.myLabel,
-                                modifier = Modifier.weight(1f),
-                            )
-                            SignatureColumn(
-                                signature = signatures.opponentSignature,
-                                emptyHint = signatures.opponentSignatureHint,
-                                label = uiState.opponentLabel,
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
+                            textStyle = ChallengeTheme.typography.bold16,
+                        )
                     }
-                },
-            )
-        }
+                }
 
-        // 계약서가 길어도 인증 액션이 스크롤에 밀려 사라지지 않도록 스크롤 밖에 고정한다.
-        if (uiState.canVerify) {
-            IconTextButton(
-                text = "인증하기",
-                icon = Icons.Filled.PhotoCamera,
-                onClick = onVerifyClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 20.dp),
-                textStyle = ChallengeTheme.typography.bold16,
-            )
-        }
-    }
-}
+                MyMissionSlot.MY_PHOTO -> {
+                    {
+                        VerificationPhoto(
+                            status = uiState.myVerificationStatus,
+                            photoUrl = uiState.myPhotoUrl,
+                        )
+                    }
+                }
 
-@Preview
-@Composable
-private fun ChallengeDetailScreenBothSignedPreview() {
-    PreviewContainer {
-        ChallengeDetailScreen(uiState = previewData(), onVerifyClick = {})
-    }
-}
+                MyMissionSlot.NONE -> null
+            },
+        )
 
-@Preview
-@Composable
-private fun ChallengeDetailScreenOpponentNotSignedPreview() {
-    PreviewContainer {
-        ChallengeDetailScreen(
-            uiState = previewData(
-                opponentSignature = null,
-                opponentSignatureHint = "서명 대기 중",
-                isFinalized = false,
-            ),
-            onVerifyClick = {},
+        MissionCard(
+            label = uiState.opponentMissionLabel,
+            mission = uiState.opponentMission,
+            status = uiState.opponentVerificationStatus,
+            footerSpacing = PhotoFooterSpacing,
+            footer = {
+                VerificationPhoto(
+                    status = uiState.opponentVerificationStatus,
+                    photoUrl = uiState.opponentPhotoUrl,
+                    onRetry = onRetry,
+                )
+            },
+        )
+
+        OathSummaryCard(
+            betContent = uiState.betContent,
+            // VS 헤더가 이미 상대 표기를 들고 있어, 계약서까지 "남은 시간" 이면 마감이 오늘 자정인지
+            // 내일인지 화면 어디에서도 복원되지 않는다. 계약 조건 쪽은 절대 시각으로 못 박는다.
+            deadlineText = uiState.deadlineAbsoluteText,
+            signatures = uiState.signatures,
+            myLabel = uiState.myLabel,
+            opponentLabel = uiState.opponentLabel,
         )
     }
 }
 
+/**
+ * 마감 전 warning 은 "서둘러라" 는 행동 촉구다. 마감 후에는 사용자가 할 수 있는 게 없어
+ * 촉구색을 그대로 두면 없는 행동을 재촉하게 된다.
+ */
+@Composable
+private fun deadlineColorOf(tone: DeadlineTone): Color = when (tone) {
+    DeadlineTone.URGENT -> ChallengeTheme.colorScheme.warning
+    DeadlineTone.NEUTRAL -> ChallengeTheme.colorScheme.onSurfaceVariant
+}
+
+/** IN_PROGRESS / 양측 미인증 — 내 카드에 인증 CTA, 상대 카드에 "아직 인증하지 않았어요". */
 @Preview
 @Composable
-private fun ChallengeDetailScreenUnreadablePreview() {
+private fun ChallengeDetailScreenPendingPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(uiState = previewData(), onVerifyClick = {}, onRetry = {})
+    }
+}
+
+/** 양측 인증 완료 — CTA 자리가 내 사진으로 바뀌고 두 카드 모두 사진 영역을 든다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenBothVerifiedPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                verifications = previewVerifications(
+                    myStatus = VerificationStatus.VERIFIED,
+                    myPhotoUrl = "https://example.com/mine.jpg",
+                    opponentStatus = VerificationStatus.VERIFIED,
+                    opponentPhotoUrl = "https://example.com/theirs.jpg",
+                ),
+                canVerify = false,
+            ),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/**
+ * 인증 현황 조회 실패 — 뱃지는 빠지고 사진 영역은 "인증 현황을 불러오지 못했어요" 로 강등되지만
+ * CTA 는 그대로 열려 있다(막는 실패보다 중복 시도 실패가 낫다).
+ */
+@Preview
+@Composable
+private fun ChallengeDetailScreenVerificationUnknownPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(verifications = null),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 내 인증 실패 — 다시 인증할 수 없어 하단 슬롯이 통째로 빠지고 실패 뱃지만 남는다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenMyVerificationFailedPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                verifications = previewVerifications(myStatus = VerificationStatus.FAILED),
+            ),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 계약서 없음(soul-oath 이전 생성) — 내기·마감은 그대로 나오고 서명 블록만 divider 째로 빠진다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenNoContractPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(signatures = null),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 마감 후 — 헤더가 "판정 대기 중" NEUTRAL 로 내려가고 CTA 는 닫힌다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenAfterDeadlinePreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                deadlineText = "판정 대기 중",
+                deadlineTone = DeadlineTone.NEUTRAL,
+                verifications = previewVerifications(
+                    myStatus = VerificationStatus.VERIFIED,
+                    myPhotoUrl = "https://example.com/mine.jpg",
+                ),
+                canVerify = false,
+            ),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 관점 미상 — 라벨이 "나" 가 아니라 챌린저 실명으로 나오고, 어느 칸이 내 것인지 몰라 현황도 빠진다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenUnknownPerspectivePreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(myLabel = "지훈", verifications = null),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 서명을 읽지 못한 칸 — "서명 대기 중" 이 아니라 실패를 밝힌다(서명은 한 사람이다). */
+@Preview
+@Composable
+private fun ChallengeDetailScreenUnreadableSignaturePreview() {
     PreviewContainer {
         ChallengeDetailScreen(
             uiState = previewData(
@@ -142,68 +267,43 @@ private fun ChallengeDetailScreenUnreadablePreview() {
                 opponentSignatureHint = "서명을 불러오지 못했어요",
             ),
             onVerifyClick = {},
+            onRetry = {},
         )
     }
 }
 
-/** PENDING — 상대가 아직 미션을 걸지 않아 상대 미션 행이 통째로 빠진다. */
+/** 긴 미션 + 큰 폰트 — 첫 화면 안에 CTA 가 남는지 확인하는 자리다. */
 @Preview
 @Composable
-private fun ChallengeDetailScreenOpponentMissionMissingPreview() {
-    PreviewContainer {
+private fun ChallengeDetailScreenLongMissionLargeFontPreview() {
+    PreviewContainer(fontScale = 1.5f) {
         ChallengeDetailScreen(
             uiState = previewData(
-                opponentMission = null,
-                opponentSignature = null,
-                opponentSignatureHint = "서명 대기 중",
-                isFinalized = false,
+                myMission = "매일 아침 6시에 일어나서 집 앞 공원 세 바퀴를 뛰고 인증 사진을 찍어 올리기",
+                opponentMission = "퇴근 후 카페에 들러 두 시간 동안 자격증 인강을 듣고 필기 노트 남기기",
             ),
             onVerifyClick = {},
+            onRetry = {},
         )
     }
 }
 
-/** 관점 미상 — 라벨이 "나" 가 아니라 챌린저 실명으로 나온다. */
-@Preview
 @Composable
-private fun ChallengeDetailScreenUnknownPerspectivePreview() {
-    PreviewContainer {
-        ChallengeDetailScreen(uiState = previewData(myLabel = "우건"), onVerifyClick = {})
-    }
-}
-
-/** 계약서 없음(soul-oath 이전 생성) — 계약 조건은 그대로 나오고 서명 블록만 divider 째로 빠진다. */
-@Preview
-@Composable
-private fun ChallengeDetailScreenNoContractPreview() {
-    PreviewContainer {
-        ChallengeDetailScreen(uiState = previewData(signatures = null), onVerifyClick = {})
-    }
-}
-
-/** IN_PROGRESS — 인증 CTA 가 스크롤 밖 하단에 고정되어 나온다. */
-@Preview
-@Composable
-private fun ChallengeDetailScreenCanVerifyPreview() {
-    PreviewContainer {
-        ChallengeDetailScreen(uiState = previewData(canVerify = true), onVerifyClick = {})
-    }
-}
-
-/** 비-IN_PROGRESS — 인증 CTA 가 나오지 않는다. */
-@Preview
-@Composable
-private fun ChallengeDetailScreenCannotVerifyPreview() {
-    PreviewContainer {
-        ChallengeDetailScreen(uiState = previewData(canVerify = false), onVerifyClick = {})
-    }
-}
-
-@Composable
-private fun PreviewContainer(content: @Composable () -> Unit) {
+private fun PreviewContainer(
+    fontScale: Float = 1f,
+    content: @Composable () -> Unit,
+) {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            content()
+        // KMP @Preview 에는 안드로이드 전용 어노테이션의 fontScale 파라미터가 없어 밀도를 직접 바꾼다.
+        CompositionLocalProvider(
+            LocalDensity provides Density(
+                density = LocalDensity.current.density,
+                fontScale = fontScale,
+            ),
+        ) {
+            Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+                content()
+            }
         }
     }
 }
@@ -233,8 +333,21 @@ private fun previewSignatures(
     isFinalized = isFinalized,
 )
 
+private fun previewVerifications(
+    myStatus: VerificationStatus = VerificationStatus.PENDING,
+    myPhotoUrl: String? = null,
+    opponentStatus: VerificationStatus = VerificationStatus.PENDING,
+    opponentPhotoUrl: String? = null,
+) = VerificationSection(
+    myStatus = myStatus,
+    myPhotoUrl = myPhotoUrl,
+    opponentStatus = opponentStatus,
+    opponentPhotoUrl = opponentPhotoUrl,
+)
+
 private fun previewData(
     myLabel: String = "나",
+    myMission: String? = "책 30페이지 읽기",
     opponentMission: String? = "오늘 운동 1시간 하기",
     opponentSignature: Signature? = previewSignature(),
     opponentSignatureHint: String = "서명 대기 중",
@@ -244,15 +357,21 @@ private fun previewData(
         opponentSignatureHint = opponentSignatureHint,
         isFinalized = isFinalized,
     ),
-    canVerify: Boolean = false,
+    deadlineText: String = "남은 시간: 5시간 32분",
+    deadlineTone: DeadlineTone = DeadlineTone.URGENT,
+    verifications: VerificationSection? = previewVerifications(),
+    canVerify: Boolean = true,
 ) = ChallengeDetailUiState.Data(
     myLabel = myLabel,
     myMissionLabel = "${myLabel}의 미션",
-    myMission = "책 30페이지 읽기",
+    myMission = myMission,
     opponentNickname = "우건",
     opponentMission = opponentMission,
     betContent = "커피 사기",
-    deadlineText = "5시간 32분",
+    deadlineText = deadlineText,
+    deadlineTone = deadlineTone,
+    deadlineAbsoluteText = "7월 28일 (월) 24:00",
     signatures = signatures,
+    verifications = verifications,
     canVerify = canVerify,
 )

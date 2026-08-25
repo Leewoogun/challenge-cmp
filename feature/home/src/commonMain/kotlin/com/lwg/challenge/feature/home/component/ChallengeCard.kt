@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
@@ -22,9 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.VerificationStatus
+import com.lwg.challenge.ui.components.VerificationStatusPill
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -48,8 +47,8 @@ internal fun ChallengeCard(
     opponentNickname: String,
     opponentMission: String,
     remainingText: String,
-    myVerificationStatus: ChallengeVerificationStatus,
-    opponentVerificationStatus: ChallengeVerificationStatus,
+    myVerificationStatus: VerificationStatus,
+    opponentVerificationStatus: VerificationStatus,
     bet: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -146,7 +145,7 @@ private fun MissionRow(
     mission: String,
     missionColor: Color,
     missionEmphasized: Boolean,
-    status: ChallengeVerificationStatus,
+    status: VerificationStatus,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -174,61 +173,8 @@ private fun MissionRow(
                 color = missionColor,
             )
         }
-        StatusPill(status = status)
+        VerificationStatusPill(status = status)
     }
-}
-
-@Composable
-private fun StatusPill(status: ChallengeVerificationStatus) {
-    val visual = statusVisualOf(status)
-    Surface(
-        shape = RoundedCornerShape(10.dp),
-        color = visual.accent.copy(alpha = 0.10f),
-        contentColor = visual.accent,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = visual.icon,
-                contentDescription = null,
-                modifier = Modifier.size(12.dp),
-                tint = visual.accent,
-            )
-            Text(
-                text = visual.label,
-                style = ChallengeTheme.typography.medium10,
-                color = visual.accent,
-            )
-        }
-    }
-}
-
-private data class StatusVisual(
-    val accent: Color,
-    val label: String,
-    val icon: ImageVector,
-)
-
-@Composable
-private fun statusVisualOf(status: ChallengeVerificationStatus): StatusVisual = when (status) {
-    ChallengeVerificationStatus.PENDING -> StatusVisual(
-        accent = ChallengeTheme.colorScheme.warning,
-        label = "대기중",
-        icon = Icons.Filled.Schedule,
-    )
-    ChallengeVerificationStatus.VERIFIED -> StatusVisual(
-        accent = ChallengeTheme.colorScheme.success,
-        label = "인증완료",
-        icon = Icons.Filled.CheckCircle,
-    )
-    ChallengeVerificationStatus.FAILED -> StatusVisual(
-        accent = ChallengeTheme.colorScheme.error,
-        label = "실패",
-        icon = Icons.Filled.Cancel,
-    )
 }
 
 @Preview
@@ -247,8 +193,8 @@ private fun ChallengeCardPreview() {
                 opponentNickname = "우건",
                 opponentMission = "책 30페이지 읽기",
                 remainingText = "3시간 남음",
-                myVerificationStatus = ChallengeVerificationStatus.VERIFIED,
-                opponentVerificationStatus = ChallengeVerificationStatus.PENDING,
+                myVerificationStatus = VerificationStatus.VERIFIED,
+                opponentVerificationStatus = VerificationStatus.PENDING,
                 bet = "커피 사기 ☕",
                 onClick = {},
             )
@@ -258,8 +204,8 @@ private fun ChallengeCardPreview() {
                 opponentNickname = "민지",
                 opponentMission = "10000보 걷기",
                 remainingText = "곧 마감",
-                myVerificationStatus = ChallengeVerificationStatus.FAILED,
-                opponentVerificationStatus = ChallengeVerificationStatus.VERIFIED,
+                myVerificationStatus = VerificationStatus.FAILED,
+                opponentVerificationStatus = VerificationStatus.VERIFIED,
                 bet = "점심 사기 🍚",
                 onClick = {},
             )

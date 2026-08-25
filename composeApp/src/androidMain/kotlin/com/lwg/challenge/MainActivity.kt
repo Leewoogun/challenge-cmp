@@ -24,9 +24,11 @@ class MainActivity : ComponentActivity(), KoinComponent {
         handlePushIntent(intent)
 
         setContent {
-            koinInject<PermissionManager>().Bind()
+            ChallengeApp {
+                koinInject<PermissionManager>().Bind()
 
-            MainRoute(onFinishApp = ::finish)
+                MainRoute(onFinishApp = ::finish)
+            }
         }
     }
 

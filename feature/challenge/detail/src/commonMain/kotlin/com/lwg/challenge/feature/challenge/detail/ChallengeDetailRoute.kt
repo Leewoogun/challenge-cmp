@@ -62,6 +62,7 @@ private fun ChallengeDetailContent(
             is ChallengeDetailUiState.Data -> ChallengeDetailScreen(
                 uiState = uiState,
                 onVerifyClick = onVerifyClick,
+                onRetry = onRetry,
             )
         }
     }

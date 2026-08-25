@@ -25,7 +25,8 @@ data class ChallengeVerifications(
 /**
  * 당사자 한 명의 인증 현황.
  *
- * @property photoUrl 사진 조회 엔드포인트의 상대 경로. 미인증이면 null.
+ * @property photoUrl 사진 조회 엔드포인트의 절대 URL (base 가 조립된 상태라 이미지 로더에
+ *   그대로 넘길 수 있다). 미인증이면 null.
  *   인증 헤더를 붙여 요청해야 하므로 외부에 그대로 노출할 수 있는 URL 이 아니다
  * @property verifiedAt 인증 확정 시각 (KST). 미인증이면 null
  */

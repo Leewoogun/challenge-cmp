@@ -21,6 +21,10 @@ val properties = Properties().apply {
 buildkonfig {
     packageName = "com.lwg.challenge.remote.network"
 
+    // 기본 생성물은 internal 이라 모듈 밖에서 안 보인다. photoUrl 절대 URL 조립을 위해
+    // :remote:datasource 가 BASE_URL 을 읽어야 해서 public 으로 노출한다.
+    exposeObjectWithName = "BuildKonfig"
+
     // 기본값: Android 에뮬레이터용 URL. (ADR-0007)
     // Android target 은 defaultConfigs 를 그대로 사용하고, iOS target 들은 targetConfigs 로 오버라이드.
     defaultConfigs {
@@ -78,6 +82,10 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+            // HttpNetworkLogger 가 이미지 응답 스트림을 소비하지 않는지 검증하려면 실제 HttpClient 파이프라인이 필요하다.
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.mock)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

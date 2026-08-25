@@ -30,7 +30,6 @@ import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.feature.home.component.ChallengeCard
-import com.lwg.challenge.feature.home.component.ChallengeVerificationStatus
 import com.lwg.challenge.feature.home.component.HomeEmptyState
 import com.lwg.challenge.feature.home.component.HomeEmptyStateType
 import com.lwg.challenge.feature.home.component.HomeTopBar
@@ -150,8 +149,8 @@ private fun LazyListScope.challengesSection(
                 opponentNickname = challenge.opponentNickname,
                 opponentMission = challenge.opponentMission,
                 remainingText = uiState.deadlineTextOf(challenge),
-                myVerificationStatus = challenge.myVerificationStatus.toDesignSystem(),
-                opponentVerificationStatus = challenge.opponentVerificationStatus.toDesignSystem(),
+                myVerificationStatus = challenge.myVerificationStatus,
+                opponentVerificationStatus = challenge.opponentVerificationStatus,
                 bet = challenge.bet,
                 onClick = { onChallengeClick(challenge.challengeId) },
             )
@@ -203,12 +202,6 @@ private fun HomeFab(onClick: () -> Unit) {
             modifier = Modifier.size(28.dp),
         )
     }
-}
-
-private fun VerificationStatus.toDesignSystem(): ChallengeVerificationStatus = when (this) {
-    VerificationStatus.PENDING -> ChallengeVerificationStatus.PENDING
-    VerificationStatus.VERIFIED -> ChallengeVerificationStatus.VERIFIED
-    VerificationStatus.FAILED -> ChallengeVerificationStatus.FAILED
 }
 
 private fun HomeEmptyType.toDesignSystem(): HomeEmptyStateType = when (this) {

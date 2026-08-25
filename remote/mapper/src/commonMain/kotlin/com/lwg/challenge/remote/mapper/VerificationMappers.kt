@@ -21,18 +21,30 @@ fun SubmitVerificationResponse.toSubmitResult(): VerificationSubmitResult = Veri
     verifiedAt = data.verifiedAt,
 )
 
-fun ChallengeVerificationsResponse.toChallengeVerifications(): ChallengeVerifications = ChallengeVerifications(
-    challengeId = data.challengeId,
-    challenger = data.challenger.toPartyVerification(),
-    opponent = data.opponent.toPartyVerification(),
-)
+fun ChallengeVerificationsResponse.toChallengeVerifications(baseUrl: String): ChallengeVerifications =
+    ChallengeVerifications(
+        challengeId = data.challengeId,
+        challenger = data.challenger.toPartyVerification(baseUrl),
+        opponent = data.opponent.toPartyVerification(baseUrl),
+    )
 
-private fun PartyVerificationDto.toPartyVerification(): PartyVerification = PartyVerification(
+private fun PartyVerificationDto.toPartyVerification(baseUrl: String): PartyVerification = PartyVerification(
     userId = userId,
     status = status.toVerificationStatusOrDefault(),
-    photoUrl = photoUrl,
+    photoUrl = joinPhotoUrl(baseUrl, photoUrl),
     verifiedAt = verifiedAt,
 )
+
+/**
+ * 슬래시가 겹쳐 `//` 가 되면 서버가 404 로 거부하는데, 그 404 가 '상대가 아직 인증 안 함' 과
+ * 구분되지 않는다 — 사진이 영영 안 뜨는데 앱은 미인증으로 읽어 에러도 로그도 남지 않는다.
+ * 조인이 한 곳뿐이라 이 함수가 그 유일한 방지선이고, 그래서 양쪽을 모두 다듬는다
+ * (baseUrl 은 trailing slash 있고 photoUrl 은 leading slash 있는 게 실제 조합이다).
+ *
+ * baseUrl 을 파라미터로 받는 이유: 이 모듈은 `:remote:network` 에 의존하지 않는다(매퍼를 순수하게 둔다).
+ */
+internal fun joinPhotoUrl(baseUrl: String, path: String?): String? =
+    path?.let { baseUrl.trimEnd('/') + "/" + it.trimStart('/') }
 
 /**
  * 모르는 상태값은 [VerificationStatus.PENDING] 으로 둔다 — enum 조회 실패는 기본값으로

@@ -67,6 +67,14 @@ kotlin {
 
             implementation(projects.data.repositoryImpl)
 
+            // 챌린지 인증 사진이 이 앱의 첫 원격 이미지다. 네트워크 페처를 Ktor 구현으로 두는 이유는
+            // App.kt 가 Koin 의 인증 HttpClient 를 그대로 페처에 물려주기 위해서다(Bearer + 401 갱신 재시도).
+            implementation(libs.coil)
+            implementation(libs.coil.network)
+            // :remote:network 가 ktor-client-core 를 implementation 으로만 물어 전이되지 않는다.
+            // App.kt 가 HttpClient 타입을 직접 참조하므로 명시 선언.
+            implementation(libs.ktor.client.core)
+
             // App.kt 가 platformPushModule 을 직접 참조한다. :feature:main 이 :core:push 를
             // implementation 으로 물고 있어 전이되지 않으므로 명시 선언.
             implementation(projects.core.push)

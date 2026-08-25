@@ -8,6 +8,8 @@ fun MainViewController() = ComposeUIViewController {
     KoinApplication(
         application = challengeAppDeclaration(),
     ) {
-        MainRoute()
+        ChallengeApp {
+            MainRoute()
+        }
     }
 }

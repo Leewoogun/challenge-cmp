@@ -11,6 +11,9 @@ kotlin {
         commonMain.dependencies {
             // Refresh 아이콘 직접 import.
             implementation(compose.materialIconsExtended)
+            // 인증 사진 로딩. Fetcher(coil.network)는 composeApp 이 인증 HttpClient 로 이미 배선해
+            // 싱글턴 ImageLoader 에 심었으므로 여기선 Compose API 만 쓴다.
+            implementation(libs.coil)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

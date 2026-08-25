@@ -62,7 +62,7 @@ class VerificationWireFixtureTest {
     @Test
     fun `null 최대 응답이 도메인까지 통과하고 미인증측 두 필드는 null 로 남는다`() {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(nullMaxVerificationsWire)
-            .toChallengeVerifications()
+            .toChallengeVerifications(TEST_BASE_URL)
 
         assertEquals(7L, verifications.challengeId)
         assertEquals(14L, verifications.opponent.userId)
@@ -71,14 +71,17 @@ class VerificationWireFixtureTest {
         assertNull(verifications.opponent.verifiedAt)
 
         assertEquals(VerificationStatus.VERIFIED, verifications.challenger.status)
-        assertEquals("/api/v1/challenges/7/photos/challenger", verifications.challenger.photoUrl)
+        assertEquals(
+            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
+            verifications.challenger.photoUrl,
+        )
         assertEquals(LocalDateTime(2026, 8, 14, 15, 32, 10), verifications.challenger.verifiedAt)
     }
 
     @Test
     fun `양측 VERIFIED 응답이 역할 그대로 매핑된다`() {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(bothVerifiedWire)
-            .toChallengeVerifications()
+            .toChallengeVerifications(TEST_BASE_URL)
 
         assertEquals(1L, verifications.challenger.userId)
         assertEquals(14L, verifications.opponent.userId)
@@ -110,7 +113,7 @@ class VerificationWireFixtureTest {
     fun `verifiedAt 이 ISO 로 오면 그 값만 null 이고 응답 전체는 살아남는다`() {
         val isoWire = nullMaxVerificationsWire.replace("2026-08-14 15:32:10", "2026-08-14T15:32:10")
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(isoWire)
-            .toChallengeVerifications()
+            .toChallengeVerifications(TEST_BASE_URL)
 
         assertNull(verifications.challenger.verifiedAt, "T 구분자는 wire 포맷이 아니라 읽지 않는다")
         assertEquals(VerificationStatus.VERIFIED, verifications.challenger.status)
