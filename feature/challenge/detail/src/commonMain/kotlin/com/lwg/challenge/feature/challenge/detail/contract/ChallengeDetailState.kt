@@ -37,10 +37,12 @@ sealed interface ChallengeDetailUiState {
      *   계약서 행은 "나의 미션" 으로 두면 한 카드 안에서 관점을 안다/모른다가 엇갈린다.
      * @property myMission 아직 맹세하지 않았으면 `null` — 빈 문자열로 뭉개면 값 없는 행을 그린다.
      * @property opponentMission 상대가 아직 맹세하지 않았으면(`PENDING`) `null` 이고 행 자체가 빠진다.
-     * @property deadlineText 시간이 흐르면 값이 바뀌므로 ViewModel 의 분 단위 티커가 같은 자리를
-     *   다시 채운다. 화면은 받은 문자열을 그리기만 한다.
-     * @property deadlineTone [deadlineText] 와 **같은 순간의 시계**로 함께 만들어진다. 따로 갱신하면
-     *   "판정 대기 중" 이 촉구색으로 남는 조합이 생긴다.
+     * @property headlineText 헤더 한 자리를 남은 시간 → "판정 대기 중" → 판정 결과가 차례로
+     *   물려받는다. 앞 두 구간은 시간이 흐르면 값이 바뀌므로 ViewModel 의 분 단위 티커가 같은 자리를
+     *   다시 채우고, 결과가 실린 뒤에는 시계로 더 바뀔 것이 없다. 화면은 받은 문자열을 그리기만 한다.
+     * @property headlineTone [headlineText] 와 **같은 순간·같은 판정**에서 함께 만들어진다
+     *   ([headlineDisplay] 가 둘을 한 묶음으로 돌려준다). 따로 갱신하면 "판정 대기 중" 이 촉구색으로
+     *   남거나 패배 문구에 승리색이 붙는 조합이 생긴다.
      * @property deadlineAbsoluteText 절대 마감 시각("8/3 24:00"). 시간이 흘러도 변하지 않아 티커가
      *   건드리지 않는다.
      * @property canVerify [STATUS_IN_PROGRESS] 이면서 **내가 이미 인증했음이 확인되지 않았을 때** 인증
@@ -55,8 +57,8 @@ sealed interface ChallengeDetailUiState {
         val opponentNickname: String,
         val opponentMission: String?,
         val betContent: String,
-        val deadlineText: String,
-        val deadlineTone: DeadlineTone,
+        val headlineText: String,
+        val headlineTone: HeadlineTone,
         val deadlineAbsoluteText: String,
         /** 계약서가 없는 챌린지(soul-oath 이전 생성)면 null. 서명 블록을 통째로 그리지 않는다. */
         val signatures: SignatureSection?,

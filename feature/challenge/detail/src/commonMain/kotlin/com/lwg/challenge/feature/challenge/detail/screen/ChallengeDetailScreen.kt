@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -29,7 +28,7 @@ import com.lwg.challenge.feature.challenge.detail.component.OathSummaryCard
 import com.lwg.challenge.feature.challenge.detail.component.VerificationPhoto
 import com.lwg.challenge.feature.challenge.detail.component.VsHeaderCard
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
-import com.lwg.challenge.feature.challenge.detail.contract.DeadlineTone
+import com.lwg.challenge.feature.challenge.detail.contract.HeadlineTone
 import com.lwg.challenge.feature.challenge.detail.contract.MyMissionSlot
 import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import com.lwg.challenge.feature.challenge.detail.contract.VerificationSection
@@ -70,8 +69,8 @@ internal fun ChallengeDetailScreen(
         VsHeaderCard(
             myNickname = uiState.myLabel,
             opponentNickname = uiState.opponentNickname,
-            deadlineText = uiState.deadlineText,
-            deadlineColor = deadlineColorOf(uiState.deadlineTone),
+            headlineText = uiState.headlineText,
+            headlineTone = uiState.headlineTone,
         )
 
         MissionCard(
@@ -136,16 +135,6 @@ internal fun ChallengeDetailScreen(
             opponentLabel = uiState.opponentLabel,
         )
     }
-}
-
-/**
- * 마감 전 warning 은 "서둘러라" 는 행동 촉구다. 마감 후에는 사용자가 할 수 있는 게 없어
- * 촉구색을 그대로 두면 없는 행동을 재촉하게 된다.
- */
-@Composable
-private fun deadlineColorOf(tone: DeadlineTone): Color = when (tone) {
-    DeadlineTone.URGENT -> ChallengeTheme.colorScheme.warning
-    DeadlineTone.NEUTRAL -> ChallengeTheme.colorScheme.onSurfaceVariant
 }
 
 /** IN_PROGRESS / 양측 미인증 — 내 카드에 인증 CTA, 상대 카드에 "아직 인증하지 않았어요". */
@@ -229,12 +218,124 @@ private fun ChallengeDetailScreenAfterDeadlinePreview() {
     PreviewContainer {
         ChallengeDetailScreen(
             uiState = previewData(
-                deadlineText = "판정 대기 중",
-                deadlineTone = DeadlineTone.NEUTRAL,
+                headlineText = "판정 대기 중",
+                headlineTone = HeadlineTone.NEUTRAL,
                 verifications = previewVerifications(
                     myStatus = VerificationStatus.VERIFIED,
                     myPhotoUrl = "https://example.com/mine.jpg",
                 ),
+                canVerify = false,
+            ),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 판정 완료 · 승리 — 헤더가 트로피 primary 로 올라서고, 양측 사진은 남고 CTA 는 닫혀 있다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenWinPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                headlineText = "승리",
+                headlineTone = HeadlineTone.WIN,
+                verifications = previewVerifications(
+                    myStatus = VerificationStatus.VERIFIED,
+                    myPhotoUrl = "https://example.com/mine.jpg",
+                    opponentStatus = VerificationStatus.VERIFIED,
+                    opponentPhotoUrl = "https://example.com/theirs.jpg",
+                ),
+                canVerify = false,
+            ),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 판정 완료 · 패배 — 내 인증이 FAILED 라 내 카드 하단 슬롯이 통째로 빠지고 상대만 사진을 든다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenLosePreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                headlineText = "패배",
+                headlineTone = HeadlineTone.LOSE,
+                verifications = previewVerifications(
+                    myStatus = VerificationStatus.FAILED,
+                    opponentStatus = VerificationStatus.VERIFIED,
+                    opponentPhotoUrl = "https://example.com/theirs.jpg",
+                ),
+                canVerify = false,
+            ),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 판정 완료 · 무승부 — 양측 VERIFIED 인데도 승자가 없는 장면. 헤더만 중립 onBackground 로 남는다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenDrawPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                headlineText = "무승부",
+                headlineTone = HeadlineTone.DRAW,
+                verifications = previewVerifications(
+                    myStatus = VerificationStatus.VERIFIED,
+                    myPhotoUrl = "https://example.com/mine.jpg",
+                    opponentStatus = VerificationStatus.VERIFIED,
+                    opponentPhotoUrl = "https://example.com/theirs.jpg",
+                ),
+                canVerify = false,
+            ),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 판정 완료 · 양측 패배 — 두 사진 영역이 모두 안내 문구로 내려앉고 헤더만 결과를 말한다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenBothLosePreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                headlineText = "양측 패배",
+                headlineTone = HeadlineTone.LOSE,
+                verifications = previewVerifications(
+                    myStatus = VerificationStatus.FAILED,
+                    opponentStatus = VerificationStatus.FAILED,
+                ),
+                canVerify = false,
+            ),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/**
+ * 관점 미상 + 판정 완료 — 승패를 내 것으로 말할 수 없어 실명("우건 승리")으로 내려가고, 톤도 축하색
+ * 대신 중립으로 남는다(진 사람에게 승리색을 보여주지 않는다). 다만 결과는 이미 났으므로 아이콘은
+ * 판정 대기 중의 시계가 아니라 트로피다.
+ */
+@Preview
+@Composable
+private fun ChallengeDetailScreenUnknownPerspectiveResultPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                myLabel = "지훈",
+                headlineText = "우건 승리",
+                headlineTone = HeadlineTone.DECIDED_NEUTRAL,
+                verifications = null,
                 canVerify = false,
             ),
             onVerifyClick = {},
@@ -357,8 +458,8 @@ private fun previewData(
         opponentSignatureHint = opponentSignatureHint,
         isFinalized = isFinalized,
     ),
-    deadlineText: String = "남은 시간: 5시간 32분",
-    deadlineTone: DeadlineTone = DeadlineTone.URGENT,
+    headlineText: String = "남은 시간: 5시간 32분",
+    headlineTone: HeadlineTone = HeadlineTone.URGENT,
     verifications: VerificationSection? = previewVerifications(),
     canVerify: Boolean = true,
 ) = ChallengeDetailUiState.Data(
@@ -368,8 +469,8 @@ private fun previewData(
     opponentNickname = "우건",
     opponentMission = opponentMission,
     betContent = "커피 사기",
-    deadlineText = deadlineText,
-    deadlineTone = deadlineTone,
+    headlineText = headlineText,
+    headlineTone = headlineTone,
     deadlineAbsoluteText = "7월 28일 (월) 24:00",
     signatures = signatures,
     verifications = verifications,

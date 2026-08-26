@@ -4,8 +4,10 @@ package com.lwg.challenge.feature.home
 
 import app.cash.turbine.test
 import com.lwg.challenge.domain.model.ActiveChallenge
+import com.lwg.challenge.domain.model.ActiveChallengeStatus
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
+import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.user.UserInfo
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
@@ -99,6 +101,39 @@ class HomeViewModelTest {
         createdAt = nowKst(),
     )
 
+    private fun activeChallenge(
+        challengeId: Long = 1001L,
+        myMission: String = "오늘 운동 1시간 하기",
+        opponentNickname: String = "민수",
+        opponentMission: String = "책 30페이지 읽기",
+        deadline: LocalDateTime = LocalDateTime.parse("2026-12-31T23:59:59"),
+        myVerificationStatus: VerificationStatus = VerificationStatus.PENDING,
+        opponentVerificationStatus: VerificationStatus = VerificationStatus.VERIFIED,
+        bet: String = "커피 사기 ☕",
+        status: ActiveChallengeStatus = ActiveChallengeStatus.IN_PROGRESS,
+        outcome: ChallengeOutcome? = null,
+    ) = ActiveChallenge(
+        challengeId = challengeId,
+        myMission = myMission,
+        opponentNickname = opponentNickname,
+        opponentMission = opponentMission,
+        deadline = deadline,
+        myVerificationStatus = myVerificationStatus,
+        opponentVerificationStatus = opponentVerificationStatus,
+        bet = bet,
+        status = status,
+        outcome = outcome,
+    )
+
+    private fun completedChallenge(
+        challengeId: Long,
+        outcome: ChallengeOutcome = ChallengeOutcome.WIN,
+    ) = activeChallenge(
+        challengeId = challengeId,
+        status = ActiveChallengeStatus.COMPLETED,
+        outcome = outcome,
+    )
+
     @Test
     fun `둘 다 성공하면 Data 로 전이`() = runTest {
         fakeRecord.record = UserRecord(win = 7, lose = 3, draw = 2, currentStreak = 3)
@@ -139,18 +174,8 @@ class HomeViewModelTest {
 
     @Test
     fun `챌린지가 있으면 emptyType NONE 이며 카드 정보가 그대로 전달된다`() = runTest {
-        val challenge = ActiveChallenge(
-            challengeId = 1001L,
-            myMission = "오늘 운동 1시간 하기",
-            opponentNickname = "민수",
-            opponentMission = "책 30페이지 읽기",
-            deadline = LocalDateTime.parse("2026-12-31T23:59:59"),
-            myVerificationStatus = VerificationStatus.PENDING,
-            opponentVerificationStatus = VerificationStatus.VERIFIED,
-            bet = "커피 사기 ☕",
-        )
         fakeRecord.record = UserRecord(win = 7, lose = 3, draw = 2, currentStreak = 3)
-        fakeChallenges.challenges = listOf(challenge)
+        fakeChallenges.challenges = listOf(activeChallenge(challengeId = 1001L))
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
@@ -452,5 +477,83 @@ class HomeViewModelTest {
 
         assertTrue(items.first { it.challengeId == 91L }.isUrgent)
         assertFalse(items.first { it.challengeId == 92L }.isUrgent)
+    }
+
+    @Test
+    fun `진행 중과 판정 완료가 섞여 오면 두 목록으로 정확히 갈린다`() = runTest {
+        fakeRecord.record = UserRecord(win = 5, lose = 1, draw = 0, currentStreak = 2)
+        fakeChallenges.challenges = listOf(
+            activeChallenge(challengeId = 10L),
+            completedChallenge(challengeId = 20L, outcome = ChallengeOutcome.WIN),
+            activeChallenge(challengeId = 30L),
+            completedChallenge(challengeId = 40L, outcome = ChallengeOutcome.BOTH_LOSE),
+        )
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        val state = viewModel.uiState.value as HomeUiState.Data
+
+        assertEquals(listOf(10L, 30L), state.inProgressChallenges.map { it.challengeId })
+        assertEquals(listOf(20L, 40L), state.completedChallenges.map { it.challengeId })
+        assertEquals(ChallengeOutcome.WIN, state.completedChallenges.first().outcome)
+    }
+
+    /**
+     * 판정된 카드가 같은 배열에 섞여 온다는 이유만으로 진행 중 빈 상태가 사라지면 안 된다 —
+     * 빈 상태 문구가 "진행 중인 챌린지가 없어요" 라 화면과 문구가 어긋난다.
+     */
+    @Test
+    fun `진행 중 0건이어도 판정 완료가 있으면 emptyType 은 NO_ACTIVE_CHALLENGE`() = runTest {
+        fakeRecord.record = UserRecord(win = 5, lose = 1, draw = 0, currentStreak = 2)
+        fakeChallenges.challenges = listOf(
+            completedChallenge(challengeId = 21L),
+            completedChallenge(challengeId = 22L, outcome = ChallengeOutcome.DRAW),
+        )
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        val state = viewModel.uiState.value as HomeUiState.Data
+
+        assertEquals(HomeEmptyType.NO_ACTIVE_CHALLENGE, state.emptyType)
+        assertTrue(state.inProgressChallenges.isEmpty())
+        assertEquals(2, state.completedChallenges.size)
+    }
+
+    @Test
+    fun `전적 0 + 진행 중 0 + 받은 도전장 0 이어도 최근 결과가 있으면 FIRST_USER 가 아니다`() = runTest {
+        fakeRecord.record = UserRecord.Empty
+        fakeChallengeRepo.challenges = emptyList()
+        fakeChallenges.challenges = listOf(completedChallenge(challengeId = 23L))
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        val state = viewModel.uiState.value as HomeUiState.Data
+
+        assertEquals(HomeEmptyType.NO_ACTIVE_CHALLENGE, state.emptyType)
+    }
+
+    // 정렬 책임은 서버에 있다. 분할이 안정적이지 않으면 서버가 정한 순서가 화면에서 뒤집힌다.
+    @Test
+    fun `서버가 준 순서가 각 구획 안에서 보존된다`() = runTest {
+        fakeRecord.record = UserRecord(win = 5, lose = 1, draw = 0, currentStreak = 2)
+        fakeChallenges.challenges = listOf(
+            completedChallenge(challengeId = 70L),
+            activeChallenge(challengeId = 71L),
+            completedChallenge(challengeId = 72L, outcome = ChallengeOutcome.LOSE),
+            activeChallenge(challengeId = 73L),
+            activeChallenge(challengeId = 74L),
+        )
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        val state = viewModel.uiState.value as HomeUiState.Data
+
+        assertEquals(listOf(71L, 73L, 74L), state.inProgressChallenges.map { it.challengeId })
+        assertEquals(listOf(70L, 72L), state.completedChallenges.map { it.challengeId })
+        // 원본은 손대지 않는다.
+        assertEquals(
+            listOf(70L, 71L, 72L, 73L, 74L),
+            state.challenges.map { it.challengeId },
+        )
     }
 }

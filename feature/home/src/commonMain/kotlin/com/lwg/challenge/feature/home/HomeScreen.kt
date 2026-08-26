@@ -26,8 +26,10 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ActiveChallenge
+import com.lwg.challenge.domain.model.ActiveChallengeStatus
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
+import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.feature.home.component.ChallengeCard
 import com.lwg.challenge.feature.home.component.HomeEmptyState
@@ -99,6 +101,14 @@ internal fun HomeScreen(
                 onAddFriendClick = onAddFriendClick,
                 onCreateChallengeClick = onCreateChallengeClick,
             )
+            // 진행 중 빈 상태 카드가 떠 있어도 그 아래 이어 붙는다 — 진행 중은 0건인데 최근 결과는
+            // 있는 조합이 정상이라, 빈 상태와 이 구획은 서로를 가리지 않는다.
+            if (uiState.completedChallenges.isNotEmpty()) {
+                completedChallengesSection(
+                    challenges = uiState.completedChallenges,
+                    onChallengeClick = onChallengeClick,
+                )
+            }
         }
     }
 }
@@ -136,11 +146,11 @@ private fun LazyListScope.challengesSection(
     onCreateChallengeClick: () -> Unit,
 ) {
     item(key = "challenges-section-title") {
-        SectionTitleRow(count = uiState.challenges.size)
+        SectionTitleRow(title = "진행 중인 챌린지", count = uiState.inProgressChallenges.size)
     }
     if (uiState.emptyType == HomeEmptyType.NONE) {
         items(
-            items = uiState.challenges,
+            items = uiState.inProgressChallenges,
             key = { it.challengeId },
         ) { challenge ->
             ChallengeCard(
@@ -153,6 +163,7 @@ private fun LazyListScope.challengesSection(
                 opponentVerificationStatus = challenge.opponentVerificationStatus,
                 bet = challenge.bet,
                 onClick = { onChallengeClick(challenge.challengeId) },
+                outcome = null,
             )
         }
     } else {
@@ -166,15 +177,42 @@ private fun LazyListScope.challengesSection(
     }
 }
 
+private fun LazyListScope.completedChallengesSection(
+    challenges: List<ActiveChallenge>,
+    onChallengeClick: (Long) -> Unit,
+) {
+    item(key = "completed-challenges-section-title") {
+        // "최근 결과" 는 시안에 없는 새 문구다. 전용 디자인이 없으므로 진행 중 구획과 같은 규격을
+        // 그대로 써서 두 구획이 같은 위계로 읽히게 한다.
+        SectionTitleRow(title = "최근 결과", count = challenges.size)
+    }
+    items(
+        items = challenges,
+        key = { it.challengeId },
+    ) { challenge ->
+        ChallengeCard(
+            challengeId = challenge.challengeId,
+            myMission = challenge.myMission,
+            opponentNickname = challenge.opponentNickname,
+            opponentMission = challenge.opponentMission,
+            myVerificationStatus = challenge.myVerificationStatus,
+            opponentVerificationStatus = challenge.opponentVerificationStatus,
+            bet = challenge.bet,
+            onClick = { onChallengeClick(challenge.challengeId) },
+            outcome = challenge.outcome,
+        )
+    }
+}
+
 @Composable
-private fun SectionTitleRow(count: Int) {
+private fun SectionTitleRow(title: String, count: Int) {
     androidx.compose.foundation.layout.Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = "진행 중인 챌린지",
+            text = title,
             style = ChallengeTheme.typography.bold18,
             color = ChallengeTheme.colorScheme.onBackground,
         )
@@ -220,6 +258,8 @@ private val previewChallenges = listOf(
         myVerificationStatus = VerificationStatus.VERIFIED,
         opponentVerificationStatus = VerificationStatus.PENDING,
         bet = "커피 사기 ☕",
+        status = ActiveChallengeStatus.IN_PROGRESS,
+        outcome = null,
     ),
     ActiveChallenge(
         challengeId = 2L,
@@ -230,6 +270,35 @@ private val previewChallenges = listOf(
         myVerificationStatus = VerificationStatus.PENDING,
         opponentVerificationStatus = VerificationStatus.FAILED,
         bet = "점심 사기 🍚",
+        status = ActiveChallengeStatus.IN_PROGRESS,
+        outcome = null,
+    ),
+)
+
+private val previewCompletedChallenges = listOf(
+    ActiveChallenge(
+        challengeId = 3L,
+        myMission = "아침 6시 기상하기",
+        opponentNickname = "도윤",
+        opponentMission = "영어 단어 30개 외우기",
+        deadline = LocalDateTime.parse("2026-06-26T23:59:00"),
+        myVerificationStatus = VerificationStatus.VERIFIED,
+        opponentVerificationStatus = VerificationStatus.FAILED,
+        bet = "치킨 사기 🍗",
+        status = ActiveChallengeStatus.COMPLETED,
+        outcome = ChallengeOutcome.WIN,
+    ),
+    ActiveChallenge(
+        challengeId = 4L,
+        myMission = "야식 참기",
+        opponentNickname = "지훈",
+        opponentMission = "일기 쓰기",
+        deadline = LocalDateTime.parse("2026-06-25T23:59:00"),
+        myVerificationStatus = VerificationStatus.FAILED,
+        opponentVerificationStatus = VerificationStatus.FAILED,
+        bet = "떡볶이 사기 🍢",
+        status = ActiveChallengeStatus.COMPLETED,
+        outcome = ChallengeOutcome.BOTH_LOSE,
     ),
 )
 
@@ -319,6 +388,57 @@ private fun HomeScreenNoActiveChallengePreview() {
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 8, lose = 5, draw = 2, currentStreak = 0),
                     challenges = emptyList(),
+                    now = previewNow,
+                ),
+                onBellClick = {},
+                onFabClick = {},
+                onChallengeClick = {},
+                onAddFriendClick = {},
+                onCreateChallengeClick = {},
+                onAcceptClick = {},
+                onRejectClick = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun HomeScreenWithCompletedChallengesPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            HomeScreen(
+                uiState = HomeUiState.Data(
+                    record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
+                    challenges = previewChallenges + previewCompletedChallenges,
+                    now = previewNow,
+                ),
+                onBellClick = {},
+                onFabClick = {},
+                onChallengeClick = {},
+                onAddFriendClick = {},
+                onCreateChallengeClick = {},
+                onAcceptClick = {},
+                onRejectClick = {},
+            )
+        }
+    }
+}
+
+/**
+ * 이번 변경의 핵심 장면 — 진행 중 0건이라 빈 상태 카드가 뜨고, 그 아래 최근 결과 구획이 함께 보인다.
+ *
+ * 전적까지 0이지만 판정된 결과가 있어 [HomeEmptyType.FIRST_USER] 로 떨어지지 않는 조합도 겸한다.
+ */
+@Preview
+@Composable
+private fun HomeScreenNoActiveWithCompletedChallengesPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            HomeScreen(
+                uiState = HomeUiState.Data(
+                    record = UserRecord.Empty,
+                    challenges = previewCompletedChallenges,
                     now = previewNow,
                 ),
                 onBellClick = {},

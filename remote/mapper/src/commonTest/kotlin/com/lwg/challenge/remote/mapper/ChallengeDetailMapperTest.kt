@@ -1,5 +1,6 @@
 package com.lwg.challenge.remote.mapper
 
+import com.lwg.challenge.domain.model.challenge.ChallengeResult
 import com.lwg.challenge.domain.model.challenge.SignatureSlotState
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
@@ -159,5 +160,51 @@ class ChallengeDetailMapperTest {
         assertEquals("테스터1", detail.opponent.nickname)
         assertEquals("책 30페이지", detail.opponent.mission)
         assertEquals("https://example.com/profile.jpg", detail.opponent.profileImageUrl)
+    }
+
+    @Test
+    fun `result 4종 문자열이 각각 대응 ChallengeResult 로 매핑된다`() {
+        val expected = mapOf(
+            "CHALLENGER_WIN" to ChallengeResult.CHALLENGER_WIN,
+            "OPPONENT_WIN" to ChallengeResult.OPPONENT_WIN,
+            "DRAW" to ChallengeResult.DRAW,
+            "BOTH_LOSE" to ChallengeResult.BOTH_LOSE,
+        )
+
+        expected.forEach { (raw, result) ->
+            val detail = assertNotNull(
+                response(data.copy(status = "COMPLETED", result = raw)).toChallengeDetail(),
+            )
+
+            assertEquals(result, detail.result, "'$raw' 이 $result 로 매핑돼야 한다")
+        }
+    }
+
+    @Test
+    fun `result 가 null - 도메인도 null 이다`() {
+        val detail = assertNotNull(response(data.copy(result = null)).toChallengeDetail())
+
+        assertNull(detail.result, "COMPLETED 이전에는 판정 결과가 없다")
+    }
+
+    @Test
+    fun `모르는 result 문자열 - null 로 흡수되고 나머지 필드는 정상 매핑된다`() {
+        val detail = assertNotNull(
+            response(data.copy(status = "COMPLETED", result = "CANCELLED")).toChallengeDetail(),
+            "모르는 결과값 하나가 상세 매핑 전체를 무너뜨리면 안 된다",
+        )
+
+        assertNull(
+            detail.result,
+            "모르는 결과를 아무 결과로 날조하는 것보다 '결과 없음'이 보수적이다",
+        )
+        assertEquals(7L, detail.challengeId)
+        assertEquals("COMPLETED", detail.status)
+        assertEquals("커피 사기", detail.betContent)
+        assertEquals(LocalDate(2026, 8, 3), detail.challengeDate)
+        assertEquals(LocalDateTime(2026, 8, 4, 0, 0, 0), detail.deadline)
+        assertEquals("이우건", detail.challenger.nickname)
+        assertEquals("테스터1", detail.opponent.nickname)
+        assertNotNull(detail.contract)
     }
 }

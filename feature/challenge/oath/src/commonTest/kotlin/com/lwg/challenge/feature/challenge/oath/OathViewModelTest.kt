@@ -69,6 +69,7 @@ class OathViewModelTest {
     ) = ChallengeDetail(
         challengeId = CHALLENGE_ID,
         status = "PENDING",
+        result = null,
         challengeDate = LocalDate.parse("2026-01-01"),
         // 상대 시간 문자열은 실행 시점 시계에 의존한다. 이미 지난 마감으로 고정해 결과를 결정론적으로 만든다.
         deadline = LocalDateTime.parse("2026-01-01T00:00:00"),

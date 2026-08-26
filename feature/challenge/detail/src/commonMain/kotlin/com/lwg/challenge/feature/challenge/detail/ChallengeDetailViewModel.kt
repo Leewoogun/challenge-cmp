@@ -6,6 +6,7 @@ import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.Contract
 import com.lwg.challenge.domain.model.challenge.SignatureSlotState
+import com.lwg.challenge.domain.model.challenge.outcomeFor
 import com.lwg.challenge.domain.model.user.CacheStrategy
 import com.lwg.challenge.domain.model.verification.ChallengeVerifications
 import com.lwg.challenge.domain.repository.ChallengeRepository
@@ -14,13 +15,13 @@ import com.lwg.challenge.domain.repository.VerificationRepository
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
 import com.lwg.challenge.feature.challenge.detail.contract.MY_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.MY_MISSION_LABEL
+import com.lwg.challenge.feature.challenge.detail.contract.ResultView
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_NOT_SIGNED_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_UNREADABLE_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.STATUS_IN_PROGRESS
 import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import com.lwg.challenge.feature.challenge.detail.contract.VerificationSection
-import com.lwg.challenge.feature.challenge.detail.contract.deadlineDisplayText
-import com.lwg.challenge.feature.challenge.detail.contract.deadlineDisplayTone
+import com.lwg.challenge.feature.challenge.detail.contract.headlineDisplay
 import com.lwg.challenge.utils.datetime.deadlineAbsoluteText
 import com.lwg.challenge.utils.datetime.nowKst
 import kotlinx.coroutines.Job
@@ -39,7 +40,7 @@ import org.koin.core.annotation.InjectedParam
 import kotlin.time.Duration.Companion.minutes
 
 /** 남은 시간 표기가 분 단위라, 더 자주 깨워도 같은 문자열을 다시 만들 뿐이다. */
-private val DEADLINE_TICK_INTERVAL = 1.minutes
+private val HEADLINE_TICK_INTERVAL = 1.minutes
 
 @KoinViewModel
 class ChallengeDetailViewModel(
@@ -64,7 +65,7 @@ class ChallengeDetailViewModel(
             initialValue = ChallengeDetailUiState.Loading,
         )
 
-    private var deadlineTicker: Job? = null
+    private var headlineTicker: Job? = null
     private var loadJob: Job? = null
 
     fun retry() {
@@ -96,45 +97,47 @@ class ChallengeDetailViewModel(
             // 뒤집히며 손가락 아래에서 CTA 가 사라진다. 두 조회를 다 마친 뒤 한 번에 세운다.
             val verifications = loadVerificationSection(myUserId)
             _uiState.update { detail.toData(myUserId, verifications) }
-            startDeadlineTicker(detail.deadline)
+            startHeadlineTicker(detail.deadline, detail.resultView(myUserId))
         }
     }
 
     /**
-     * 남은 시간 표기를 [DEADLINE_TICK_INTERVAL] 주기로 다시 만든다. 화면이 오래 떠 있어도
-     * "3시간 12분" 이 처음 그려진 값 그대로 굳지 않는다.
+     * 헤더 표기를 [HEADLINE_TICK_INTERVAL] 주기로 다시 만든다. 화면이 오래 떠 있어도 "3시간 12분" 이
+     * 처음 그려진 값 그대로 굳지 않는다.
      *
-     * 마감을 넘긴 회차까지는 반영하고(URGENT → NEUTRAL) 루프를 끝낸다. 그 뒤로는 "판정 대기 중" 에서
-     * 더 바뀔 것이 없어, 계속 깨워 봐야 같은 값을 다시 계산할 뿐이다.
+     * 마감을 넘긴 회차까지는 반영하고(URGENT → NEUTRAL) 루프를 끝낸다. 그 뒤로 이 자리에 남는 것은
+     * "판정 대기 중" 아니면 이미 실려 있는 결과인데, 둘 다 시계로는 더 바뀌지 않는다 — 판정이 나중에
+     * 붙는 것은 티커가 아니라 재구독 재조회가 가져온다.
+     *
+     * @param result 매 회차 같은 값을 그대로 다시 넘긴다. 빠뜨리면 티커가 한 번 도는 것만으로 결과
+     *   문구가 시간 표기로 되돌아간다.
      */
-    private fun startDeadlineTicker(deadline: LocalDateTime) {
+    private fun startHeadlineTicker(deadline: LocalDateTime, result: ResultView?) {
         // retry() 로 두 번째 티커가 얹히면 같은 state 를 두 루프가 갱신한다.
-        deadlineTicker?.cancel()
-        deadlineTicker = viewModelScope.launch {
+        headlineTicker?.cancel()
+        headlineTicker = viewModelScope.launch {
             while (nowKst() < deadline) {
-                delay(DEADLINE_TICK_INTERVAL)
-                refreshDeadlineDisplay(deadline)
+                delay(HEADLINE_TICK_INTERVAL)
+                refreshHeadline(deadline, result)
             }
         }
     }
 
-    private fun refreshDeadlineDisplay(deadline: LocalDateTime) {
+    private fun refreshHeadline(deadline: LocalDateTime, result: ResultView?) {
         _uiState.update { current ->
-            // retry() 직후 아직 살아 있는 티커가 여기로 들어온다. Loading/Error 에는 갱신할 마감
+            // retry() 직후 아직 살아 있는 티커가 여기로 들어온다. Loading/Error 에는 갱신할 헤더
             // 표기 자체가 없다.
             if (current !is ChallengeDetailUiState.Data) return@update current
 
-            val now = nowKst()
-            val text = deadlineDisplayText(deadline, now)
-            val tone = deadlineDisplayTone(deadline, now)
+            val headline = headlineDisplay(result, deadline, nowKst())
 
             // MutableStateFlow 가 같은 값을 흡수해 주지만 그 흡수에 기대지 않고 여기서 직접 거른다.
             // Data 에 람다처럼 구조적 동등성이 성립하지 않는 필드가 하나만 붙어도 흡수가 조용히
             // 풀려, 표기가 그대로인 분에도 화면 전체가 매분 다시 그려지기 시작한다.
-            if (text == current.deadlineText && tone == current.deadlineTone) {
+            if (headline.text == current.headlineText && headline.tone == current.headlineTone) {
                 current
             } else {
-                current.copy(deadlineText = text, deadlineTone = tone)
+                current.copy(headlineText = headline.text, headlineTone = headline.tone)
             }
         }
     }
@@ -196,8 +199,8 @@ class ChallengeDetailViewModel(
         // 티커는 그 지점을 ViewModel 에 묶어 둔 채 주기만 명시적으로 고정한 것이다.
         val now = nowKst()
 
-        val isMeOpponent = myUserId != null && myUserId == opponent.userId
-        val isPerspectiveKnown = isMeOpponent || (myUserId != null && myUserId == challenger.userId)
+        val isMeOpponent = isMeOpponent(myUserId)
+        val isPerspectiveKnown = isPerspectiveKnown(myUserId)
 
         val me = if (isMeOpponent) opponent else challenger
         val other = if (isMeOpponent) challenger else opponent
@@ -213,6 +216,8 @@ class ChallengeDetailViewModel(
             challenger.nickname to "${challenger.nickname}의 미션"
         }
 
+        val headline = headlineDisplay(resultView(myUserId), deadline, now)
+
         return ChallengeDetailUiState.Data(
             myLabel = myLabel,
             myMissionLabel = myMissionLabel,
@@ -220,8 +225,8 @@ class ChallengeDetailViewModel(
             opponentNickname = other.nickname,
             opponentMission = other.mission,
             betContent = betContent,
-            deadlineText = deadlineDisplayText(deadline, now),
-            deadlineTone = deadlineDisplayTone(deadline, now),
+            headlineText = headline.text,
+            headlineTone = headline.tone,
             deadlineAbsoluteText = deadlineAbsoluteText(challengeDate, deadline),
             // 계약서가 없으면(soul-oath 이전 생성) 서명 묶음 자체가 없다. 빈 값으로 채우면 있지도
             // 않은 맹세를 '서명 대기 중' 으로 그리게 된다.
@@ -233,6 +238,36 @@ class ChallengeDetailViewModel(
             canVerify = status == STATUS_IN_PROGRESS &&
                 verifications?.myStatus != VerificationStatus.VERIFIED,
         )
+    }
+
+    /**
+     * 관점 판정. 라벨·서명·인증 칸·결과 문구가 모두 이 하나에 매달려 있어 식을 따로 적지 않는다 —
+     * 한쪽만 고치면 "우건" 서명 위에 "나의 미션" 이 붙는 것과 같은 어긋남이 결과 표기에서도 난다.
+     */
+    private fun ChallengeDetail.isMeOpponent(myUserId: Long?): Boolean =
+        myUserId != null && myUserId == opponent.userId
+
+    private fun ChallengeDetail.isPerspectiveKnown(myUserId: Long?): Boolean =
+        isMeOpponent(myUserId) || (myUserId != null && myUserId == challenger.userId)
+
+    /**
+     * 판정 결과를 어느 관점으로 말할지 정한다. 아직 판정 전이면 `null` 이고 헤더는 시간 표기로 남는다.
+     *
+     * 관점을 모르면 승패를 내 것으로 말할 수 없어 역할 실명으로 낮춘다 — 서명·미션 라벨이 같은
+     * 상황에서 "나" 를 버리는 것과 같은 판단이다.
+     */
+    private fun ChallengeDetail.resultView(myUserId: Long?): ResultView? {
+        val result = this.result ?: return null
+
+        return if (isPerspectiveKnown(myUserId)) {
+            ResultView.Mine(result.outcomeFor(isMeOpponent(myUserId)))
+        } else {
+            ResultView.ByRole(
+                result = result,
+                challengerNickname = challenger.nickname,
+                opponentNickname = opponent.nickname,
+            )
+        }
     }
 
     private fun Contract.toSignatureSection(isMeOpponent: Boolean): SignatureSection = SignatureSection(

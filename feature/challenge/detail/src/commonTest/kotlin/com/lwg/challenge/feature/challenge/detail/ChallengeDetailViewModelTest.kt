@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModelStore
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.Contract
+import com.lwg.challenge.domain.model.challenge.ChallengeResult
 import com.lwg.challenge.domain.model.challenge.ContractParty
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
@@ -14,13 +15,17 @@ import com.lwg.challenge.domain.model.verification.PartyVerification
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
 import com.lwg.challenge.feature.challenge.detail.contract.DEADLINE_AWAITING_JUDGEMENT_TEXT
 import com.lwg.challenge.feature.challenge.detail.contract.DEADLINE_REMAINING_PREFIX
-import com.lwg.challenge.feature.challenge.detail.contract.DeadlineTone
+import com.lwg.challenge.feature.challenge.detail.contract.HeadlineTone
 import com.lwg.challenge.feature.challenge.detail.contract.MY_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.MY_MISSION_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_NOT_SIGNED_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_UNREADABLE_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import com.lwg.challenge.feature.challenge.detail.contract.VerificationSection
+import com.lwg.challenge.ui.components.RESULT_BOTH_LOSE_TEXT
+import com.lwg.challenge.ui.components.RESULT_DRAW_TEXT
+import com.lwg.challenge.ui.components.RESULT_LOSE_TEXT
+import com.lwg.challenge.ui.components.RESULT_WIN_TEXT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
@@ -39,6 +44,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -147,6 +153,7 @@ class ChallengeDetailViewModelTest {
 
     private fun sampleDetail(
         status: String = "IN_PROGRESS",
+        result: ChallengeResult? = null,
         challengeDate: LocalDate? = CHALLENGE_DATE,
         deadline: LocalDateTime = PAST_DEADLINE,
         challengerSignature: Signature? = challengerSignature(),
@@ -165,6 +172,7 @@ class ChallengeDetailViewModelTest {
     ) = ChallengeDetail(
         challengeId = CHALLENGE_ID,
         status = status,
+        result = result,
         challengeDate = challengeDate,
         deadline = deadline,
         betContent = "커피 사기",
@@ -182,6 +190,13 @@ class ChallengeDetailViewModelTest {
         ),
         contract = contract,
     )
+
+    /**
+     * 판정이 끝난 챌린지. 서버 불변식상 `status == "COMPLETED"` 와 `result != null` 은 함께 오므로
+     * 결과 픽스처를 만들 때 둘을 따로 세우지 않는다.
+     */
+    private fun completedDetail(result: ChallengeResult) =
+        sampleDetail(status = "COMPLETED", result = result)
 
     /** 서버 응답 그대로 **역할 기준**이다. '나 / 상대' 로 세우는 건 ViewModel 의 몫이다. */
     private fun sampleVerifications(
@@ -370,10 +385,10 @@ class ChallengeDetailViewModelTest {
     }
 
     @Test
-    fun `deadlineText 는 매핑 시점 시계 기준으로 만들어진다`() = runTest {
+    fun `headlineText 는 매핑 시점 시계 기준으로 만들어진다`() = runTest {
         val state = createViewModel().data()
 
-        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.deadlineText)
+        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headlineText)
     }
 
     // 티커가 실제로 값을 갱신하는지는 여기서 검증하지 못한다. ViewModel 이 nowKst() 로 실제 시계를
@@ -389,10 +404,10 @@ class ChallengeDetailViewModelTest {
         val state = createViewModel().data()
 
         assertTrue(
-            state.deadlineText.startsWith(DEADLINE_REMAINING_PREFIX),
-            "접두어가 빠졌다: ${state.deadlineText}",
+            state.headlineText.startsWith(DEADLINE_REMAINING_PREFIX),
+            "접두어가 빠졌다: ${state.headlineText}",
         )
-        assertEquals(DeadlineTone.URGENT, state.deadlineTone)
+        assertEquals(HeadlineTone.URGENT, state.headlineTone)
 
         // 마감이 남아 티커가 계속 돈다. 여기서 스코프를 닫지 않으면 runTest 종료 정리가 1분 delay 를
         // 무한히 돌려 테스트가 끝나지 않는다.
@@ -404,8 +419,138 @@ class ChallengeDetailViewModelTest {
     fun `마감 후면 판정 대기 중이고 톤이 NEUTRAL 이다`() = runTest {
         val state = createViewModel().data()
 
-        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.deadlineText)
-        assertEquals(DeadlineTone.NEUTRAL, state.deadlineTone)
+        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headlineText)
+        assertEquals(HeadlineTone.NEUTRAL, state.headlineTone)
+    }
+
+    @Test
+    fun `내가 challenger 이고 CHALLENGER_WIN 이면 승리로 나온다`() = runTest {
+        fakeUserInfoRepository.userInfo = userInfo(CHALLENGER_ID)
+        fakeChallengeRepository.detail = completedDetail(ChallengeResult.CHALLENGER_WIN)
+
+        val state = createViewModel().data()
+
+        assertEquals(RESULT_WIN_TEXT, state.headlineText)
+        assertEquals(HeadlineTone.WIN, state.headlineTone)
+    }
+
+    /** 같은 CHALLENGER_WIN 이 관점만 바뀌면 정반대 사실이 된다. 한 방향만 덮으면 뒤집기가 증명되지 않는다. */
+    @Test
+    fun `내가 opponent 이고 CHALLENGER_WIN 이면 패배로 뒤집힌다`() = runTest {
+        fakeUserInfoRepository.userInfo = userInfo(OPPONENT_ID)
+        fakeChallengeRepository.detail = completedDetail(ChallengeResult.CHALLENGER_WIN)
+
+        val state = createViewModel().data()
+
+        assertEquals(RESULT_LOSE_TEXT, state.headlineText)
+        assertEquals(HeadlineTone.LOSE, state.headlineTone)
+    }
+
+    @Test
+    fun `내가 opponent 이고 OPPONENT_WIN 이면 승리로 나온다`() = runTest {
+        fakeUserInfoRepository.userInfo = userInfo(OPPONENT_ID)
+        fakeChallengeRepository.detail = completedDetail(ChallengeResult.OPPONENT_WIN)
+
+        val state = createViewModel().data()
+
+        assertEquals(RESULT_WIN_TEXT, state.headlineText)
+        assertEquals(HeadlineTone.WIN, state.headlineTone)
+    }
+
+    @Test
+    fun `내가 challenger 이고 OPPONENT_WIN 이면 패배로 뒤집힌다`() = runTest {
+        fakeUserInfoRepository.userInfo = userInfo(CHALLENGER_ID)
+        fakeChallengeRepository.detail = completedDetail(ChallengeResult.OPPONENT_WIN)
+
+        val state = createViewModel().data()
+
+        assertEquals(RESULT_LOSE_TEXT, state.headlineText)
+        assertEquals(HeadlineTone.LOSE, state.headlineTone)
+    }
+
+    @Test
+    fun `DRAW 는 무승부로 나온다`() = runTest {
+        fakeChallengeRepository.detail = completedDetail(ChallengeResult.DRAW)
+
+        val state = createViewModel().data()
+
+        assertEquals(RESULT_DRAW_TEXT, state.headlineText)
+        assertEquals(HeadlineTone.DRAW, state.headlineTone)
+    }
+
+    /** 둘 다 못 한 것과 내가 진 것은 다른 사실이라 문구를 가르고, 톤만 패배와 같이 간다. */
+    @Test
+    fun `BOTH_LOSE 는 양측 패배로 나오고 톤이 LOSE 다`() = runTest {
+        fakeChallengeRepository.detail = completedDetail(ChallengeResult.BOTH_LOSE)
+
+        val state = createViewModel().data()
+
+        assertEquals(RESULT_BOTH_LOSE_TEXT, state.headlineText)
+        assertEquals(HeadlineTone.LOSE, state.headlineTone)
+    }
+
+    /**
+     * 누가 이겼는지는 알아도 그게 보는 사람에게 좋은 소식인지는 모른다 — 승리색을 칠하면 진 사람에게
+     * 축하색을 보여주게 되므로 톤을 중립으로 낮춘다.
+     */
+    @Test
+    fun `관점 미상이면 결과를 실명으로만 말하고 톤을 중립으로 낮춘다`() = runTest {
+        fakeUserInfoRepository.error = "사용자 정보를 불러오지 못했습니다."
+        fakeChallengeRepository.detail = completedDetail(ChallengeResult.CHALLENGER_WIN)
+
+        val state = createViewModel().data()
+
+        assertEquals("$CHALLENGER_NICKNAME $RESULT_WIN_TEXT", state.headlineText)
+        assertEquals(HeadlineTone.DECIDED_NEUTRAL, state.headlineTone)
+    }
+
+    /**
+     * 두 장면 다 색을 기울이지 않는다는 이유로 한 톤으로 합치면, 화면이 톤으로 아이콘까지 고르는 탓에
+     * 결과가 이미 난 "우건 승리" 옆에 판정을 기다리는 시계가 다시 붙는다.
+     */
+    @Test
+    fun `관점 미상 결과와 판정 대기 중은 서로 다른 톤이다`() = runTest {
+        fakeUserInfoRepository.error = "사용자 정보를 불러오지 못했습니다."
+        fakeChallengeRepository.detail = completedDetail(ChallengeResult.CHALLENGER_WIN)
+        val resultTone = createViewModel().data().headlineTone
+
+        fakeUserInfoRepository.error = null
+        fakeChallengeRepository.detail = sampleDetail()
+        val awaitingTone = createViewModel().data().headlineTone
+
+        assertEquals(HeadlineTone.DECIDED_NEUTRAL, resultTone)
+        assertEquals(HeadlineTone.NEUTRAL, awaitingTone)
+        assertNotEquals(awaitingTone, resultTone)
+    }
+
+    /** 서버 불변식(COMPLETED ⟺ result != null)이 깨져도 상태 문자열에서 결과를 지어내지 않는다. */
+    @Test
+    fun `COMPLETED 인데 result 가 null 이면 판정 대기 중으로 남는다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(status = "COMPLETED", result = null)
+
+        val state = createViewModel().data()
+
+        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headlineText)
+        assertEquals(HeadlineTone.NEUTRAL, state.headlineTone)
+    }
+
+    /** 판정이 실리면 시계보다 결과가 먼저다 — 마감이 남아 있어도 남은 시간으로 되돌아가지 않는다. */
+    @Test
+    fun `마감 전이라도 결과가 있으면 결과 표기가 이긴다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(
+            status = "COMPLETED",
+            result = ChallengeResult.CHALLENGER_WIN,
+            deadline = FUTURE_DEADLINE,
+        )
+
+        val state = createViewModel().data()
+
+        assertEquals(RESULT_WIN_TEXT, state.headlineText)
+        assertEquals(HeadlineTone.WIN, state.headlineTone)
+
+        // 마감이 남아 티커가 계속 돈다. 여기서 스코프를 닫지 않으면 runTest 종료 정리가 1분 delay 를
+        // 무한히 돌려 테스트가 끝나지 않는다.
+        viewModelStore.clear()
     }
 
     /** 서버 deadline 을 그대로 찍으면 "1/2" 가 나온다 — challengeDate 기준이어야 하루 밀리지 않는다. */
@@ -462,7 +607,7 @@ class ChallengeDetailViewModelTest {
         assertEquals(OPPONENT_MISSION, state.opponentMission)
         assertEquals(OPPONENT_NICKNAME, state.opponentNickname)
         assertEquals("커피 사기", state.betContent)
-        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.deadlineText)
+        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headlineText)
     }
 
     @Test

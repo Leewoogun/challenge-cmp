@@ -15,6 +15,7 @@ import kotlinx.serialization.Serializable
  *   "data": {
  *     "challengeId": 7,
  *     "status": "IN_PROGRESS",
+ *     "result": null,
  *     "challengeDate": "2026-08-03",
  *     "deadline": "2026-08-04 00:00:00",
  *     "betContent": "커피 사기",
@@ -37,7 +38,10 @@ import kotlinx.serialization.Serializable
  *       "opponentSignedAt": null } } }
  * ```
  *
+ * `status` 가 `COMPLETED` 면 `result` 에 `"CHALLENGER_WIN"` 같은 판정 결과가 들어온다.
+ *
  * `challenger` / `opponent` 는 역할 그대로다 — '나 / 상대' 로 뒤집혀 오지 않는다.
+ * `result` 도 같다.
  */
 @Serializable
 data class ChallengeDetailResponse(
@@ -48,6 +52,15 @@ data class ChallengeDetailResponse(
 data class ChallengeDetailData(
     val challengeId: Long = 0L,
     val status: String = "",
+    /**
+     * `CHALLENGER_WIN` / `OPPONENT_WIN` / `DRAW` / `BOTH_LOSE`. `COMPLETED` 전에는 명시적 null 로
+     * 온다 (키는 존재) — 기본값은 키 누락만 덮으므로 타입 자체가 nullable 이어야 한다.
+     *
+     * enum 이 아니라 String 인 이유: `@Serializable` enum 으로 받으면 서버가 결과 종류를 하나
+     * 추가하는 순간 응답 **전체**의 역직렬화가 깨져 상세 화면이 통째로 못 뜬다. 모르는 값의
+     * 흡수는 매퍼가 한다. `PartyVerificationDto.status` 가 같은 판단의 선례다.
+     */
+    val result: String? = null,
     /** "yyyy-MM-dd" (예: "2026-08-03"). 포맷이 어긋나면 null. */
     @Serializable(with = WireLocalDateSerializer::class)
     val challengeDate: LocalDate? = null,

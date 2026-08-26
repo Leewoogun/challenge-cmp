@@ -1,5 +1,6 @@
 package com.lwg.challenge.remote.mapper
 
+import com.lwg.challenge.domain.model.challenge.ChallengeResult
 import com.lwg.challenge.domain.model.challenge.SignatureSlotState
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
@@ -52,14 +53,22 @@ class ChallengeDetailWireFixtureTest {
 
     // 계약 §3.1 nullable 표의 모든 항목이 동시에 null 인 "null 최대" 응답. contract 자체가 null 인
     // 챌린지는 soul-oath 도입 이전에 만들어진 것이라 계약서가 없다 — 오류가 아니라 정상 상태다.
+    // result 는 IN_PROGRESS 라 명시적 null 로 온다 (키는 존재).
     private val nullMaxWireResponse =
-        """{"data":{"challengeId":7,"status":"IN_PROGRESS","challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":1,"nickname":"이우건","profileImageUrl":null,"mission":null},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":null},"contract":null},"error":false,"code":200,"message":""}"""
+        """{"data":{"challengeId":7,"status":"IN_PROGRESS","result":null,"challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":1,"nickname":"이우건","profileImageUrl":null,"mission":null},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":null},"contract":null},"error":false,"code":200,"message":""}"""
+
+    // 판정이 끝난 챌린지. 위의 두 실서버 픽스처는 result 도입 이전에 뜬 것이라 키 자체가 없고,
+    // 그건 그것대로 '키 누락도 null 로 떨어진다' 를 고정한다. 값이 실린 shape 은 여기서 덮는다.
+    private val completedWireResponse =
+        """{"data":{"challengeId":30,"status":"COMPLETED","result":"CHALLENGER_WIN","challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":16,"nickname":"테스터3","profileImageUrl":null,"mission":"운동 1시간"},"opponent":{"userId":15,"nickname":"테스터2","profileImageUrl":null,"mission":"책 30페이지 읽기"},"contract":null},"error":false,"code":200,"message":""}"""
 
     private fun parse(): ChallengeDetailResponse = json.decodeFromString(wireResponse)
 
     private fun parsePending(): ChallengeDetailResponse = json.decodeFromString(pendingWireResponse)
 
     private fun parseNullMax(): ChallengeDetailResponse = json.decodeFromString(nullMaxWireResponse)
+
+    private fun parseCompleted(): ChallengeDetailResponse = json.decodeFromString(completedWireResponse)
 
     @Test
     fun `실서버 응답 원문이 ChallengeDetailResponse 로 역직렬화된다`() {
@@ -252,5 +261,42 @@ class ChallengeDetailWireFixtureTest {
 
         assertNull(detail.challenger.profileImageUrl)
         assertNull(detail.opponent.profileImageUrl)
+    }
+
+    @Test
+    fun `result 가 명시적 null 인 원문 - 역직렬화되고 도메인도 null 이다`() {
+        assertNull(parseNullMax().data.result)
+        assertNull(assertNotNull(parseNullMax().toChallengeDetail()).result)
+    }
+
+    @Test
+    fun `result 키가 없는 원문도 null 로 떨어진다`() {
+        assertNull(assertNotNull(parse().toChallengeDetail()).result)
+        assertNull(assertNotNull(parsePending().toChallengeDetail()).result)
+    }
+
+    @Test
+    fun `COMPLETED 원문이 역직렬화되고 result 가 문자열로 온다`() {
+        val response = parseCompleted()
+
+        assertEquals(200, response.code)
+        assertFalse(response.error)
+        assertEquals("COMPLETED", response.data.status)
+        assertEquals("CHALLENGER_WIN", response.data.result)
+    }
+
+    @Test
+    fun `COMPLETED 원문의 result 가 역할 기준 그대로 매핑된다`() {
+        val detail = assertNotNull(parseCompleted().toChallengeDetail())
+
+        assertEquals(
+            ChallengeResult.CHALLENGER_WIN,
+            detail.result,
+            "'나 / 상대' 로 뒤집지 않는다. 관점 변환은 화면 계층의 몫이다",
+        )
+        assertEquals(30L, detail.challengeId)
+        assertEquals("COMPLETED", detail.status)
+        assertEquals(16L, detail.challenger.userId)
+        assertEquals(15L, detail.opponent.userId)
     }
 }
