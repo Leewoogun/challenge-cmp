@@ -20,12 +20,12 @@ import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserBrief
 import com.lwg.challenge.feature.friends.list.component.FriendsActionRow
-import com.lwg.challenge.feature.friends.list.component.FriendsEmptyState
 import com.lwg.challenge.feature.friends.list.component.FriendsListSection
 import com.lwg.challenge.feature.friends.list.component.ReceivedRequestsSection
 import com.lwg.challenge.feature.friends.list.contract.FriendItemState
 import com.lwg.challenge.feature.friends.list.contract.FriendRequestItemState
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiState
+import com.lwg.challenge.ui.components.EmptyStateCard
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -81,7 +81,7 @@ internal fun FriendsLoadingScreen() {
 }
 
 /**
- * 친구 탭 빈 상태 화면 — [FriendsEmptyState] 단일 CTA 만 노출한다.
+ * 친구 탭 빈 상태 화면 — [EmptyStateCard] 단일 CTA 만 노출한다.
  */
 @Composable
 internal fun FriendsEmptyScreen(
@@ -93,7 +93,7 @@ internal fun FriendsEmptyScreen(
             .fillMaxSize()
             .padding(horizontal = 20.dp, vertical = 24.dp),
     ) {
-        FriendsEmptyState(
+        EmptyStateCard(
             title = "아직 친구가 없어요",
             subtitle = "친구를 추가하고 함께 챌린지를 시작해보세요",
             ctaLabel = "친구 추가하기",

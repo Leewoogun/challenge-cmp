@@ -1,20 +1,13 @@
 package com.lwg.challenge.feature.login.component
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -22,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.modifier.wiggle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -41,17 +35,6 @@ internal fun ChallengeTitle() {
         }
     }
 
-    val infinite = rememberInfiniteTransition(label = "title-wiggle")
-    val rotation by infinite.animateFloat(
-        initialValue = -8f,
-        targetValue = 8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1_500),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "wiggle-rotation",
-    )
-
     Box(contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
@@ -64,7 +47,7 @@ internal fun ChallengeTitle() {
                 style = ChallengeTheme.typography.bold30,
                 modifier = Modifier
                     .padding(top = 4.dp)
-                    .rotate(rotation),
+                    .wiggle(),
             )
         }
     }

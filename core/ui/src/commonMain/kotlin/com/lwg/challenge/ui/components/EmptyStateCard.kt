@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.friends.list.component
+package com.lwg.challenge.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -28,17 +28,20 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 친구 탭 빈 상태 카드. design.md §1/§3.1/§4 — 1차 1단계 친구 0명 진입 사용자 유도.
+ * 아이콘 + 헤드라인 + 서브라인 + CTA 로 구성된 빈 상태 카드.
  *
  * @param title 헤드라인(`bold16` + `onBackground`).
  * @param subtitle 서브라인(`medium12` + `onSurfaceVariant`).
  * @param ctaLabel CTA 버튼 라벨(`medium14` + `onPrimary`).
- * @param icon 일러스트 자리 아이콘(`Icons.Filled.Group` 32.dp, primary tint).
- * @param onClickCta CTA 클릭 콜백(1차 1단계는 stub — "준비 중입니다" 스낵바).
- * @param onClickInvite 카카오톡 초대 보조 CTA 콜백. null 이면 보조 버튼을 노출하지 않는다.
+ * @param icon 일러스트 자리 아이콘(32.dp, primary tint).
+ * @param onClickCta CTA 클릭 콜백.
+ * @param onClickInvite 보조 CTA 콜백. null 이면 보조 버튼을 노출하지 않는다.
+ * @param inviteLabel 보조 CTA 라벨.
+ * @param ctaIcon CTA 버튼 아이콘. 기본값은 친구 추가다.
+ * @param inviteIcon 보조 CTA 버튼 아이콘.
  */
 @Composable
-internal fun FriendsEmptyState(
+fun EmptyStateCard(
     title: String,
     subtitle: String,
     ctaLabel: String,
@@ -46,6 +49,9 @@ internal fun FriendsEmptyState(
     onClickCta: () -> Unit,
     modifier: Modifier = Modifier,
     onClickInvite: (() -> Unit)? = null,
+    inviteLabel: String = "카카오톡으로 초대하기",
+    ctaIcon: ImageVector = Icons.Filled.PersonAdd,
+    inviteIcon: ImageVector = Icons.AutoMirrored.Filled.Send,
 ) {
     val primary = ChallengeTheme.colorScheme.primary
 
@@ -96,7 +102,7 @@ internal fun FriendsEmptyState(
 
             IconTextButton(
                 text = ctaLabel,
-                icon = Icons.Filled.PersonAdd,
+                icon = ctaIcon,
                 onClick = onClickCta,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -105,8 +111,8 @@ internal fun FriendsEmptyState(
                 VerticalSpacer(8.dp)
 
                 IconTextButton(
-                    text = "카카오톡으로 초대하기",
-                    icon = Icons.AutoMirrored.Filled.Send,
+                    text = inviteLabel,
+                    icon = inviteIcon,
                     onClick = onClickInvite,
                     modifier = Modifier.fillMaxWidth(),
                     style = IconTextButtonStyle.Outlined,
@@ -118,14 +124,14 @@ internal fun FriendsEmptyState(
 
 @Preview
 @Composable
-private fun FriendsEmptyStatePreview() {
+private fun EmptyStateCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(24.dp),
         ) {
-            FriendsEmptyState(
+            EmptyStateCard(
                 title = "아직 친구가 없어요",
                 subtitle = "친구를 추가하고 함께 챌린지를 시작해보세요",
                 ctaLabel = "친구 추가하기",
@@ -138,14 +144,14 @@ private fun FriendsEmptyStatePreview() {
 
 @Preview
 @Composable
-private fun FriendsEmptyStateWithInvitePreview() {
+private fun EmptyStateCardWithInvitePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(24.dp),
         ) {
-            FriendsEmptyState(
+            EmptyStateCard(
                 title = "아직 친구가 없어요",
                 subtitle = "친구를 추가하고 함께 챌린지를 시작해보세요",
                 ctaLabel = "친구 추가하기",

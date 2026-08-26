@@ -2,34 +2,36 @@ package com.lwg.challenge.feature.ranking
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lwg.challenge.feature.ranking.contract.RankingModalEffect
+import com.lwg.challenge.domain.repository.RankingRepository
+import com.lwg.challenge.feature.ranking.contract.LoserRankingItemState
 import com.lwg.challenge.feature.ranking.contract.RankingUiEffect
 import com.lwg.challenge.feature.ranking.contract.RankingUiState
+import com.lwg.challenge.utils.flow.TriggerStateFlow
+import com.lwg.challenge.utils.flow.triggerStateIn
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class RankingViewModel(
-    // TODO: 의존성을 주입하세요.
+    rankingRepository: RankingRepository,
 ) : ViewModel() {
 
-    private val _uiState: MutableStateFlow<RankingUiState> = MutableStateFlow(RankingUiState.Data())
-    val uiState: StateFlow<RankingUiState> get() = _uiState
-
-    private val _modalEffect = MutableStateFlow<RankingModalEffect>(RankingModalEffect.Hidden)
-    val modalEffect: StateFlow<RankingModalEffect> get() = _modalEffect
-
     private val _uiEffect = MutableSharedFlow<RankingUiEffect>()
-    val uiEffect: SharedFlow<RankingUiEffect> get() = _uiEffect
+    val uiEffect: SharedFlow<RankingUiEffect> = _uiEffect.asSharedFlow()
 
-    fun dismiss() {
-        _modalEffect.update { RankingModalEffect.Hidden }
-    }
+    val uiState: TriggerStateFlow<RankingUiState> =
+        rankingRepository.getLoserRanking(::showMessage)
+            .map { entries -> RankingUiState.Data(entries.map(::LoserRankingItemState)) }
+            .triggerStateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(0),
+                initialValue = RankingUiState.Loading,
+            )
 
     private fun showMessage(message: String) {
         viewModelScope.launch {

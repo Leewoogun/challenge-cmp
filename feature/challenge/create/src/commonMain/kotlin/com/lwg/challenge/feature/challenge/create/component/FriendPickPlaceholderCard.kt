@@ -30,7 +30,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 /**
  * step0 의 빈 상태 / 로드 실패 카드. design.md §1.2.
  *
- * `:feature:friends:list` 의 `FriendsEmptyState` 는 internal 이라 재사용할 수 없어 별도로 둔다.
+ * `:core:ui` 의 `EmptyStateCard` 와 레이아웃이 겹치지만 CTA 아이콘까지 호출부가 정해야 해 별도로 둔다.
  *
  * @param ctaIcon 빈 상태는 친구 추가, 실패는 재시도 — 아이콘까지 호출부가 정한다.
  */
