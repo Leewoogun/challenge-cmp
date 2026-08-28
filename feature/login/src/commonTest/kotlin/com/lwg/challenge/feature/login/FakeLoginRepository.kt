@@ -34,7 +34,7 @@ class FakeLoginRepository : LoginRepository {
     var lastTestUserNo: Int? = null
         private set
 
-    /** LogoutUseCase(clearTokens) → loginWithTestAccount 호출 순서 검증용. */
+    /** LogoutUseCase(logout → clearTokens) → loginWithTestAccount 호출 순서 검증용. */
     val callLog = mutableListOf<String>()
 
     var storedTokens: AuthTokens = AuthTokens.Empty
@@ -65,6 +65,10 @@ class FakeLoginRepository : LoginRepository {
     }
 
     override suspend fun getStoredTokens(): AuthTokens = storedTokens
+
+    override suspend fun logout() {
+        callLog += "logout"
+    }
 
     override suspend fun clearTokens() {
         callLog += "clearTokens"

@@ -3,12 +3,14 @@ package com.lwg.challenge.remote.datasource
 import com.lwg.challenge.data.datasource.remote.ChallengeRemoteDataSource
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
+import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.remote.api.ChallengeApi
 import com.lwg.challenge.remote.mapper.SignatureCodec
 import com.lwg.challenge.remote.mapper.toBody
 import com.lwg.challenge.remote.mapper.toChallengeDetail
+import com.lwg.challenge.remote.mapper.toChallengeHistories
 import com.lwg.challenge.remote.mapper.toReceivedChallenges
 import com.lwg.challenge.remote.model.challenge.AcceptChallengeBody
 import com.lwg.challenge.remote.network.util.suspendOnFailureWithErrorHandling
@@ -29,6 +31,19 @@ class ChallengeRemoteDataSourceImpl(
             .suspendOnSuccess {
                 val mapped = response.toReceivedChallenges()
                 // deadline 파싱 실패 항목은 매퍼가 걸렀다. 항목당 발화하면 스낵바가 연달아 떠서 1회만 알린다 (api-contract §3)
+                if (mapped.droppedCount > 0) onError("일부 항목을 불러오지 못했어요")
+                this@flow.emit(mapped.items)
+            }
+            .suspendOnFailureWithErrorHandling(onError)
+    }
+
+    override fun getChallengeHistories(
+        onError: (String) -> Unit,
+    ): Flow<List<ChallengeHistory>> = flow {
+        challengeApi.getChallengeHistories()
+            .suspendOnSuccess {
+                val mapped = response.toChallengeHistories()
+                // 날짜·결과를 못 읽은 항목은 매퍼가 걸렀다. 항목당 발화하면 스낵바가 연달아 떠서 1회만 알린다 (api-contract §3)
                 if (mapped.droppedCount > 0) onError("일부 항목을 불러오지 못했어요")
                 this@flow.emit(mapped.items)
             }

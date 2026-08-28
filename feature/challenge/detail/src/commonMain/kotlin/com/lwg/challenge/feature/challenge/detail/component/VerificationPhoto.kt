@@ -35,6 +35,7 @@ private const val VERIFICATION_FAILED_TEXT = "인증하지 못했어요"
 private const val LOADING_TEXT = "불러오는 중..."
 private const val LOAD_FAILED_TEXT = "사진을 불러오지 못했어요"
 private const val STATUS_UNKNOWN_TEXT = "인증 현황을 불러오지 못했어요"
+private const val PHOTO_DELETED_TEXT = "탈퇴한 사용자의 사진은 삭제됐어요"
 
 /**
  * 인증 사진 영역.
@@ -45,6 +46,7 @@ private const val STATUS_UNKNOWN_TEXT = "인증 현황을 불러오지 못했어
  * @param status 인증 현황 조회에 실패했으면 `null`. 이때 '미인증' 으로 그리면 이미 인증한 사람의
  *   사진을 없는 것처럼 보여주게 되므로, 사진이 아니라 조회 실패를 드러낸다.
  * @param isLoading 인증 현황 자체를 아직 못 받은 구간. 이미지 로딩(Coil)과는 별개다.
+ * @param photoDeleted 탈퇴로 사진이 영구 삭제된 칸. 다시 받을 수 있는 대상이 없어 재시도를 열지 않는다.
  * @param onRetry [status] 가 `null` 일 때만 쓰인다. 사진 URL 재요청([RemotePhoto] 내부)과 달리
  *   현황 재조회는 이 컴포넌트가 스스로 할 수 없어 호출부에서 받는다. 넘기지 않으면 문구만 남는다.
  */
@@ -54,6 +56,7 @@ internal fun VerificationPhoto(
     photoUrl: String?,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
+    photoDeleted: Boolean = false,
     onRetry: (() -> Unit)? = null,
 ) {
     Box(
@@ -73,6 +76,10 @@ internal fun VerificationPhoto(
             }
             status == VerificationStatus.PENDING -> PhotoMessage(NOT_VERIFIED_TEXT)
             status == VerificationStatus.FAILED -> PhotoMessage(VERIFICATION_FAILED_TEXT)
+            // 삭제는 되돌아오지 않는 정상 종결이라 로드 실패의 어휘("불러오지 못했어요" · 재시도)를
+            // 쓰면 안 된다. 더 중요한 건 바로 아래 분기가 진짜 데이터 이상을 잡는 감지기라는 점이다 —
+            // 두 신호를 한 문구로 합치면 URL 유실 버그가 탈퇴자 뒤에 영영 숨는다.
+            photoDeleted -> PhotoMessage(PHOTO_DELETED_TEXT)
             // 인증은 됐는데 URL 이 없는 건 정상 경로가 아니다. 빈 칸으로 두면 원인 없는 공백이 되므로
             // 로드 실패와 같은 문구로 드러낸다(재시도할 대상 URL 이 없어 버튼은 붙이지 않는다).
             photoUrl == null -> PhotoMessage(LOAD_FAILED_TEXT)
@@ -131,6 +138,62 @@ private fun PhotoRetryMessage(text: String, onRetry: () -> Unit) {
                 .clickable(onClick = onRetry)
                 .padding(horizontal = 12.dp, vertical = 6.dp),
         )
+    }
+}
+
+/** 인증 완료 + 사진 있음. 프리뷰는 네트워크를 못 타 Coil 의 로딩 슬롯까지만 확인된다. */
+@Preview
+@Composable
+private fun VerificationPhotoWithPhotoPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(20.dp),
+        ) {
+            VerificationPhoto(
+                status = VerificationStatus.VERIFIED,
+                photoUrl = "http://10.0.2.2:8080/api/v1/challenges/7/photos/opponent",
+            )
+        }
+    }
+}
+
+/** 탈퇴로 사진이 삭제됨 — 아래 [VerificationPhotoMissingUrlPreview] 와 문구가 달라야 한다. */
+@Preview
+@Composable
+private fun VerificationPhotoDeletedPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(20.dp),
+        ) {
+            VerificationPhoto(
+                status = VerificationStatus.VERIFIED,
+                photoUrl = null,
+                photoDeleted = true,
+            )
+        }
+    }
+}
+
+/** 인증했는데 URL 이 없는 데이터 이상 — 삭제가 아니므로 기존 로드 실패 문구가 그대로 나와야 한다. */
+@Preview
+@Composable
+private fun VerificationPhotoMissingUrlPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(20.dp),
+        ) {
+            VerificationPhoto(
+                status = VerificationStatus.VERIFIED,
+                photoUrl = null,
+                photoDeleted = false,
+            )
+        }
     }
 }
 

@@ -26,5 +26,13 @@ interface LoginRepository {
 
     suspend fun getStoredTokens(): AuthTokens
 
+    /**
+     * 서버 세션(refresh hash·fcm token)을 무효화한다. 멱등하다.
+     *
+     * 로컬 토큰은 건드리지 않는다 — [clearTokens] 와의 순서는 호출자(LogoutUseCase) 책임이다.
+     * 토큰이 남아 있어야 이 호출에 Bearer 가 실린다.
+     */
+    suspend fun logout()
+
     suspend fun clearTokens()
 }

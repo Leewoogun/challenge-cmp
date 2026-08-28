@@ -2,6 +2,7 @@ package com.lwg.challenge.feature.challenge.detail
 
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
+import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
@@ -30,6 +31,10 @@ class FakeChallengeRepository : ChallengeRepository {
     override fun getReceivedChallenges(
         onError: (String) -> Unit,
     ): Flow<List<ReceivedChallenge>> = emptyFlow()
+
+    override fun getChallengeHistories(
+        onError: (String) -> Unit,
+    ): Flow<List<ChallengeHistory>> = emptyFlow()
 
     override suspend fun createChallenge(
         input: ChallengeCreateInput,

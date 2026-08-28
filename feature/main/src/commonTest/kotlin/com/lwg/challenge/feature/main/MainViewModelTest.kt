@@ -142,6 +142,44 @@ class MainViewModelTest {
     }
 
     @Test
+    fun `수동 로그아웃은 USER 로 처리돼 서버 세션까지 끊는다`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.loggedOut.test {
+            viewModel.logout()
+            awaitItem()
+        }
+
+        assertEquals(listOf("logout", "clearTokens"), fakeLoginRepository.callLog)
+    }
+
+    // 탈퇴는 계정 자체가 사라진 뒤라 끊을 세션이 없다. 이동 경로만 로그아웃과 공유한다.
+    @Test
+    fun `탈퇴는 WITHDRAWN 으로 처리돼 서버를 부르지 않는다`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.loggedOut.test {
+            viewModel.withdrawn()
+            awaitItem()
+        }
+
+        assertEquals(listOf("clearTokens"), fakeLoginRepository.callLog)
+    }
+
+    // 갱신이 이미 실패한 상태라 서버를 부르면 401 → 갱신 재시도 → 만료 이벤트로 이 흐름에 재진입한다.
+    @Test
+    fun `세션 만료는 SESSION_EXPIRED 로 처리돼 서버를 부르지 않는다`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.loggedOut.test {
+            authEventBus.emitSessionExpired()
+            awaitItem()
+        }
+
+        assertEquals(listOf("clearTokens"), fakeLoginRepository.callLog)
+    }
+
+    @Test
     fun `CHALLENGE_ACCEPTED 는 상세로 간다`() = runTest {
         val viewModel = createViewModel()
 

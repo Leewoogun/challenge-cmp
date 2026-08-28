@@ -76,9 +76,14 @@ sealed interface ChallengeDetailUiState {
 
         val myPhotoUrl: String? get() = verifications?.myPhotoUrl
 
+        /** 현황을 모르면 삭제라고 단정하지 않는다 — 사진 없음의 이유를 날조하지 않는 쪽으로 둔다. */
+        val myPhotoDeleted: Boolean get() = verifications?.myPhotoDeleted == true
+
         val opponentVerificationStatus: VerificationStatus? get() = verifications?.opponentStatus
 
         val opponentPhotoUrl: String? get() = verifications?.opponentPhotoUrl
+
+        val opponentPhotoDeleted: Boolean get() = verifications?.opponentPhotoDeleted == true
 
         /**
          * 내 미션 카드 하단에 무엇이 들어가는지.
@@ -144,11 +149,15 @@ data class SignatureSection(
  *
  * @property myPhotoUrl 인증 사진의 절대 URL. 미인증이면 null. 인증 헤더가 필요한 URL 이라 외부로
  *   그대로 내보낼 수 없다.
+ * @property opponentPhotoDeleted 탈퇴로 사진이 영구 삭제됨. `VERIFIED` + [opponentPhotoUrl] `null`
+ *   조합이 정상인 유일한 경우라, 이 값이 없으면 데이터 이상과 구분되지 않는다.
  */
 @Immutable
 data class VerificationSection(
     val myStatus: VerificationStatus,
     val myPhotoUrl: String?,
+    val myPhotoDeleted: Boolean,
     val opponentStatus: VerificationStatus,
     val opponentPhotoUrl: String?,
+    val opponentPhotoDeleted: Boolean,
 )

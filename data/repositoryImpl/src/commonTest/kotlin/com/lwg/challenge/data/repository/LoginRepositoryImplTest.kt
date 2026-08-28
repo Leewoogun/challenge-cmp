@@ -95,6 +95,20 @@ class LoginRepositoryImplTest {
         assertEquals(loginResult.tokens, repository.getStoredTokens())
     }
 
+    // 토큰을 여기서 지우면 Bearer 가 실릴 토큰이 사라진다 — 순서 책임은 LogoutUseCase 에 있다.
+    @Test
+    fun `logout - 원격만 호출하고 토큰은 건드리지 않는다`() = runTest {
+        val local = FakeTokenLocalDataSource()
+        val remote = FakeLoginRemoteDataSource(kakaoResult = flowOf(loginResult))
+        val repository = repository(remote, local)
+        repository.loginWithKakao(kakaoAccessToken = "kakao-token", onError = {}).toList()
+
+        repository.logout()
+
+        assertEquals(1, remote.logoutCallCount)
+        assertEquals(loginResult.tokens, repository.getStoredTokens())
+    }
+
     @Test
     fun `clearTokens - 저장소를 비운다`() = runTest {
         val local = FakeTokenLocalDataSource()
@@ -122,6 +136,13 @@ private class FakeLoginRemoteDataSource(
         onError: (String) -> Unit,
         onUnsupported: () -> Unit,
     ): Flow<LoginResult> = testResult
+
+    var logoutCallCount = 0
+        private set
+
+    override suspend fun logout() {
+        logoutCallCount++
+    }
 }
 
 private class FakeTokenLocalDataSource : TokenLocalDataSource {

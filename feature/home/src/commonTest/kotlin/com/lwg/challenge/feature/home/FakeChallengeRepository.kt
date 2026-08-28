@@ -2,10 +2,12 @@ package com.lwg.challenge.feature.home
 
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
+import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 
 class FakeChallengeRepository : ChallengeRepository {
@@ -88,6 +90,10 @@ class FakeChallengeRepository : ChallengeRepository {
         lastRejectedId = challengeId
         rejectError.let { if (it == null) onSuccess() else onError(it) }
     }
+
+    override fun getChallengeHistories(
+        onError: (String) -> Unit,
+    ): Flow<List<ChallengeHistory>> = emptyFlow()
 
     override suspend fun createChallenge(
         input: ChallengeCreateInput,

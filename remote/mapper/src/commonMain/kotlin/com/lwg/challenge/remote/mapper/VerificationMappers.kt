@@ -33,6 +33,7 @@ private fun PartyVerificationDto.toPartyVerification(baseUrl: String): PartyVeri
     status = status.toVerificationStatusOrDefault(),
     photoUrl = joinPhotoUrl(baseUrl, photoUrl),
     verifiedAt = verifiedAt,
+    photoDeleted = photoDeleted,
 )
 
 /**

@@ -103,6 +103,7 @@ internal fun ChallengeDetailScreen(
                         VerificationPhoto(
                             status = uiState.myVerificationStatus,
                             photoUrl = uiState.myPhotoUrl,
+                            photoDeleted = uiState.myPhotoDeleted,
                         )
                     }
                 }
@@ -120,6 +121,7 @@ internal fun ChallengeDetailScreen(
                 VerificationPhoto(
                     status = uiState.opponentVerificationStatus,
                     photoUrl = uiState.opponentPhotoUrl,
+                    photoDeleted = uiState.opponentPhotoDeleted,
                     onRetry = onRetry,
                 )
             },
@@ -437,13 +439,17 @@ private fun previewSignatures(
 private fun previewVerifications(
     myStatus: VerificationStatus = VerificationStatus.PENDING,
     myPhotoUrl: String? = null,
+    myPhotoDeleted: Boolean = false,
     opponentStatus: VerificationStatus = VerificationStatus.PENDING,
     opponentPhotoUrl: String? = null,
+    opponentPhotoDeleted: Boolean = false,
 ) = VerificationSection(
     myStatus = myStatus,
     myPhotoUrl = myPhotoUrl,
+    myPhotoDeleted = myPhotoDeleted,
     opponentStatus = opponentStatus,
     opponentPhotoUrl = opponentPhotoUrl,
+    opponentPhotoDeleted = opponentPhotoDeleted,
 )
 
 private fun previewData(

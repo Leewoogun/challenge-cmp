@@ -6,6 +6,7 @@ import com.lwg.challenge.remote.model.challenge.CancelChallengeResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateBody
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
+import com.lwg.challenge.remote.model.challenge.ChallengeHistoryResponse
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengesResponse
 import com.lwg.challenge.remote.model.challenge.RejectChallengeResponse
 import com.lwg.challenge.remote.network.util.ApiResult
@@ -33,6 +34,15 @@ interface ChallengeApi {
     suspend fun getChallengeDetail(
         @Path("id") challengeId: Long,
     ): ApiResult<ChallengeDetailResponse>
+
+    /**
+     * GET /api/v1/challenges/history — 계약서 보관함 목록 (`COMPLETED` 전체). `challengeDate DESC`.
+     *
+     * 파라미터가 없다. 월 필터·페이지네이션 둘 다 계약에서 빼기로 확정했고, 월 그룹핑은 앱이 한다
+     * (api-contract §1) — 서버가 그룹을 나눠 주면 응답 shape 에 화면 구조가 박힌다.
+     */
+    @GET("api/v1/challenges/history")
+    suspend fun getChallengeHistories(): ApiResult<ChallengeHistoryResponse>
 
     /** GET /api/v1/challenges/received — 받은 도전장 목록 (PENDING, 마감 미경과). `created_at DESC`. */
     @GET("api/v1/challenges/received")

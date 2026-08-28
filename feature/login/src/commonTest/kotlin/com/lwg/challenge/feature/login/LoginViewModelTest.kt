@@ -244,7 +244,7 @@ class LoginViewModelTest {
             viewModel.loginWithTestAccount(TestAccount.TESTER_1)
             assertIs<LoginUiEffect.NavigateToHome>(awaitItem())
         }
-        assertEquals(listOf("clearTokens", "loginWithTestAccount"), fakeRepository.callLog)
+        assertEquals(listOf("logout", "clearTokens", "loginWithTestAccount"), fakeRepository.callLog)
         assertEquals(1, fakeUserInfoRepository.clearUserInfoCacheCallCount)
     }
 

@@ -15,10 +15,10 @@ import kotlinx.serialization.Serializable
  *     "challenger": {
  *       "userId": 1, "status": "VERIFIED",
  *       "photoUrl": "/api/v1/challenges/7/photos/challenger",
- *       "verifiedAt": "2026-08-14 15:32:10" },
+ *       "verifiedAt": "2026-08-14 15:32:10", "photoDeleted": false },
  *     "opponent": {
  *       "userId": 14, "status": "PENDING",
- *       "photoUrl": null, "verifiedAt": null } } }
+ *       "photoUrl": null, "verifiedAt": null, "photoDeleted": false } } }
  * ```
  *
  * `challenger` / `opponent` 는 역할 그대로다 — '나 / 상대' 로 뒤집혀 오지 않는다.
@@ -48,4 +48,9 @@ data class PartyVerificationDto(
     /** "yyyy-MM-dd HH:mm:ss" (KST). 미인증이면 null. */
     @Serializable(with = WireLocalDateTimeSerializer::class)
     val verifiedAt: LocalDateTime? = null,
+    /**
+     * 사진이 지워졌고 되살아나지 않음. 기본값이 반드시 있어야 한다 — 이 키를 아직 주지 않는
+     * 서버에서는 키 누락이 곧 `MissingFieldException` 이라 응답 전체가 통째로 실패한다.
+     */
+    val photoDeleted: Boolean = false,
 )

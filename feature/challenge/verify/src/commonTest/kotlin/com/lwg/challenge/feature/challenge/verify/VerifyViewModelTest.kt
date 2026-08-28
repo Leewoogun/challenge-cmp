@@ -88,12 +88,14 @@ class VerifyViewModelTest {
             status = status,
             photoUrl = null,
             verifiedAt = null,
+            photoDeleted = false,
         ),
         opponent = PartyVerification(
             userId = OPPONENT_USER_ID,
             status = VerificationStatus.PENDING,
             photoUrl = null,
             verifiedAt = null,
+            photoDeleted = false,
         ),
     )
 

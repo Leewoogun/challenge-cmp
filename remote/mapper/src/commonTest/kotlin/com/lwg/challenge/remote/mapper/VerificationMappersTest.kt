@@ -11,6 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /** 운영 BuildKonfig.BASE_URL 과 같은 형태 — trailing slash 가 있다. 이게 실제 조합 조건이다. */
 internal const val TEST_BASE_URL = "http://10.0.2.2:8080/"
@@ -67,6 +68,41 @@ class VerificationMappersTest {
         assertEquals(1L, verifications.challenger.userId)
         assertEquals(14L, verifications.opponent.userId)
         assertNull(verifications.opponent.photoUrl)
+    }
+
+    @Test
+    fun `탈퇴로 사진이 지워진 칸은 photoDeleted 가 도메인까지 그대로 간다`() {
+        val verifications = ChallengeVerificationsResponse(
+            ChallengeVerificationsData(
+                challengeId = 7L,
+                challenger = verifiedParty,
+                opponent = PartyVerificationDto(
+                    userId = 14L,
+                    status = "VERIFIED",
+                    photoUrl = null,
+                    photoDeleted = true,
+                ),
+            ),
+        ).toChallengeVerifications(TEST_BASE_URL)
+
+        assertTrue(verifications.opponent.photoDeleted)
+        assertNull(verifications.opponent.photoUrl, "삭제된 칸은 조인할 대상이 없다")
+        assertEquals(VerificationStatus.VERIFIED, verifications.opponent.status, "인증했다는 사실 자체는 남는다")
+        assertFalse(verifications.challenger.photoDeleted)
+    }
+
+    @Test
+    fun `photoDeleted 를 주지 않는 응답은 false 로 매핑된다`() {
+        val verifications = ChallengeVerificationsResponse(
+            ChallengeVerificationsData(
+                challengeId = 7L,
+                challenger = verifiedParty,
+                opponent = PartyVerificationDto(userId = 14L, status = "PENDING"),
+            ),
+        ).toChallengeVerifications(TEST_BASE_URL)
+
+        assertFalse(verifications.challenger.photoDeleted)
+        assertFalse(verifications.opponent.photoDeleted)
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.lwg.challenge.domain.usecase
 
 import com.lwg.challenge.domain.model.LoginResult
+import com.lwg.challenge.domain.model.LogoutReason
 import com.lwg.challenge.domain.repository.LoginRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.flow
  * 홈이 이전 테스터의 닉네임을 계속 보여준다.
  * `LoginRepository.clearTokens()` 만으로는 부족하다 — 그건 토큰과 Ktor Auth 캐시만 비우고
  * `UserInfo` 캐시는 건드리지 않는다. 둘을 함께 정리하는 것은 [LogoutUseCase] 다.
+ * [LogoutReason.USER] 로 부르므로 이전 계정의 서버 세션(refresh hash·fcm token)도 함께 끊긴다.
  */
 class LoginWithTestAccountUseCase(
     private val logoutUseCase: LogoutUseCase,
@@ -25,7 +27,7 @@ class LoginWithTestAccountUseCase(
         onError: (String) -> Unit,
         onUnsupported: () -> Unit,
     ): Flow<LoginResult> = flow {
-        logoutUseCase()
+        logoutUseCase(LogoutReason.USER)
         emitAll(
             loginRepository.loginWithTestAccount(
                 testUserNo = testUserNo,

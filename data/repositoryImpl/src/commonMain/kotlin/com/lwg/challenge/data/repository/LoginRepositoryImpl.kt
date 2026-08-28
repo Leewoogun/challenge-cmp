@@ -54,6 +54,11 @@ class LoginRepositoryImpl(
         }
     }
 
+    // 여기서 clearTokens() 를 부르지 않는다 — 순서 책임은 LogoutUseCase 에 있다.
+    override suspend fun logout() {
+        loginRemoteDataSource.logout()
+    }
+
     override suspend fun clearTokens() {
         tokenLocalDataSource.clearTokens()
         authTokenCacheInvalidator.invalidate()

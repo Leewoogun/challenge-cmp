@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
+import com.lwg.challenge.ui.components.BetStrip
 import com.lwg.challenge.ui.components.ChallengeOutcomePill
 import com.lwg.challenge.ui.components.VerificationStatusPill
 import org.jetbrains.compose.ui.tooling.preview.Preview

@@ -169,8 +169,10 @@ class ChallengeDetailViewModel(
         return VerificationSection(
             myStatus = mine.status,
             myPhotoUrl = mine.photoUrl,
+            myPhotoDeleted = mine.photoDeleted,
             opponentStatus = other.status,
             opponentPhotoUrl = other.photoUrl,
+            opponentPhotoDeleted = other.photoDeleted,
         )
     }
 

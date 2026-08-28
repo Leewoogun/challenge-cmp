@@ -10,6 +10,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * 인증 API 응답 원문 바이트 → DTO → 도메인 통과 검증.
@@ -45,6 +46,10 @@ class VerificationWireFixtureTest {
 
     private val bothVerifiedWire =
         """{"error":false,"code":200,"message":"","data":{"challengeId":7,"challenger":{"userId":1,"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-08-14 15:32:10"},"opponent":{"userId":14,"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/opponent","verifiedAt":"2026-08-14 15:41:03"}}}"""
+
+    // 탈퇴자가 낀 실측 응답 — 상대는 VERIFIED 인데 photoUrl 이 null 이고 photoDeleted 만 true 다.
+    private val photoDeletedWire =
+        """{"error":false,"code":200,"message":"","data":{"challengeId":7,"challenger":{"userId":1,"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-08-14 15:32:10","photoDeleted":false},"opponent":{"userId":14,"status":"VERIFIED","photoUrl":null,"verifiedAt":"2026-08-14 15:41:03","photoDeleted":true}}}"""
 
     @Test
     fun `null 최대 응답 원문이 역직렬화된다 - 명시적 null 키가 예외가 아니다`() {
@@ -90,6 +95,32 @@ class VerificationWireFixtureTest {
         assertNotNull(verifications.challenger.photoUrl)
         assertNotNull(verifications.opponent.photoUrl)
         assertEquals(LocalDateTime(2026, 8, 14, 15, 41, 3), verifications.opponent.verifiedAt)
+    }
+
+    @Test
+    fun `탈퇴자 응답 원문이 도메인까지 통과하고 photoDeleted 만 true 로 남는다`() {
+        val verifications = json.decodeFromString<ChallengeVerificationsResponse>(photoDeletedWire)
+            .toChallengeVerifications(TEST_BASE_URL)
+
+        assertEquals(VerificationStatus.VERIFIED, verifications.opponent.status)
+        assertNull(verifications.opponent.photoUrl)
+        assertTrue(verifications.opponent.photoDeleted)
+
+        assertNotNull(verifications.challenger.photoUrl)
+        assertFalse(verifications.challenger.photoDeleted)
+    }
+
+    /**
+     * 서버가 아직 이 키를 주지 않는 환경 — 키 누락이 예외가 되면 인증 현황 조회가 통째로 죽는다.
+     * 이 값이 false 로 들어와야 URL 유실 감지 분기가 탈퇴 문구에 가려지지 않는다.
+     */
+    @Test
+    fun `photoDeleted 키가 없는 응답도 역직렬화되고 false 로 채워진다`() {
+        val verifications = json.decodeFromString<ChallengeVerificationsResponse>(nullMaxVerificationsWire)
+            .toChallengeVerifications(TEST_BASE_URL)
+
+        assertFalse(verifications.challenger.photoDeleted)
+        assertFalse(verifications.opponent.photoDeleted)
     }
 
     @Test

@@ -45,4 +45,10 @@ class LoginRemoteDataSourceImpl(
             .suspendOnSuccess { this@flow.emit(response.toLoginResult()) }
             .suspendOnFailureWithErrorHandling(onError)
     }
+
+    // 방출할 값도 UI 에 전할 에러도 없어 Flow 가 아닌 suspend 다. 실패는 기본 onError({}) 로 로그만 남긴다.
+    override suspend fun logout() {
+        loginApi.logout()
+            .suspendOnFailureWithErrorHandling()
+    }
 }

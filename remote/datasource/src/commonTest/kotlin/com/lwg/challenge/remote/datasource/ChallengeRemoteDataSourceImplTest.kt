@@ -19,6 +19,7 @@ import com.lwg.challenge.remote.model.challenge.ChallengeCreateData
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeDetailData
 import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
+import com.lwg.challenge.remote.model.challenge.ChallengeHistoryResponse
 import com.lwg.challenge.remote.model.challenge.ContractDto
 import com.lwg.challenge.remote.model.challenge.ContractPartyDto
 import com.lwg.challenge.remote.model.challenge.DeadlineTypeDto
@@ -380,6 +381,7 @@ private class FakeChallengeApi(
     private val createResult: ApiResult<ChallengeCreateResponse> = ApiResult.Success(ChallengeCreateResponse()),
     private val receivedResult: ApiResult<ReceivedChallengesResponse> = ApiResult.Success(ReceivedChallengesResponse()),
     private val detailResult: ApiResult<ChallengeDetailResponse> = ApiResult.Success(ChallengeDetailResponse()),
+    private val historiesResult: ApiResult<ChallengeHistoryResponse> = ApiResult.Success(ChallengeHistoryResponse()),
     private val acceptResult: ApiResult<AcceptChallengeResponse> = ApiResult.Success(AcceptChallengeResponse()),
     private val rejectResult: ApiResult<RejectChallengeResponse> = ApiResult.Success(RejectChallengeResponse()),
     private val cancelResult: ApiResult<CancelChallengeResponse> = ApiResult.Success(CancelChallengeResponse()),
@@ -414,6 +416,8 @@ private class FakeChallengeApi(
         capturedDetailId = challengeId
         return detailResult
     }
+
+    override suspend fun getChallengeHistories(): ApiResult<ChallengeHistoryResponse> = historiesResult
 
     override suspend fun acceptChallenge(
         challengeId: Long,

@@ -6,6 +6,7 @@ import com.lwg.challenge.remote.api.LoginApi
 import com.lwg.challenge.remote.model.auth.KakaoLoginRequest
 import com.lwg.challenge.remote.model.auth.LoginData
 import com.lwg.challenge.remote.model.auth.LoginResponse
+import com.lwg.challenge.remote.model.auth.LogoutResponse
 import com.lwg.challenge.remote.model.auth.TestLoginRequest
 import com.lwg.challenge.remote.network.util.ApiResult
 import kotlinx.coroutines.flow.toList
@@ -146,16 +147,40 @@ class LoginRemoteDataSourceImplTest {
         assertEquals(KakaoLoginRequest("kakao-token"), api.lastKakaoRequest)
         assertEquals(emptyList(), errors)
     }
+
+    @Test
+    fun `logout 성공 - Api 를 1회 호출한다`() = runTest {
+        val api = FakeLoginApi()
+        val dataSource = LoginRemoteDataSourceImpl(api)
+
+        dataSource.logout()
+
+        assertEquals(1, api.logoutCallCount)
+    }
+
+    // 로그아웃 실패를 예외로 올리면 호출자(LogoutUseCase)의 로컬 정리가 끊긴다.
+    @Test
+    fun `logout 실패 - 예외를 던지지 않는다`() = runTest {
+        val api = FakeLoginApi(logoutResult = ApiResult.Failure.NetworkError("offline"))
+        val dataSource = LoginRemoteDataSourceImpl(api)
+
+        dataSource.logout()
+
+        assertEquals(1, api.logoutCallCount)
+    }
 }
 
 private class FakeLoginApi(
     private val kakaoResult: ApiResult<LoginResponse> = ApiResult.Failure.NetworkError("호출되면 안 되는 경로"),
     private val testResult: ApiResult<LoginResponse> = ApiResult.Failure.NetworkError("호출되면 안 되는 경로"),
+    private val logoutResult: ApiResult<LogoutResponse> = ApiResult.Success(LogoutResponse()),
 ) : LoginApi {
 
     var lastKakaoRequest: KakaoLoginRequest? = null
         private set
     var lastTestRequest: TestLoginRequest? = null
+        private set
+    var logoutCallCount = 0
         private set
 
     override suspend fun kakaoLogin(request: KakaoLoginRequest): ApiResult<LoginResponse> {
@@ -166,5 +191,10 @@ private class FakeLoginApi(
     override suspend fun testLogin(request: TestLoginRequest): ApiResult<LoginResponse> {
         lastTestRequest = request
         return testResult
+    }
+
+    override suspend fun logout(): ApiResult<LogoutResponse> {
+        logoutCallCount++
+        return logoutResult
     }
 }

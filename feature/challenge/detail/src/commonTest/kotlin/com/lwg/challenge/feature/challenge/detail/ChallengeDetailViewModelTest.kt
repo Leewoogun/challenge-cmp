@@ -202,23 +202,27 @@ class ChallengeDetailViewModelTest {
     private fun sampleVerifications(
         challengerStatus: VerificationStatus = VerificationStatus.PENDING,
         challengerPhotoUrl: String? = null,
+        challengerPhotoDeleted: Boolean = false,
         opponentStatus: VerificationStatus = VerificationStatus.PENDING,
         opponentPhotoUrl: String? = null,
+        opponentPhotoDeleted: Boolean = false,
     ) = ChallengeVerifications(
         challengeId = CHALLENGE_ID,
-        challenger = party(CHALLENGER_ID, challengerStatus, challengerPhotoUrl),
-        opponent = party(OPPONENT_ID, opponentStatus, opponentPhotoUrl),
+        challenger = party(CHALLENGER_ID, challengerStatus, challengerPhotoUrl, challengerPhotoDeleted),
+        opponent = party(OPPONENT_ID, opponentStatus, opponentPhotoUrl, opponentPhotoDeleted),
     )
 
     private fun party(
         userId: Long,
         status: VerificationStatus,
         photoUrl: String?,
+        photoDeleted: Boolean = false,
     ) = PartyVerification(
         userId = userId,
         status = status,
         photoUrl = photoUrl,
         verifiedAt = VERIFIED_AT.takeIf { status == VerificationStatus.VERIFIED },
+        photoDeleted = photoDeleted,
     )
 
     /** 인증을 마치고 상세로 돌아오는 경로. 백스택에 남아 있던 ViewModel 이 그대로 재구독된다. */
@@ -750,6 +754,69 @@ class ChallengeDetailViewModelTest {
 
         assertEquals(OPPONENT_PHOTO_URL, verifications.myPhotoUrl)
         assertEquals(CHALLENGER_PHOTO_URL, verifications.opponentPhotoUrl)
+    }
+
+    // 아래 테스트들이 "탈퇴로 지워짐" 과 "URL 만 없음" 의 구분선이다 — 둘 다 VERIFIED + photoUrl null 이라
+    // photoDeleted 를 잃는 순간 화면에서 데이터 이상이 탈퇴 문구 뒤로 숨는다.
+
+    @Test
+    fun `탈퇴한 상대의 사진 삭제 표시가 상대 칸으로 실린다`() = runTest {
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+            opponentStatus = VerificationStatus.VERIFIED,
+            opponentPhotoUrl = null,
+            opponentPhotoDeleted = true,
+        )
+
+        val verifications = createViewModel().verifications()
+
+        assertTrue(verifications.opponentPhotoDeleted)
+        assertNull(verifications.opponentPhotoUrl)
+        assertEquals(VerificationStatus.VERIFIED, verifications.opponentStatus)
+        assertFalse(verifications.myPhotoDeleted)
+    }
+
+    @Test
+    fun `인증했는데 URL 만 없는 칸은 삭제로 읽지 않는다`() = runTest {
+        fakeVerificationRepository.verifications = sampleVerifications(
+            opponentStatus = VerificationStatus.VERIFIED,
+            opponentPhotoUrl = null,
+            opponentPhotoDeleted = false,
+        )
+
+        val verifications = createViewModel().verifications()
+
+        assertFalse(verifications.opponentPhotoDeleted, "URL 유실은 탈퇴와 다른 신호로 남아야 한다")
+        assertNull(verifications.opponentPhotoUrl)
+    }
+
+    @Test
+    fun `내가 opponent 면 사진 삭제 표시도 함께 뒤집힌다`() = runTest {
+        fakeUserInfoRepository.userInfo = userInfo(OPPONENT_ID)
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = null,
+            challengerPhotoDeleted = true,
+            opponentStatus = VerificationStatus.VERIFIED,
+            opponentPhotoUrl = OPPONENT_PHOTO_URL,
+        )
+
+        val verifications = createViewModel().verifications()
+
+        assertTrue(verifications.opponentPhotoDeleted)
+        assertFalse(verifications.myPhotoDeleted)
+    }
+
+    @Test
+    fun `인증 현황을 모르면 사진이 삭제됐다고 단정하지 않는다`() = runTest {
+        fakeVerificationRepository.getVerificationsError = "네트워크 오류가 발생하였습니다."
+
+        val data = createViewModel().data()
+
+        assertNull(data.verifications)
+        assertFalse(data.myPhotoDeleted)
+        assertFalse(data.opponentPhotoDeleted)
     }
 
     @Test

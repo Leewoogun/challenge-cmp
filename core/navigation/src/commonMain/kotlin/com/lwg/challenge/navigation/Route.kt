@@ -28,6 +28,14 @@ sealed interface Route : NavKey {
     @Serializable
     data object MyPage : Route
 
+    /**
+     * 계약서 보관함 — 종료된 챌린지 목록. 마이페이지 메뉴에서 push 로 들어가는 하위 화면이다.
+     *
+     * `:feature:mypage` 는 단일 모듈이라 위 규칙대로 중첩하지 않고 평탄한 data object 로 둔다.
+     */
+    @Serializable
+    data object Archive : Route
+
     /** 알림 목록. home-feed 헤더 Bell 진입. 본 feature 범위 밖 — stub PlaceholderScreen. */
     @Serializable
     data object Notifications : Route
@@ -73,6 +81,7 @@ val routeSerializersModule = SerializersModule {
         subclass(Route.Home::class)
         subclass(Route.Ranking::class)
         subclass(Route.MyPage::class)
+        subclass(Route.Archive::class)
         subclass(Route.Notifications::class)
         subclass(Route.Friends.List::class)
         subclass(Route.Friends.Search::class)

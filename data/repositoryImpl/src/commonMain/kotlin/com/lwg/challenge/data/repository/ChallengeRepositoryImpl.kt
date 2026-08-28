@@ -3,6 +3,7 @@ package com.lwg.challenge.data.repository
 import com.lwg.challenge.data.datasource.remote.ChallengeRemoteDataSource
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
+import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
@@ -17,6 +18,10 @@ class ChallengeRepositoryImpl(
     override fun getReceivedChallenges(
         onError: (String) -> Unit,
     ): Flow<List<ReceivedChallenge>> = challengeRemoteDataSource.getReceivedChallenges(onError)
+
+    override fun getChallengeHistories(
+        onError: (String) -> Unit,
+    ): Flow<List<ChallengeHistory>> = challengeRemoteDataSource.getChallengeHistories(onError)
 
     override suspend fun createChallenge(
         input: ChallengeCreateInput,

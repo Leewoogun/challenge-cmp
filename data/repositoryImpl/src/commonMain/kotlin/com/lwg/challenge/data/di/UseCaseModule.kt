@@ -6,13 +6,17 @@ import com.lwg.challenge.domain.repository.FriendsRepository
 import com.lwg.challenge.domain.repository.LoginRepository
 import com.lwg.challenge.domain.repository.RecordRepository
 import com.lwg.challenge.domain.repository.UserInfoRepository
+import com.lwg.challenge.domain.repository.WithdrawRepository
 import com.lwg.challenge.domain.usecase.CreateChallengeUseCase
+import com.lwg.challenge.domain.usecase.GetChallengeHistoriesUseCase
 import com.lwg.challenge.domain.usecase.GetFriendsDataUseCase
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
+import com.lwg.challenge.domain.usecase.GetMyPageDataUseCase
 import com.lwg.challenge.domain.usecase.GetStoredTokensUseCase
 import com.lwg.challenge.domain.usecase.LoginWithKakaoUseCase
 import com.lwg.challenge.domain.usecase.LoginWithTestAccountUseCase
 import com.lwg.challenge.domain.usecase.LogoutUseCase
+import com.lwg.challenge.domain.usecase.WithdrawUseCase
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 
@@ -55,9 +59,23 @@ class UseCaseModule {
     )
 
     @Factory
+    fun provideGetMyPageDataUseCase(
+        recordRepository: RecordRepository,
+        userInfoRepository: UserInfoRepository,
+    ): GetMyPageDataUseCase = GetMyPageDataUseCase(
+        recordRepository,
+        userInfoRepository,
+    )
+
+    @Factory
     fun provideGetFriendsDataUseCase(
         friendsRepository: FriendsRepository,
     ): GetFriendsDataUseCase = GetFriendsDataUseCase(friendsRepository)
+
+    @Factory
+    fun provideGetChallengeHistoriesUseCase(
+        challengeRepository: ChallengeRepository,
+    ): GetChallengeHistoriesUseCase = GetChallengeHistoriesUseCase(challengeRepository)
 
     @Factory
     fun provideCreateChallengeUseCase(
@@ -69,4 +87,10 @@ class UseCaseModule {
         loginRepository: LoginRepository,
         userInfoRepository: UserInfoRepository,
     ): LogoutUseCase = LogoutUseCase(loginRepository, userInfoRepository)
+
+    @Factory
+    fun provideWithdrawUseCase(
+        withdrawRepository: WithdrawRepository,
+        logoutUseCase: LogoutUseCase,
+    ): WithdrawUseCase = WithdrawUseCase(withdrawRepository, logoutUseCase)
 }

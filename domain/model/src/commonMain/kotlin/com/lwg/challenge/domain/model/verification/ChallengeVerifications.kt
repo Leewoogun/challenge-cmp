@@ -29,10 +29,13 @@ data class ChallengeVerifications(
  *   그대로 넘길 수 있다). 미인증이면 null.
  *   인증 헤더를 붙여 요청해야 하므로 외부에 그대로 노출할 수 있는 URL 이 아니다
  * @property verifiedAt 인증 확정 시각 (KST). 미인증이면 null
+ * @property photoDeleted 사진이 영구 삭제됨(탈퇴). 인증했다는 사실은 상대의 기록이라 남지만
+ *   사진은 되살아나지 않으므로, [photoUrl] 이 null 이어도 `VERIFIED` 인 상태와 구분된다
  */
 data class PartyVerification(
     val userId: Long,
     val status: VerificationStatus,
     val photoUrl: String?,
     val verifiedAt: LocalDateTime?,
+    val photoDeleted: Boolean,
 )
