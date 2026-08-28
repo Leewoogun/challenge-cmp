@@ -2,7 +2,9 @@ package com.lwg.challenge.remote.model.challenge
 
 import com.lwg.challenge.remote.model.BaseResponse
 import com.lwg.challenge.remote.model.serializer.WireLocalDateSerializer
+import com.lwg.challenge.remote.model.serializer.WireYearMonthSerializer
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.YearMonth
 import kotlinx.serialization.Serializable
 
 /**
@@ -11,15 +13,20 @@ import kotlinx.serialization.Serializable
  * ```
  * {
  *   "error": false, "code": 200, "message": "",
- *   "data": { "histories": [
- *     { "challengeId": 42, "challengeDate": "2026-08-14", "opponentNickname": "준혁",
- *       "myMission": "헬스장 가기", "opponentMission": "금주", "bet": "치킨 한 마리",
- *       "myResult": "WIN" }
- *   ] }
+ *   "data": {
+ *     "month": "2026-08",
+ *     "firstArchivedMonth": "2026-03",
+ *     "histories": [
+ *       { "challengeId": 42, "challengeDate": "2026-08-14", "opponentNickname": "준혁",
+ *         "myMission": "헬스장 가기", "opponentMission": "금주", "bet": "치킨 한 마리",
+ *         "myResult": "WIN" }
+ *     ]
+ *   }
  * }
  * ```
  *
- * 종료된 챌린지가 없으면 `histories` 는 빈 배열. 페이지네이션이 없어 전체가 한 번에 온다.
+ * 한 번에 한 달치만 온다 — `histories` 는 `month` 한 달의 종료된 챌린지 전체이고, 그 달에 기록이
+ * 없으면 빈 배열이다. 다른 달은 `month` 파라미터를 붙여 다시 요청한다.
  */
 @Serializable
 data class ChallengeHistoryResponse(
@@ -28,6 +35,22 @@ data class ChallengeHistoryResponse(
 
 @Serializable
 data class ChallengeHistoryListData(
+    /**
+     * 서버가 실제로 조회한 달의 에코. 계약상 non-null 인데 여기서만 nullable 인 이유는, 파싱 실패나
+     * 필드 누락을 **응답 전체를 깨뜨리지 않고** 이 필드 하나로 흡수하기 위해서다. 그래도 값을 못 읽으면
+     * 매퍼가 응답 전체를 버린다 — 어느 달의 응답인지 모르는 채로는 아무것도 그릴 수 없다.
+     */
+    @Serializable(with = WireYearMonthSerializer::class)
+    val month: YearMonth? = null,
+    /**
+     * 가장 오래된 종료 챌린지의 달. **`null` 은 결측이 아니라 "종료한 챌린지가 하나도 없다"** 는 뜻이다 —
+     * 이 값 하나가 (a) 이전 달로 이동할 수 있는지와 (b) *"이 달만 비었다"* vs *"기록이 아예 없다"* 를
+     * 둘 다 결정한다.
+     *
+     * 사용자 전역 값이라 요청한 달과 무관하게 매 응답 같은 값이 온다.
+     */
+    @Serializable(with = WireYearMonthSerializer::class)
+    val firstArchivedMonth: YearMonth? = null,
     val histories: List<ChallengeHistoryDto> = emptyList(),
 )
 

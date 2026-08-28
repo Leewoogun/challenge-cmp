@@ -2,6 +2,7 @@ package com.lwg.challenge.utils.datetime
 
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.YearMonth
 import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.char
 
@@ -24,4 +25,12 @@ object ChallengeDateTimeFormats {
 
     /** 날짜 전용 `yyyy-MM-dd` 는 ISO date 와 동일해 기본 포맷으로 충분하다. 실패 시 null. */
     fun parseWireDate(text: String): LocalDate? = LocalDate.Formats.ISO.parseOrNull(text)
+
+    /**
+     * 월 전용 `yyyy-MM` 은 ISO year-month 와 동일해 기본 포맷으로 충분하다. 실패 시 null.
+     *
+     * ISO 는 월 zero-padding 을 요구해 `2026-8` 을 파싱하지 않는다 — 서버도 같은 형태를 거부하므로
+     * 앱이 받아주면 요청으로 되돌려 보낼 때 서버에서 터진다.
+     */
+    fun parseWireYearMonth(text: String): YearMonth? = YearMonth.Formats.ISO.parseOrNull(text)
 }

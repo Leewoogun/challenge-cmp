@@ -1,14 +1,15 @@
 package com.lwg.challenge.feature.challenge.detail
 
+import com.lwg.challenge.domain.model.challenge.ChallengeArchive
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
-import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.datetime.YearMonth
 
 /**
  * 테스트용 [ChallengeRepository] 페이크.
@@ -32,9 +33,10 @@ class FakeChallengeRepository : ChallengeRepository {
         onError: (String) -> Unit,
     ): Flow<List<ReceivedChallenge>> = emptyFlow()
 
-    override fun getChallengeHistories(
+    override fun getChallengeArchive(
+        month: YearMonth?,
         onError: (String) -> Unit,
-    ): Flow<List<ChallengeHistory>> = emptyFlow()
+    ): Flow<ChallengeArchive> = emptyFlow()
 
     override suspend fun createChallenge(
         input: ChallengeCreateInput,

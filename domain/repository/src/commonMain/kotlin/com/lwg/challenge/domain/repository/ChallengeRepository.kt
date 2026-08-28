@@ -1,11 +1,12 @@
 package com.lwg.challenge.domain.repository
 
+import com.lwg.challenge.domain.model.challenge.ChallengeArchive
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
-import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.signature.Signature
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.YearMonth
 
 /**
  * 챌린지 신청 / 응답 Repository.
@@ -16,10 +17,15 @@ interface ChallengeRepository {
         onError: (String) -> Unit,
     ): Flow<List<ReceivedChallenge>>
 
-    /** 계약서 보관함 목록. 종료된 챌린지 전체가 `challengeDate` 내림차순으로 온다. */
-    fun getChallengeHistories(
+    /**
+     * 계약서 보관함 한 달치. 그 달의 종료된 챌린지가 `challengeDate` 내림차순으로 온다.
+     *
+     * [month] 가 null 이면 서버가 KST 기준 이번 달을 골라 준다.
+     */
+    fun getChallengeArchive(
+        month: YearMonth?,
         onError: (String) -> Unit,
-    ): Flow<List<ChallengeHistory>>
+    ): Flow<ChallengeArchive>
 
     /**
      * 생성된 `challengeId` 를 [onSuccess] 로 넘기는 유일한 mutation.

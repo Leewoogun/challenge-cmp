@@ -1,11 +1,12 @@
 package com.lwg.challenge.data.datasource.remote
 
+import com.lwg.challenge.domain.model.challenge.ChallengeArchive
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
-import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.signature.Signature
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.YearMonth
 
 interface ChallengeRemoteDataSource {
 
@@ -13,9 +14,10 @@ interface ChallengeRemoteDataSource {
         onError: (String) -> Unit,
     ): Flow<List<ReceivedChallenge>>
 
-    fun getChallengeHistories(
+    fun getChallengeArchive(
+        month: YearMonth?,
         onError: (String) -> Unit,
-    ): Flow<List<ChallengeHistory>>
+    ): Flow<ChallengeArchive>
 
     suspend fun createChallenge(
         input: ChallengeCreateInput,

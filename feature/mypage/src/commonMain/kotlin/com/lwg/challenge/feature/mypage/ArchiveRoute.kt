@@ -30,9 +30,11 @@ fun ArchiveRoute(
         }
     }
 
-    ArchiveContent(
+    ArchiveBody(
         uiState = uiState,
         onBack = navigator::popBackStack,
+        onPreviousMonthClick = viewModel::onPreviousMonthClick,
+        onNextMonthClick = viewModel::onNextMonthClick,
         // 계약서 원문·서명·인증 사진이 전부 기존 상세에 있다. 보관함은 목록만 만든다.
         onChallengeClick = { challengeId -> navigator.navigateTo(Route.Challenge.Detail(challengeId)) },
         onCreateChallengeClick = { navigator.navigateTo(Route.Challenge.Create) },
@@ -40,10 +42,16 @@ fun ArchiveRoute(
     )
 }
 
+/**
+ * 상태 sealed interface 인 `ArchiveContent` 와 이름이 겹쳐, 1차의 `ArchiveContent` 컴포저블을
+ * `ArchiveBody` 로 바꿨다.
+ */
 @Composable
-private fun ArchiveContent(
+private fun ArchiveBody(
     uiState: ArchiveUiState,
     onBack: () -> Unit,
+    onPreviousMonthClick: () -> Unit,
+    onNextMonthClick: () -> Unit,
     onChallengeClick: (Long) -> Unit,
     onCreateChallengeClick: () -> Unit,
     onRetryClick: () -> Unit,
@@ -55,18 +63,13 @@ private fun ArchiveContent(
             ChallengeTopBar(title = "계약서 보관함", onBack = onBack)
         },
     ) {
-        when (uiState) {
-            is ArchiveUiState.Loading -> ArchiveLoadingScreen()
-
-            // 0건과 실패는 다른 사실이라 실패를 빈 상태로 그리지 않는다 — 증거 보관 화면에서
-            // "기록이 하나도 없다" 는 거짓이 가장 나쁘다 (design.md §2.5.4.1).
-            is ArchiveUiState.Failure -> ArchiveFailureScreen(onRetryClick = onRetryClick)
-
-            is ArchiveUiState.Data -> ArchiveScreen(
-                uiState = uiState,
-                onChallengeClick = onChallengeClick,
-                onCreateChallengeClick = onCreateChallengeClick,
-            )
-        }
+        ArchiveScreen(
+            uiState = uiState,
+            onPreviousMonthClick = onPreviousMonthClick,
+            onNextMonthClick = onNextMonthClick,
+            onChallengeClick = onChallengeClick,
+            onCreateChallengeClick = onCreateChallengeClick,
+            onRetryClick = onRetryClick,
+        )
     }
 }

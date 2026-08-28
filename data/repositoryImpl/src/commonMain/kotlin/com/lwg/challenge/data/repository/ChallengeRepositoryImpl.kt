@@ -1,13 +1,14 @@
 package com.lwg.challenge.data.repository
 
 import com.lwg.challenge.data.datasource.remote.ChallengeRemoteDataSource
+import com.lwg.challenge.domain.model.challenge.ChallengeArchive
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
-import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.YearMonth
 import org.koin.core.annotation.Single
 
 @Single(binds = [ChallengeRepository::class])
@@ -19,9 +20,10 @@ class ChallengeRepositoryImpl(
         onError: (String) -> Unit,
     ): Flow<List<ReceivedChallenge>> = challengeRemoteDataSource.getReceivedChallenges(onError)
 
-    override fun getChallengeHistories(
+    override fun getChallengeArchive(
+        month: YearMonth?,
         onError: (String) -> Unit,
-    ): Flow<List<ChallengeHistory>> = challengeRemoteDataSource.getChallengeHistories(onError)
+    ): Flow<ChallengeArchive> = challengeRemoteDataSource.getChallengeArchive(month, onError)
 
     override suspend fun createChallenge(
         input: ChallengeCreateInput,

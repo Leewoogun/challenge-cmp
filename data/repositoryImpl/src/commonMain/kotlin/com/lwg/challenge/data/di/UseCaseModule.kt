@@ -8,7 +8,7 @@ import com.lwg.challenge.domain.repository.RecordRepository
 import com.lwg.challenge.domain.repository.UserInfoRepository
 import com.lwg.challenge.domain.repository.WithdrawRepository
 import com.lwg.challenge.domain.usecase.CreateChallengeUseCase
-import com.lwg.challenge.domain.usecase.GetChallengeHistoriesUseCase
+import com.lwg.challenge.domain.usecase.GetChallengeArchiveUseCase
 import com.lwg.challenge.domain.usecase.GetFriendsDataUseCase
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.domain.usecase.GetMyPageDataUseCase
@@ -73,9 +73,9 @@ class UseCaseModule {
     ): GetFriendsDataUseCase = GetFriendsDataUseCase(friendsRepository)
 
     @Factory
-    fun provideGetChallengeHistoriesUseCase(
+    fun provideGetChallengeArchiveUseCase(
         challengeRepository: ChallengeRepository,
-    ): GetChallengeHistoriesUseCase = GetChallengeHistoriesUseCase(challengeRepository)
+    ): GetChallengeArchiveUseCase = GetChallengeArchiveUseCase(challengeRepository)
 
     @Factory
     fun provideCreateChallengeUseCase(

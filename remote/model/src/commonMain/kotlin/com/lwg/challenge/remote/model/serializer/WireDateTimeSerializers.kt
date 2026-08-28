@@ -3,6 +3,7 @@ package com.lwg.challenge.remote.model.serializer
 import com.lwg.challenge.utils.datetime.ChallengeDateTimeFormats
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.YearMonth
 import kotlinx.datetime.format
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -32,6 +33,15 @@ object WireLocalDateTimeSerializer : NullTolerantStringSerializer<LocalDateTime>
 object WireLocalDateSerializer : NullTolerantStringSerializer<LocalDate>("WireLocalDate") {
     override fun parse(text: String): LocalDate? = ChallengeDateTimeFormats.parseWireDate(text)
     override fun render(value: LocalDate): String = value.toString()
+}
+
+/**
+ * 월 전용 `yyyy-MM`. 실패 관용 정책을 [WireLocalDateTimeSerializer] 와 맞춰, null 로 떨어져도
+ * 그 필드만 비고 응답 전체는 산다.
+ */
+object WireYearMonthSerializer : NullTolerantStringSerializer<YearMonth>("WireYearMonth") {
+    override fun parse(text: String): YearMonth? = ChallengeDateTimeFormats.parseWireYearMonth(text)
+    override fun render(value: YearMonth): String = value.toString()
 }
 
 /**

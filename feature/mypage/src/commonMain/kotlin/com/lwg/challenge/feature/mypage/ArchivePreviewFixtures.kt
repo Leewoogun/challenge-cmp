@@ -27,24 +27,28 @@ internal fun archivePreviewItem(
 )
 
 /**
- * 3개월(8·7·6월)에 걸친 다건 픽스처. 표시 분기가 이 한 목록에 다 들어 있다.
+ * **한 달치**(2026년 8월) 다건 픽스처. 화면이 한 번에 한 달만 그리므로 여러 달을 섞어 둘 이유가
+ * 사라졌다 — 1차의 3개월 픽스처는 `toArchiveMonths()` 의 그룹핑을 눈으로 보기 위한 것이었다.
  *
+ * 카드 표시 분기가 이 한 달에 다 들어 있다.
  * - 결과 4종(승·패·무·양패)이 전부 나온다.
- * - 6월 건의 상대가 탈퇴자다 — 특별 표시 없이 닉네임만 `"탈퇴한 사용자"` 로 읽히는 것이 정본이다.
- * - 7월 건에 **말일(7/31)** 이 있다. 판정 시각으로 묶었다면 8월 헤더로 넘어갔을 건이다.
+ * - 마지막 건의 상대가 탈퇴자다 — 특별 표시 없이 닉네임만 `"탈퇴한 사용자"` 로 읽히는 것이 정본이다.
+ * - **말일(8/31)** 건이 있다. 판정 시각으로 묶었다면 9월로 넘어갔을 건이고, 서버가 `challengeDate`
+ *   기준으로 이 달에 담아 준다는 계약을 카드 위에서 확인한다.
+ *
+ * 서버가 주는 `challengeDate` 내림차순을 그대로 둔다 — 앱은 재정렬하지 않는다.
  */
-internal val PreviewArchiveHistories = listOf(
-    ChallengeHistory(1L, LocalDate(2026, 8, 14), "준혁", "헬스장 가기", "금주", "치킨 한 마리", ChallengeOutcome.WIN),
-    ChallengeHistory(2L, LocalDate(2026, 8, 9), "민지", "물 2L 마시기", "10000보 걷기", "점심 사기 🍚", ChallengeOutcome.LOSE),
-    ChallengeHistory(3L, LocalDate(2026, 8, 3), "도윤", "아침 6시 기상하기", "영어 단어 30개 외우기", "치킨 사기 🍗", ChallengeOutcome.DRAW),
-    ChallengeHistory(4L, LocalDate(2026, 7, 31), "지훈", "야식 참기", "일기 쓰기", "떡볶이 사기 🍢", ChallengeOutcome.BOTH_LOSE),
-    ChallengeHistory(5L, LocalDate(2026, 7, 12), "서연", "블로그 글 1개 쓰기", "러닝 5km", "커피 사기 ☕", ChallengeOutcome.WIN),
-    ChallengeHistory(6L, LocalDate(2026, 6, 12), "탈퇴한 사용자", "코딩 2시간", "러닝 5km", "아이스크림 사기 🍦", ChallengeOutcome.WIN),
+internal val PreviewArchiveHistories: List<ArchiveChallengeItemState> = listOf(
+    archivePreviewItem(1L, LocalDate(2026, 8, 31), "준혁", "헬스장 가기", "금주", "치킨 한 마리", ChallengeOutcome.WIN),
+    archivePreviewItem(2L, LocalDate(2026, 8, 14), "민지", "물 2L 마시기", "10000보 걷기", "점심 사기 🍚", ChallengeOutcome.LOSE),
+    archivePreviewItem(3L, LocalDate(2026, 8, 9), "도윤", "아침 6시 기상하기", "영어 단어 30개 외우기", "치킨 사기 🍗", ChallengeOutcome.DRAW),
+    archivePreviewItem(4L, LocalDate(2026, 8, 3), "지훈", "야식 참기", "일기 쓰기", "떡볶이 사기 🍢", ChallengeOutcome.BOTH_LOSE),
+    archivePreviewItem(5L, LocalDate(2026, 8, 1), "탈퇴한 사용자", "코딩 2시간", "러닝 5km", "아이스크림 사기 🍦", ChallengeOutcome.WIN),
 )
 
-/** 닉네임·미션·내기가 전부 긴 경우. 헤더에서 날짜가 밀리지 않는지 본다. */
-internal val PreviewLongTextArchiveHistories = listOf(
-    ChallengeHistory(
+/** 닉네임·미션·내기가 전부 긴 경우. 카드 헤더에서 날짜가 밀리지 않는지 본다. */
+internal val PreviewLongTextArchiveHistories: List<ArchiveChallengeItemState> = listOf(
+    archivePreviewItem(
         challengeId = 7L,
         challengeDate = LocalDate(2026, 8, 31),
         opponentNickname = "오늘도지지않는불꽃같은도전자김준혁입니다",

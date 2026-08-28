@@ -15,6 +15,7 @@ import de.jensklingenberg.ktorfit.http.DELETE
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
+import de.jensklingenberg.ktorfit.http.Query
 
 /**
  * 챌린지 신청 / 응답 API (신청 / 받은 도전장 / 수락 / 거절 / 취소).
@@ -36,13 +37,19 @@ interface ChallengeApi {
     ): ApiResult<ChallengeDetailResponse>
 
     /**
-     * GET /api/v1/challenges/history — 계약서 보관함 목록 (`COMPLETED` 전체). `challengeDate DESC`.
+     * GET /api/v1/challenges/history — 계약서 보관함 한 달치 (`COMPLETED`). `challengeDate DESC`.
      *
-     * 파라미터가 없다. 월 필터·페이지네이션 둘 다 계약에서 빼기로 확정했고, 월 그룹핑은 앱이 한다
-     * (api-contract §1) — 서버가 그룹을 나눠 주면 응답 shape 에 화면 구조가 박힌다.
+     * [month] 를 생략하면 **서버 KST 기준 이번 달**이 온다. 앱이 기기 시계로 첫 달을 만들지 않게 하려는
+     * 것이 목적이다 — 기기 타임존이 KST 가 아니면 상한이 한 달 어긋난다.
+     *
+     * @param month `yyyy-MM`, **zero-padding 필수** (`2026-3` 은 서버가 code 700 으로 거부한다).
+     *   null 이면 쿼리 파라미터가 아예 붙지 않아 위의 "이번 달" 이 된다.
+     *   미래 달·형식 오류는 code 700 + HTTP 200 이라 기존 실패 경로로 흐른다.
      */
     @GET("api/v1/challenges/history")
-    suspend fun getChallengeHistories(): ApiResult<ChallengeHistoryResponse>
+    suspend fun getChallengeHistories(
+        @Query("month") month: String?,
+    ): ApiResult<ChallengeHistoryResponse>
 
     /** GET /api/v1/challenges/received — 받은 도전장 목록 (PENDING, 마감 미경과). `created_at DESC`. */
     @GET("api/v1/challenges/received")

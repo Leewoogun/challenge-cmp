@@ -1,5 +1,6 @@
 package com.lwg.challenge.remote.mapper
 
+import com.lwg.challenge.domain.model.challenge.ChallengeArchive
 import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.remote.model.challenge.ChallengeHistoryDto
 import com.lwg.challenge.remote.model.challenge.ChallengeHistoryResponse
@@ -8,10 +9,22 @@ import com.lwg.challenge.remote.model.challenge.ChallengeHistoryResponse
  * 보관함 DTO → Domain 매핑.
  *
  * 서버가 준 순서(`challengeDate DESC`)를 그대로 보존한다 — 정렬은 서버 책임이다.
+ *
+ * `month` 를 못 읽으면 항목을 거르는 게 아니라 **응답 전체를 버리고 null 을 반환**한다. 그 값이 없으면
+ * 이게 어느 달의 응답인지 알 수 없다 — 화면 상단에 표시할 달도, stale 응답인지 판별할 기준도, ±1 을 셀
+ * 원점도 전부 사라진다. 항목 몇 개를 버리는 것과 급이 다르다.
  */
-fun ChallengeHistoryResponse.toChallengeHistories(): MappedList<ChallengeHistory> {
+fun ChallengeHistoryResponse.toChallengeArchive(): MappedArchive? {
+    val month = data.month ?: return null
     val mapped = data.histories.map(ChallengeHistoryDto::toChallengeHistory)
-    return MappedList(mapped.filterNotNull(), mapped.count { it == null })
+    return MappedArchive(
+        archive = ChallengeArchive(
+            month = month,
+            firstArchivedMonth = data.firstArchivedMonth,
+            histories = mapped.filterNotNull(),
+        ),
+        droppedCount = mapped.count { it == null },
+    )
 }
 
 /**
