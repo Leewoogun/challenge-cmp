@@ -18,6 +18,7 @@ kotlin {
             implementation(projects.feature.challenge.verify)
             implementation(projects.feature.ranking)
             implementation(projects.feature.mypage)
+            implementation(projects.feature.notification)
 
             implementation(projects.core.permission)
             implementation(projects.core.push)

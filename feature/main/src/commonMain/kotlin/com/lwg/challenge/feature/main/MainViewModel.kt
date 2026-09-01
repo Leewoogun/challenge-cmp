@@ -7,8 +7,8 @@ import com.lwg.challenge.domain.usecase.LogoutUseCase
 import com.lwg.challenge.navigation.Route
 import com.lwg.challenge.permission.AppPermission
 import com.lwg.challenge.permission.PermissionManager
-import com.lwg.challenge.push.PushEvent
 import com.lwg.challenge.push.PushEventBus
+import com.lwg.challenge.push.toRoute
 import com.lwg.challenge.utils.AuthEventBus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -100,15 +100,4 @@ class MainViewModel(
             permissionManager.request(AppPermission.NOTIFICATION)
         }
     }
-}
-
-/** 이벤트 → 목적지. `else ->` 를 쓰면 새 타입에서 목적지 지정을 강제하지 못한다. */
-private fun PushEvent.toRoute(): Route = when (this) {
-    // 수락/거절 액션이 홈 '받은 도전장' 섹션에만 있다.
-    is PushEvent.ChallengeRequest -> Route.Home
-    is PushEvent.ChallengeAccepted -> Route.Challenge.Detail(challengeId)
-    // 거절된 챌린지는 계약서가 없어 상세에 볼 것이 없다.
-    is PushEvent.ChallengeRejected -> Route.Home
-    // 거절과 반대로 볼 것(상대 인증 사진)이 생겼고, 그 사진은 상세에서만 보인다. 홈 카드는 상태 뱃지뿐.
-    is PushEvent.OpponentVerified -> Route.Challenge.Detail(challengeId)
 }

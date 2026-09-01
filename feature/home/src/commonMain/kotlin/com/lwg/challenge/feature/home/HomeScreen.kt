@@ -58,7 +58,7 @@ internal fun HomeScreen(
         statusBarColor = ChallengeTheme.colorScheme.surface,
         topBar = {
             HomeTopBar(
-                hasUnreadNotification = false,
+                hasUnreadNotification = uiState.hasUnreadNotification,
                 onBellClick = onBellClick,
                 debugAccountLabel = uiState.debugAccountLabel,
             )
@@ -122,6 +122,8 @@ internal fun HomeLoadingScreen(
         statusBarColor = ChallengeTheme.colorScheme.surface,
         topBar = {
             HomeTopBar(
+                // 하드코딩이 아니라 "아직 모른다" 의 표현이다. 개수를 받기 전에 켰다가 응답이 0이면
+                // 점이 깜빡 켜졌다 꺼진다 — 로딩 중에는 끈 채로 두고 Data 전이 때 한 번에 켠다.
                 hasUnreadNotification = false,
                 onBellClick = onBellClick,
             )
@@ -464,6 +466,31 @@ private fun HomeScreenWithReceivedChallengesPreview() {
                     challenges = previewChallenges,
                     now = previewNow,
                     receivedChallenges = previewReceivedChallenges,
+                ),
+                onBellClick = {},
+                onFabClick = {},
+                onChallengeClick = {},
+                onAddFriendClick = {},
+                onCreateChallengeClick = {},
+                onAcceptClick = {},
+                onRejectClick = {},
+            )
+        }
+    }
+}
+
+/** 벨 뱃지가 켜진 장면 — 붉은 점이 벨 아이콘 어디에 찍히는지 눈으로 확인하는 자리다. */
+@Preview
+@Composable
+private fun HomeScreenUnreadNotificationPreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            HomeScreen(
+                uiState = HomeUiState.Data(
+                    record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
+                    challenges = previewChallenges,
+                    now = previewNow,
+                    unreadCount = 3,
                 ),
                 onBellClick = {},
                 onFabClick = {},

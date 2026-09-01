@@ -25,6 +25,7 @@ sealed interface HomeUiState {
         val now: LocalDateTime,
         val userInfo: UserInfo? = null,
         val receivedChallenges: List<ReceivedChallengeItemState> = emptyList(),
+        val unreadCount: Int = 0,
         val inFlightIds: Set<Long> = emptySet(),
     ) : HomeUiState {
 
@@ -57,6 +58,14 @@ sealed interface HomeUiState {
                 inProgressChallenges.isEmpty() -> HomeEmptyType.NO_ACTIVE_CHALLENGE
                 else -> HomeEmptyType.NONE
             }
+
+        /**
+         * 벨 뱃지 점등 여부.
+         *
+         * 서버에 boolean 을 따로 요구하지 않고 개수를 앱에서 접는다 — 계약을 boolean 으로 좁혀두면
+         * 나중에 뱃지에 숫자를 찍을 때 계약을 다시 열어야 한다.
+         */
+        val hasUnreadNotification: Boolean get() = unreadCount > 0
 
         /** 전적 4개 값이 모두 0이면 강조 색을 죽인다. */
         val isRecordMuted: Boolean get() = record.isEmpty

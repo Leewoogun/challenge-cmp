@@ -29,7 +29,7 @@ class WireFormatBaselineTest {
     }
 
     @Test
-    fun `남은 시간이 옛 방식(Instant 차)과 새 방식(LocalDateTime 차)에서 같다`() {
+    fun `남은 시간이 옛 Instant 차 방식과 새 LocalDateTime 차 방식에서 같다`() {
         val nowInstant = Instant.parse("2026-07-31T14:00:00Z")
         val nowKst = LocalDateTime(2026, 7, 31, 23, 0, 0)
         val oldDeadline = Instant.parse("2026-07-31T15:00:00Z")

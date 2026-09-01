@@ -36,7 +36,7 @@ sealed interface Route : NavKey {
     @Serializable
     data object Archive : Route
 
-    /** 알림 목록. home-feed 헤더 Bell 진입. 본 feature 범위 밖 — stub PlaceholderScreen. */
+    /** 알림 목록. home-feed 헤더 Bell 에서 push 로 들어가는 하위 화면이다. */
     @Serializable
     data object Notifications : Route
 

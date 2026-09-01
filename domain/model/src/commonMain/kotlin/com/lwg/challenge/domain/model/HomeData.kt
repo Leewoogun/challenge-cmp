@@ -8,4 +8,5 @@ data class HomeData(
     val challenges: List<ActiveChallenge>,
     val userInfo: UserInfo? = null,
     val receivedChallenges: List<ReceivedChallenge> = emptyList(),
+    val unreadCount: Int = 0,
 )

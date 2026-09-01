@@ -4,6 +4,7 @@ import com.lwg.challenge.remote.api.ActiveChallengeApi
 import com.lwg.challenge.remote.api.ChallengeApi
 import com.lwg.challenge.remote.api.FriendsApi
 import com.lwg.challenge.remote.api.LoginApi
+import com.lwg.challenge.remote.api.NotificationApi
 import com.lwg.challenge.remote.api.RankingApi
 import com.lwg.challenge.remote.api.RecordApi
 import com.lwg.challenge.remote.api.UserApi
@@ -12,6 +13,7 @@ import com.lwg.challenge.remote.api.createActiveChallengeApi
 import com.lwg.challenge.remote.api.createChallengeApi
 import com.lwg.challenge.remote.api.createFriendsApi
 import com.lwg.challenge.remote.api.createLoginApi
+import com.lwg.challenge.remote.api.createNotificationApi
 import com.lwg.challenge.remote.api.createRankingApi
 import com.lwg.challenge.remote.api.createRecordApi
 import com.lwg.challenge.remote.api.createUserApi
@@ -46,4 +48,7 @@ class ApiModule {
 
     @Single
     fun provideRankingApi(ktorfit: Ktorfit): RankingApi = ktorfit.createRankingApi()
+
+    @Single
+    fun provideNotificationApi(ktorfit: Ktorfit): NotificationApi = ktorfit.createNotificationApi()
 }

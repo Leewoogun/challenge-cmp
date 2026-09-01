@@ -50,6 +50,7 @@ class HomeViewModelTest {
     private lateinit var fakeChallenges: FakeActiveChallengeRepository
     private lateinit var fakeUserInfo: FakeUserInfoRepository
     private lateinit var fakeChallengeRepo: FakeChallengeRepository
+    private lateinit var fakeNotification: FakeNotificationRepository
 
     @BeforeTest
     fun setup() {
@@ -58,6 +59,7 @@ class HomeViewModelTest {
         fakeChallenges = FakeActiveChallengeRepository()
         fakeUserInfo = FakeUserInfoRepository()
         fakeChallengeRepo = FakeChallengeRepository()
+        fakeNotification = FakeNotificationRepository()
     }
 
     @AfterTest
@@ -67,7 +69,13 @@ class HomeViewModelTest {
 
     private fun createViewModel(): HomeViewModel =
         HomeViewModel(
-            GetHomeDataUseCase(fakeRecord, fakeChallenges, fakeUserInfo, fakeChallengeRepo),
+            GetHomeDataUseCase(
+                fakeRecord,
+                fakeChallenges,
+                fakeUserInfo,
+                fakeChallengeRepo,
+                fakeNotification,
+            ),
             fakeChallengeRepo,
         )
 
@@ -322,6 +330,48 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `안 읽은 알림이 있으면 벨 뱃지가 켜지고 0 이면 꺼진다`() = runTest {
+        fakeRecord.record = UserRecord.Empty
+        fakeChallenges.challenges = emptyList()
+        fakeNotification.unreadCount = 3
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        val state = viewModel.uiState.value as HomeUiState.Data
+
+        assertEquals(3, state.unreadCount)
+        assertTrue(state.hasUnreadNotification)
+
+        fakeNotification.unreadCount = 0
+        viewModel.uiState.restart()
+        runCurrent()
+
+        assertFalse((viewModel.uiState.value as HomeUiState.Data).hasUnreadNotification)
+    }
+
+    /** 8dp 점 하나 때문에 홈 전체가 Loading 에 갇히면 안 된다. */
+    @Test
+    fun `안 읽은 개수 조회가 실패해도 홈은 Data 로 전이하고 뱃지는 꺼진다`() = runTest {
+        fakeRecord.record = UserRecord(win = 5, lose = 1, draw = 0, currentStreak = 2)
+        fakeChallenges.challenges = emptyList()
+        fakeNotification.error = "알림 개수 조회 실패"
+
+        val viewModel = createViewModel()
+
+        viewModel.uiEffect.test {
+            subscribeUiState(viewModel)
+            val effect = awaitItem()
+            assertIs<HomeUiEffect.ShowMessage>(effect)
+            assertEquals("알림 개수 조회 실패", effect.message)
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        val state = viewModel.uiState.value
+        assertIs<HomeUiState.Data>(state)
+        assertFalse(state.hasUnreadNotification)
+    }
+
+    @Test
     fun `받은 도전장이 있으면 전적 0 이어도 emptyType 은 NO_ACTIVE_CHALLENGE`() = runTest {
         fakeRecord.record = UserRecord.Empty
         fakeChallenges.challenges = emptyList()
@@ -363,6 +413,41 @@ class HomeViewModelTest {
         runCurrent()
 
         assertEquals(2, fakeChallengeRepo.callCount)
+    }
+
+    /**
+     * 알림 목록이 진입만으로 전부 읽음 처리를 하는데, 홈에는 그 사실을 전해 받을 콜백이 없다.
+     * 돌아온 홈이 안 읽은 개수를 서버에서 다시 받는 것이 뱃지가 꺼지는 유일한 근거다.
+     */
+    @Test
+    fun `알림 목록에서 돌아오면 홈이 안 읽은 개수를 다시 받아 뱃지를 끈다`() = runTest {
+        fakeRecord.record = UserRecord.Empty
+        fakeChallenges.challenges = emptyList()
+        fakeNotification.unreadCount = 3
+
+        val viewModel = createViewModel()
+
+        val subscription = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { }
+        }
+        assertTrue((viewModel.uiState.value as HomeUiState.Data).hasUnreadNotification)
+        assertEquals(1, fakeNotification.callCount)
+
+        // 알림 목록으로 push 되면 홈 컴포지션이 dispose 된다. STOP 은 스케줄러를 한 번 돌려야
+        // 실제로 발화하므로 runCurrent 가 필요하다.
+        subscription.cancelAndJoin()
+        runCurrent()
+        fakeNotification.unreadCount = 0
+
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { }
+        }
+        runCurrent()
+
+        assertEquals(2, fakeNotification.callCount)
+        val state = viewModel.uiState.value as HomeUiState.Data
+        assertEquals(0, state.unreadCount)
+        assertFalse(state.hasUnreadNotification)
     }
 
     @Test

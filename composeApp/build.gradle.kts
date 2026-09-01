@@ -93,6 +93,7 @@ kotlin {
             implementation(projects.feature.challenge.verify)
             implementation(projects.feature.ranking)
             implementation(projects.feature.mypage)
+            implementation(projects.feature.notification)
         }
 
         commonTest.dependencies {

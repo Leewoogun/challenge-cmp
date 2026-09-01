@@ -4,6 +4,7 @@ import com.lwg.challenge.domain.repository.ActiveChallengeRepository
 import com.lwg.challenge.domain.repository.ChallengeRepository
 import com.lwg.challenge.domain.repository.FriendsRepository
 import com.lwg.challenge.domain.repository.LoginRepository
+import com.lwg.challenge.domain.repository.NotificationRepository
 import com.lwg.challenge.domain.repository.RecordRepository
 import com.lwg.challenge.domain.repository.UserInfoRepository
 import com.lwg.challenge.domain.repository.WithdrawRepository
@@ -51,11 +52,13 @@ class UseCaseModule {
         activeChallengeRepository: ActiveChallengeRepository,
         userInfoRepository: UserInfoRepository,
         challengeRepository: ChallengeRepository,
+        notificationRepository: NotificationRepository,
     ): GetHomeDataUseCase = GetHomeDataUseCase(
         recordRepository,
         activeChallengeRepository,
         userInfoRepository,
         challengeRepository,
+        notificationRepository,
     )
 
     @Factory

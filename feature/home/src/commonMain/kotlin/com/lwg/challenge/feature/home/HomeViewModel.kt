@@ -45,6 +45,7 @@ class HomeViewModel(
                 receivedChallenges = data.receivedChallenges.map {
                     ReceivedChallengeItemState(it, now)
                 },
+                unreadCount = data.unreadCount,
             )
         }
 

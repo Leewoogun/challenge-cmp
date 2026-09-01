@@ -39,9 +39,9 @@ import com.lwg.challenge.feature.main.component.BottomNavItem
 import com.lwg.challenge.feature.main.component.ChallengeBottomBar
 import com.lwg.challenge.feature.mypage.ArchiveRoute
 import com.lwg.challenge.feature.mypage.MyPageRoute
+import com.lwg.challenge.feature.notification.NotificationRoute
 import com.lwg.challenge.feature.ranking.RankingRoute
 import com.lwg.challenge.feature.splash.SplashRoute
-import com.lwg.challenge.ui.components.PlaceholderScreen
 import com.lwg.challenge.ui.components.PlatformBackHandler
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
@@ -226,7 +226,7 @@ private fun MainScreen(
                     VerifyRoute(challengeId = route.challengeId)
                 }
                 entry<Route.Notifications>(clazzContentKey = { it.uniqueContentKey() }) {
-                    PlaceholderScreen(title = "알림")
+                    NotificationRoute()
                 }
             },
         )

@@ -22,6 +22,9 @@ kotlin {
             // FcmTokenProviderAndroid 의 Logger
             implementation(projects.core.utils)
             implementation(libs.kotlinx.coroutines.core)
+            // PushEvent.toRoute 의 목적지 타입. Route 가 NavKey 를 상속해 supertype 해석에 navigation3 이 필요하다.
+            implementation(projects.core.navigation)
+            implementation(libs.androidx.navigation3.ui)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
