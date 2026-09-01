@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
  *   "data": {
  *     "notifications": [
  *       { "notificationId": 57, "type": "CHALLENGE_ACCEPTED", "body": "민수님이 수락했습니다",
- *         "referenceId": 1001, "createdAt": "2026-09-01 13:42:07" }
+ *         "referenceId": 1001, "referencePending": null, "createdAt": "2026-09-01 13:42:07" }
  *     ],
  *     "nextCursor": 38
  *   }
@@ -57,6 +57,13 @@ data class NotificationDto(
     val body: String = "",
     /** 목적지 id. 참조 대상이 타입에 따라 다르고, 대상이 없는 타입이 붙을 수 있어 nullable 이다. */
     val referenceId: Long? = null,
+    /**
+     * 참조 대상이 아직 응답을 기다리는가. `true` 대기 / `false` 처리·만료·종료·삭제 /
+     * `null` 이 타입에는 대기라는 개념이 없음.
+     *
+     * `null` 이어도 키는 항상 실린다 — [nextCursor] 와 같은 이유다.
+     */
+    val referencePending: Boolean? = null,
     /** `yyyy-MM-dd HH:mm:ss` (KST). 포맷이 어긋나면 null. */
     @Serializable(with = WireLocalDateTimeSerializer::class)
     val createdAt: LocalDateTime? = null,

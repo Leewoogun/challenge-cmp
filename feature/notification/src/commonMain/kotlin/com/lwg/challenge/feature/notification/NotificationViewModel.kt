@@ -56,11 +56,27 @@ class NotificationViewModel(
     /**
      * 첫 매핑 시점에 1회 측정해 전 항목이 공유한다. 쪽이 추가돼도 같은 값을 쓴다 — 같은 목록 안에서
      * 기준 시각이 갈리면 나란히 놓인 두 알림의 경과 시간이 서로 다른 시계로 계산된다.
+     *
+     * 목록을 처음부터 다시 받을 때만 다시 잰다([reloadFromFirstPage]). 목록 하나가 한 시계를 쓰는
+     * 것이지, ViewModel 하나가 한 시계를 쓰는 것이 아니다.
      */
     private var now: LocalDateTime? = null
 
-    init {
-        loadFirstPage()
+    /**
+     * 화면이 **진입할 때마다** 부른다. 재진입도 포함이다 — 이 화면은 상세로 갔다 와도 백스택에 남아
+     * ViewModel 이 살아 있어, 생애당 1회(`init`) 조회로는 두 값이 낡은 채 굳는다.
+     *
+     * 하나는 기준 시각이다. 앱을 며칠 켜 두면 `오늘` 헤더가 사흘 전 그룹에 붙는다.
+     * 🔴 다른 하나는 `referencePending` 이다. 낡은 `true` 는 이미 끝난 신청의 탭을 열어 사용자를
+     * 홈의 빈 자리로 보낸다 — 게이트가 막으려던 바로 그 증상이다.
+     *
+     * 🔴 그러면서도 **이미 보여주고 있던 목록은 지우지 않는다**([reloadFromFirstPage]).
+     *
+     * [markAllAsRead] 가 재진입마다 함께 도는 것은 의도다. 멱등이고, 자리를 비운 사이 도착한
+     * 알림까지 읽어야 *"목록을 열면 전부 읽음"* 규약이 성립한다.
+     */
+    fun refresh() {
+        reloadFromFirstPage()
         markAllAsRead()
     }
 
@@ -108,48 +124,94 @@ class NotificationViewModel(
         }
     }
 
-    /** 첫 조회 실패 화면의 "다시 시도". */
+    /**
+     * 첫 조회 실패 화면의 "다시 시도".
+     *
+     * [refresh] 와 달리 읽음 처리를 부르지 않는다 — 진입 시점에 이미 한 번 돌았고, 실패한 것은
+     * 목록 조회 쪽이라 되풀이할 이유가 없다.
+     *
+     * [reloadFromFirstPage] 의 «목록 유지» 분기는 이 경로에 걸리지 않는다. 이 버튼은
+     * [NotificationUiState.Failure] 화면에만 있어 지킬 목록이 애초에 없다.
+     */
     fun retry() {
-        // 처음부터 다시 받는다 — 커서도 기준 시각도 이 조회가 새로 정한다.
-        nextCursor = null
-        now = null
-        loadFirstPage()
+        reloadFromFirstPage()
     }
 
-    private fun loadFirstPage() {
+    /**
+     * 커서도 기준 시각도 이 조회가 새로 정한다 — 둘 중 하나만 비우면 낡은 축이 남는다.
+     *
+     * 🔴 **이미 [NotificationUiState.Data] 면 화면을 [NotificationUiState.Loading] 으로 되돌리지
+     * 않는다.** design.md §6.3 이 다음 쪽 로딩을 두고 내린 판단 — *"전체 화면 로딩으로 덮지 마라.
+     * 읽고 있던 목록이 사라지고 스크롤 위치를 잃는다"* — 이 재진입 갱신에도 같은 근거로 그대로
+     * 적용된다. 오히려 더 나쁘다. 다음 쪽은 아직 없는 것을 받는 것이지만, 재진입은 **이미 보여주고
+     * 있던 것**을 지웠다가 다시 그린다.
+     *
+     * 내부 상태 리셋은 화면을 비우는 것과 별개다 — 낡은 기준 시각과 낡은 `referencePending` 을
+     * 걷어내는 것이 이 갱신의 목적이라 커서와 기준 시각은 어느 경로든 비운다.
+     */
+    private fun reloadFromFirstPage() {
+        val cursorBeforeReset = nextCursor
+        nextCursor = null
+        now = null
+        loadFirstPage(
+            keepsVisibleList = _uiState.value is NotificationUiState.Data,
+            cursorOnKeptListFailure = cursorBeforeReset,
+        )
+    }
+
+    /**
+     * @param cursorOnKeptListFailure 목록을 남기는 경로에서 조회가 실패했을 때 되돌릴 커서.
+     * 리셋된 `null` 을 그대로 두면 화면에 남은 목록이 끝까지 스크롤돼도 [loadMore] 가 조용히 빠져나가
+     * 다음 쪽을 영영 못 받는다 — design.md §6.3 ② 는 끝 도달에 아무 표시도 하지 않으므로 그 침묵이
+     * *"목록이 끝났다"* 와 구분되지 않는다. 실패는 스낵바로 알렸는데 부작용만 소리 없이 남는 셈이다.
+     */
+    private fun loadFirstPage(keepsVisibleList: Boolean, cursorOnKeptListFailure: Long?) {
         if (isLoading) return
         isLoading = true
-        _uiState.update { NotificationUiState.Loading }
+        if (!keepsVisibleList) _uiState.update { NotificationUiState.Loading }
 
         viewModelScope.launch {
             var loaded = false
+            var failureMessage: String? = null
 
             notificationRepository.getNotifications(
                 cursor = null,
                 size = PAGE_SIZE,
                 // 첫 조회 실패는 화면 전체가 말한다(NotificationUiState.Failure). 그 위에 스낵바를
-                // 겹치면 같은 사실을 두 번 말하게 된다.
-                onError = {},
+                // 겹치면 같은 사실을 두 번 말하게 된다. 목록을 남기는 경로는 화면이 아무 말도
+                // 하지 않으므로 반대로 이 메시지가 유일한 통로다.
+                onError = { failureMessage = it },
             ).collect { page ->
                 loaded = true
                 nextCursor = page.nextCursor
                 _uiState.update {
+                    // 남겨 둔 목록도 여기서 교체된다. 0건이면 그 사이 전부 지워진 것이라 실제로 비었다.
                     if (page.notifications.isEmpty()) NotificationUiState.Empty
                     else NotificationUiState.Data(itemsOf(page.notifications))
                 }
             }
 
             isLoading = false
+            if (loaded) return@launch
 
-            // 실패를 값으로 만들지 않으면 상류가 아무것도 보내지 않은 채 끝나 화면이 로딩에 갇힌다.
-            if (!loaded) _uiState.update { NotificationUiState.Failure }
+            if (keepsVisibleList) {
+                // 남긴 목록에는 이어붙일 다음 쪽도 함께 남아 있어야 한다. 성공 경로에서는 서버가 준
+                // 새 커서가 이미 자리를 잡았으므로 여기서만 되돌린다.
+                nextCursor = cursorOnKeptListFailure
+                // 🔴 목록을 비우지 않는다. 화면 전체를 실패로 덮으면 이미 읽고 있던 알림까지 사라진다
+                // — 추가 조회 실패를 마지막 슬롯에만 가두는 것과 같은 근거다(design.md §6.3 ③).
+                _uiEffect.emit(NotificationUiEffect.ShowMessage(failureMessage ?: RELOAD_FAILURE_MESSAGE))
+            } else {
+                // 실패를 값으로 만들지 않으면 상류가 아무것도 보내지 않은 채 끝나 화면이 로딩에 갇힌다.
+                _uiState.update { NotificationUiState.Failure }
+            }
         }
     }
 
     /**
      * 🔴 **진입 1회.** 쪽을 더 받을 때는 부르지 않는다 — 목록 조회(`GET /notifications`)는 읽음
      * 처리를 하지 않아 두 축이 완전히 분리돼 있고, 쪽마다 부르면 같은 일을 쪽 수만큼 반복한다.
-     * [init] 에만 두는 것이 그 보장이다.
+     * 호출부가 [refresh] 하나뿐인 것이 그 보장이다 — [loadMore] 와 [retry] 는 부르지 않는다.
      *
      * 실패해도 목록을 막지 않는다 — 뱃지가 안 꺼질 뿐이다. 사용자가 그 자리에서 할 수 있는 일이
      * 없어 스낵바도 띄우지 않는다.
@@ -180,5 +242,8 @@ class NotificationViewModel(
 
         /** 서버가 메시지를 주지 않은 추가 조회 실패의 문구. */
         const val APPEND_FAILURE_MESSAGE = "알림을 더 불러오지 못했어요"
+
+        /** 서버가 메시지를 주지 않은 재진입 갱신 실패의 문구. 화면에 남은 목록은 갱신 전 것이다. */
+        const val RELOAD_FAILURE_MESSAGE = "알림을 새로 불러오지 못했어요"
     }
 }

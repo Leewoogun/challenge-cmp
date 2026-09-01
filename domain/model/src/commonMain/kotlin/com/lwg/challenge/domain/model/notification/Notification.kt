@@ -12,6 +12,10 @@ import kotlinx.datetime.LocalDateTime
  *   `ActiveChallengeDto.status` 가 같은 판단의 선례다.
  * @property body 화면에 그리는 문장. 서버가 발송 시점에 박제한다
  * @property referenceId 알림이 가리키는 대상 식별자. 대상이 없는 타입이면 null
+ * @property referencePending 참조 대상이 아직 응답을 기다리는가. `true` 대기 /
+ *   `false` 처리·만료·종료·삭제 / `null` 이 타입에는 대기라는 개념이 없음. 세 값이 서로 다른 사실이라
+ *   한쪽으로 접으면 안 된다 — `null` 을 `false` 로 접으면 대기 개념이 없는 타입이 통째로 막히고,
+ *   `true` 로 접으면 이미 끝난 대상이 열린다
  * @property createdAt 알림 생성 시각 (KST). 표시용 경과 시간은 표시 시점에 계산
  */
 data class Notification(
@@ -19,5 +23,6 @@ data class Notification(
     val type: String,
     val body: String,
     val referenceId: Long?,
+    val referencePending: Boolean?,
     val createdAt: LocalDateTime,
 )

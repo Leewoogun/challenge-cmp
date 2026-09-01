@@ -30,6 +30,11 @@ fun NotificationRoute(
         }
     }
 
+    // NavDisplay 가 최상단 entry 만 composition 에 두므로 상세에 갔다 오면 이 블록이 다시 돈다.
+    // ViewModel 은 백스택에 살아남아 스스로 갱신하지 못한다 — 왜 매번 다시 받아야 하는지는
+    // NotificationViewModel.refresh 의 KDoc.
+    LaunchedEffect(Unit) { viewModel.refresh() }
+
     NotificationBody(
         uiState = uiState,
         onBack = navigator::popBackStack,

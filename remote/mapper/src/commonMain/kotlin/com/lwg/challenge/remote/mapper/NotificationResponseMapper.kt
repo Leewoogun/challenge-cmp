@@ -35,6 +35,7 @@ private fun NotificationDto.toNotificationOrNull(): Notification? {
         type = type,
         body = body,
         referenceId = referenceId,
+        referencePending = referencePending,
         createdAt = createdAt,
     )
 }

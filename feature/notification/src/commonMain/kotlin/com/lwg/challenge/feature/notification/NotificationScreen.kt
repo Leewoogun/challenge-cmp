@@ -21,6 +21,7 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.notification.component.NotificationAppendLoading
 import com.lwg.challenge.feature.notification.component.NotificationAppendRetry
 import com.lwg.challenge.feature.notification.component.NotificationCard
+import com.lwg.challenge.feature.notification.component.NotificationDateHeader
 import com.lwg.challenge.feature.notification.component.NotificationEmptyState
 import com.lwg.challenge.feature.notification.component.notificationTypeVisualOf
 import com.lwg.challenge.feature.notification.contract.NotificationAppendState
@@ -65,6 +66,9 @@ internal fun NotificationScreen(
  * 좌우 gutter 를 `contentPadding` 이 아니라 카드마다 넣는 이유는 보관함의 판단을 승계한다 —
  * 카드가 스크롤 인디케이터와 겹치지 않게 카드 자신이 여백을 낸다. 항목 간격 8dp 는 카드의
  * vertical 4dp 가 맞물려 만든다.
+ *
+ * 날짜 그룹은 `NotificationUiState.Data` 가 **누적 목록 전체에서** 확정해 넘겨준다 — 여기서 쪽을
+ * 보지 않는 것이 같은 헤더가 두 번 찍히지 않는 이유다 (design.md §3.6.3).
  */
 @Composable
 private fun NotificationList(
@@ -72,32 +76,46 @@ private fun NotificationList(
     onNotificationClick: (Route) -> Unit,
     onLoadMore: () -> Unit,
 ) {
-    val items = uiState.items
+    val groups = uiState.dateGroups
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 16.dp),
     ) {
-        itemsIndexed(items = items, key = { _, item -> item.notificationId }) { index, item ->
-            // 마지막 항목이 조성되는 순간이 곧 "바닥에 닿았다" 는 신호다. 화면은 커서를 보지 않고
-            // 그 사실만 알린다 — 더 받을 것이 남았는지, 이미 받는 중인지는 ViewModel 이 판정한다.
-            if (index == items.lastIndex) {
-                LaunchedEffect(item.notificationId) { onLoadMore() }
+        groups.forEachIndexed { groupIndex, group ->
+            item(key = group.headerKey) {
+                NotificationDateHeader(
+                    label = group.label,
+                    // 첫 그룹의 위 여백은 contentPadding 이 이미 냈다. 여기서 또 주면 두 배가 된다.
+                    modifier = Modifier.padding(top = if (groupIndex == 0) 0.dp else 16.dp),
+                )
             }
 
-            // 타입 → 아이콘·색 판정을 카드가 아니라 여기서 끝낸다 (design.md §3.2.1).
-            val visual = notificationTypeVisualOf(item.type)
+            itemsIndexed(
+                items = group.items,
+                key = { _, item -> item.notificationId },
+            ) { index, item ->
+                // 마지막 항목이 조성되는 순간이 곧 "바닥에 닿았다" 는 신호다. 화면은 커서를 보지 않고
+                // 그 사실만 알린다 — 더 받을 것이 남았는지, 이미 받는 중인지는 ViewModel 이 판정한다.
+                if (groupIndex == groups.lastIndex && index == group.items.lastIndex) {
+                    LaunchedEffect(item.notificationId) { onLoadMore() }
+                }
 
-            NotificationCard(
-                body = item.body,
-                elapsedText = item.elapsedText,
-                icon = visual.icon,
-                accent = visual.accent,
-                onClick = item.route?.let { target -> { onNotificationClick(target) } },
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
-            )
+                // 타입 → 아이콘·색 판정을 카드가 아니라 여기서 끝낸다 (design.md §3.2.1).
+                val visual = notificationTypeVisualOf(item.type)
+
+                NotificationCard(
+                    body = item.body,
+                    timeText = item.timeText,
+                    icon = visual.icon,
+                    accent = visual.accent,
+                    onClick = item.route?.let { target -> { onNotificationClick(target) } },
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                )
+            }
         }
 
+        // 마지막 그룹 뒤에 오고 자기 헤더를 갖지 않는다 — 푸터는 알림이 아니다 (design.md §3.6.4).
         // 끝에 도달하면 인디케이터가 사라지고 목록이 그냥 끝난다 — "여기까지" 를 그리지 않는다.
         when (uiState.append) {
             NotificationAppendState.Idle -> Unit
@@ -143,8 +161,15 @@ private fun NotificationLoadingScreen() {
 }
 
 /**
- * 발송 4종 + 모르는 타입 + 2줄 메시지가 한 화면에 있는 목록. 같은 챌린지의 수락·인증이 나란히
- * 놓였을 때 아이콘으로 갈리는지, 마지막 두 행에서 폴백과 2줄 정렬이 어떻게 보이는지 본다.
+ * 🔴 **세 날짜에 걸친 목록** — `오늘`·`어제`·`8월 28일` 헤더가 한 화면에 있다. 이 개정의 요지 둘을
+ * 한 그림에서 본다.
+ *
+ * ① 헤더가 날짜를 말하니 **행은 그 날 안에서 언제인지만** 말한다 — `오늘` 그룹은 `방금 전`·`N분 전`,
+ * 아래 두 그룹은 `HH:mm` 이다.
+ * ② **chevron 이 붙는 행은 셋뿐**인데 색도 문구도 나머지와 같다 — *"갈 곳이 있는가"* 는 표시와 독립된
+ * 축이다. `오늘` 그룹의 신청 두 건이 **같은 타입인데 갈리는 것**이 목록 탭 게이트다.
+ *
+ * 발송 4종 + 2줄 메시지도 그대로 들어 있어 아이콘 구분과 `Alignment.Top` 정렬을 함께 본다.
  */
 @Preview
 @Composable
