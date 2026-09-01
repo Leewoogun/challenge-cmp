@@ -55,7 +55,10 @@ internal fun ArchiveScreen(
             ArchiveMonthNavBar(
                 label = month.label,
                 countText = uiState.countText,
-                canGoPrevious = month.canGoPrevious,
+                // 과거 하한이 폐기돼 `<` 는 항상 열려 있다 — 기록이 없는 달로도 계속 갈 수 있고 그때는
+                // 빈 달 화면이 나온다. 컴포넌트는 파라미터를 그대로 두는데, 경계를 표현하는 능력까지
+                // 없애면 하한이 되살아날 때 컴포넌트를 다시 뜯어야 한다.
+                canGoPrevious = true,
                 canGoNext = month.canGoNext,
                 onPreviousClick = onPreviousMonthClick,
                 onNextClick = onNextMonthClick,
@@ -64,8 +67,9 @@ internal fun ArchiveScreen(
 
         Box(modifier = Modifier.weight(1f)) {
             when (val content = uiState.content) {
-                // 아무것도 그리지 않는다. 월 전환 직후 300ms 는 본문을 비워만 두는 구간이라
-                // 스피너도, "이 달엔 없다" 도 아직 그릴 때가 아니다 (ArchiveContent.Blank).
+                // 도달하지 않는 가지다. 월 전환이 본문을 비우는 대신 이전 달을 유지하게 되면서
+                // Blank 를 만드는 경로가 없어졌다 (ArchiveContent.Blank). 타입이 남아 있어
+                // exhaustive 를 위해 자리만 지킨다.
                 ArchiveContent.Blank -> Unit
 
                 ArchiveContent.Loading -> ArchiveLoadingScreen()
@@ -75,8 +79,8 @@ internal fun ArchiveScreen(
                 ArchiveContent.Failure -> ArchiveFailureScreen(onRetryClick = onRetryClick)
 
                 is ArchiveContent.Data -> ArchiveMonthBody(
+                    uiState = uiState,
                     content = content,
-                    month = month,
                     onChallengeClick = onChallengeClick,
                     onCreateChallengeClick = onCreateChallengeClick,
                 )
@@ -88,31 +92,44 @@ internal fun ArchiveScreen(
 /**
  * 조회에 성공한 달의 본문. 0건이 **두 화면으로 갈린다.**
  *
- * 가르는 값은 [ArchiveMonthCursor.earliest] 다 — non-null 이면 다른 달에 기록이 있다는 뜻이라
- * *"이 달만 비었다"* 이고, null 이면 종료한 챌린지가 계정 전체에 하나도 없다.
+ * 가르는 값은 [ArchiveUiState.showsNoRecordsEver] 다 — 계정 전체가 0건이면서 **지금 보고 있는 달이
+ * 이번 달**일 때만 CTA 화면이고, 나머지 0건은 전부 빈 달 화면이다.
  *
  * 둘을 하나로 합치면 기록이 있는 사용자에게 *"아직 끝낸 챌린지가 없어요"* 라고 **거짓말**을 하게
  * 된다. 증거 보관 화면에서 그 거짓이 가장 나쁘다.
  *
- * CTA 도 기록 전무에서만 맞는다. 빈 달의 사용자는 기록을 **찾는 중**이라 "챌린지 만들기" 가 그를
- * 보관함 밖으로 내보낸다 — 동선이 반대다.
+ * 화면은 `firstArchivedMonth` 를 직접 비교하지 않는다 — 판별은 전부 [ArchiveUiState] 의 계산
+ * 프로퍼티가 끝내 놓고 여기서는 읽기만 한다. 그 월 값으로 이동을 막는 오용을 구조적으로 멀리 둔다.
  */
 @Composable
 private fun ArchiveMonthBody(
+    uiState: ArchiveUiState,
     content: ArchiveContent.Data,
-    month: ArchiveMonthCursor?,
     onChallengeClick: (Long) -> Unit,
     onCreateChallengeClick: () -> Unit,
 ) {
+    val month = uiState.month
+
     when {
         !content.isEmpty -> ArchiveChallengeList(
             challenges = content.challenges,
             onChallengeClick = onChallengeClick,
         )
 
-        month != null && month.earliest != null -> ArchiveEmptyMonth(title = month.emptyMonthTitle)
+        // 하한이 없어져 기록 0건 사용자도 과거 달로 갈 수 있게 됐고, 그래서 CTA 발동이 좁아졌다 —
+        // 기록이 0건이어도 **과거 달에서는 빈 달 화면**이다. "챌린지 만들기" 는 지금 행동할 수 있는
+        // 자리에서만 맞는 말이고, 5월을 들여다보는 사용자는 회고 중이지 챌린지를 만들러 온 게 아니다.
+        // 첫 진입이 항상 이번 달이라 이렇게 좁혀도 노출 기회는 잃지 않는다.
+        //
+        // month == null 을 여기서 함께 흡수한다. 아래 빈 달 화면이 월 제목을 필요로 하는데, 그 순간
+        // (첫 로딩·첫 로딩 실패)에는 본문이 Data 가 아니라 애초에 이 가지에 닿지 않는다.
+        uiState.showsNoRecordsEver || month == null ->
+            ArchiveNoArchiveEver(onCreateChallengeClick = onCreateChallengeClick)
 
-        else -> ArchiveNoArchiveEver(onCreateChallengeClick = onCreateChallengeClick)
+        else -> ArchiveEmptyMonth(
+            title = month.emptyMonthTitle,
+            subtitle = uiState.emptyMonthSubtitle,
+        )
     }
 }
 
@@ -168,9 +185,9 @@ private fun ArchiveNoArchiveEver(onCreateChallengeClick: () -> Unit) {
  * 빈 상태 카드와 골격을 공유하되 아이콘까지 바꾸는 이유: 둘 다 "목록이 없는 화면" 이라 문구만 다르면
  * 0건인지 못 불러온 건지 한눈에 갈리지 않는다.
  *
- * 월 이동이 생기면서 실패가 **특정 달에 귀속**된다 — 옆 달로 넘어가는 것도 복구 수단이라 월 이동 바는
- * 실패 상태에서도 살아 있다. 예외는 첫 로딩 실패뿐이다. 그때는 `month == null` 이라 바를 그릴 수
- * 없고 "다시 시도" 만 남는다.
+ * **첫 로딩 실패에서만 그려진다.** 월 전환 실패는 이전 달을 화면에 남긴 채 스낵바로만 알리므로 이
+ * 본문에 닿지 않는다 ([ArchiveContent.Failure]). 그때 `month == null` 이라 월 이동 바도 없고,
+ * 여기 "다시 시도" 가 유일한 복구 수단이다.
  */
 @Composable
 internal fun ArchiveFailureScreen(onRetryClick: () -> Unit) {
@@ -203,7 +220,7 @@ internal fun ArchiveLoadingScreen() {
     }
 }
 
-/** 이번 달(8월)을 보고 있는 기본 상태 — 상한이라 `>` 가 비활성이다. */
+/** 이번 달(8월)을 보고 있는 기본 상태 — 상한이라 `>` 만 비활성이고 `<` 는 언제나 열려 있다. */
 @Preview
 @Composable
 private fun ArchiveScreenPreview() {
@@ -211,11 +228,32 @@ private fun ArchiveScreenPreview() {
         ArchiveUiState(
             month = previewCursor(),
             content = ArchiveContent.Data(PreviewArchiveHistories),
+            firstArchivedMonth = PreviewFirstArchivedMonth,
         ),
     )
 }
 
-/** 기록이 있는 달들 사이의 빈 달 — CTA 없이 "화살표로 다른 달을 볼 수 있어요" 만 남는다. */
+/**
+ * 응답이 [ArchiveViewModel] 의 힌트 지연을 넘겨 늦은 월 전환 — **위 기본 프리뷰와 라벨도 카드도
+ * 같다.** 달라지는 것은 건수 자리의 "불러오는 중" 하나뿐이다.
+ *
+ * 이 화면이 이번 개정의 요지다: 전환 중에도 화면이 이전 달을 **온전히** 말하므로 두 달이 섞이지
+ * 않고, 힌트가 이미 있던 슬롯에 들어가므로 기하도 흔들리지 않는다.
+ */
+@Preview
+@Composable
+private fun ArchiveScreenTransitioningPreview() {
+    ArchiveScreenPreviewContainer(
+        ArchiveUiState(
+            month = previewCursor(),
+            content = ArchiveContent.Data(PreviewArchiveHistories),
+            firstArchivedMonth = PreviewFirstArchivedMonth,
+            isTransitioning = true,
+        ),
+    )
+}
+
+/** A형 빈 달 — 첫 기록(2025년 1월)보다 뒤라 더 가면 기록이 있는 달이 나온다. */
 @Preview
 @Composable
 private fun ArchiveScreenEmptyMonthPreview() {
@@ -223,23 +261,61 @@ private fun ArchiveScreenEmptyMonthPreview() {
         ArchiveUiState(
             month = previewCursor(selected = YearMonth(2026, 3)),
             content = ArchiveContent.Data(emptyList()),
+            firstArchivedMonth = PreviewFirstArchivedMonth,
         ),
     )
 }
 
-/** 기록 전무 — `earliest` 가 null 이라 빈 달이 아니라 계정 전체가 0건이고, 여기만 CTA 가 붙는다. */
+/**
+ * B형 빈 달 — 표시월(3월)이 첫 기록(5월)보다 앞이라 부제가 첫 기록 월을 알린다.
+ * 이 방향엔 영원히 아무것도 없다는 사실을, 차단 대신 이 한 줄이 말한다.
+ */
+@Preview
+@Composable
+private fun ArchiveScreenEmptyMonthBeforeFirstRecordPreview() {
+    ArchiveScreenPreviewContainer(
+        ArchiveUiState(
+            month = previewCursor(selected = YearMonth(2026, 3)),
+            content = ArchiveContent.Data(emptyList()),
+            firstArchivedMonth = YearMonth(2026, 5),
+        ),
+    )
+}
+
+/** 기록 전무 — 빈 달이 아니라 계정 전체가 0건이고 **이번 달**이다. 여기만 CTA 가 붙는다. */
 @Preview
 @Composable
 private fun ArchiveScreenNoArchiveEverPreview() {
     ArchiveScreenPreviewContainer(
         ArchiveUiState(
-            month = previewCursor(earliest = null),
+            month = previewCursor(),
             content = ArchiveContent.Data(emptyList()),
+            firstArchivedMonth = null,
         ),
     )
 }
 
-/** 두 번째 이후 실패 — 바가 살아 있어 옆 달로 넘어가는 것도 복구 수단이다. */
+/**
+ * 기록 0건인 계정이 과거 달로 걸어 들어간 모습 — **CTA 가 없다.** 위 기록 전무 프리뷰와 데이터는
+ * 같고 달만 다른데 화면이 갈리는 것이 이번 개정의 요점이다. 말할 "첫 기록" 이 없으므로 부제는 A형이다.
+ */
+@Preview
+@Composable
+private fun ArchiveScreenNoArchiveEverPastMonthPreview() {
+    ArchiveScreenPreviewContainer(
+        ArchiveUiState(
+            month = previewCursor(selected = YearMonth(2026, 3)),
+            content = ArchiveContent.Data(emptyList()),
+            firstArchivedMonth = null,
+        ),
+    )
+}
+
+/**
+ * 바가 있는 채로 실패한 모습. **지금은 도달할 수 없다** — 월 전환 실패가 화면을 덮는 대신 이전 달을
+ * 남기게 되면서, 실패 본문이 나오는 순간은 바가 아직 없는 첫 로딩뿐이다. 화면에 성공한 목록이 있을
+ * 때 그것을 실패 카드로 덮지 않기로 한 판단을 눈으로 고정하려고 남긴다.
+ */
 @Preview
 @Composable
 private fun ArchiveScreenFailurePreview() {
@@ -247,10 +323,15 @@ private fun ArchiveScreenFailurePreview() {
         ArchiveUiState(
             month = previewCursor(selected = YearMonth(2026, 5)),
             content = ArchiveContent.Failure,
+            firstArchivedMonth = PreviewFirstArchivedMonth,
         ),
     )
 }
 
+/**
+ * 같은 이유로 도달할 수 없는 조합 — 바가 있는 로딩이다. 월 전환은 스피너 대신 이전 달을 유지하고
+ * 건수 슬롯에 힌트만 얹는다 (위 전환 중 프리뷰).
+ */
 @Preview
 @Composable
 private fun ArchiveScreenLoadingPreview() {
@@ -258,6 +339,20 @@ private fun ArchiveScreenLoadingPreview() {
         ArchiveUiState(
             month = previewCursor(selected = YearMonth(2026, 5)),
             content = ArchiveContent.Loading,
+            firstArchivedMonth = PreviewFirstArchivedMonth,
+        ),
+    )
+}
+
+/** 첫 로딩 실패 — 바가 없어 "다시 시도" 가 유일한 복구 수단인, 실패 본문의 유일한 도달 경로다. */
+@Preview
+@Composable
+private fun ArchiveScreenFirstLoadFailurePreview() {
+    ArchiveScreenPreviewContainer(
+        ArchiveUiState(
+            month = null,
+            content = ArchiveContent.Failure,
+            firstArchivedMonth = null,
         ),
     )
 }
@@ -270,7 +365,11 @@ private fun ArchiveScreenLoadingPreview() {
 @Composable
 private fun ArchiveScreenFirstLoadPreview() {
     ArchiveScreenPreviewContainer(
-        ArchiveUiState(month = null, content = ArchiveContent.Loading),
+        ArchiveUiState(
+            month = null,
+            content = ArchiveContent.Loading,
+            firstArchivedMonth = null,
+        ),
     )
 }
 
@@ -281,15 +380,17 @@ private fun ArchiveScreenLongTextPreview() {
         ArchiveUiState(
             month = previewCursor(),
             content = ArchiveContent.Data(PreviewLongTextArchiveHistories),
+            firstArchivedMonth = PreviewFirstArchivedMonth,
         ),
     )
 }
 
+private val PreviewFirstArchivedMonth = YearMonth(2025, 1)
+
 private fun previewCursor(
     selected: YearMonth = YearMonth(2026, 8),
     latest: YearMonth = YearMonth(2026, 8),
-    earliest: YearMonth? = YearMonth(2025, 11),
-) = ArchiveMonthCursor(selected = selected, latest = latest, earliest = earliest)
+) = ArchiveMonthCursor(selected = selected, latest = latest)
 
 @Composable
 private fun ArchiveScreenPreviewContainer(uiState: ArchiveUiState) {
