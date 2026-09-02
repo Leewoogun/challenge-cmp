@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.IconTextButton
+import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.ui.components.VerificationStatusPill
@@ -139,7 +140,45 @@ private fun MissionCardMineWithPhotoPreview() {
                     VerificationPhoto(
                         status = VerificationStatus.VERIFIED,
                         photoUrl = null,
+                        cacheKey = null,
                         isLoading = true,
+                    )
+                },
+            )
+        }
+    }
+}
+
+/** 나 / 인증 완료 + 재촬영 가능 — 사진 아래에 보조 강조(Outlined)의 "다시 찍기" 가 하나 더 붙는다. */
+@Preview
+@Composable
+private fun MissionCardMineWithPhotoAndRetakePreview() {
+    ChallengeTheme {
+        Column(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(20.dp),
+        ) {
+            MissionCard(
+                label = "나의 미션",
+                mission = "오늘 운동 1시간 하기",
+                status = VerificationStatus.VERIFIED,
+                footerSpacing = 12.dp,
+                footer = {
+                    VerificationPhoto(
+                        status = VerificationStatus.VERIFIED,
+                        photoUrl = null,
+                        cacheKey = null,
+                        isLoading = true,
+                    )
+                    VerticalSpacer(12.dp)
+                    IconTextButton(
+                        text = "다시 찍기",
+                        icon = Icons.Filled.PhotoCamera,
+                        onClick = {},
+                        modifier = Modifier.fillMaxWidth(),
+                        style = IconTextButtonStyle.Outlined,
+                        textStyle = ChallengeTheme.typography.bold16,
                     )
                 },
             )
@@ -194,6 +233,7 @@ private fun MissionCardOpponentPendingPreview() {
                     VerificationPhoto(
                         status = VerificationStatus.PENDING,
                         photoUrl = null,
+                        cacheKey = null,
                     )
                 },
             )
@@ -220,6 +260,7 @@ private fun MissionCardStatusUnknownPreview() {
                     VerificationPhoto(
                         status = null,
                         photoUrl = null,
+                        cacheKey = null,
                         onRetry = {},
                     )
                 },

@@ -23,7 +23,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil3.compose.LocalPlatformContext
 import coil3.compose.SubcomposeAsyncImage
+import coil3.request.ImageRequest
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -46,6 +48,9 @@ private const val PHOTO_DELETED_TEXT = "탈퇴한 사용자의 사진은 삭제�
  * @param status 인증 현황 조회에 실패했으면 `null`. 이때 '미인증' 으로 그리면 이미 인증한 사람의
  *   사진을 없는 것처럼 보여주게 되므로, 사진이 아니라 조회 실패를 드러낸다.
  * @param isLoading 인증 현황 자체를 아직 못 받은 구간. 이미지 로딩(Coil)과는 별개다.
+ * @param cacheKey [photoUrl] 을 이미지 로더 캐시에서 식별할 키. 사진을 교체해도 [photoUrl] 이
+ *   그대로라 URL 만으로는 캐시에서 옛 사진이 그대로 돌아온다. 기본값을 두지 않는 이유는, 새 호출부가
+ *   빠뜨렸을 때 예외도 로그도 없이 화면에만 드러나는 실패가 되기 때문이다.
  * @param photoDeleted 탈퇴로 사진이 영구 삭제된 칸. 다시 받을 수 있는 대상이 없어 재시도를 열지 않는다.
  * @param onRetry [status] 가 `null` 일 때만 쓰인다. 사진 URL 재요청([RemotePhoto] 내부)과 달리
  *   현황 재조회는 이 컴포넌트가 스스로 할 수 없어 호출부에서 받는다. 넘기지 않으면 문구만 남는다.
@@ -54,6 +59,7 @@ private const val PHOTO_DELETED_TEXT = "탈퇴한 사용자의 사진은 삭제�
 internal fun VerificationPhoto(
     status: VerificationStatus?,
     photoUrl: String?,
+    cacheKey: String?,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
     photoDeleted: Boolean = false,
@@ -83,7 +89,7 @@ internal fun VerificationPhoto(
             // 인증은 됐는데 URL 이 없는 건 정상 경로가 아니다. 빈 칸으로 두면 원인 없는 공백이 되므로
             // 로드 실패와 같은 문구로 드러낸다(재시도할 대상 URL 이 없어 버튼은 붙이지 않는다).
             photoUrl == null -> PhotoMessage(LOAD_FAILED_TEXT)
-            else -> RemotePhoto(url = photoUrl)
+            else -> RemotePhoto(url = photoUrl, cacheKey = cacheKey)
         }
     }
 }
@@ -94,13 +100,28 @@ internal fun VerificationPhoto(
  * 통과하므로, 로드 실패는 반드시 화면에 문구로 남기고 재시도까지 열어 둔다.
  */
 @Composable
-private fun RemotePhoto(url: String) {
+private fun RemotePhoto(url: String, cacheKey: String?) {
+    val context = LocalPlatformContext.current
+
+    // model 이 새 인스턴스여도 Coil 은 data·캐시 키 등 일부만 비교해 재요청 여부를 정하므로, remember
+    // 없이도 리컴포지션만으로 다시 로드되지는 않는다. 그래도 감싸는 이유는 그 비교 대상이 라이브러리
+    // 내부 사정이라서다 — 재요청 조건은 여기서 remember 키로 직접 못 박는다.
+    val request = remember(context, url, cacheKey) {
+        ImageRequest.Builder(context)
+            .data(url)
+            // 메모리·디스크가 URL 을 각자 키로 들고 있어 한쪽만 갈면 다른 층에서 옛 사진이 돌아온다.
+            .memoryCacheKey(cacheKey)
+            .diskCacheKey(cacheKey)
+            .build()
+    }
+
     // 같은 URL 을 다시 요청하려면 AsyncImagePainter 가 새로 만들어져야 해서 key 로 노드를 갈아 끼운다.
-    var retryTick by remember(url) { mutableIntStateOf(0) }
+    // 사진이 교체되면(캐시 키 변화) 재시도를 세던 대상 이미지 자체가 달라지므로 tick 도 함께 리셋한다.
+    var retryTick by remember(url, cacheKey) { mutableIntStateOf(0) }
 
     key(retryTick) {
         SubcomposeAsyncImage(
-            model = url,
+            model = request,
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
@@ -154,6 +175,7 @@ private fun VerificationPhotoWithPhotoPreview() {
             VerificationPhoto(
                 status = VerificationStatus.VERIFIED,
                 photoUrl = "http://10.0.2.2:8080/api/v1/challenges/7/photos/opponent",
+                cacheKey = "http://10.0.2.2:8080/api/v1/challenges/7/photos/opponent|2026-01-01T09:30",
             )
         }
     }
@@ -172,6 +194,7 @@ private fun VerificationPhotoDeletedPreview() {
             VerificationPhoto(
                 status = VerificationStatus.VERIFIED,
                 photoUrl = null,
+                cacheKey = null,
                 photoDeleted = true,
             )
         }
@@ -191,6 +214,7 @@ private fun VerificationPhotoMissingUrlPreview() {
             VerificationPhoto(
                 status = VerificationStatus.VERIFIED,
                 photoUrl = null,
+                cacheKey = null,
                 photoDeleted = false,
             )
         }
@@ -206,7 +230,7 @@ private fun VerificationPhotoNotVerifiedPreview() {
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(20.dp),
         ) {
-            VerificationPhoto(status = VerificationStatus.PENDING, photoUrl = null)
+            VerificationPhoto(status = VerificationStatus.PENDING, photoUrl = null, cacheKey = null)
         }
     }
 }
@@ -220,7 +244,7 @@ private fun VerificationPhotoFailedPreview() {
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(20.dp),
         ) {
-            VerificationPhoto(status = VerificationStatus.FAILED, photoUrl = null)
+            VerificationPhoto(status = VerificationStatus.FAILED, photoUrl = null, cacheKey = null)
         }
     }
 }
@@ -237,6 +261,7 @@ private fun VerificationPhotoLoadingPreview() {
             VerificationPhoto(
                 status = VerificationStatus.VERIFIED,
                 photoUrl = null,
+                cacheKey = null,
                 isLoading = true,
             )
         }
@@ -253,7 +278,7 @@ private fun VerificationPhotoStatusUnknownPreview() {
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(20.dp),
         ) {
-            VerificationPhoto(status = null, photoUrl = null, onRetry = {})
+            VerificationPhoto(status = null, photoUrl = null, cacheKey = null, onRetry = {})
         }
     }
 }

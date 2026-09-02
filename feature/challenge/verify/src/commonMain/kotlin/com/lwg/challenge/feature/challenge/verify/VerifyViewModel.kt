@@ -4,10 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lwg.challenge.camera.CameraCaptureFailure
 import com.lwg.challenge.camera.CameraCaptureResult
-import com.lwg.challenge.domain.model.VerificationStatus
-import com.lwg.challenge.domain.model.user.CacheStrategy
 import com.lwg.challenge.domain.model.verification.VerificationSubmitOutcome
-import com.lwg.challenge.domain.repository.UserInfoRepository
 import com.lwg.challenge.domain.repository.VerificationRepository
 import com.lwg.challenge.feature.challenge.verify.contract.SubmitFailure
 import com.lwg.challenge.feature.challenge.verify.contract.VerifyModalEffect
@@ -24,7 +21,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -37,7 +33,6 @@ private const val CAPTURE_FAILED_MESSAGE = "사진을 가져오지 못했어요.
 class VerifyViewModel(
     @InjectedParam private val challengeId: Long,
     private val verificationRepository: VerificationRepository,
-    private val userInfoRepository: UserInfoRepository,
     private val permissionManager: PermissionManager,
 ) : ViewModel() {
 
@@ -95,12 +90,12 @@ class VerifyViewModel(
                 when (val outcome = verificationRepository.submitVerification(challengeId, confirm.photo.jpegBytes)) {
                     is VerificationSubmitOutcome.Success -> _uiState.update { VerifyUiState.Done }
 
-                    // 재제출이 전면 거부라 같은 사진으로 다시 눌러도 결과가 같다. 형식·용량 거부도
-                    // 같은 사진에서는 반복된다 — 열어 둘 길은 재촬영뿐이다.
+                    // 형식·용량·권한 거부는 같은 사진에서 그대로 반복된다 — 열어 둘 길은 재촬영뿐이다.
                     is VerificationSubmitOutcome.Rejected ->
                         failSubmit(SubmitFailure(outcome.message, isRetryable = false))
 
-                    is VerificationSubmitOutcome.Unreachable -> confirmSubmission(outcome.message)
+                    is VerificationSubmitOutcome.Unreachable ->
+                        failSubmit(SubmitFailure(outcome.message, isRetryable = true))
                 }
             }
         }
@@ -151,40 +146,6 @@ class VerifyViewModel(
     private fun showPermissionSettingsGuide() {
         _modalEffect.update { VerifyModalEffect.CameraPermissionSettings }
     }
-
-    /**
-     * 전송이 끊긴 제출을 실제 인증 현황 조회로 판정한다 — 계약이 요구하는 절차다.
-     * 전송이 끊기면 서버가 반영했는지 알 수 없고, 재제출은 전면 거부라 맹목 재시도가
-     * *이미 성공한 인증*을 실패로 보이게 만든다. 그래서 재시도를 열기 전에 조회해서 판정한다.
-     *
-     * 에러 문구로 성공을 판정하지 않는다 — 같은 거부 문구가 '진짜로 이미 인증한 상태'에서도
-     * 나오므로 문구 매칭은 틀린다.
-     */
-    private suspend fun confirmSubmission(fallbackMessage: String) {
-        val myUserId = myUserId()
-        if (myUserId == null) {
-            failSubmit(SubmitFailure(fallbackMessage, isRetryable = true))
-            return
-        }
-
-        verificationRepository.getVerifications(
-            challengeId = challengeId,
-            onSuccess = { verifications ->
-                if (verifications.partyOf(myUserId)?.status == VerificationStatus.VERIFIED) {
-                    _uiState.update { VerifyUiState.Done }
-                } else {
-                    failSubmit(SubmitFailure(fallbackMessage, isRetryable = true))
-                }
-            },
-            onError = { failSubmit(SubmitFailure(fallbackMessage, isRetryable = true)) },
-        )
-    }
-
-    private suspend fun myUserId(): Long? =
-        userInfoRepository
-            .getUserInfo(onError = {}, cacheStrategy = CacheStrategy.CACHE_FIRST)
-            .firstOrNull()
-            ?.id
 
     private fun failSubmit(failure: SubmitFailure) {
         _uiState.updateWithData<VerifyUiState, VerifyUiState.Confirm> {

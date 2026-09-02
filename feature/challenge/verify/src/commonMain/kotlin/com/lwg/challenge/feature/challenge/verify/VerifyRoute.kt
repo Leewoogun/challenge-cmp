@@ -26,6 +26,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun VerifyRoute(
     challengeId: Long,
+    isReplace: Boolean,
     viewModel: VerifyViewModel = koinViewModel { parametersOf(challengeId) },
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -55,6 +56,7 @@ fun VerifyRoute(
 
     VerifyContent(
         uiState = uiState,
+        isReplace = isReplace,
         onBack = viewModel::requestExit,
         onCaptureClick = viewModel::requestCapture,
         onRetakeClick = viewModel::requestCapture,
@@ -74,6 +76,7 @@ fun VerifyRoute(
 @Composable
 private fun VerifyContent(
     uiState: VerifyUiState,
+    isReplace: Boolean,
     onBack: () -> Unit,
     onCaptureClick: () -> Unit,
     onRetakeClick: () -> Unit,
@@ -101,6 +104,7 @@ private fun VerifyContent(
             )
 
             VerifyUiState.Done -> VerifyDoneSection(
+                isReplace = isReplace,
                 onDoneClick = onDoneClick,
             )
         }

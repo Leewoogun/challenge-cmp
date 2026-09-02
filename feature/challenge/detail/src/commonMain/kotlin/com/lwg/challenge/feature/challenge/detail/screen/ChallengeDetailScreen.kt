@@ -17,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.IconTextButton
+import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.signature.Signature
@@ -32,9 +34,14 @@ import com.lwg.challenge.feature.challenge.detail.contract.HeadlineTone
 import com.lwg.challenge.feature.challenge.detail.contract.MyMissionSlot
 import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import com.lwg.challenge.feature.challenge.detail.contract.VerificationSection
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val VERIFY_CTA_TEXT = "인증하기"
+private const val RETAKE_CTA_TEXT = "다시 찍기"
+
+/** 프리뷰 사진 캐시 키가 실행 시점 시계에 흔들리지 않게 고정한다. */
+private val PREVIEW_VERIFIED_AT = LocalDateTime(2026, 1, 1, 9, 30, 0)
 
 /** CTA 는 버튼 자체가 여백을 가져서 사진(12dp)보다 위 간격을 넉넉히 준다. */
 private val CtaFooterSpacing = 16.dp
@@ -77,10 +84,12 @@ internal fun ChallengeDetailScreen(
             label = uiState.myMissionLabel,
             mission = uiState.myMission,
             status = uiState.myVerificationStatus,
-            footerSpacing = if (uiState.myMissionSlot == MyMissionSlot.MY_PHOTO) {
-                PhotoFooterSpacing
-            } else {
-                CtaFooterSpacing
+            footerSpacing = when (uiState.myMissionSlot) {
+                MyMissionSlot.MY_PHOTO,
+                MyMissionSlot.MY_PHOTO_WITH_RETAKE,
+                -> PhotoFooterSpacing
+
+                MyMissionSlot.VERIFY_CTA, MyMissionSlot.NONE -> CtaFooterSpacing
             },
             footer = when (uiState.myMissionSlot) {
                 // 인증 CTA 는 스크롤 밖 고정에서 이 카드 안으로 들어왔다. 재구성으로 "나의 미션" 이
@@ -103,7 +112,30 @@ internal fun ChallengeDetailScreen(
                         VerificationPhoto(
                             status = uiState.myVerificationStatus,
                             photoUrl = uiState.myPhotoUrl,
+                            cacheKey = uiState.myPhotoCacheKey,
                             photoDeleted = uiState.myPhotoDeleted,
+                        )
+                    }
+                }
+
+                MyMissionSlot.MY_PHOTO_WITH_RETAKE -> {
+                    {
+                        VerificationPhoto(
+                            status = uiState.myVerificationStatus,
+                            photoUrl = uiState.myPhotoUrl,
+                            cacheKey = uiState.myPhotoCacheKey,
+                            photoDeleted = uiState.myPhotoDeleted,
+                        )
+                        VerticalSpacer(12.dp)
+                        // 이미 인증을 마친 카드라 재촬영은 주 액션이 아니다. Filled 로 두면 완료 표시보다
+                        // 버튼이 더 강조돼 "아직 인증이 안 됐나" 로 읽힌다.
+                        IconTextButton(
+                            text = RETAKE_CTA_TEXT,
+                            icon = Icons.Filled.PhotoCamera,
+                            onClick = onVerifyClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            style = IconTextButtonStyle.Outlined,
+                            textStyle = ChallengeTheme.typography.bold16,
                         )
                     }
                 }
@@ -121,6 +153,7 @@ internal fun ChallengeDetailScreen(
                 VerificationPhoto(
                     status = uiState.opponentVerificationStatus,
                     photoUrl = uiState.opponentPhotoUrl,
+                    cacheKey = uiState.opponentPhotoCacheKey,
                     photoDeleted = uiState.opponentPhotoDeleted,
                     onRetry = onRetry,
                 )
@@ -148,7 +181,28 @@ private fun ChallengeDetailScreenPendingPreview() {
     }
 }
 
-/** 양측 인증 완료 — CTA 자리가 내 사진으로 바뀌고 두 카드 모두 사진 영역을 든다. */
+/**
+ * IN_PROGRESS · 내가 인증 완료 — 이번 변경의 핵심 장면. 완료 뱃지와 내 사진은 그대로 남고 그 아래에
+ * 보조 강조(Outlined)의 "다시 찍기" 가 붙는다.
+ */
+@Preview
+@Composable
+private fun ChallengeDetailScreenVerifiedWithRetakePreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                verifications = previewVerifications(
+                    myStatus = VerificationStatus.VERIFIED,
+                    myPhotoUrl = "https://example.com/mine.jpg",
+                ),
+            ),
+            onVerifyClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 마감 후 · 양측 인증 완료 — 교체가 닫혀 두 카드 모두 사진만 들고 재촬영 버튼이 없다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenBothVerifiedPreview() {
@@ -171,7 +225,7 @@ private fun ChallengeDetailScreenBothVerifiedPreview() {
 
 /**
  * 인증 현황 조회 실패 — 뱃지는 빠지고 사진 영역은 "인증 현황을 불러오지 못했어요" 로 강등되지만
- * CTA 는 그대로 열려 있다(막는 실패보다 중복 시도 실패가 낫다).
+ * CTA 는 그대로 열려 있다(진행 중이면 열린다 — 내 인증 상태를 보지 않는다).
  */
 @Preview
 @Composable
@@ -213,7 +267,7 @@ private fun ChallengeDetailScreenNoContractPreview() {
     }
 }
 
-/** 마감 후 — 헤더가 "판정 대기 중" NEUTRAL 로 내려가고 CTA 는 닫힌다. */
+/** 마감 후 — 헤더가 "판정 대기 중" NEUTRAL 로 내려가고, 인증은 마쳤지만 교체가 닫혀 사진만 남는다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenAfterDeadlinePreview() {
@@ -440,16 +494,20 @@ private fun previewVerifications(
     myStatus: VerificationStatus = VerificationStatus.PENDING,
     myPhotoUrl: String? = null,
     myPhotoDeleted: Boolean = false,
+    myVerifiedAt: LocalDateTime? = PREVIEW_VERIFIED_AT,
     opponentStatus: VerificationStatus = VerificationStatus.PENDING,
     opponentPhotoUrl: String? = null,
     opponentPhotoDeleted: Boolean = false,
+    opponentVerifiedAt: LocalDateTime? = PREVIEW_VERIFIED_AT,
 ) = VerificationSection(
     myStatus = myStatus,
     myPhotoUrl = myPhotoUrl,
     myPhotoDeleted = myPhotoDeleted,
+    myVerifiedAt = myVerifiedAt,
     opponentStatus = opponentStatus,
     opponentPhotoUrl = opponentPhotoUrl,
     opponentPhotoDeleted = opponentPhotoDeleted,
+    opponentVerifiedAt = opponentVerifiedAt,
 )
 
 private fun previewData(

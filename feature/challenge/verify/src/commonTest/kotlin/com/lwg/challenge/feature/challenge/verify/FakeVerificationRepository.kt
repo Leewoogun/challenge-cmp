@@ -29,12 +29,7 @@ class FakeVerificationRepository : VerificationRepository {
 
     val submitCallCount: Int get() = submittedChallengeIds.size
 
-    /** 조회 성공 시 줄 현황. */
-    var verifications: ChallengeVerifications? = null
-
-    /** 조회 실패 메시지. null 이면 [verifications] 로 성공. */
-    var getVerificationsError: String? = null
-
+    /** 제출 경로가 현황 조회를 부르지 않는다는 것만 확인하면 되므로 호출 수만 센다. */
     var getVerificationsCallCount: Int = 0
 
     override suspend fun submitVerification(
@@ -53,11 +48,5 @@ class FakeVerificationRepository : VerificationRepository {
         onError: (String) -> Unit,
     ) {
         getVerificationsCallCount++
-        val error = getVerificationsError
-        if (error != null) {
-            onError(error)
-            return
-        }
-        verifications?.let(onSuccess)
     }
 }

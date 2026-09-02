@@ -6,6 +6,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.ChallengeTopBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
 import com.lwg.challenge.feature.challenge.detail.screen.ChallengeDetailErrorScreen
 import com.lwg.challenge.feature.challenge.detail.screen.ChallengeDetailLoadingScreen
@@ -27,11 +28,15 @@ fun ChallengeDetailRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val navigator = LocalNavigateAction.current
 
+    // 인증 화면에 다시 물어보게 하지 않는다 — 교체 진입인지는 이 화면이 이미 들고 있는 값이다.
+    val isReplace = (uiState as? ChallengeDetailUiState.Data)
+        ?.myVerificationStatus == VerificationStatus.VERIFIED
+
     ChallengeDetailContent(
         uiState = uiState,
         onBack = { navigator.popBackStack() },
         onRetry = viewModel::retry,
-        onVerifyClick = { navigator.navigateTo(Route.Challenge.Verify(challengeId)) },
+        onVerifyClick = { navigator.navigateTo(Route.Challenge.Verify(challengeId, isReplace)) },
     )
 }
 

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.signature.Signature
+import kotlinx.datetime.LocalDateTime
 
 /** 관점(내가 어느 쪽인지)을 판정했을 때 내 서명 칸에 붙는 라벨. */
 internal const val MY_LABEL = "나"
@@ -45,9 +46,9 @@ sealed interface ChallengeDetailUiState {
      *   남거나 패배 문구에 승리색이 붙는 조합이 생긴다.
      * @property deadlineAbsoluteText 절대 마감 시각("8/3 24:00"). 시간이 흘러도 변하지 않아 티커가
      *   건드리지 않는다.
-     * @property canVerify [STATUS_IN_PROGRESS] 이면서 **내가 이미 인증했음이 확인되지 않았을 때** 인증
-     *   진입점을 연다. [verifications] 가 `null`(조회 실패·관점 미상) 이면 여전히 열어 두는 폴백이
-     *   남아 있고, 그 경로의 중복 제출만 서버가 거부한다.
+     * @property canVerify 챌린지가 [STATUS_IN_PROGRESS] 인지만 뜻한다 — 내 인증 상태는 보지 않는다.
+     *   재제출이 사진 교체로 허용되면서 `VERIFIED` 가 진입점을 닫을 근거가 아니게 됐다. 마감 뒤의
+     *   교체는 서버가 여전히 거부하므로 그 조건만 남는다.
      */
     @Immutable
     data class Data(
@@ -62,7 +63,10 @@ sealed interface ChallengeDetailUiState {
         val deadlineAbsoluteText: String,
         /** 계약서가 없는 챌린지(soul-oath 이전 생성)면 null. 서명 블록을 통째로 그리지 않는다. */
         val signatures: SignatureSection?,
-        /** 인증 현황을 모르면(조회 실패·관점 미상) null. 사진도 게이트 정보도 없는 상태다. */
+        /**
+         * 인증 현황을 모르면(조회 실패·관점 미상) null. 사진도 뱃지도 없이 하단 슬롯은 [canVerify] 만
+         * 따른다 — 진행 중이면 인증 CTA, 아니면 빈칸.
+         */
         val verifications: VerificationSection?,
         val canVerify: Boolean,
     ) : ChallengeDetailUiState {
@@ -86,23 +90,56 @@ sealed interface ChallengeDetailUiState {
         val opponentPhotoDeleted: Boolean get() = verifications?.opponentPhotoDeleted == true
 
         /**
+         * 내 인증 사진을 이미지 로더 캐시에서 식별할 키. 사진이 없으면 `null`.
+         *
+         * 사진을 교체해도 [myPhotoUrl] 은 그대로다. Coil 은 URL 을 키로 메모리·디스크 캐시를 따로
+         * 들고 HTTP 캐시 헤더를 보지 않으므로, 키를 가르지 않으면 교체 뒤에도 옛 사진이 계속 그려진다.
+         * 그 실패는 예외도 로그도 남기지 않아 화면을 직접 보기 전까지 아무도 모른다.
+         *
+         * 알려진 한계: [VerificationSection.myVerifiedAt] 이 초 단위라 같은 초에 두 번 교체하면 키가
+         * 같아진다. 촬영 → 확인 → 제출 왕복이 1초 안에 두 번 끝날 수 없어 실사용상 도달하지 않는다.
+         */
+        val myPhotoCacheKey: String? get() = photoCacheKey(myPhotoUrl, verifications?.myVerifiedAt)
+
+        /** [myPhotoCacheKey] 와 같은 이유·같은 규칙. 상대가 교체한 사진도 재진입 때 새 키로 잡힌다. */
+        val opponentPhotoCacheKey: String?
+            get() = photoCacheKey(opponentPhotoUrl, verifications?.opponentVerifiedAt)
+
+        /**
          * 내 미션 카드 하단에 무엇이 들어가는지.
          *
-         * [canVerify] 만으로는 결정할 수 없다 — [STATUS_IN_PROGRESS] + [VerificationStatus.FAILED] 는
-         * `canVerify` 가 `true`(VERIFIED 가 아니므로) 인데도 보여줄 게 없는 조합이라, 내 인증 상태를
-         * 먼저 본 뒤에야 게이트로 떨어뜨릴 수 있다.
+         * [VerificationStatus.VERIFIED] 는 [canVerify] 를 가르는 대신 같은 칸의 모양만 가른다 —
+         * 진행 중이면 사진 아래에 교체 액션을 함께 두고, 마감 뒤에는 사진만 남긴다.
          *
-         * [verifications] 가 `null`(조회 실패·관점 미상) 이면 앞 두 분기가 모두 빗나가 [canVerify] 의
-         * 노출 폴백으로 내려간다 — 의도한 경로다.
+         * [VerificationStatus.FAILED] 를 [canVerify] 보다 먼저 보는 이유는 그대로다:
+         * [STATUS_IN_PROGRESS] + `FAILED` 는 진입점이 열려 있는데도 보여줄 것도 시킬 것도 없는
+         * 조합이라, 내 인증 상태를 먼저 걷어낸 뒤에야 게이트로 떨어뜨릴 수 있다.
+         *
+         * [verifications] 가 `null`(조회 실패·관점 미상) 이면 앞 두 분기가 모두 빗나가 [canVerify] 로
+         * 내려간다 — 의도한 경로다.
          */
         val myMissionSlot: MyMissionSlot
             get() = when {
-                myVerificationStatus == VerificationStatus.VERIFIED -> MyMissionSlot.MY_PHOTO
+                myVerificationStatus == VerificationStatus.VERIFIED ->
+                    if (canVerify) MyMissionSlot.MY_PHOTO_WITH_RETAKE else MyMissionSlot.MY_PHOTO
+
                 myVerificationStatus == VerificationStatus.FAILED -> MyMissionSlot.NONE
                 canVerify -> MyMissionSlot.VERIFY_CTA
                 else -> MyMissionSlot.NONE
             }
     }
+}
+
+/**
+ * 사진 URL 은 그대로 두고 캐시 키만 인증 확정 시각으로 가른다 — URL 에 쿼리를 붙이면 서버 계약이
+ * 정한 사진 경로 모양이 바뀌므로 요청은 손대지 않는다.
+ *
+ * [verifiedAt] 이 없으면(아직 인증 전) 갈라놓을 대상 자체가 없어 URL 만 남기며, 이는 키를 지정하지
+ * 않았을 때의 Coil 기본 동작과 같다.
+ */
+private fun photoCacheKey(photoUrl: String?, verifiedAt: LocalDateTime?): String? {
+    val url = photoUrl ?: return null
+    return if (verifiedAt == null) url else "$url|$verifiedAt"
 }
 
 /**
@@ -113,11 +150,14 @@ sealed interface ChallengeDetailUiState {
  */
 enum class MyMissionSlot {
 
-    /** 아직 인증할 수 있다. */
+    /** 아직 인증하지 않았고, 지금 인증할 수 있다. */
     VERIFY_CTA,
 
-    /** 인증을 마쳐 내 사진이 있다. */
+    /** 인증을 마쳤고 마감이 지나 이제 바꿀 수 없다 — 내 사진만 남는다. */
     MY_PHOTO,
+
+    /** 인증을 마쳤지만 아직 진행 중이라 다시 찍어 교체할 수 있다. */
+    MY_PHOTO_WITH_RETAKE,
 
     /** 인증이 끝났거나(실패) 챌린지가 닫혀 할 것도 보여줄 것도 없다. */
     NONE,
@@ -149,6 +189,11 @@ data class SignatureSection(
  *
  * @property myPhotoUrl 인증 사진의 절대 URL. 미인증이면 null. 인증 헤더가 필요한 URL 이라 외부로
  *   그대로 내보낼 수 없다.
+ * @property myVerifiedAt 화면에 그리는 값이 아니라 사진 캐시 키의 재료다
+ *   ([ChallengeDetailUiState.Data.myPhotoCacheKey]). 사진을 교체하면 [myPhotoUrl] 은 그대로인 채
+ *   서버가 이 값을 갱신하므로, 이 값이 달라졌다는 건 같은 주소의 바이트가 바뀌었다는 뜻이다.
+ * @property opponentVerifiedAt [myVerifiedAt] 과 같은 용도. 상대가 교체한 사진도 재진입 때 새 값이
+ *   실려 오므로 같은 경로로 잡힌다.
  * @property opponentPhotoDeleted 탈퇴로 사진이 영구 삭제됨. `VERIFIED` + [opponentPhotoUrl] `null`
  *   조합이 정상인 유일한 경우라, 이 값이 없으면 데이터 이상과 구분되지 않는다.
  */
@@ -157,7 +202,9 @@ data class VerificationSection(
     val myStatus: VerificationStatus,
     val myPhotoUrl: String?,
     val myPhotoDeleted: Boolean,
+    val myVerifiedAt: LocalDateTime?,
     val opponentStatus: VerificationStatus,
     val opponentPhotoUrl: String?,
     val opponentPhotoDeleted: Boolean,
+    val opponentVerifiedAt: LocalDateTime?,
 )

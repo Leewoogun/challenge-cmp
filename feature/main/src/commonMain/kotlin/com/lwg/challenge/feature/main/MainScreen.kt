@@ -223,7 +223,7 @@ private fun MainScreen(
                     OathRoute(challengeId = route.challengeId)
                 }
                 entry<Route.Challenge.Verify>(clazzContentKey = { it.uniqueContentKey() }) { route ->
-                    VerifyRoute(challengeId = route.challengeId)
+                    VerifyRoute(challengeId = route.challengeId, isReplace = route.isReplace)
                 }
                 entry<Route.Notifications>(clazzContentKey = { it.uniqueContentKey() }) {
                     NotificationRoute()

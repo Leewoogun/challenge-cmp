@@ -18,6 +18,7 @@ import com.lwg.challenge.feature.challenge.detail.contract.DEADLINE_REMAINING_PR
 import com.lwg.challenge.feature.challenge.detail.contract.HeadlineTone
 import com.lwg.challenge.feature.challenge.detail.contract.MY_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.MY_MISSION_LABEL
+import com.lwg.challenge.feature.challenge.detail.contract.MyMissionSlot
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_NOT_SIGNED_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_UNREADABLE_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
@@ -72,6 +73,9 @@ private val FUTURE_DEADLINE = LocalDateTime.parse("2099-12-31T23:59:00")
 private const val VIEW_MODEL_KEY = "detail"
 
 private val VERIFIED_AT = LocalDateTime.parse("2026-01-01T09:30:00")
+
+/** 마감 전 사진을 교체했을 때 서버가 갱신해 주는 값. 사진 URL 은 그대로인 채 이 값만 움직인다. */
+private val REPLACED_VERIFIED_AT = LocalDateTime.parse("2026-01-01T11:05:00")
 
 private const val CHALLENGER_PHOTO_URL = "https://api.example.com/verifications/1/photo"
 private const val OPPONENT_PHOTO_URL = "https://api.example.com/verifications/2/photo"
@@ -203,25 +207,41 @@ class ChallengeDetailViewModelTest {
         challengerStatus: VerificationStatus = VerificationStatus.PENDING,
         challengerPhotoUrl: String? = null,
         challengerPhotoDeleted: Boolean = false,
+        challengerVerifiedAt: LocalDateTime? = VERIFIED_AT,
         opponentStatus: VerificationStatus = VerificationStatus.PENDING,
         opponentPhotoUrl: String? = null,
         opponentPhotoDeleted: Boolean = false,
+        opponentVerifiedAt: LocalDateTime? = VERIFIED_AT,
     ) = ChallengeVerifications(
         challengeId = CHALLENGE_ID,
-        challenger = party(CHALLENGER_ID, challengerStatus, challengerPhotoUrl, challengerPhotoDeleted),
-        opponent = party(OPPONENT_ID, opponentStatus, opponentPhotoUrl, opponentPhotoDeleted),
+        challenger = party(
+            userId = CHALLENGER_ID,
+            status = challengerStatus,
+            photoUrl = challengerPhotoUrl,
+            photoDeleted = challengerPhotoDeleted,
+            verifiedAt = challengerVerifiedAt,
+        ),
+        opponent = party(
+            userId = OPPONENT_ID,
+            status = opponentStatus,
+            photoUrl = opponentPhotoUrl,
+            photoDeleted = opponentPhotoDeleted,
+            verifiedAt = opponentVerifiedAt,
+        ),
     )
 
+    /** 인증 전에는 확정 시각이 없다는 서버 불변식을 픽스처에서도 깨지 않는다. */
     private fun party(
         userId: Long,
         status: VerificationStatus,
         photoUrl: String?,
         photoDeleted: Boolean = false,
+        verifiedAt: LocalDateTime? = VERIFIED_AT,
     ) = PartyVerification(
         userId = userId,
         status = status,
         photoUrl = photoUrl,
-        verifiedAt = VERIFIED_AT.takeIf { status == VerificationStatus.VERIFIED },
+        verifiedAt = verifiedAt.takeIf { status == VerificationStatus.VERIFIED },
         photoDeleted = photoDeleted,
     )
 
@@ -640,17 +660,24 @@ class ChallengeDetailViewModelTest {
         assertFalse(createViewModel().data().canVerify)
     }
 
-    /** 이미 인증한 사용자를 촬영까지 시킨 뒤 서버 700 으로 되돌리던 경로를 막는 게 이 게이트의 목적이다. */
+    /**
+     * 재제출이 사진 교체로 허용되면서 `VERIFIED` 가 진입점을 닫을 근거가 사라졌다 — 흔들리게 찍은
+     * 사용자가 마감 전까지 다시 찍을 수 있어야 한다. 인증 완료 표시는 그대로 두고 그 아래에 붙인다.
+     */
     @Test
-    fun `내가 이미 인증했으면 인증 진입점이 닫힌다`() = runTest {
+    fun `내가 이미 인증했어도 재촬영 진입점이 열린다`() = runTest {
         fakeVerificationRepository.verifications = sampleVerifications(
             challengerStatus = VerificationStatus.VERIFIED,
             challengerPhotoUrl = CHALLENGER_PHOTO_URL,
         )
 
-        assertFalse(createViewModel().data().canVerify)
+        val state = createViewModel().data()
+
+        assertTrue(state.canVerify)
+        assertEquals(MyMissionSlot.MY_PHOTO_WITH_RETAKE, state.myMissionSlot)
     }
 
+    /** 바로 위 테스트와 짝 — 내 인증 상태가 무엇이든 진입점은 챌린지 상태만 따른다. */
     @Test
     fun `내 인증이 PENDING 이면 인증 진입점이 열린다`() = runTest {
         fakeVerificationRepository.verifications = sampleVerifications(
@@ -660,6 +687,7 @@ class ChallengeDetailViewModelTest {
         assertTrue(createViewModel().data().canVerify)
     }
 
+    /** 마감 뒤 교체는 서버가 여전히 거부한다 — 앱도 그 자리에 진입점을 두지 않는다. */
     @Test
     fun `IN_PROGRESS 가 아니면 내 인증 상태와 무관하게 진입점이 닫힌다`() = runTest {
         fakeChallengeRepository.detail = sampleDetail(status = "COMPLETED")
@@ -667,16 +695,58 @@ class ChallengeDetailViewModelTest {
         fakeVerificationRepository.verifications = sampleVerifications(
             challengerStatus = VerificationStatus.PENDING,
         )
-        assertFalse(createViewModel().data().canVerify)
+        val pendingState = createViewModel().data()
+        assertFalse(pendingState.canVerify)
+        assertEquals(MyMissionSlot.NONE, pendingState.myMissionSlot)
 
         fakeVerificationRepository.verifications = sampleVerifications(
             challengerStatus = VerificationStatus.VERIFIED,
             challengerPhotoUrl = CHALLENGER_PHOTO_URL,
         )
-        assertFalse(createViewModel().data().canVerify)
+        val verifiedState = createViewModel().data()
+        assertFalse(verifiedState.canVerify)
+        assertEquals(
+            MyMissionSlot.MY_PHOTO,
+            verifiedState.myMissionSlot,
+            "마감 뒤에는 인증 완료 표시만 남고 재촬영은 붙지 않는다",
+        )
     }
 
-    /** 막는 실패보다 중복 시도 실패가 낫다 — 모를 땐 주 액션을 열어 둔다. */
+    /**
+     * 슬롯 4개 값이 각각 어떤 입력에서 나오는지 한자리에 고정한다.
+     *
+     * [MyMissionSlot.MY_PHOTO] 와 [MyMissionSlot.MY_PHOTO_WITH_RETAKE] 를 가르는 것은 내 인증
+     * 상태가 아니라 챌린지 상태다 — 둘 다 `VERIFIED` 라 한쪽 입력만 두면 아무것도 증명하지 못한다.
+     */
+    @Test
+    fun `내 미션 슬롯이 챌린지 상태와 내 인증 상태의 조합으로 갈린다`() = runTest {
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.PENDING,
+        )
+        assertEquals(MyMissionSlot.VERIFY_CTA, createViewModel().data().myMissionSlot)
+
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+        )
+        assertEquals(MyMissionSlot.MY_PHOTO_WITH_RETAKE, createViewModel().data().myMissionSlot)
+
+        // FAILED 는 진입점이 열려 있는데도 보여줄 것이 없는 조합이라 canVerify 보다 먼저 걸러진다.
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.FAILED,
+        )
+        assertEquals(MyMissionSlot.NONE, createViewModel().data().myMissionSlot)
+
+        // 위 MY_PHOTO_WITH_RETAKE 와 내 인증 상태가 같다 — 챌린지 상태 한 줄만 바뀐 것이 구분선이다.
+        fakeChallengeRepository.detail = sampleDetail(status = "COMPLETED")
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+        )
+        assertEquals(MyMissionSlot.MY_PHOTO, createViewModel().data().myMissionSlot)
+    }
+
+    /** 진입점은 챌린지 상태만 본다 — 현황을 못 받았다고 주 액션이 사라지지 않는다. */
     @Test
     fun `인증 현황 조회에 실패해도 Data 를 유지하고 진입점을 열어 둔다`() = runTest {
         fakeVerificationRepository.getVerificationsError = "네트워크 오류가 발생하였습니다."
@@ -703,6 +773,7 @@ class ChallengeDetailViewModelTest {
         assertTrue(state.canVerify)
     }
 
+    /** [ChallengeDetailUiState.Data.canVerify] 는 양쪽 다 열려 있어 판정에 쓸 수 없다 — 슬롯으로 본다. */
     @Test
     fun `내가 opponent 여도 내 인증 칸을 정확히 집는다`() = runTest {
         fakeUserInfoRepository.userInfo = userInfo(OPPONENT_ID)
@@ -711,16 +782,21 @@ class ChallengeDetailViewModelTest {
             opponentStatus = VerificationStatus.VERIFIED,
             opponentPhotoUrl = OPPONENT_PHOTO_URL,
         )
-        assertFalse(createViewModel().data().canVerify)
+        val mineVerified = createViewModel().data()
+        assertEquals(VerificationStatus.VERIFIED, mineVerified.myVerificationStatus)
+        assertEquals(MyMissionSlot.MY_PHOTO_WITH_RETAKE, mineVerified.myMissionSlot)
 
         fakeVerificationRepository.verifications = sampleVerifications(
             challengerStatus = VerificationStatus.VERIFIED,
             challengerPhotoUrl = CHALLENGER_PHOTO_URL,
         )
-        assertTrue(
-            createViewModel().data().canVerify,
-            "상대가 인증했다고 내 진입점이 닫히면 안 된다",
+        val opponentVerified = createViewModel().data()
+        assertEquals(
+            VerificationStatus.PENDING,
+            opponentVerified.myVerificationStatus,
+            "상대가 인증했다고 내 칸이 인증 완료로 바뀌면 안 된다",
         )
+        assertEquals(MyMissionSlot.VERIFY_CTA, opponentVerified.myMissionSlot)
     }
 
     @Test
@@ -827,5 +903,107 @@ class ChallengeDetailViewModelTest {
         assertEquals(VerificationStatus.PENDING, verifications.opponentStatus)
         assertNull(verifications.myPhotoUrl)
         assertNull(verifications.opponentPhotoUrl)
+    }
+
+    // 아래 테스트들이 사진 캐시 키의 전부다 — 바뀌면 갈라지고, 안 바뀌면 그대로여야 한다.
+    // 앞을 잃으면 교체 후에도 옛 사진이 남고, 뒤를 잃으면 멀쩡한 사진을 매번 다시 받는다.
+    // 둘 다 예외도 로그도 남기지 않아 테스트 말고는 잡을 자리가 없다.
+
+    @Test
+    fun `사진을 교체하면 URL 이 같아도 캐시 키가 달라진다`() = runTest {
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+            challengerVerifiedAt = VERIFIED_AT,
+        )
+        val viewModel = createViewModel()
+        val before = viewModel.data().myPhotoCacheKey
+
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+            challengerVerifiedAt = REPLACED_VERIFIED_AT,
+        )
+        viewModel.retry()
+        val replaced = viewModel.data()
+
+        assertEquals(CHALLENGER_PHOTO_URL, replaced.myPhotoUrl, "교체돼도 사진 경로는 그대로다")
+        assertNotEquals(before, replaced.myPhotoCacheKey, "경로가 같아도 키는 갈려야 한다")
+    }
+
+    @Test
+    fun `인증 시각이 그대로면 캐시 키도 그대로다`() = runTest {
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+        )
+        val viewModel = createViewModel()
+        val before = viewModel.data().myPhotoCacheKey
+
+        viewModel.retry()
+
+        assertEquals(before, viewModel.data().myPhotoCacheKey, "안 바뀐 사진을 다시 받게 만들면 안 된다")
+    }
+
+    /** 인증 전에는 확정 시각이 없다 — 갈라놓을 대상이 없어 Coil 기본과 같은 URL 단독 키로 떨어진다. */
+    @Test
+    fun `인증 시각이 없으면 캐시 키가 URL 로만 떨어진다`() = runTest {
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+            challengerVerifiedAt = null,
+        )
+
+        val state = createViewModel().data()
+
+        assertEquals(CHALLENGER_PHOTO_URL, state.myPhotoCacheKey)
+    }
+
+    @Test
+    fun `사진 URL 이 없으면 캐시 키도 null 이다`() = runTest {
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = null,
+            challengerPhotoDeleted = true,
+        )
+
+        val state = createViewModel().data()
+
+        assertNull(state.myPhotoCacheKey, "탈퇴로 지워진 사진에는 캐시에서 집을 대상이 없다")
+        assertNull(state.opponentPhotoCacheKey)
+    }
+
+    @Test
+    fun `나와 상대의 캐시 키가 서로 섞이지 않는다`() = runTest {
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+            challengerVerifiedAt = VERIFIED_AT,
+            opponentStatus = VerificationStatus.VERIFIED,
+            opponentPhotoUrl = OPPONENT_PHOTO_URL,
+            opponentVerifiedAt = REPLACED_VERIFIED_AT,
+        )
+
+        val mine = createViewModel().data()
+
+        assertEquals("$CHALLENGER_PHOTO_URL|$VERIFIED_AT", mine.myPhotoCacheKey)
+        assertEquals("$OPPONENT_PHOTO_URL|$REPLACED_VERIFIED_AT", mine.opponentPhotoCacheKey)
+
+        fakeUserInfoRepository.userInfo = userInfo(OPPONENT_ID)
+        val flipped = createViewModel().data()
+
+        assertEquals(mine.opponentPhotoCacheKey, flipped.myPhotoCacheKey, "관점이 뒤집히면 키도 뒤집힌다")
+        assertEquals(mine.myPhotoCacheKey, flipped.opponentPhotoCacheKey)
+    }
+
+    @Test
+    fun `인증 현황을 모르면 캐시 키도 null 이다`() = runTest {
+        fakeVerificationRepository.getVerificationsError = "네트워크 오류가 발생하였습니다."
+
+        val state = createViewModel().data()
+
+        assertNull(state.verifications)
+        assertNull(state.myPhotoCacheKey)
+        assertNull(state.opponentPhotoCacheKey)
     }
 }

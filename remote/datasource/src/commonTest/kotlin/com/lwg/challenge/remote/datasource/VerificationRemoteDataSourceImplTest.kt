@@ -80,12 +80,12 @@ class VerificationRemoteDataSourceImplTest {
     @Test
     fun `submitVerification CustomError 700 - 서버 판정 거부라 Rejected`() = runTest {
         val api = FakeVerificationApi(
-            submitResult = ApiResult.Failure.CustomError(code = 700, message = "이미 인증을 완료했어요"),
+            submitResult = ApiResult.Failure.CustomError(code = 700, message = "JPEG 사진만 올릴 수 있어요"),
         )
 
         val outcome = dataSource(api).submitVerification(7L, jpegBytes)
 
-        assertEquals(VerificationSubmitOutcome.Rejected("이미 인증을 완료했어요"), outcome)
+        assertEquals(VerificationSubmitOutcome.Rejected("JPEG 사진만 올릴 수 있어요"), outcome)
     }
 
     @Test

@@ -68,9 +68,14 @@ sealed interface Route : NavKey {
         @Serializable
         data class Oath(val challengeId: Long) : Challenge
 
-        /** 인증 사진 촬영·제출. 챌린지 상세의 인증 CTA 진입. */
+        /**
+         * 인증 사진 촬영·제출. 챌린지 상세의 인증 CTA 진입.
+         *
+         * @property isReplace 이미 인증한 뒤 사진을 교체하러 들어왔는지. 완료 문구만 가른다.
+         *   진입 시점에 상세가 이미 아는 값이라 서버에 다시 묻지 않고 인자로 실어 보낸다.
+         */
         @Serializable
-        data class Verify(val challengeId: Long) : Challenge
+        data class Verify(val challengeId: Long, val isReplace: Boolean) : Challenge
     }
 }
 

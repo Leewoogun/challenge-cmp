@@ -4,10 +4,6 @@ import app.cash.turbine.test
 import com.lwg.challenge.camera.CameraCaptureFailure
 import com.lwg.challenge.camera.CameraCaptureResult
 import com.lwg.challenge.camera.CapturedPhoto
-import com.lwg.challenge.domain.model.VerificationStatus
-import com.lwg.challenge.domain.model.user.UserInfo
-import com.lwg.challenge.domain.model.verification.ChallengeVerifications
-import com.lwg.challenge.domain.model.verification.PartyVerification
 import com.lwg.challenge.domain.model.verification.VerificationSubmitOutcome
 import com.lwg.challenge.feature.challenge.verify.contract.VerifyModalEffect
 import com.lwg.challenge.feature.challenge.verify.contract.VerifyUiEffect
@@ -30,21 +26,17 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 private const val CHALLENGE_ID = 42L
-private const val MY_USER_ID = 7L
-private const val OPPONENT_USER_ID = 8L
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class VerifyViewModelTest {
 
     private lateinit var fakeVerificationRepository: FakeVerificationRepository
-    private lateinit var fakeUserInfoRepository: FakeUserInfoRepository
     private lateinit var fakePermissionManager: FakePermissionManager
 
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         fakeVerificationRepository = FakeVerificationRepository()
-        fakeUserInfoRepository = FakeUserInfoRepository()
         fakePermissionManager = FakePermissionManager()
     }
 
@@ -57,7 +49,6 @@ class VerifyViewModelTest {
         VerifyViewModel(
             challengeId = CHALLENGE_ID,
             verificationRepository = fakeVerificationRepository,
-            userInfoRepository = fakeUserInfoRepository,
             permissionManager = fakePermissionManager,
         )
 
@@ -73,31 +64,6 @@ class VerifyViewModelTest {
     private fun VerifyViewModel.capturePhoto() {
         completeCapture(CameraCaptureResult.Success(samplePhoto()))
     }
-
-    private fun myUserInfo() = UserInfo(
-        id = MY_USER_ID,
-        kakaoId = 1L,
-        nickname = "나",
-        profileImageUrl = null,
-    )
-
-    private fun verificationsWithMyStatus(status: VerificationStatus) = ChallengeVerifications(
-        challengeId = CHALLENGE_ID,
-        challenger = PartyVerification(
-            userId = MY_USER_ID,
-            status = status,
-            photoUrl = null,
-            verifiedAt = null,
-            photoDeleted = false,
-        ),
-        opponent = PartyVerification(
-            userId = OPPONENT_USER_ID,
-            status = VerificationStatus.PENDING,
-            photoUrl = null,
-            verifiedAt = null,
-            photoDeleted = false,
-        ),
-    )
 
     // --- 촬영 진입 / 권한 ---
 
@@ -256,89 +222,28 @@ class VerifyViewModelTest {
         assertTrue(failed.canRetake)
     }
 
-    // 같은 거부 문구가 '진짜로 이미 인증한 상태'에서도 나온다 — 문구 매칭으로 성공을 추정하면 안 된다.
+    // 거부 문구를 성공 신호로 되읽지 않는다 — 결과 판정은 outcome 타입만 본다.
     @Test
-    fun `이미 인증을 완료했어요 거부 문구가 와도 성공으로 해석하지 않는다`() = runTest {
+    fun `거부 문구가 와도 성공으로 해석하지 않는다`() = runTest {
         fakeVerificationRepository.submitOutcome =
-            VerificationSubmitOutcome.Rejected("이미 인증을 완료했어요")
+            VerificationSubmitOutcome.Rejected("JPEG 사진만 올릴 수 있어요")
         val viewModel = createViewModel()
         viewModel.capturePhoto()
 
         viewModel.submit()
 
         val failed = viewModel.confirm()
-        assertEquals("이미 인증을 완료했어요", failed.failureMessage)
+        assertEquals("JPEG 사진만 올릴 수 있어요", failed.failureMessage)
         assertFalse(assertNotNull(failed.failure).isRetryable)
     }
 
-    // --- 응답 유실 회복 (Unreachable → 현황 조회로 판정) ---
+    // --- 전송 유실 (Unreachable) ---
 
+    // 재제출이 last-write-wins 로 허용되면서 맹목 재시도가 안전해졌다 — 열어 두기만 하면 된다.
     @Test
-    fun `Unreachable 이면 실제 인증 현황을 조회해서 판정한다`() = runTest {
+    fun `Unreachable 이면 현황 조회 없이 재시도 가능한 실패를 표시한다`() = runTest {
         fakeVerificationRepository.submitOutcome =
             VerificationSubmitOutcome.Unreachable("네트워크 오류가 발생했어요")
-        fakeVerificationRepository.verifications = verificationsWithMyStatus(VerificationStatus.PENDING)
-        fakeUserInfoRepository.userInfo = myUserInfo()
-        val viewModel = createViewModel()
-        viewModel.capturePhoto()
-
-        viewModel.submit()
-
-        assertEquals(1, fakeVerificationRepository.getVerificationsCallCount)
-    }
-
-    @Test
-    fun `Unreachable 이어도 조회된 내 상태가 VERIFIED 면 재제출 없이 완료로 전이한다`() = runTest {
-        fakeVerificationRepository.submitOutcome =
-            VerificationSubmitOutcome.Unreachable("네트워크 오류가 발생했어요")
-        fakeVerificationRepository.verifications = verificationsWithMyStatus(VerificationStatus.VERIFIED)
-        fakeUserInfoRepository.userInfo = myUserInfo()
-        val viewModel = createViewModel()
-        viewModel.capturePhoto()
-
-        viewModel.submit()
-
-        assertIs<VerifyUiState.Done>(viewModel.uiState.value)
-        assertEquals(1, fakeVerificationRepository.submitCallCount)
-    }
-
-    @Test
-    fun `Unreachable 이고 조회된 내 상태가 PENDING 이면 재시도 가능한 실패를 표시한다`() = runTest {
-        fakeVerificationRepository.submitOutcome =
-            VerificationSubmitOutcome.Unreachable("네트워크 오류가 발생했어요")
-        fakeVerificationRepository.verifications = verificationsWithMyStatus(VerificationStatus.PENDING)
-        fakeUserInfoRepository.userInfo = myUserInfo()
-        val viewModel = createViewModel()
-        viewModel.capturePhoto()
-
-        viewModel.submit()
-
-        val failed = viewModel.confirm()
-        assertEquals("네트워크 오류가 발생했어요", failed.failureMessage)
-        assertTrue(assertNotNull(failed.failure).isRetryable)
-    }
-
-    @Test
-    fun `Unreachable 이고 현황 조회도 실패하면 재시도 가능한 실패를 표시한다`() = runTest {
-        fakeVerificationRepository.submitOutcome =
-            VerificationSubmitOutcome.Unreachable("네트워크 오류가 발생했어요")
-        fakeVerificationRepository.getVerificationsError = "일시적인 오류가 발생했어요"
-        fakeUserInfoRepository.userInfo = myUserInfo()
-        val viewModel = createViewModel()
-        viewModel.capturePhoto()
-
-        viewModel.submit()
-
-        val failed = viewModel.confirm()
-        assertEquals("네트워크 오류가 발생했어요", failed.failureMessage)
-        assertTrue(assertNotNull(failed.failure).isRetryable)
-    }
-
-    @Test
-    fun `Unreachable 인데 내 userId 를 얻지 못하면 조회 없이 재시도 가능한 실패를 표시한다`() = runTest {
-        fakeVerificationRepository.submitOutcome =
-            VerificationSubmitOutcome.Unreachable("네트워크 오류가 발생했어요")
-        fakeUserInfoRepository.error = "일시적인 오류가 발생했어요"
         val viewModel = createViewModel()
         viewModel.capturePhoto()
 
@@ -348,6 +253,8 @@ class VerifyViewModelTest {
         val failed = viewModel.confirm()
         assertEquals("네트워크 오류가 발생했어요", failed.failureMessage)
         assertTrue(assertNotNull(failed.failure).isRetryable)
+        assertTrue(failed.canSubmit)
+        assertTrue(failed.canRetake)
     }
 
     @Test

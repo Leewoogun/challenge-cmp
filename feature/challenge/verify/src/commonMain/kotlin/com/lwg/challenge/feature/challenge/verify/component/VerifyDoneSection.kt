@@ -22,9 +22,20 @@ import com.lwg.challenge.designsystem.components.button.NormalButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/** 제출 확정 완료 화면. */
+private const val FIRST_SUBMIT_MESSAGE = "오늘의 미션 인증이 상대에게 전달돼요."
+private const val REPLACED_MESSAGE = "사진이 교체됐어요. 상대는 최신 사진을 보게 돼요."
+
+/**
+ * 제출 확정 완료 화면.
+ *
+ * 두 완료 문구([FIRST_SUBMIT_MESSAGE], [REPLACED_MESSAGE]) 는 🟡 초안 — 문구 확정 대상이다.
+ *
+ * @param isReplace 교체 제출이면 알림이 나가지 않으므로 "상대에게 전달돼요" 를 쓸 수 없다.
+ *   상대가 최신 사진을 보게 된다는, 실제로 일어나는 일로 바꿔 말한다.
+ */
 @Composable
 internal fun VerifyDoneSection(
+    isReplace: Boolean,
     onDoneClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -53,7 +64,7 @@ internal fun VerifyDoneSection(
         VerticalSpacer(8.dp)
 
         Text(
-            text = "오늘의 미션 인증이 상대에게 전달돼요.",
+            text = if (isReplace) REPLACED_MESSAGE else FIRST_SUBMIT_MESSAGE,
             style = ChallengeTheme.typography.medium14,
             color = ChallengeTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -77,7 +88,23 @@ internal fun VerifyDoneSection(
 private fun VerifyDoneSectionPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            VerifyDoneSection(onDoneClick = {})
+            VerifyDoneSection(
+                isReplace = false,
+                onDoneClick = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun VerifyDoneSectionReplacePreview() {
+    ChallengeTheme {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            VerifyDoneSection(
+                isReplace = true,
+                onDoneClick = {},
+            )
         }
     }
 }

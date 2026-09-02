@@ -2,7 +2,6 @@ package com.lwg.challenge.feature.challenge.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.Contract
 import com.lwg.challenge.domain.model.challenge.SignatureSlotState
@@ -93,8 +92,8 @@ class ChallengeDetailViewModel(
             )
             val detail = loaded ?: return@launch
 
-            // 상세를 먼저 그려 두고 인증 현황이 도착할 때 다시 갱신하면 canVerify 가 true -> false 로
-            // 뒤집히며 손가락 아래에서 CTA 가 사라진다. 두 조회를 다 마친 뒤 한 번에 세운다.
+            // 상세를 먼저 그려 두고 인증 현황이 도착할 때 다시 갱신하면 하단 슬롯이 CTA 에서 사진으로
+            // 바뀌며 손가락 아래에서 버튼이 사라진다. 두 조회를 다 마친 뒤 한 번에 세운다.
             val verifications = loadVerificationSection(myUserId)
             _uiState.update { detail.toData(myUserId, verifications) }
             startHeadlineTicker(detail.deadline, detail.resultView(myUserId))
@@ -143,10 +142,11 @@ class ChallengeDetailViewModel(
     }
 
     /**
-     * 인증 현황을 '나 / 상대' 로 세운다. 모르면 `null` 이고 `canVerify` 가 노출 쪽으로 폴백한다.
+     * 인증 현황을 '나 / 상대' 로 세운다. 모르면 `null` 이고 하단 슬롯은 [ChallengeDetailUiState.Data.canVerify] 만
+     * 따른다 — 진행 중이면 인증 CTA, 아니면 빈칸.
      *
      * 조회 실패를 [ChallengeDetailUiState.Error] 로 승격하지 않는 이유는 계약서만으로 화면이 이미
-     * 성립하기 때문이다 — 없는 건 사진과 게이트 정보뿐이다.
+     * 성립하기 때문이다 — 없는 건 사진과 뱃지뿐이다.
      */
     private suspend fun loadVerificationSection(myUserId: Long?): VerificationSection? {
         // 관점을 모르면 어느 칸이 내 것인지 집을 수 없다. 받아 와도 '나/상대' 로 세울 수 없어 부르지 않는다.
@@ -156,7 +156,7 @@ class ChallengeDetailViewModel(
         verificationRepository.getVerifications(
             challengeId = challengeId,
             onSuccess = { verifications -> section = verifications.toVerificationSection(myUserId) },
-            // 사용자가 할 수 있는 조치가 없어 알리지 않는다. 폴백이 흡수한다.
+            // 사용자가 할 수 있는 조치가 없어 알리지 않는다.
             onError = {},
         )
         return section
@@ -170,9 +170,11 @@ class ChallengeDetailViewModel(
             myStatus = mine.status,
             myPhotoUrl = mine.photoUrl,
             myPhotoDeleted = mine.photoDeleted,
+            myVerifiedAt = mine.verifiedAt,
             opponentStatus = other.status,
             opponentPhotoUrl = other.photoUrl,
             opponentPhotoDeleted = other.photoDeleted,
+            opponentVerifiedAt = other.verifiedAt,
         )
     }
 
@@ -234,11 +236,7 @@ class ChallengeDetailViewModel(
             // 않은 맹세를 '서명 대기 중' 으로 그리게 된다.
             signatures = contract?.toSignatureSection(isMeOpponent),
             verifications = verifications,
-            // 인증 여부를 모를 때(조회 실패·관점 미상) 숨기는 쪽으로 폴백하면, 아직 인증하지 않은
-            // 사용자가 일시적 오류 때문에 주 액션 자체를 잃는다. 노출로 폴백하면 최악이 이미 인증한
-            // 사용자의 중복 시도이고 서버가 정확히 거부한다 — 막는 실패보다 중복 시도 실패가 낫다.
-            canVerify = status == STATUS_IN_PROGRESS &&
-                verifications?.myStatus != VerificationStatus.VERIFIED,
+            canVerify = status == STATUS_IN_PROGRESS,
         )
     }
 
