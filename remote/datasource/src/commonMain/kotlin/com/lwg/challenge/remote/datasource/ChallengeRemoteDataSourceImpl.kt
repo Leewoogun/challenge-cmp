@@ -107,6 +107,19 @@ class ChallengeRemoteDataSourceImpl(
             .suspendOnFailureWithErrorHandling(onError)
     }
 
+    // 응답 body 를 읽지 않는 것이 의도다. 앱은 기권 성공 후 상세를 재조회해 화면을 세운다 —
+    // 성공 응답으로 상태를 부분 갱신하면 상세 화면을 세우는 경로가 두 벌이 된다.
+    // rejectChallenge 가 같은 판단의 선례다.
+    override suspend fun forfeitChallenge(
+        challengeId: Long,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        challengeApi.forfeitChallenge(challengeId)
+            .suspendOnSuccess { onSuccess() }
+            .suspendOnFailureWithErrorHandling(onError)
+    }
+
     override suspend fun cancelChallenge(
         challengeId: Long,
         onSuccess: () -> Unit,

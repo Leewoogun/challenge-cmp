@@ -15,7 +15,7 @@ import kotlinx.datetime.YearMonth
  * 테스트용 [ChallengeRepository] 페이크.
  *
  * 모듈 간 테스트 소스는 공유되지 않아 다른 feature 의 같은 이름 페이크와 별개다.
- * 이쪽은 상세 조회만 쓴다.
+ * 이쪽은 상세 조회와 기권만 쓴다.
  */
 class FakeChallengeRepository : ChallengeRepository {
 
@@ -28,6 +28,14 @@ class FakeChallengeRepository : ChallengeRepository {
 
     /** 조회가 끝나기 전 상태를 관찰하려는 테스트용. 0 이면 즉시 응답한다. */
     var detailDelayMillis: Long = 0
+
+    /** 기권 실패 메시지. null 이면 성공. */
+    var forfeitError: String? = null
+
+    var forfeitCallCount: Int = 0
+
+    /** 요청이 나가 있는 동안의 상태를 관찰하려는 테스트용. 0 이면 즉시 응답한다. */
+    var forfeitDelayMillis: Long = 0
 
     override fun getReceivedChallenges(
         onError: (String) -> Unit,
@@ -73,6 +81,17 @@ class FakeChallengeRepository : ChallengeRepository {
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     ) = Unit
+
+    override suspend fun forfeitChallenge(
+        challengeId: Long,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        forfeitCallCount++
+        if (forfeitDelayMillis > 0) delay(forfeitDelayMillis)
+        val error = forfeitError
+        if (error != null) onError(error) else onSuccess()
+    }
 
     override suspend fun cancelChallenge(
         challengeId: Long,

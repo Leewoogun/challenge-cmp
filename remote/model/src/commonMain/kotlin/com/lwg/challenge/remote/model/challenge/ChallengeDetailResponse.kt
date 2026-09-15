@@ -16,6 +16,7 @@ import kotlinx.serialization.Serializable
  *     "challengeId": 7,
  *     "status": "IN_PROGRESS",
  *     "result": null,
+ *     "forfeitedBy": null,
  *     "challengeDate": "2026-08-03",
  *     "deadline": "2026-08-04 00:00:00",
  *     "betContent": "커피 사기",
@@ -61,6 +62,17 @@ data class ChallengeDetailData(
      * 흡수는 매퍼가 한다. `PartyVerificationDto.status` 가 같은 판단의 선례다.
      */
     val result: String? = null,
+    /**
+     * 기권한 사람의 userId. null 이면 기권 없이 끝났거나 아직 끝나지 않았다.
+     *
+     * 서버는 모든 상태에서 이 키를 실어 보낸다 (기권 전에는 명시적 null). 기본값은 키 누락만 덮으므로
+     * 위 [result] 와 같은 이유로 타입 자체가 nullable 이어야 한다.
+     *
+     * `Boolean` 이 아닌 이유: `forfeited: Boolean` 이면 앱이 '누가 기권했나' 를
+     * `forfeited && result == OPPONENT_WIN` 식으로 **역산**해야 하고, 그건 판정 규칙의 사본을 앱에
+     * 심는 것이다. userId 면 [challenger] / [opponent] 의 `userId` 와 **비교만** 하면 된다.
+     */
+    val forfeitedBy: Long? = null,
     /** "yyyy-MM-dd" (예: "2026-08-03"). 포맷이 어긋나면 null. */
     @Serializable(with = WireLocalDateSerializer::class)
     val challengeDate: LocalDate? = null,

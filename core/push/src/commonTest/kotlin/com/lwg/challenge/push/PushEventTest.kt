@@ -36,6 +36,13 @@ class PushEventTest {
     }
 
     @Test
+    fun `CHALLENGE_FORFEITED 데이터를 ChallengeForfeited 로 읽는다`() {
+        val event = PushEvent.from(mapOf("type" to "CHALLENGE_FORFEITED", "challengeId" to "7"))
+
+        assertEquals(PushEvent.ChallengeForfeited(7L), event)
+    }
+
+    @Test
     fun `모르는 type 이면 null 을 반환한다`() {
         assertNull(PushEvent.from(mapOf("type" to "REMIND", "challengeId" to "7")))
     }
@@ -81,6 +88,11 @@ class PushEventTest {
     }
 
     @Test
+    fun `of 는 CHALLENGE_FORFEITED 를 ChallengeForfeited 로 만든다`() {
+        assertEquals(PushEvent.ChallengeForfeited(7L), PushEvent.of("CHALLENGE_FORFEITED", 7L))
+    }
+
+    @Test
     fun `of 는 모르는 타입이면 null 을 낸다`() {
         assertNull(PushEvent.of("SIGN_REQUEST", 7L))
     }
@@ -91,7 +103,7 @@ class PushEventTest {
     }
 
     /**
-     * 아래 네 단언이 리터럴인 이유: 알림 목록은 타입 리터럴을 한 건도 갖지 않고 전부 이 상수를
+     * 아래 다섯 단언이 리터럴인 이유: 알림 목록은 타입 리터럴을 한 건도 갖지 않고 전부 이 상수를
      * 참조한다. 그래서 상수 값이 서버 어휘와 어긋나면 아이콘·색·목적지가 **한꺼번에** 폴백으로
      * 내려앉는데, 그 자리에서는 아무것도 실패하지 않는다. 상수끼리 비교하면 값이 틀려도 통과하므로
      * 서버가 쓰는 문자열을 여기 한 곳에 박아 둔다.
@@ -114,6 +126,11 @@ class PushEventTest {
     @Test
     fun `TYPE_OPPONENT_VERIFIED 는 서버가 보내는 문자열과 같다`() {
         assertEquals("OPPONENT_VERIFIED", PushEvent.TYPE_OPPONENT_VERIFIED)
+    }
+
+    @Test
+    fun `TYPE_CHALLENGE_FORFEITED 는 서버가 보내는 문자열과 같다`() {
+        assertEquals("CHALLENGE_FORFEITED", PushEvent.TYPE_CHALLENGE_FORFEITED)
     }
 
     @Test

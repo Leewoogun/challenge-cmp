@@ -7,6 +7,7 @@ import com.lwg.challenge.remote.model.challenge.ChallengeCreateBody
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeHistoryResponse
+import com.lwg.challenge.remote.model.challenge.ForfeitChallengeResponse
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengesResponse
 import com.lwg.challenge.remote.model.challenge.RejectChallengeResponse
 import com.lwg.challenge.remote.network.util.ApiResult
@@ -67,6 +68,17 @@ interface ChallengeApi {
     suspend fun rejectChallenge(
         @Path("id") challengeId: Long,
     ): ApiResult<RejectChallengeResponse>
+
+    /**
+     * POST /api/v1/challenges/{id}/forfeit — 기권. 즉시 COMPLETED 확정, 상대 승. 본문 없음.
+     *
+     * 기권자는 JWT 주체다 — `userId` 를 body/query 로 받지 않는다. 받으면 남의 챌린지를 기권시킬
+     * 문을 여는 것이다.
+     */
+    @POST("api/v1/challenges/{id}/forfeit")
+    suspend fun forfeitChallenge(
+        @Path("id") challengeId: Long,
+    ): ApiResult<ForfeitChallengeResponse>
 
     /** DELETE /api/v1/challenges/{id} — 내가 보낸 PENDING 도전장 취소 (물리 삭제). */
     @DELETE("api/v1/challenges/{id}")

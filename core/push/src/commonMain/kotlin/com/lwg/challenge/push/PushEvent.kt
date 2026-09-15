@@ -11,6 +11,8 @@ sealed interface PushEvent {
 
     data class OpponentVerified(val challengeId: Long) : PushEvent
 
+    data class ChallengeForfeited(val challengeId: Long) : PushEvent
+
     companion object {
         const val KEY_TYPE = "type"
         const val KEY_CHALLENGE_ID = "challengeId"
@@ -27,6 +29,7 @@ sealed interface PushEvent {
         const val TYPE_CHALLENGE_ACCEPTED = "CHALLENGE_ACCEPTED"
         const val TYPE_CHALLENGE_REJECTED = "CHALLENGE_REJECTED"
         const val TYPE_OPPONENT_VERIFIED = "OPPONENT_VERIFIED"
+        const val TYPE_CHALLENGE_FORFEITED = "CHALLENGE_FORFEITED"
 
         /**
          * 타입 문자열 + 참조 대상 id 를 이벤트로 읽는다. FCM data map 과 알림 목록 DTO 가 이 한 벌을 쓴다.
@@ -37,6 +40,7 @@ sealed interface PushEvent {
             TYPE_CHALLENGE_ACCEPTED -> referenceId?.let(::ChallengeAccepted)
             TYPE_CHALLENGE_REJECTED -> referenceId?.let(::ChallengeRejected)
             TYPE_OPPONENT_VERIFIED -> referenceId?.let(::OpponentVerified)
+            TYPE_CHALLENGE_FORFEITED -> referenceId?.let(::ChallengeForfeited)
             else -> null
         }
 

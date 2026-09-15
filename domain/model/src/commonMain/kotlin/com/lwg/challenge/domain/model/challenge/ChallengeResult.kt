@@ -21,7 +21,13 @@ enum class ChallengeResult {
  * 접어 버리면 화면이 둘을 다시 갈라내려고 양측 인증 상태로 판정 규칙을 역산하게 되고,
  * 그 순간 서버가 이미 내린 판정이 앱에 두 번째로 심긴다.
  *
- * 홈 목록은 서버가 이 값을 그대로 내려줄 예정이라, 상세와 홈 두 화면이 같은 표현 타입에 모인다.
+ * challenge-forfeit(2026-09-05) 이후 이 경고는 더 강해졌다 — 역산은 규칙 사본을 만들 뿐 아니라
+ * **틀린 답을 낸다.** 내가 challenger 인데 기권하면 상대가 인증하지 않았어도 서버는
+ * [ChallengeResult.OPPONENT_WIN] 을 내려준다: 양측 다 미인증인데 [BOTH_LOSE] 가 아니다.
+ * *"사본이긴 해도 값은 맞으니 이번만"* 으로 빠져나갈 여지가 사라졌다.
+ *
+ * 홈 목록도 서버가 이 값을 그대로 내려준다 — `challenge-result` 가 `ActiveChallengeDto.myResult` 로
+ * 개통시켰다. 상세와 홈 두 화면이 같은 표현 타입에 모인다.
  */
 enum class ChallengeOutcome {
     WIN,

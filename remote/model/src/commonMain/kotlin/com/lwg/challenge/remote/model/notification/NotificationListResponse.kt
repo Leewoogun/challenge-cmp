@@ -48,8 +48,9 @@ data class NotificationListData(
 data class NotificationDto(
     val notificationId: Long = 0L,
     /**
-     * 🔴 **enum 이 아니라 String 이다.** 서버 enum 8종 중 4종만 발송 중이라 값 추가가 예정돼 있고,
-     * typed enum 은 새 타입 한 행이 **응답 전체**의 역직렬화를 깨뜨려 알림 화면이 통째로 빈다.
+     * 🔴 **enum 이 아니라 String 이다.** 서버 enum 9종 중 5종만 발송 중이라(2026-09-05 기준)
+     * 값 추가가 예정돼 있고, typed enum 은 새 타입 한 행이 **응답 전체**의 역직렬화를 깨뜨려
+     * 알림 화면이 통째로 빈다.
      * `ActiveChallengeDto.status` 가 같은 판단의 선례다.
      */
     val type: String = "",

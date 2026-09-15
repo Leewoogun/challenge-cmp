@@ -60,6 +60,17 @@ interface ChallengeRepository {
         onError: (String) -> Unit,
     )
 
+    /**
+     * 기권. 성공하면 챌린지가 즉시 끝나고 요청자가 패, 상대가 승이다.
+     *
+     * 🔴 **멱등이 아니다** — 일회성 전이라, 두 번째 요청은 챌린지가 이미 `COMPLETED` 라서 서버가 거부한다.
+     */
+    suspend fun forfeitChallenge(
+        challengeId: Long,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    )
+
     suspend fun cancelChallenge(
         challengeId: Long,
         onSuccess: () -> Unit,

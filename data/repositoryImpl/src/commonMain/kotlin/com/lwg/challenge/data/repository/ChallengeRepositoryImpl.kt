@@ -59,6 +59,14 @@ class ChallengeRepositoryImpl(
         challengeRemoteDataSource.rejectChallenge(challengeId, onSuccess, onError)
     }
 
+    override suspend fun forfeitChallenge(
+        challengeId: Long,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        challengeRemoteDataSource.forfeitChallenge(challengeId, onSuccess, onError)
+    }
+
     override suspend fun cancelChallenge(
         challengeId: Long,
         onSuccess: () -> Unit,

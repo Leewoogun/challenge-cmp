@@ -103,6 +103,12 @@ class FakeChallengeRepository : ChallengeRepository {
         onError: (String) -> Unit,
     ) = Unit
 
+    override suspend fun forfeitChallenge(
+        challengeId: Long,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) = Unit
+
     override suspend fun cancelChallenge(
         challengeId: Long,
         onSuccess: () -> Unit,

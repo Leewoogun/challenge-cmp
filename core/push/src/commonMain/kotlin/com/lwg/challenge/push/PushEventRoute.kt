@@ -15,4 +15,7 @@ fun PushEvent.toRoute(): Route = when (this) {
     is PushEvent.ChallengeRejected -> Route.Home
     // 거절과 반대로 볼 것(상대 인증 사진)이 생겼고, 그 사진은 상세에서만 보인다. 홈 카드는 상태 뱃지뿐.
     is PushEvent.OpponentVerified -> Route.Challenge.Detail(challengeId)
+    // 트레이 탭은 상세로 보내지만 **알림 목록에서는 이동하지 않는다** — 두 경로가 다른 것이 의도다.
+    // 목록 게이트는 NotificationState 의 isTappableInList 가 따로 판정한다.
+    is PushEvent.ChallengeForfeited -> Route.Challenge.Detail(challengeId)
 }

@@ -21,6 +21,26 @@ internal const val SIGNATURE_UNREADABLE_HINT = "서명을 불러오지 못했어
 /** 인증 진입점이 열리는 유일한 챌린지 상태. */
 internal const val STATUS_IN_PROGRESS = "IN_PROGRESS"
 
+/** 확인 다이얼로그 제목. */
+internal const val FORFEIT_DIALOG_TITLE = "정말 기권하시겠어요?"
+
+/** 확인 다이얼로그 본문. 되돌릴 수 없다는 것을 반드시 말한다 — 기권 취소 기능이 없다. */
+internal const val FORFEIT_DIALOG_MESSAGE = "기권하면 이 챌린지는 바로 끝나고, 상대가 승리합니다. 되돌릴 수 없어요."
+
+internal const val FORFEIT_CONFIRM_LABEL = "기권하기"
+
+/** 하단 진입점 문구. */
+internal const val FORFEIT_ENTRY_TEXT = "기권하기"
+
+/** 내가 기권했을 때의 안내. */
+internal const val FORFEIT_BY_ME_TEXT = "내가 기권했어요"
+
+/** 기권자를 실명으로 말할 때의 접미. `"${nickname}$FORFEIT_BY_OTHER_SUFFIX"`. */
+internal const val FORFEIT_BY_OTHER_SUFFIX = "님이 기권했어요"
+
+/** 기권자가 양측 어느 쪽과도 맞지 않을 때. 아는 사실만 말한다. */
+internal const val FORFEIT_UNKNOWN_ACTOR_TEXT = "기권으로 끝났어요"
+
 @Stable
 sealed interface ChallengeDetailUiState {
 
@@ -49,6 +69,13 @@ sealed interface ChallengeDetailUiState {
      * @property canVerify 챌린지가 [STATUS_IN_PROGRESS] 인지만 뜻한다 — 내 인증 상태는 보지 않는다.
      *   재제출이 사진 교체로 허용되면서 `VERIFIED` 가 진입점을 닫을 근거가 아니게 됐다. 마감 뒤의
      *   교체는 서버가 여전히 거부하므로 그 조건만 남는다.
+     * @property forfeitNoticeText 기권으로 끝난 챌린지에만 붙는 한 줄("내가 기권했어요" /
+     *   "우건님이 기권했어요"). 기권이 아니면 `null` 이고 그 자리가 통째로 빠진다. 관점 판정이 이미
+     *   끝난 값이라 화면이 다시 누가 기권했는지 묻지 않는다. [headlineText] 와 달리 시간이 흘러도
+     *   변하지 않아 티커가 건드리지 않는다.
+     * @property isForfeiting 기권 요청이 나가 있는 동안 참. 진입점을 잠그는 데만 쓴다. 전체 화면
+     *   로딩으로 덮지 않는 이유는 이미 읽고 있던 계약서가 사라지기 때문이다
+     *   (`MyPageUiState.isWithdrawing` 과 같은 판단).
      */
     @Immutable
     data class Data(
@@ -69,6 +96,8 @@ sealed interface ChallengeDetailUiState {
          */
         val verifications: VerificationSection?,
         val canVerify: Boolean,
+        val forfeitNoticeText: String?,
+        val isForfeiting: Boolean,
     ) : ChallengeDetailUiState {
 
         val opponentLabel: String get() = opponentNickname
@@ -127,6 +156,24 @@ sealed interface ChallengeDetailUiState {
                 canVerify -> MyMissionSlot.VERIFY_CTA
                 else -> MyMissionSlot.NONE
             }
+
+        /**
+         * 하단 기권 진입점을 여는지.
+         *
+         * 노출 조건은 [STATUS_IN_PROGRESS] **이고 내 인증 없음**인데, 그건 [myMissionSlot] 의
+         * [MyMissionSlot.VERIFY_CTA] 가지가 이미 뜻하는 것과 정확히 같다. 조건식을 새로 적으면 같은
+         * 규칙이 두 벌이 되고, 한쪽만 고치는 날 둘이 갈린다.
+         *
+         * [MyMissionSlot.MY_PHOTO_WITH_RETAKE]("다시 찍기")와 **같은 `when` 의 다른 가지**라,
+         * 기권 진입점과 다시 찍기가 동시에 보이는 조합이 구조적으로 존재하지 않는다. 이 배타성이
+         * 이 파생의 존재 이유이고, 별도 가드로 지키지 않는 이유다.
+         *
+         * 인증 현황을 모르면([verifications] 이 `null` — 조회 실패·관점 미상) [myMissionSlot] 이
+         * [MyMissionSlot.VERIFY_CTA] 로 떨어지므로 기권 진입점도 함께 열린다. 의도한 것이다 —
+         * 인증 CTA 와 같은 근거로 열고, 실제 자격은 서버가 판정한다. 여기에만 가드를 더하면 두
+         * 진입점이 서로 다른 근거로 갈린다.
+         */
+        val canForfeit: Boolean get() = myMissionSlot == MyMissionSlot.VERIFY_CTA
     }
 }
 

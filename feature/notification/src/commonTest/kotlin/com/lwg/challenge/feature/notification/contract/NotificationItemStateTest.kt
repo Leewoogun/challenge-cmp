@@ -97,8 +97,24 @@ class NotificationItemStateTest {
     }
 
     /**
-     * 서버 enum 8종 중 4종만 발송 중이라 값 추가가 예정돼 있다. 모르는 타입이 와도 목록에서
-     * 숨기지 않고 탭만 막는다 — 갈 곳을 모르는 채 화면을 여는 것보다 낫다.
+     * 🔴 기권은 [PushEvent.ChallengeForfeited] 가지가 `referencePending` 을 **아예 보지 않는다** 는
+     * 증거. 목록에서 이동하지 않는 것이 사용자 결정이라 서버가 보내는 값에 그 결정을 매달지 않았다.
+     *
+     * 세 값을 전부 넣는 이유: 한 값만 넣으면 *"타입이 닫았다"* 와 *"그 값이 닫았다"* 를 가르지 못한다.
+     */
+    @Test
+    fun `기권 알림은 referencePending 이 무엇이든 목록에서 탭할 수 없다`() {
+        listOf(true, false, null).forEach { pending ->
+            val state = item(PushEvent.TYPE_CHALLENGE_FORFEITED, referencePending = pending)
+
+            assertNull(state.route, "referencePending = $pending")
+            assertFalse(state.isTappable, "referencePending = $pending")
+        }
+    }
+
+    /**
+     * 서버 enum 9종 중 5종만 발송 중이라(2026-09-05 기준) 값 추가가 예정돼 있다. 모르는 타입이
+     * 와도 목록에서 숨기지 않고 탭만 막는다 — 갈 곳을 모르는 채 화면을 여는 것보다 낫다.
      *
      * 게이트가 아니라 그 앞의 `PushEvent.of` 가 막는다 — 모르는 타입은 게이트에 닿지도 않는다.
      */

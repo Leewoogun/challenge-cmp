@@ -75,16 +75,17 @@ internal val PreviewUnknownTypeNotification: NotificationItemState = notificatio
 )
 
 /**
- * 목록 다건 픽스처. 발송 4종 + 모르는 타입 + 2줄 메시지가 전부 들어 있다.
+ * 목록 다건 픽스처. 발송 5종 + 모르는 타입 + 2줄 메시지가 전부 들어 있다.
  *
- * 🔴 **세 날짜에 걸쳐 있다** — 기준 시각(9/1 13:00)에서 `오늘` 4건 · `어제` 2건 · `8월 28일` 1건으로
+ * 🔴 **세 날짜에 걸쳐 있다** — 기준 시각(9/1 13:00)에서 `오늘` 5건 · `어제` 2건 · `8월 28일` 1건으로
  * 헤더가 셋 나온다. 날짜별 건수를 다르게 둔 것은 그룹 경계가 눈에 띄게 하려는 것이다.
  *
  * 시각 표기는 그룹에 따라 갈린다 — `오늘` 그룹만 상대 표기(`"방금 전"`·`"10분 전"`·`"2시간 전"`)이고
  * 나머지는 `HH:mm` 이다. 날짜는 헤더가 이미 말했다.
  *
- * 🔴 chevron 이 붙는 행은 셋뿐이다 — 상대 인증 둘과 **대기 중인** 신청 하나. 수락·거절은 목록에서
- * 갈 곳이 없고, 응답이 끝난 신청과 모르는 타입도 마찬가지다. 색도 문구도 같은 채 chevron 만 갈린다.
+ * 🔴 chevron 이 붙는 행은 셋뿐이다 — 상대 인증 둘과 **대기 중인** 신청 하나. 수락·거절·기권은
+ * 목록에서 갈 곳이 없고, 응답이 끝난 신청과 모르는 타입도 마찬가지다. 색도 문구도 같은 채
+ * chevron 만 갈린다.
  *
  * 서버가 주는 최신순을 그대로 둔다 — 앱은 재정렬하지 않고 연속 런만 묶는다.
  */
@@ -102,6 +103,15 @@ internal val PreviewNotifications: List<NotificationItemState> = listOf(
         body = "준혁님이 수락했습니다",
         referencePending = null,
         createdAt = LocalDateTime(2026, 9, 1, 12, 50),
+    ),
+    // 기권 알림. referencePending 이 null 인 것은 계약이 정한 값이다 — 이 알림의 수신자에게는 응답할
+    // 것이 없어 «대기» 라는 개념 자체가 없다. 값과 무관하게 타입 단계에서 비탭이라 chevron 도 없다.
+    notificationPreviewItem(
+        notificationId = 8L,
+        type = PushEvent.TYPE_CHALLENGE_FORFEITED,
+        body = "우건님이 기권했습니다",
+        referencePending = null,
+        createdAt = LocalDateTime(2026, 9, 1, 12, 20),
     ),
     notificationPreviewItem(
         notificationId = 3L,

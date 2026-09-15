@@ -12,9 +12,14 @@ import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.domain.model.user.UserInfo
 import com.lwg.challenge.domain.model.verification.ChallengeVerifications
 import com.lwg.challenge.domain.model.verification.PartyVerification
+import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailModalEffect
+import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiEffect
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
 import com.lwg.challenge.feature.challenge.detail.contract.DEADLINE_AWAITING_JUDGEMENT_TEXT
 import com.lwg.challenge.feature.challenge.detail.contract.DEADLINE_REMAINING_PREFIX
+import com.lwg.challenge.feature.challenge.detail.contract.FORFEIT_BY_ME_TEXT
+import com.lwg.challenge.feature.challenge.detail.contract.FORFEIT_BY_OTHER_SUFFIX
+import com.lwg.challenge.feature.challenge.detail.contract.FORFEIT_UNKNOWN_ACTOR_TEXT
 import com.lwg.challenge.feature.challenge.detail.contract.HeadlineTone
 import com.lwg.challenge.feature.challenge.detail.contract.MY_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.MY_MISSION_LABEL
@@ -32,6 +37,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -158,6 +164,7 @@ class ChallengeDetailViewModelTest {
     private fun sampleDetail(
         status: String = "IN_PROGRESS",
         result: ChallengeResult? = null,
+        forfeitedBy: Long? = null,
         challengeDate: LocalDate? = CHALLENGE_DATE,
         deadline: LocalDateTime = PAST_DEADLINE,
         challengerSignature: Signature? = challengerSignature(),
@@ -177,6 +184,7 @@ class ChallengeDetailViewModelTest {
         challengeId = CHALLENGE_ID,
         status = status,
         result = result,
+        forfeitedBy = forfeitedBy,
         challengeDate = challengeDate,
         deadline = deadline,
         betContent = "커피 사기",
@@ -1005,5 +1013,245 @@ class ChallengeDetailViewModelTest {
         assertNull(state.verifications)
         assertNull(state.myPhotoCacheKey)
         assertNull(state.opponentPhotoCacheKey)
+    }
+
+    @Test
+    fun `IN_PROGRESS 이고 내 인증이 없으면 기권 진입점이 열린다`() = runTest {
+        val state = createViewModel().data()
+
+        assertTrue(state.canForfeit)
+        assertEquals(MyMissionSlot.VERIFY_CTA, state.myMissionSlot)
+    }
+
+    @Test
+    fun `내가 인증하면 기권 진입점이 닫히고 그 자리가 다시 찍기로 바뀐다`() = runTest {
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+        )
+
+        val state = createViewModel().data()
+
+        assertFalse(state.canForfeit)
+        assertEquals(MyMissionSlot.MY_PHOTO_WITH_RETAKE, state.myMissionSlot)
+    }
+
+    /**
+     * 🔑 **회귀 테스트가 아니다.** 배타성은 `canForfeit` 가 [MyMissionSlot] 의 한 가지로 정의돼 있어
+     * 이미 **표현 불가능**하다 — 둘이 동시에 참인 상태를 만들 방법이 타입 차원에서 없다. 그래서 이건
+     * 언젠가 깨질 조합을 감시하는 테스트가 아니라, **그 파생이 정말 그 뜻인지**를 상태 공간 전체에서
+     * 한 번 확인하는 테스트다.
+     *
+     * ⚠️ 이 구분을 놓치면 다음 사람이 배타성을 이 테스트가 지켜 준다고 오해한다. `canForfeit` 를
+     * 독립 조건식으로 바꾸는 순간 이 단언은 **그대로 통과하면서 보증만 사라진다** — 조건식 두 벌은
+     * 여기 적힌 조합에서 우연히 어긋나지 않을 수 있기 때문이다. 지켜야 할 것은 이 단언이 아니라
+     * 파생이 [MyMissionSlot] 한 가지로 남아 있다는 사실이다.
+     */
+    @Test
+    fun `기권 진입점과 다시 찍기는 어떤 상태에서도 동시에 보이지 않는다`() = runTest {
+        val myStatuses = listOf(
+            VerificationStatus.PENDING,
+            VerificationStatus.VERIFIED,
+            VerificationStatus.FAILED,
+            // 현황 없음 — 조회 실패·관점 미상.
+            null,
+        )
+
+        for (challengeStatus in listOf("IN_PROGRESS", "COMPLETED")) {
+            for (myStatus in myStatuses) {
+                fakeChallengeRepository.detail = sampleDetail(status = challengeStatus)
+                fakeVerificationRepository.getVerificationsError =
+                    if (myStatus == null) "네트워크 오류가 발생하였습니다." else null
+                fakeVerificationRepository.verifications = sampleVerifications(
+                    challengerStatus = myStatus ?: VerificationStatus.PENDING,
+                    challengerPhotoUrl = CHALLENGER_PHOTO_URL
+                        .takeIf { myStatus == VerificationStatus.VERIFIED },
+                )
+
+                val state = createViewModel().data()
+
+                assertFalse(
+                    state.canForfeit && state.myMissionSlot == MyMissionSlot.MY_PHOTO_WITH_RETAKE,
+                    "challengeStatus=$challengeStatus / myStatus=$myStatus 에서 둘이 함께 열렸다",
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `COMPLETED 면 기권 진입점이 닫힌다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(status = "COMPLETED")
+
+        assertFalse(createViewModel().data().canForfeit)
+    }
+
+    /**
+     * 의도를 고정하는 테스트다. 인증 현황을 모르면 인증 CTA 가 열리는데, 기권 진입점도 **같은 근거**로
+     * 함께 열린다 — 실제 자격은 서버가 판정한다. 여기에만 가드를 더하면 두 진입점이 서로 다른 근거로
+     * 갈린다.
+     */
+    @Test
+    fun `인증 현황을 몰라도 기권 진입점이 인증 CTA 와 함께 열린다`() = runTest {
+        fakeVerificationRepository.getVerificationsError = "네트워크 오류가 발생하였습니다."
+
+        val state = createViewModel().data()
+
+        assertNull(state.verifications)
+        assertTrue(state.canVerify)
+        assertTrue(state.canForfeit)
+    }
+
+    /** 확인 다이얼로그 없이는 기권이 발생하지 않는다는 수용 기준을 고정한다. */
+    @Test
+    fun `기권 진입점을 눌러도 확인 전에는 요청이 나가지 않는다`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.requestForfeit()
+
+        assertEquals(ChallengeDetailModalEffect.ConfirmForfeit, viewModel.modalEffect.value)
+        assertEquals(0, fakeChallengeRepository.forfeitCallCount)
+    }
+
+    @Test
+    fun `확인하면 기권 요청이 나가고 다이얼로그가 닫힌다`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.requestForfeit()
+
+        viewModel.forfeit()
+
+        assertEquals(1, fakeChallengeRepository.forfeitCallCount)
+        assertEquals(ChallengeDetailModalEffect.Hidden, viewModel.modalEffect.value)
+    }
+
+    @Test
+    fun `다이얼로그를 닫으면 요청이 나가지 않는다`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.requestForfeit()
+
+        viewModel.dismiss()
+
+        assertEquals(ChallengeDetailModalEffect.Hidden, viewModel.modalEffect.value)
+        assertEquals(0, fakeChallengeRepository.forfeitCallCount)
+    }
+
+    /** 기권은 멱등이 아니다 — 두 번 나가면 두 번째는 서버가 거부하고 사용자는 이유 없는 실패를 본다. */
+    @Test
+    fun `요청이 나가 있는 동안 다시 확정해도 요청은 한 번만 나간다`() = runTest {
+        fakeChallengeRepository.forfeitDelayMillis = 1_000
+        val viewModel = createViewModel()
+
+        viewModel.forfeit()
+        viewModel.forfeit()
+
+        assertEquals(1, fakeChallengeRepository.forfeitCallCount)
+    }
+
+    @Test
+    fun `기권에 성공하면 상세를 다시 조회한다`() = runTest {
+        val viewModel = createViewModel()
+        assertEquals(1, fakeChallengeRepository.detailCallCount)
+
+        viewModel.forfeit()
+
+        assertEquals(2, fakeChallengeRepository.detailCallCount)
+    }
+
+    /**
+     * 서버가 거부하는 사유 대부분은 **내 화면이 낡았다**는 뜻이다. 다시 받지 않으면 사라졌어야 할
+     * 기권 진입점이 그대로 남아 사용자가 같은 실패를 반복한다.
+     */
+    @Test
+    fun `기권에 실패하면 메시지를 흘리고 그래도 상세를 다시 조회한다`() = runTest {
+        fakeChallengeRepository.forfeitError = "이미 인증을 완료한 챌린지입니다."
+        val viewModel = createViewModel()
+
+        val messages = mutableListOf<String>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiEffect.collect { effect ->
+                messages += assertIs<ChallengeDetailUiEffect.ShowMessage>(effect).message
+            }
+        }
+
+        viewModel.forfeit()
+
+        assertEquals(listOf("이미 인증을 완료한 챌린지입니다."), messages)
+        assertEquals(2, fakeChallengeRepository.detailCallCount)
+    }
+
+    /** 전체 화면 로딩으로 덮지 않는다 — 잠기는 것은 진입점뿐이고 읽던 계약서는 그대로 남는다. */
+    @Test
+    fun `기권 요청이 나가 있는 동안 진입점이 잠긴다`() = runTest {
+        fakeChallengeRepository.forfeitDelayMillis = 1_000
+        val viewModel = createViewModel()
+
+        viewModel.forfeit()
+
+        val forfeiting = viewModel.data()
+        assertTrue(forfeiting.isForfeiting)
+        assertEquals(CHALLENGER_MISSION, forfeiting.myMission, "계약서는 그대로 보여야 한다")
+
+        // 되돌리는 코드가 따로 없다 — 재조회가 상태를 다시 세우면서 false 로 확정한다.
+        advanceUntilIdle()
+        assertFalse(viewModel.data().isForfeiting)
+    }
+
+    @Test
+    fun `내가 기권했으면 안내가 내 시점으로 나온다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(
+            status = "COMPLETED",
+            result = ChallengeResult.OPPONENT_WIN,
+            forfeitedBy = CHALLENGER_ID,
+        )
+
+        assertEquals(FORFEIT_BY_ME_TEXT, createViewModel().data().forfeitNoticeText)
+    }
+
+    @Test
+    fun `상대가 기권했으면 안내가 상대 실명으로 나온다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(
+            status = "COMPLETED",
+            result = ChallengeResult.CHALLENGER_WIN,
+            forfeitedBy = OPPONENT_ID,
+        )
+
+        assertEquals(
+            "$OPPONENT_NICKNAME$FORFEIT_BY_OTHER_SUFFIX",
+            createViewModel().data().forfeitNoticeText,
+        )
+    }
+
+    @Test
+    fun `기권이 아니면 안내가 붙지 않는다`() = runTest {
+        fakeChallengeRepository.detail = completedDetail(ChallengeResult.CHALLENGER_WIN)
+
+        assertNull(createViewModel().data().forfeitNoticeText)
+    }
+
+    /** 라벨·헤드라인이 관점을 모를 때 "나" 를 버리고 실명으로 낮추는 것과 같은 판단이다. */
+    @Test
+    fun `관점을 모르면 기권자를 실명으로 말한다`() = runTest {
+        fakeUserInfoRepository.error = "사용자 정보를 불러오지 못했습니다."
+        fakeChallengeRepository.detail = sampleDetail(
+            status = "COMPLETED",
+            result = ChallengeResult.OPPONENT_WIN,
+            forfeitedBy = CHALLENGER_ID,
+        )
+
+        assertEquals(
+            "$CHALLENGER_NICKNAME$FORFEIT_BY_OTHER_SUFFIX",
+            createViewModel().data().forfeitNoticeText,
+        )
+    }
+
+    /** 양측 어느 userId 와도 맞지 않으면 닉네임을 지어낼 수 없어 아는 사실만 말한다. */
+    @Test
+    fun `기권자가 양측 어느 쪽도 아니면 이름 없이 기권 사실만 말한다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(
+            status = "COMPLETED",
+            result = ChallengeResult.OPPONENT_WIN,
+            forfeitedBy = 999L,
+        )
+
+        assertEquals(FORFEIT_UNKNOWN_ACTOR_TEXT, createViewModel().data().forfeitNoticeText)
     }
 }

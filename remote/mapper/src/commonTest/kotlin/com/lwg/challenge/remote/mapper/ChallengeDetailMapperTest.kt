@@ -188,6 +188,28 @@ class ChallengeDetailMapperTest {
     }
 
     @Test
+    fun `forfeitedBy 가 값 그대로 통과한다`() {
+        val detail = assertNotNull(
+            response(
+                data.copy(status = "COMPLETED", result = "OPPONENT_WIN", forfeitedBy = 1L),
+            ).toChallengeDetail(),
+        )
+
+        assertEquals(
+            1L,
+            detail.forfeitedBy,
+            "매퍼가 판단할 것이 없다. userId → 역할 환산은 내 userId 를 아는 화면 계층의 몫이다",
+        )
+    }
+
+    @Test
+    fun `forfeitedBy 가 null - 도메인도 null 이다`() {
+        val detail = assertNotNull(response().toChallengeDetail())
+
+        assertNull(detail.forfeitedBy, "기권 없이 끝났거나 아직 끝나지 않았다")
+    }
+
+    @Test
     fun `모르는 result 문자열 - null 로 흡수되고 나머지 필드는 정상 매핑된다`() {
         val detail = assertNotNull(
             response(data.copy(status = "COMPLETED", result = "CANCELLED")).toChallengeDetail(),

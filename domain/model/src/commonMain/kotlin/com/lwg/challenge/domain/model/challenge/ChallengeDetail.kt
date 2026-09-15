@@ -14,6 +14,9 @@ import kotlinx.datetime.LocalDateTime
  * @property result 판정 결과. `COMPLETED` 되기 전까지 null 이며, 서버 불변식상
  *   `status == "COMPLETED"` 와 `result != null` 은 동치다. [challenger] / [opponent] 와 마찬가지로
  *   **역할 기준**이다 — 내 시점 변환은 [ChallengeResult.outcomeFor] 로 화면 계층이 한다
+ * @property forfeitedBy 기권으로 끝난 챌린지면 기권한 사람의 userId, 아니면 null.
+ *   [challenger] / [opponent] 와 마찬가지로 **역할 변환 없는 원본**이라, 내가 기권했는지 판별은
+ *   내 userId 를 아는 화면 계층의 몫이다
  * @property challengeDate 챌린지 기준 날짜 (KST). 포맷이 어긋나면 null
  * @property deadline 마감 시각 (KST)
  * @property contract soul-oath 도입 이전에 만들어진 챌린지는 계약서가 없어 null 이다. 정상 상태이며
@@ -23,6 +26,7 @@ data class ChallengeDetail(
     val challengeId: Long,
     val status: String,
     val result: ChallengeResult?,
+    val forfeitedBy: Long?,
     val challengeDate: LocalDate?,
     val deadline: LocalDateTime,
     val betContent: String,

@@ -36,6 +36,7 @@ fun ChallengeDetailResponse.toChallengeDetail(): ChallengeDetail? {
         challengeId = data.challengeId,
         status = data.status,
         result = data.result.toChallengeResultOrNull(),
+        forfeitedBy = data.forfeitedBy,
         challengeDate = data.challengeDate,
         deadline = deadline,
         betContent = data.betContent,

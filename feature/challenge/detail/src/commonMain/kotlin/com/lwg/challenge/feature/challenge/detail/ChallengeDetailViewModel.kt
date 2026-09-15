@@ -11,7 +11,12 @@ import com.lwg.challenge.domain.model.verification.ChallengeVerifications
 import com.lwg.challenge.domain.repository.ChallengeRepository
 import com.lwg.challenge.domain.repository.UserInfoRepository
 import com.lwg.challenge.domain.repository.VerificationRepository
+import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailModalEffect
+import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiEffect
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
+import com.lwg.challenge.feature.challenge.detail.contract.FORFEIT_BY_ME_TEXT
+import com.lwg.challenge.feature.challenge.detail.contract.FORFEIT_BY_OTHER_SUFFIX
+import com.lwg.challenge.feature.challenge.detail.contract.FORFEIT_UNKNOWN_ACTOR_TEXT
 import com.lwg.challenge.feature.challenge.detail.contract.MY_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.MY_MISSION_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.ResultView
@@ -25,9 +30,12 @@ import com.lwg.challenge.utils.datetime.deadlineAbsoluteText
 import com.lwg.challenge.utils.datetime.nowKst
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -51,6 +59,12 @@ class ChallengeDetailViewModel(
 
     private val _uiState = MutableStateFlow<ChallengeDetailUiState>(ChallengeDetailUiState.Loading)
 
+    private val _modalEffect = MutableStateFlow<ChallengeDetailModalEffect>(ChallengeDetailModalEffect.Hidden)
+    val modalEffect: StateFlow<ChallengeDetailModalEffect> get() = _modalEffect
+
+    private val _uiEffect = MutableSharedFlow<ChallengeDetailUiEffect>()
+    val uiEffect: SharedFlow<ChallengeDetailUiEffect> = _uiEffect.asSharedFlow()
+
     /**
      * 구독 시점에 조회한다. 인증을 마치고 돌아오면 상세 entry 가 다시 구독되며 재조회가 걸려,
      * 방금 올린 인증이 CTA·사진·뱃지에 반영된다 — Nav3 는 백스택에 남은 entry 의 ViewModel 을
@@ -69,6 +83,57 @@ class ChallengeDetailViewModel(
 
     fun retry() {
         load()
+    }
+
+    /** 다이얼로그를 여는 것이 전부다 — 확인 없이는 기권이 발생하지 않아야 한다. */
+    fun requestForfeit() {
+        _modalEffect.update { ChallengeDetailModalEffect.ConfirmForfeit }
+    }
+
+    fun forfeit() {
+        if (isForfeiting()) return
+        markForfeiting()
+        dismiss()
+
+        viewModelScope.launch {
+            challengeRepository.forfeitChallenge(
+                challengeId = challengeId,
+                onSuccess = {},
+                onError = { message -> emitEffect(ChallengeDetailUiEffect.ShowMessage(message)) },
+            )
+
+            // 성공 응답 body 로 부분 갱신하지 않는다 — 상세 화면을 세우는 경로가 두 벌이 되고, 두
+            // 경로가 갈리는 날 컴파일러도 테스트도 잡지 못한다. forfeitedBy 도 어차피 상세 재조회로만 온다.
+            //
+            // 실패에도 다시 부르는 이유: 이 화면은 진입 시점 스냅샷을 들고 오래 떠 있는다(그래서
+            // 헤드라인 티커가 있다). 서버가 거부하는 사유 대부분 — 이미 끝났다 / 이미 인증했다 — 은
+            // 그 스냅샷이 낡았다는 뜻이다. 다시 받지 않으면 사라졌어야 할 기권 진입점이 그대로 남아
+            // 사용자가 같은 실패를 반복한다. 성공·실패를 한 경로로 두는 편이 분기도 하나 적다.
+            //
+            // isForfeiting 을 따로 되돌리지 않는 것도 같은 이유다 — load() 가 상세를 다시 세우면서
+            // false 로 확정된다.
+            load()
+        }
+    }
+
+    fun dismiss() {
+        _modalEffect.update { ChallengeDetailModalEffect.Hidden }
+    }
+
+    private fun isForfeiting(): Boolean =
+        (_uiState.value as? ChallengeDetailUiState.Data)?.isForfeiting == true
+
+    /** 되돌리는 짝이 없다 — [load] 가 상세를 다시 세우면서 `false` 로 확정한다. */
+    private fun markForfeiting() {
+        _uiState.update { current ->
+            if (current is ChallengeDetailUiState.Data) current.copy(isForfeiting = true) else current
+        }
+    }
+
+    private fun emitEffect(effect: ChallengeDetailUiEffect) {
+        viewModelScope.launch {
+            _uiEffect.emit(effect)
+        }
     }
 
     private fun load() {
@@ -237,7 +302,27 @@ class ChallengeDetailViewModel(
             signatures = contract?.toSignatureSection(isMeOpponent),
             verifications = verifications,
             canVerify = status == STATUS_IN_PROGRESS,
+            forfeitNoticeText = forfeitNotice(myUserId),
+            isForfeiting = false,
         )
+    }
+
+    /**
+     * 기권으로 끝난 챌린지에 붙일 안내 한 줄. 기권이 아니면 `null` 이고 그 자리가 통째로 빠진다.
+     *
+     * [myUserId] 비교를 먼저 두는 것이 계약이다 — 관점을 알 때만 "내가" 로 말하고, 관점을 모르면
+     * (`myUserId == null`) 자연히 실명 분기로 떨어진다. 라벨·헤드라인이 관점을 모를 때 "나" 를 버리고
+     * 실명으로 낮추는 것과 같은 판단이다.
+     */
+    private fun ChallengeDetail.forfeitNotice(myUserId: Long?): String? = when (forfeitedBy) {
+        null -> null
+        myUserId -> FORFEIT_BY_ME_TEXT
+        challenger.userId -> "${challenger.nickname}$FORFEIT_BY_OTHER_SUFFIX"
+        opponent.userId -> "${opponent.nickname}$FORFEIT_BY_OTHER_SUFFIX"
+
+        // 양측 어느 userId 와도 맞지 않으면 닉네임을 지어낼 수 없다. 없는 이름을 날조하는 대신
+        // 아는 사실만 말한다.
+        else -> FORFEIT_UNKNOWN_ACTOR_TEXT
     }
 
     /**

@@ -27,6 +27,10 @@ import kotlin.test.assertTrue
  * 유일하게 동작하는 상태였고 화면이 실제로 여는 PENDING 은 역직렬화가 깨져 있었다.
  * 실서버에서 떴다는 사실이 대표 응답을 떴다는 뜻은 아니다.
  *
+ * 다만 "서버가 shape 을 바꾸면 깨진다" 는 키가 **줄어들** 때만 참이다. result / forfeitedBy 가
+ * 뒤늦게 추가됐을 때 이 테스트는 깨지지 않았다 — 늘어난 키는 `ignoreUnknownKeys` 가 흡수한다.
+ * 키가 추가되는 방향의 변경은 여기서 잡히지 않으니, 새 필드는 픽스처를 새로 떠서 덮어야 한다.
+ *
  * 세 번째 픽스처([nullMaxWireResponse])는 성격이 다르다. 앞의 둘은 실서버에서 뜬 것이라
  * "지금 존재하는 것"만 덮는다. 이건 계약 §3.1 nullable 표에서 파생한 "계약이 허용하는 것" 이고,
  * 모든 nullable 이 동시에 null 인 조합은 실서버로 만들 수 없어 backend-dev 가 서버 테스트에서
@@ -43,9 +47,20 @@ class ChallengeDetailWireFixtureTest {
         prettyPrint = true
     }
 
+    // 🔴 라벨 — 이 픽스처와 아래 [pendingWireResponse] 는 **2026-08-03 캡처 당시의 서버**다.
+    // 그때는 `result` 키가 생략됐지만 **현재 서버는 모든 상태에서 그 키를 항상 보낸다**.
+    // `result` 는 challenge-result feature 에서 나중에 추가된 필드이고, 이 둘은 그 필드가
+    // 존재하기 이전의 서버를 박제한 것이다.
+    // 근거(서버 레포) — `WireShapeContractTest` 가 `@JsonInclude(NON_NULL)` **부재**를 계약으로
+    // 고정하고, `ChallengeDetailControllerTest` 가 응답 **원문**에 `"result":null` 이 있음을 단언한다.
+    // 따라서 이 둘은 **현행 wire 의 증거가 아니라 '키 부재 내성' 의 증거로만 유효하다** — 매퍼가
+    // 키 부재를 견딘다는 것, 즉 누군가 전역 `@JsonInclude(NON_NULL)` 을 켜는 날의 안전망이다.
+    // 현행 shape 은 [nullMaxWireResponse] · [completedWireResponse] · 기권 전/후 쌍이 대표한다.
+    // 본문은 캡처 원문 그대로다. 사람이 손대는 순간 증거이기를 그만두므로 한 글자도 고치지 않는다.
     private val wireResponse =
         """{"data":{"challengeId":18,"status":"IN_PROGRESS","challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":16,"nickname":"테스터3","profileImageUrl":null,"mission":"운동 1시간"},"opponent":{"userId":15,"nickname":"테스터2","profileImageUrl":null,"mission":"책 30페이지 읽기"},"contract":{"content":"영혼의 맹세\n\n2026년 8월 3일, 테스터3와 테스터2는\n아래의 약속을 걸고 맹세한다.\n\n· 테스터3의 미션: 운동 1시간\n· 테스터2의 미션: 책 30페이지 읽기\n· 내기: 커피 사기\n· 마감: 2026년 8월 3일 24:00\n\n서명한 맹세는 무를 수 없다.","isFinalized":true,"challengerSignature":"{\"v\":1,\"g\":1000,\"s\":[[123,456,130,460],[700,200,705,210]]}","challengerSignedAt":"2026-08-03 13:37:12","opponentSignature":"{\"v\":1,\"g\":1000,\"s\":[[123,456,130,460],[700,200,705,210]]}","opponentSignedAt":"2026-08-03 13:37:13"}},"error":false,"code":200,"message":""}"""
 
+    // 🔴 위 [wireResponse] 라벨과 같은 2026-08-03 캡처 — `result` 키가 없는 옛 서버 shape 이다.
     // `GET /api/v1/challenges/21` — 맹세 화면이 실제로 여는 상태. 상대가 아직 맹세하지 않아
     // opponent.mission 이 명시적 null 로 온다. 서명 획 좌표만 앞 3점으로 줄였다.
     private val pendingWireResponse =
@@ -53,14 +68,33 @@ class ChallengeDetailWireFixtureTest {
 
     // 계약 §3.1 nullable 표의 모든 항목이 동시에 null 인 "null 최대" 응답. contract 자체가 null 인
     // 챌린지는 soul-oath 도입 이전에 만들어진 것이라 계약서가 없다 — 오류가 아니라 정상 상태다.
-    // result 는 IN_PROGRESS 라 명시적 null 로 온다 (키는 존재).
+    // result 는 IN_PROGRESS 라 명시적 null 로 온다 (키는 존재). forfeitedBy 도 같다 — 기권 없이
+    // 진행 중이라 값이 없을 뿐, 서버는 모든 상태에서 키를 실어 보낸다.
     private val nullMaxWireResponse =
-        """{"data":{"challengeId":7,"status":"IN_PROGRESS","result":null,"challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":1,"nickname":"이우건","profileImageUrl":null,"mission":null},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":null},"contract":null},"error":false,"code":200,"message":""}"""
+        """{"data":{"challengeId":7,"status":"IN_PROGRESS","result":null,"forfeitedBy":null,"challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":1,"nickname":"이우건","profileImageUrl":null,"mission":null},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":null},"contract":null},"error":false,"code":200,"message":""}"""
 
     // 판정이 끝난 챌린지. 위의 두 실서버 픽스처는 result 도입 이전에 뜬 것이라 키 자체가 없고,
     // 그건 그것대로 '키 누락도 null 로 떨어진다' 를 고정한다. 값이 실린 shape 은 여기서 덮는다.
     private val completedWireResponse =
         """{"data":{"challengeId":30,"status":"COMPLETED","result":"CHALLENGER_WIN","challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":16,"nickname":"테스터3","profileImageUrl":null,"mission":"운동 1시간"},"opponent":{"userId":15,"nickname":"테스터2","profileImageUrl":null,"mission":"책 30페이지 읽기"},"contract":null},"error":false,"code":200,"message":""}"""
+
+    // 기권으로 끝난 챌린지. backend-dev 실서버 캡처 — 2026-09-05 23:00 KST, throwaway DB
+    // `challenge_forfeit_capture` + 포트 18082.
+    // 경로: test-login 1·2 → 친구 → 신청 → 수락 → user2(opponent) 기권 → `GET /api/v1/challenges/1`.
+    // `curl` 출력 원문 그대로이고 손댄 곳이 0이다 — [wireResponse] 와 같은 부류(서버가 실제로 보낸
+    // 바이트)다. opponent(userId 2)가 기권했으므로 result 는 반대편 승리인 CHALLENGER_WIN 이다.
+    //
+    // 아래 [forfeitedBeforeWireResponse] 와 **같은 챌린지의 기권 전/후 한 쌍**이다.
+    // status · result · forfeitedBy 세 필드만 다르고 그 diff 가 이 feature 의 wire 변경 전부다.
+    private val forfeitedWireResponse =
+        """{"data":{"challengeId":1,"status":"COMPLETED","result":"CHALLENGER_WIN","forfeitedBy":2,"challengeDate":"2026-09-06","deadline":"2026-09-07 00:00:00","betContent":"커피 사기","challenger":{"userId":1,"nickname":"테스터1","profileImageUrl":null,"mission":"운동 1시간"},"opponent":{"userId":2,"nickname":"테스터2","profileImageUrl":null,"mission":"책 30쪽"},"contract":{"content":"영혼의 맹세\n\n2026년 9월 6일, 테스터1과 테스터2는\n아래의 약속을 걸고 맹세한다.\n\n· 테스터1의 미션: 운동 1시간\n· 테스터2의 미션: 책 30쪽\n· 내기: 커피 사기\n· 마감: 2026년 9월 6일 24:00\n\n서명한 맹세는 무를 수 없다.","isFinalized":true,"challengerSignature":"{\"v\":1,\"g\":1000,\"s\":[[100,200,110,210]]}","challengerSignedAt":"2026-09-05 23:00:49","opponentSignature":"{\"v\":1,\"g\":1000,\"s\":[[100,200,110,210]]}","opponentSignedAt":"2026-09-05 23:00:49"}},"error":false,"code":200,"message":""}"""
+
+    // 위 [forfeitedWireResponse] 와 같은 챌린지의 **기권 직전** 캡처. 같은 세션에서 함께 떴다.
+    // 기권 전에는 forfeitedBy 가 명시적 null 이고 status 는 IN_PROGRESS, result 는 null 이다.
+    // 나머지 필드는 기권 후와 글자까지 같다 — 기권이 다른 필드를 건드리지 않는다는 증거이고,
+    // 이게 둘을 쌍으로 두는 이유다.
+    private val forfeitedBeforeWireResponse =
+        """{"data":{"challengeId":1,"status":"IN_PROGRESS","result":null,"forfeitedBy":null,"challengeDate":"2026-09-06","deadline":"2026-09-07 00:00:00","betContent":"커피 사기","challenger":{"userId":1,"nickname":"테스터1","profileImageUrl":null,"mission":"운동 1시간"},"opponent":{"userId":2,"nickname":"테스터2","profileImageUrl":null,"mission":"책 30쪽"},"contract":{"content":"영혼의 맹세\n\n2026년 9월 6일, 테스터1과 테스터2는\n아래의 약속을 걸고 맹세한다.\n\n· 테스터1의 미션: 운동 1시간\n· 테스터2의 미션: 책 30쪽\n· 내기: 커피 사기\n· 마감: 2026년 9월 6일 24:00\n\n서명한 맹세는 무를 수 없다.","isFinalized":true,"challengerSignature":"{\"v\":1,\"g\":1000,\"s\":[[100,200,110,210]]}","challengerSignedAt":"2026-09-05 23:00:49","opponentSignature":"{\"v\":1,\"g\":1000,\"s\":[[100,200,110,210]]}","opponentSignedAt":"2026-09-05 23:00:49"}},"error":false,"code":200,"message":""}"""
 
     private fun parse(): ChallengeDetailResponse = json.decodeFromString(wireResponse)
 
@@ -69,6 +103,11 @@ class ChallengeDetailWireFixtureTest {
     private fun parseNullMax(): ChallengeDetailResponse = json.decodeFromString(nullMaxWireResponse)
 
     private fun parseCompleted(): ChallengeDetailResponse = json.decodeFromString(completedWireResponse)
+
+    private fun parseForfeited(): ChallengeDetailResponse = json.decodeFromString(forfeitedWireResponse)
+
+    private fun parseForfeitedBefore(): ChallengeDetailResponse =
+        json.decodeFromString(forfeitedBeforeWireResponse)
 
     @Test
     fun `실서버 응답 원문이 ChallengeDetailResponse 로 역직렬화된다`() {
@@ -298,5 +337,63 @@ class ChallengeDetailWireFixtureTest {
         assertEquals("COMPLETED", detail.status)
         assertEquals(16L, detail.challenger.userId)
         assertEquals(15L, detail.opponent.userId)
+    }
+
+    @Test
+    fun `기권 원문의 forfeitedBy 가 값 그대로 매핑된다`() {
+        val detail = assertNotNull(parseForfeited().toChallengeDetail())
+
+        assertEquals(2L, detail.forfeitedBy)
+        assertEquals(
+            detail.opponent.userId,
+            detail.forfeitedBy,
+            "역할 변환 없는 원본이다. 누가 기권했는지 판별은 내 userId 를 아는 화면 계층의 몫이다",
+        )
+        assertNotEquals(
+            detail.challenger.userId,
+            detail.forfeitedBy,
+            "기권자는 opponent 다. challenger 와 붙으면 역할 좌표계가 뒤집힌 것이다",
+        )
+        assertEquals("COMPLETED", detail.status)
+        assertEquals(
+            ChallengeResult.CHALLENGER_WIN,
+            detail.result,
+            "기권자의 반대편이 이긴다. opponent 가 기권했으니 CHALLENGER_WIN 이다",
+        )
+    }
+
+    @Test
+    fun `기권 전 원문은 forfeitedBy 가 명시적 null 이고 나머지 필드는 기권 후와 같다`() {
+        val before = assertNotNull(parseForfeitedBefore().toChallengeDetail())
+        val after = assertNotNull(parseForfeited().toChallengeDetail())
+
+        assertNull(parseForfeitedBefore().data.forfeitedBy)
+        assertNull(before.forfeitedBy)
+        assertEquals("IN_PROGRESS", before.status)
+        assertNull(before.result)
+
+        val pairMeaning = "같은 챌린지의 기권 전/후다. 기권이 이 필드를 건드리면 안 된다"
+        assertEquals(after.challengeId, before.challengeId, pairMeaning)
+        assertEquals(after.deadline, before.deadline, pairMeaning)
+        assertEquals(after.challengeDate, before.challengeDate, pairMeaning)
+        assertEquals(after.betContent, before.betContent, pairMeaning)
+        assertEquals(after.challenger.userId, before.challenger.userId, pairMeaning)
+        assertEquals(after.challenger.nickname, before.challenger.nickname, pairMeaning)
+        assertEquals(after.challenger.mission, before.challenger.mission, pairMeaning)
+        assertEquals(after.opponent.userId, before.opponent.userId, pairMeaning)
+        assertEquals(after.opponent.nickname, before.opponent.nickname, pairMeaning)
+        assertEquals(after.opponent.mission, before.opponent.mission, pairMeaning)
+        assertEquals(
+            assertNotNull(after.contract).isFinalized,
+            assertNotNull(before.contract).isFinalized,
+            pairMeaning,
+        )
+    }
+
+    @Test
+    fun `forfeitedBy 가 명시적 null 이거나 키가 없으면 도메인도 null 이다`() {
+        assertNull(parseNullMax().data.forfeitedBy)
+        assertNull(assertNotNull(parseNullMax().toChallengeDetail()).forfeitedBy)
+        assertNull(assertNotNull(parse().toChallengeDetail()).forfeitedBy)
     }
 }

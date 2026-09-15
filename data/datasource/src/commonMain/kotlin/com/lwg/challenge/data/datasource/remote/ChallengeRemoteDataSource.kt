@@ -45,6 +45,12 @@ interface ChallengeRemoteDataSource {
         onError: (String) -> Unit,
     )
 
+    suspend fun forfeitChallenge(
+        challengeId: Long,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    )
+
     suspend fun cancelChallenge(
         challengeId: Long,
         onSuccess: () -> Unit,

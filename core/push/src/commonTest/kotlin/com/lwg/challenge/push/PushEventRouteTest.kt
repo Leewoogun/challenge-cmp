@@ -25,4 +25,9 @@ class PushEventRouteTest {
     fun `OpponentVerified 는 챌린지 상세로 간다`() {
         assertEquals(Route.Challenge.Detail(7L), PushEvent.OpponentVerified(7L).toRoute())
     }
+
+    @Test
+    fun `ChallengeForfeited 는 챌린지 상세로 간다`() {
+        assertEquals(Route.Challenge.Detail(7L), PushEvent.ChallengeForfeited(7L).toRoute())
+    }
 }

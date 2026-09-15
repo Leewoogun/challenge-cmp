@@ -207,4 +207,8 @@ private fun PushEvent.isTappableInList(referencePending: Boolean?): Boolean = wh
     is PushEvent.OpponentVerified -> true
     is PushEvent.ChallengeAccepted -> false
     is PushEvent.ChallengeRejected -> false
+    // 기권 알림이 가리키는 챌린지는 이미 COMPLETED 다. referencePending 을 보지 않고 타입 단계에서
+    // 닫는 이유는, 목록에서 이동하지 않는 것이 사용자 결정이라 서버가 보내는 값에 그 결정을 매달지
+    // 않기 위해서다.
+    is PushEvent.ChallengeForfeited -> false
 }

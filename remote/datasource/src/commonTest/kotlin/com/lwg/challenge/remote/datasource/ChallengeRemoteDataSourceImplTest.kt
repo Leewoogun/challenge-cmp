@@ -27,6 +27,8 @@ import com.lwg.challenge.remote.model.challenge.ChallengeHistoryResponse
 import com.lwg.challenge.remote.model.challenge.ContractDto
 import com.lwg.challenge.remote.model.challenge.ContractPartyDto
 import com.lwg.challenge.remote.model.challenge.DeadlineTypeDto
+import com.lwg.challenge.remote.model.challenge.ForfeitChallengeData
+import com.lwg.challenge.remote.model.challenge.ForfeitChallengeResponse
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengeDto
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengesData
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengesResponse
@@ -480,6 +482,45 @@ class ChallengeRemoteDataSourceImplTest {
     }
 
     @Test
+    fun `forfeitChallenge 성공 - onSuccess 호출`() = runTest {
+        val api = FakeChallengeApi(
+            forfeitResult = ApiResult.Success(
+                ForfeitChallengeResponse(
+                    ForfeitChallengeData(
+                        challengeId = 7L,
+                        status = "COMPLETED",
+                        result = "OPPONENT_WIN",
+                        myResult = "LOSE",
+                        completedAt = LocalDateTime(2026, 9, 5, 14, 23, 11),
+                    ),
+                ),
+            ),
+        )
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
+
+        var successCount = 0
+        dataSource.forfeitChallenge(7L, onSuccess = { successCount++ }, onError = {})
+
+        assertEquals(1, successCount)
+        assertEquals(7L, api.capturedForfeitId)
+    }
+
+    @Test
+    fun `forfeitChallenge 실패 - onError 를 호출하고 onSuccess 는 부르지 않는다`() = runTest {
+        val api = FakeChallengeApi(
+            forfeitResult = ApiResult.Failure.CustomError(code = 705, message = "이미 인증해서 기권할 수 없어요"),
+        )
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
+
+        var successCalled = false
+        val errors = mutableListOf<String>()
+        dataSource.forfeitChallenge(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+
+        assertTrue(!successCalled)
+        assertEquals(listOf("이미 인증해서 기권할 수 없어요"), errors)
+    }
+
+    @Test
     fun `cancelChallenge 성공 - onSuccess 호출`() = runTest {
         val api = FakeChallengeApi(
             cancelResult = ApiResult.Success(CancelChallengeResponse(CancelChallengeData(challengeId = 7L))),
@@ -516,6 +557,7 @@ private class FakeChallengeApi(
     private val historiesResult: ApiResult<ChallengeHistoryResponse> = ApiResult.Success(ChallengeHistoryResponse()),
     private val acceptResult: ApiResult<AcceptChallengeResponse> = ApiResult.Success(AcceptChallengeResponse()),
     private val rejectResult: ApiResult<RejectChallengeResponse> = ApiResult.Success(RejectChallengeResponse()),
+    private val forfeitResult: ApiResult<ForfeitChallengeResponse> = ApiResult.Success(ForfeitChallengeResponse()),
     private val cancelResult: ApiResult<CancelChallengeResponse> = ApiResult.Success(CancelChallengeResponse()),
 ) : ChallengeApi {
 
@@ -536,6 +578,8 @@ private class FakeChallengeApi(
     var capturedAcceptBody: AcceptChallengeBody? = null
         private set
     var capturedRejectId: Long? = null
+        private set
+    var capturedForfeitId: Long? = null
         private set
     var capturedCancelId: Long? = null
         private set
@@ -573,6 +617,11 @@ private class FakeChallengeApi(
     override suspend fun rejectChallenge(challengeId: Long): ApiResult<RejectChallengeResponse> {
         capturedRejectId = challengeId
         return rejectResult
+    }
+
+    override suspend fun forfeitChallenge(challengeId: Long): ApiResult<ForfeitChallengeResponse> {
+        capturedForfeitId = challengeId
+        return forfeitResult
     }
 
     override suspend fun cancelChallenge(challengeId: Long): ApiResult<CancelChallengeResponse> {

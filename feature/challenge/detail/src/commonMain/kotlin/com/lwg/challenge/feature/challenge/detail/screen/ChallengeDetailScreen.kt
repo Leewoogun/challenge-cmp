@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -25,6 +26,7 @@ import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
+import com.lwg.challenge.feature.challenge.detail.component.ForfeitText
 import com.lwg.challenge.feature.challenge.detail.component.MissionCard
 import com.lwg.challenge.feature.challenge.detail.component.OathSummaryCard
 import com.lwg.challenge.feature.challenge.detail.component.VerificationPhoto
@@ -62,6 +64,7 @@ private val PhotoFooterSpacing = 12.dp
 internal fun ChallengeDetailScreen(
     uiState: ChallengeDetailUiState.Data,
     onVerifyClick: () -> Unit,
+    onForfeitClick: () -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -78,6 +81,7 @@ internal fun ChallengeDetailScreen(
             opponentNickname = uiState.opponentNickname,
             headlineText = uiState.headlineText,
             headlineTone = uiState.headlineTone,
+            forfeitText = uiState.forfeitNoticeText,
         )
 
         MissionCard(
@@ -169,6 +173,21 @@ internal fun ChallengeDetailScreen(
             myLabel = uiState.myLabel,
             opponentLabel = uiState.opponentLabel,
         )
+
+        // 인증 CTA 바로 아래가 아니라 본문 맨 아래에 둔다 — 되돌릴 수 없는 행위를 주 액션(인증하기)
+        // 바로 옆에 놓으면 오탭 거리가 0이 된다. 기권은 자주 쓰는 길이 아니라 찾아 내려가야 하는
+        // 출구다. 마이페이지가 회원 탈퇴를 화면 맨 아래에 둔 것과 같은 배치 판단이다.
+        if (uiState.canForfeit) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                ForfeitText(
+                    onClick = onForfeitClick,
+                    enabled = !uiState.isForfeiting,
+                )
+            }
+        }
     }
 }
 
@@ -177,7 +196,12 @@ internal fun ChallengeDetailScreen(
 @Composable
 private fun ChallengeDetailScreenPendingPreview() {
     PreviewContainer {
-        ChallengeDetailScreen(uiState = previewData(), onVerifyClick = {}, onRetry = {})
+        ChallengeDetailScreen(
+            uiState = previewData(),
+            onVerifyClick = {},
+            onForfeitClick = {},
+            onRetry = {},
+        )
     }
 }
 
@@ -197,6 +221,7 @@ private fun ChallengeDetailScreenVerifiedWithRetakePreview() {
                 ),
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -218,6 +243,7 @@ private fun ChallengeDetailScreenBothVerifiedPreview() {
                 canVerify = false,
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -234,6 +260,7 @@ private fun ChallengeDetailScreenVerificationUnknownPreview() {
         ChallengeDetailScreen(
             uiState = previewData(verifications = null),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -249,6 +276,7 @@ private fun ChallengeDetailScreenMyVerificationFailedPreview() {
                 verifications = previewVerifications(myStatus = VerificationStatus.FAILED),
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -262,6 +290,7 @@ private fun ChallengeDetailScreenNoContractPreview() {
         ChallengeDetailScreen(
             uiState = previewData(signatures = null),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -283,6 +312,7 @@ private fun ChallengeDetailScreenAfterDeadlinePreview() {
                 canVerify = false,
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -306,6 +336,7 @@ private fun ChallengeDetailScreenWinPreview() {
                 canVerify = false,
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -328,6 +359,7 @@ private fun ChallengeDetailScreenLosePreview() {
                 canVerify = false,
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -351,6 +383,7 @@ private fun ChallengeDetailScreenDrawPreview() {
                 canVerify = false,
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -372,6 +405,7 @@ private fun ChallengeDetailScreenBothLosePreview() {
                 canVerify = false,
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -395,6 +429,7 @@ private fun ChallengeDetailScreenUnknownPerspectiveResultPreview() {
                 canVerify = false,
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -408,6 +443,7 @@ private fun ChallengeDetailScreenUnknownPerspectivePreview() {
         ChallengeDetailScreen(
             uiState = previewData(myLabel = "지훈", verifications = null),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -424,6 +460,7 @@ private fun ChallengeDetailScreenUnreadableSignaturePreview() {
                 opponentSignatureHint = "서명을 불러오지 못했어요",
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -440,6 +477,92 @@ private fun ChallengeDetailScreenLongMissionLargeFontPreview() {
                 opponentMission = "퇴근 후 카페에 들러 두 시간 동안 자격증 인강을 듣고 필기 노트 남기기",
             ),
             onVerifyClick = {},
+            onForfeitClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/**
+ * IN_PROGRESS · 내 미인증 — 이번 변경의 핵심 장면. 내 카드의 인증 CTA 와 본문 맨 아래 기권 진입점이
+ * 함께 있다. 기권이 주 액션 옆이 아니라 스크롤 끝에 있다는 것이 여기서 보인다.
+ */
+@Preview
+@Composable
+private fun ChallengeDetailScreenForfeitEntryPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(),
+            onVerifyClick = {},
+            onForfeitClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/** 기권 요청 중 — 진입점이 잠긴다. 전체 화면 로딩으로 덮지 않아 읽던 계약서가 그대로 남는다. */
+@Preview
+@Composable
+private fun ChallengeDetailScreenForfeitingPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(isForfeiting = true),
+            onVerifyClick = {},
+            onForfeitClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/**
+ * 판정 완료 · 내가 기권 — 헤드라인 "패배" 아래에 "내가 기권했어요" 가 한 단계 낮은 위계로 붙고,
+ * 하단 진입점은 사라진다.
+ *
+ * 기권 진입점과 "다시 찍기" 가 함께 나오지 않는다는 것을 눈으로 확인하는 자리이기도 하다 — 여기서는
+ * 둘 다 없고, 위 [ChallengeDetailScreenForfeitEntryPreview] 에는 기권만, "다시 찍기" 프리뷰에는
+ * 재촬영만 있다.
+ */
+@Preview
+@Composable
+private fun ChallengeDetailScreenForfeitedByMePreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                headlineText = "패배",
+                headlineTone = HeadlineTone.LOSE,
+                forfeitNoticeText = "내가 기권했어요",
+                verifications = previewVerifications(
+                    opponentStatus = VerificationStatus.VERIFIED,
+                    opponentPhotoUrl = "https://example.com/theirs.jpg",
+                ),
+                canVerify = false,
+            ),
+            onVerifyClick = {},
+            onForfeitClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/**
+ * 판정 완료 · 상대가 기권 — 헤드라인 "승리" 아래에 "우건님이 기권했어요". 내가 인증했는지와 무관하게
+ * 이긴 장면이라 내 카드는 인증 전 그대로다.
+ *
+ * 바로 위 프리뷰와 짝으로, 기권이 걸린 화면에는 "다시 찍기" 가 나올 자리가 없다는 것을 보여준다.
+ */
+@Preview
+@Composable
+private fun ChallengeDetailScreenForfeitedByOpponentPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                headlineText = "승리",
+                headlineTone = HeadlineTone.WIN,
+                forfeitNoticeText = "우건님이 기권했어요",
+                canVerify = false,
+            ),
+            onVerifyClick = {},
+            onForfeitClick = {},
             onRetry = {},
         )
     }
@@ -526,6 +649,8 @@ private fun previewData(
     headlineTone: HeadlineTone = HeadlineTone.URGENT,
     verifications: VerificationSection? = previewVerifications(),
     canVerify: Boolean = true,
+    forfeitNoticeText: String? = null,
+    isForfeiting: Boolean = false,
 ) = ChallengeDetailUiState.Data(
     myLabel = myLabel,
     myMissionLabel = "${myLabel}의 미션",
@@ -539,4 +664,6 @@ private fun previewData(
     signatures = signatures,
     verifications = verifications,
     canVerify = canVerify,
+    forfeitNoticeText = forfeitNoticeText,
+    isForfeiting = isForfeiting,
 )

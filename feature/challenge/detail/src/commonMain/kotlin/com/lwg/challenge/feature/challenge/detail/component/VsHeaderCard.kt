@@ -42,6 +42,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * [headlineTone] 을 색·아이콘으로 옮기는 일만 한다.
  *
  * 상호작용이 없다 — 아바타는 표시 전용이라 탭 콜백을 뚫지 않는다.
+ *
+ * @param forfeitText 기권으로 끝났을 때 헤드라인 아래에 붙는 안내 한 줄. 기권이 아니면 `null` 이고
+ *   그 자리가 통째로 빠진다.
  */
 @Composable
 internal fun VsHeaderCard(
@@ -50,6 +53,7 @@ internal fun VsHeaderCard(
     headlineText: String,
     headlineTone: HeadlineTone,
     modifier: Modifier = Modifier,
+    forfeitText: String? = null,
 ) {
     val visual = headlineVisualOf(headlineTone)
     Surface(
@@ -88,6 +92,20 @@ internal fun VsHeaderCard(
                     text = headlineText,
                     style = ChallengeTheme.typography.medium14,
                     color = visual.accent,
+                )
+            }
+
+            // 결과가 아니라 결과가 **어떻게 나왔는지**에 붙는 주석이라 헤드라인의 톤 색(visual.accent)을
+            // 쓰지 않는다 — 같은 색을 주면 결과 문구와 경쟁하고, 승패를 말하는 자리가 두 줄로 늘어난
+            // 것처럼 읽힌다. 크기도 한 단계 낮춘다.
+            if (forfeitText != null) {
+                VerticalSpacer(4.dp)
+                Text(
+                    text = forfeitText,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = ChallengeTheme.typography.medium12,
+                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
                 )
             }
         }
@@ -259,6 +277,21 @@ private fun VsHeaderCardDrawPreview() {
             opponentNickname = "우건",
             headlineText = "무승부",
             headlineTone = HeadlineTone.DRAW,
+        )
+    }
+}
+
+/** 판정 완료 + 기권 안내 — 결과 한 줄 아래에 어떻게 끝났는지가 한 단계 낮은 위계로 붙는다. */
+@Preview
+@Composable
+private fun VsHeaderCardForfeitedPreview() {
+    VsHeaderCardPreviewContainer {
+        VsHeaderCard(
+            myNickname = "나",
+            opponentNickname = "우건",
+            headlineText = "승리",
+            headlineTone = HeadlineTone.WIN,
+            forfeitText = "우건님이 기권했어요",
         )
     }
 }

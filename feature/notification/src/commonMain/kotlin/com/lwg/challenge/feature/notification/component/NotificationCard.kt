@@ -122,7 +122,11 @@ internal fun NotificationCard(
     }
 }
 
-/** 발송 4종. 아이콘·색이 서로 갈리는지, 수락과 인증이 나란히 놓였을 때 구분되는지 본다. */
+/**
+ * 발송 5종 중 4종(2026-09-05 기준). 아이콘·색이 서로 갈리는지, 수락과 인증이 나란히 놓였을 때
+ * 구분되는지 본다. 기권(`CHALLENGE_FORFEITED`)은 여기 없고 `NotificationScreenPreview` 의
+ * `PreviewNotifications` 에만 들어 있다.
+ */
 @Preview
 @Composable
 private fun NotificationCardTypesPreview() {
