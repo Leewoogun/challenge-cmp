@@ -38,7 +38,7 @@
 
 1. 노션에 feature 단위 API 페이지를 만들어 "이 화면이 무슨 API 를 부르는가" 를 한 곳에서 본다
 2. DTO KDoc 의 JSON 샘플을 노션으로 옮겨 코드에서 사본을 없앤다
-3. 끊긴 `§참조` 를 노션 링크로 되살린다
+3. ~~끊긴 `§참조` 를 노션 링크로 되살린다~~ — 착수 후 별도 작업으로 미뤘다 (아래 실행 결과)
 
 ## 노션 구조
 
@@ -84,7 +84,7 @@ Swagger 가 이미 타입·nullable 을 제공한다.
 
 ### 샘플 출처
 
-- **GET 17종**: 로컬 서버에서 실제 호출해 캡처한 응답 (정확도 최상, 이상치·null 이 그대로 드러남)
+- **GET 13종**: 로컬 서버에서 실제 호출해 캡처한 응답 (정확도 최상, 이상치·null 이 그대로 드러남)
 - **POST / DELETE**: 호출하지 않는다 — 챌린지를 실제로 생성·기권시키게 된다. 기존 DTO KDoc 샘플 +
   Swagger 스키마로 구성한다
 
@@ -110,15 +110,17 @@ Swagger 가 이미 타입·nullable 을 제공한다.
 
 feature 1개당 다음을 수행하고 커밋 1개로 끊는다.
 
+> 실제로는 DTO 파일이 여러 feature 에 걸쳐 공유돼(예: `ChallengeDetailResponse` 는 oath 와 detail
+> 이 함께 쓴다) feature 단위로 쪼개지지 않았다. 1·2 단계를 `:remote:model` 전체에 한 번에 적용하고
+> 커밋 1개로 묶었다.
+
 1. DTO KDoc 의 JSON 샘플 삭제 → `/** GET /api/v1/... */` 한 줄만 남김
 2. **"왜" 는 유지, "무엇" 은 삭제**
    - 유지: `result` 가 enum 아닌 이유, `forfeitedBy` 가 Boolean 아닌 이유, 드롭 정책의 근거
    - 삭제: `"yyyy-MM-dd"` 포맷 설명, 필드 목록 나열, 서버 동작 prose
    - 근거: CLAUDE.md 주석 규칙 — 모델 KDoc 에 "백엔드가 ~ 응답한다" 식 서버 동작 설명을 적지 않는다
-3. 끊긴 `§참조` 를 노션 링크로 교체
-4. 중복 DTO 통합 — `AcceptChallengeData` 와 `RejectChallengeData` 는 필드까지 동일
-   (`challengeId: Long`, `status: String`), `CancelChallengeData` 는 그 부분집합.
-   Swagger 도 이 셋을 `ChallengeStatusData` 하나로 선언하고 있다
+3. ~~끊긴 `§참조` 를 노션 링크로 교체~~ — **수행하지 않음.** 아래 실행 결과 참조
+4. ~~중복 DTO 통합~~ — **수행하지 않음.** 아래 실행 결과 참조
 5. `./gradlew :{모듈}:compileCommonMainKotlinMetadata` + 해당 모듈 테스트
 6. 커밋
 
@@ -130,8 +132,38 @@ feature 1개당 다음을 수행하고 커밋 1개로 끊는다.
 
 `home` 이 5개 Repository 를 쓰는 가장 무거운 화면이라 뒤에 둔다.
 
+## 실행 결과 (2026-09-24)
+
+### 완료
+
+- 노션 `🔌 API 연동` 페이지 + feature 12개 하위 페이지 생성. request/response 는 중첩 토글,
+  GET 13종은 로컬 서버 실측 응답
+- 노션 §6 드리프트 수정 (`/users/record` → `/record`, 없는 `/notifications/{id}` 제거,
+  `/auth/test-login` 추가, 페이지네이션 설명 정정)
+- DTO KDoc 의 응답 JSON 샘플 제거 — 31개 파일, -279/+34 줄 (커밋 `596d054`)
+- 좌표계 주의(역할 기준 vs 내 시점)는 오히려 보강 — 코드만 봐서는 알 수 없는 지점이라서
+
+### 진행 중 드러난 것과 그 결정
+
+**액션 응답 DTO 8개가 읽히지 않는다** — `accept`/`reject`/`cancel`/`forfeit`(챌린지)와
+`send`/`accept`/`reject`/`cancel`(친구요청)의 DataSource 는 성공/실패만 보고 `data` 를 한 번도
+읽지 않는다. 코드에 그것이 의도라는 주석도 있다(성공 응답으로 부분 갱신하면 화면을 세우는 경로가
+두 벌이 되므로 재조회한다).
+
+당초 계획은 필드까지 동일한 `AcceptChallengeData` / `RejectChallengeData` 를 합치는 것이었으나,
+**현 구조를 유지하기로 했다** — 서버 응답 모양을 타입으로 남겨두는 것 자체에 문서 가치가 있다는
+판단. 통합도 삭제도 하지 않는다.
+
+**ADR 문서가 repo 에 없다** — `ADR-0002` / `0009` / `0010` / `0011` 이 코드 13곳에서 참조되는데
+파일이 존재하지 않는다 (CLAUDE.md 도 ADR-0003, ADR-0007 을 언급). `api-contract §n`,
+`design.md §n` 도 같은 상태다. **별도 작업으로 미룬다** — 내용 복원이 필요해 분량이 작지 않다.
+
+따라서 당초 계획의 "끊긴 §참조를 노션 링크로 교체" 와 "중복 DTO 통합" 두 단계는 **수행하지 않았다.**
+
 ## 범위 밖
 
 - `VerificationStatusDto` 의 typed enum 문제 (백엔드 확인 필요)
+- 끊긴 문서 참조(ADR · api-contract · design.md) 복원 — 위 결정에 따라 별도 작업
+- 액션 응답 DTO 통합/삭제 — 위 결정에 따라 현 구조 유지
 - Swagger 자동 생성 파이프라인 구축
-- 매퍼·Repository 로직 리팩토링 — 이번엔 주석과 DTO 중복만 건드린다
+- 매퍼·Repository 로직 리팩토링
