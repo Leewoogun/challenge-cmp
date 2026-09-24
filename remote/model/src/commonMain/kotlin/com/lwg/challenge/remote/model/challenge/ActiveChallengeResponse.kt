@@ -6,22 +6,10 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 /**
- * GET /api/v1/challenges/active 성공 응답.
+ * GET /api/v1/challenges/active
  *
- * ```
- * {
- *   "error": false, "code": 200, "message": "",
- *   "data": { "activeChallenges": [
- *     { "challengeId": 1001, "status": "IN_PROGRESS", "myResult": null, ... },
- *     { "challengeId": 1002, "status": "COMPLETED",   "myResult": "WIN",  ... }
- *   ] }
- * }
- * ```
- *
- * 진행 중 챌린지가 없으면 `activeChallenges` 는 빈 배열.
- *
- * 진행 중 + 최근 판정된 건이 한 배열로 온다. 정렬도 서버가 한다
- * (IN_PROGRESS deadline 오름차순 → COMPLETED 판정 시각 내림차순) — 앱은 재정렬하지 않는다.
+ * 이름과 달리 `COMPLETED` 항목도 섞여 온다 — 홈의 "최근 결과" 카드가 이 목록을 같이 쓰기
+ * 때문이다. 정렬도 서버가 하므로 앱은 재정렬하지 않는다.
  */
 @Serializable
 data class ActiveChallengeResponse(

@@ -8,26 +8,9 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 /**
- * GET /api/v1/challenges/received 성공 응답.
+ * GET /api/v1/challenges/received
  *
- * ```
- * { "error": false, "code": 200, "message": "",
- *   "data": {
- *     "challenges": [
- *       { "challengeId": 7,
- *         "challengerId": 42,
- *         "challengerNickname": "민수",
- *         "challengerProfileImageUrl": "https://.../profile.jpg",
- *         "challengerMission": "오늘 운동 1시간 하기",
- *         "betContent": "커피 사기",
- *         "challengeDate": "2026-07-28",
- *         "deadline": "2026-07-28 15:00:00",
- *         "createdAt": "2026-07-28 02:11:00" }
- *     ]
- *   } }
- * ```
- *
- * `created_at DESC` 정렬. 받은 도전장이 없으면 빈 배열.
+ * 정렬된 채로 도착하므로 앱이 재정렬하지 않는다.
  */
 @Serializable
 data class ReceivedChallengesResponse(

@@ -5,22 +5,7 @@ import com.lwg.challenge.remote.model.serializer.WireLocalDateTimeSerializer
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
-/**
- * GET /api/v1/notifications 성공 응답.
- *
- * ```
- * {
- *   "error": false, "code": 200, "message": "",
- *   "data": {
- *     "notifications": [
- *       { "notificationId": 57, "type": "CHALLENGE_ACCEPTED", "body": "민수님이 수락했습니다",
- *         "referenceId": 1001, "referencePending": null, "createdAt": "2026-09-01 13:42:07" }
- *     ],
- *     "nextCursor": 38
- *   }
- * }
- * ```
- */
+/** GET /api/v1/notifications — 이 앱에서 유일하게 커서 페이지네이션을 쓰는 목록. */
 @Serializable
 data class NotificationListResponse(
     val data: NotificationListData = NotificationListData(),

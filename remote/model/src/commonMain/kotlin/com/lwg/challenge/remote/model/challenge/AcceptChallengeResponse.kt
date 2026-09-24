@@ -5,11 +5,6 @@ import kotlinx.serialization.Serializable
 
 /**
  * POST /api/v1/challenges/{id}/accept 성공 응답.
- *
- * ```
- * { "error": false, "code": 200, "message": "",
- *   "data": { "challengeId": 7, "status": "IN_PROGRESS" } }
- * ```
  */
 @Serializable
 data class AcceptChallengeResponse(

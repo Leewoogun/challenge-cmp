@@ -4,19 +4,9 @@ import com.lwg.challenge.remote.model.BaseResponse
 import kotlinx.serialization.Serializable
 
 /**
- * GET /api/v1/rankings/losers 성공 응답.
+ * GET /api/v1/rankings/losers
  *
- * ```
- * {
- *   "error": false, "code": 200, "message": "",
- *   "data": { "rankings": [
- *     {"rank":1,"userId":14,"nickname":"테스터1","profileImageUrl":null,"isMe":true,"losses":4,"lossRate":80,"currentLossStreak":0,"totalChallenges":5},
- *     {"rank":5,"userId":17,"nickname":"테스터4","profileImageUrl":null,"isMe":false,"losses":0,"lossRate":0,"currentLossStreak":0,"totalChallenges":0}
- *   ] }
- * }
- * ```
- *
- * `rankings` 는 rank 오름차순으로 정렬돼 도착한다 — 앱은 재정렬하지 않는다.
+ * `rankings` 는 정렬된 채로 도착하므로 앱이 재정렬하지 않는다.
  */
 @Serializable
 data class LoserRankingResponse(

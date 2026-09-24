@@ -6,22 +6,10 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 /**
- * GET /api/v1/challenges/{id}/verifications 성공 응답.
+ * GET /api/v1/challenges/{id}/verifications
  *
- * ```
- * { "error": false, "code": 200, "message": "",
- *   "data": {
- *     "challengeId": 7,
- *     "challenger": {
- *       "userId": 1, "status": "VERIFIED",
- *       "photoUrl": "/api/v1/challenges/7/photos/challenger",
- *       "verifiedAt": "2026-08-14 15:32:10", "photoDeleted": false, "aiReason": null },
- *     "opponent": {
- *       "userId": 14, "status": "PENDING",
- *       "photoUrl": null, "verifiedAt": null, "photoDeleted": false, "aiReason": null } } }
- * ```
- *
- * `challenger` / `opponent` 는 역할 그대로다 — '나 / 상대' 로 뒤집혀 오지 않는다.
+ * `challenger` / `opponent` 는 역할 그대로다 — '나 / 상대' 로 뒤집혀 오지 않는다. 목록 API 들이
+ * `myResult` 처럼 내 시점으로 주는 것과 좌표계가 다르므로, 내 쪽을 찾으려면 `userId` 를 비교해야 한다.
  */
 @Serializable
 data class ChallengeVerificationsResponse(

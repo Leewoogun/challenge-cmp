@@ -9,16 +9,6 @@ import kotlinx.serialization.Serializable
 
 /**
  * POST /api/v1/challenges 성공 응답.
- *
- * ```
- * { "error": false, "code": 200, "message": "",
- *   "data": {
- *     "challengeId": 7,
- *     "status": "PENDING",
- *     "challengeDate": "2026-07-28",
- *     "deadline": "2026-07-28T15:00:00Z"
- *   } }
- * ```
  */
 @Serializable
 data class ChallengeCreateResponse(

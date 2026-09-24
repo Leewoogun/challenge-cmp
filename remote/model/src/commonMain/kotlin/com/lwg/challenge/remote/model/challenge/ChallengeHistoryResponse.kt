@@ -8,25 +8,9 @@ import kotlinx.datetime.YearMonth
 import kotlinx.serialization.Serializable
 
 /**
- * GET /api/v1/challenges/history 성공 응답.
+ * GET /api/v1/challenges/history
  *
- * ```
- * {
- *   "error": false, "code": 200, "message": "",
- *   "data": {
- *     "month": "2026-08",
- *     "firstArchivedMonth": "2026-03",
- *     "histories": [
- *       { "challengeId": 42, "challengeDate": "2026-08-14", "opponentNickname": "준혁",
- *         "myMission": "헬스장 가기", "opponentMission": "금주", "bet": "치킨 한 마리",
- *         "myResult": "WIN" }
- *     ]
- *   }
- * }
- * ```
- *
- * 한 번에 한 달치만 온다 — `histories` 는 `month` 한 달의 종료된 챌린지 전체이고, 그 달에 기록이
- * 없으면 빈 배열이다. 다른 달은 `month` 파라미터를 붙여 다시 요청한다.
+ * 한 번에 한 달치만 온다 — 다른 달은 `month` 파라미터를 붙여 다시 요청한다.
  */
 @Serializable
 data class ChallengeHistoryResponse(

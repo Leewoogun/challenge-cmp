@@ -4,11 +4,6 @@ import kotlinx.serialization.Serializable
 
 /**
  * POST /api/v1/challenges/{id}/accept 요청 body.
- *
- * ```
- * { "myMission": "책 30페이지 읽기",
- *   "signature": "{\"v\":1,\"g\":1000,\"s\":[[123,456,130,460]]}" }
- * ```
  */
 @Serializable
 data class AcceptChallengeBody(

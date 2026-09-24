@@ -4,9 +4,7 @@ import com.lwg.challenge.remote.model.BaseResponse
 import kotlinx.serialization.Serializable
 
 /**
- * PUT /api/v1/users/me/fcm-token 성공 응답.
- *
- * `{ "error": false, "code": 200, "message": "" }`
+ * PUT /api/v1/users/me/fcm-token
  *
  * `data` 필드를 선언하지 않는다 — 이 엔드포인트는 `error`/`code`/`message` 3필드짜리
  * BaseResponse 를 그대로 반환하므로 `data` 키 자체가 응답에 없다. 키가 없는 상황에서는

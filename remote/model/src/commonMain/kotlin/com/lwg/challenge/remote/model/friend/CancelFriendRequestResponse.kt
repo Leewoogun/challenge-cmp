@@ -6,11 +6,6 @@ import kotlinx.serialization.Serializable
 /**
  * DELETE /api/v1/friends/requests/{id} 성공 응답.
  *
- * ```
- * { "error": false, "code": 200, "message": "",
- *   "data": { "requestId": 901 } }
- * ```
- *
  * PENDING row 물리 삭제. 재요청 가능.
  */
 @Serializable

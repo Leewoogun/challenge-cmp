@@ -4,14 +4,6 @@ import kotlinx.serialization.Serializable
 
 /**
  * POST /api/v1/challenges 요청 body.
- *
- * ```
- * { "opponentId": 42,
- *   "myMission": "오늘 운동 1시간 하기",
- *   "betContent": "커피 사기",
- *   "deadlineType": "TODAY",
- *   "signature": "{\"v\":1,\"g\":1000,\"s\":[[123,456,130,460]]}" }
- * ```
  */
 @Serializable
 data class ChallengeCreateBody(

@@ -4,16 +4,9 @@ import com.lwg.challenge.remote.model.BaseResponse
 import kotlinx.serialization.Serializable
 
 /**
- * GET /api/v1/record 성공 응답.
+ * GET /api/v1/record
  *
- * ```
- * {
- *   "error": false, "code": 200, "message": "",
- *   "data": { "win": 7, "lose": 3, "draw": 2, "currentStreak": 3 }
- * }
- * ```
- *
- * 신규 사용자도 동일 shape — 모든 값이 0 으로 채워져 응답.
+ * 신규 사용자도 같은 shape 이라 빈 상태를 따로 분기할 필요가 없다 — 모든 값이 0 으로 온다.
  */
 @Serializable
 data class RecordResponse(

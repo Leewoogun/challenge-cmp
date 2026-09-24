@@ -6,11 +6,6 @@ import kotlinx.serialization.Serializable
 /**
  * DELETE /api/v1/challenges/{id} 성공 응답.
  *
- * ```
- * { "error": false, "code": 200, "message": "",
- *   "data": { "challengeId": 7 } }
- * ```
- *
  * PENDING row 물리 삭제.
  */
 @Serializable

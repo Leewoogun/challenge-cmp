@@ -5,11 +5,6 @@ import kotlinx.serialization.Serializable
 
 /**
  * POST /api/v1/friends/requests/{id}/accept 성공 응답.
- *
- * ```
- * { "error": false, "code": 200, "message": "",
- *   "data": { "friendshipId": 901, "status": "ACCEPTED" } }
- * ```
  */
 @Serializable
 data class AcceptFriendRequestResponse(

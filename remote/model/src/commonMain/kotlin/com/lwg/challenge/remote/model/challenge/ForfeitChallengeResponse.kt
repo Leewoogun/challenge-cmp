@@ -8,12 +8,6 @@ import kotlinx.serialization.Serializable
 /**
  * POST /api/v1/challenges/{id}/forfeit 성공 응답.
  *
- * ```
- * { "error": false, "code": 200, "message": "성공",
- *   "data": { "challengeId": 1001, "status": "COMPLETED", "result": "OPPONENT_WIN",
- *             "myResult": "LOSE", "completedAt": "2026-09-05 14:23:11" } }
- * ```
- *
  * 🔴 **앱은 이 body 를 읽지 않는다.** 기권 성공 후 상세를 재조회해 화면을 세우기 때문이다 —
  * 성공 응답으로 상태를 부분 갱신하면 상세 화면을 세우는 경로가 두 벌이 된다.
  *

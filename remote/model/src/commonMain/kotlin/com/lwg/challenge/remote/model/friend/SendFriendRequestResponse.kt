@@ -6,11 +6,6 @@ import kotlinx.serialization.Serializable
 /**
  * POST /api/v1/friends/requests 성공 응답.
  *
- * ```
- * { "error": false, "code": 200, "message": "",
- *   "data": { "requestId": 901, "status": "PENDING" } }
- * ```
- *
  * `status` 는 항상 `"PENDING"`. REJECTED row UPDATE 케이스도 동일 응답.
  */
 @Serializable

@@ -3,16 +3,7 @@ package com.lwg.challenge.remote.model.auth
 import com.lwg.challenge.remote.model.BaseResponse
 import kotlinx.serialization.Serializable
 
-/**
- * POST /api/v1/auth/kakao 성공 응답.
- *
- * ```
- * {
- *   "error": false, "code": 200, "message": "",
- *   "data": { "accessToken": "...", "refreshToken": "...", "userId": 12, "isNewUser": true }
- * }
- * ```
- */
+/** POST /api/v1/auth/kakao · POST /api/v1/auth/test-login 공통 응답. */
 @Serializable
 data class LoginResponse(
     val data: LoginData = LoginData(),

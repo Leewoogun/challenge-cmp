@@ -3,6 +3,7 @@ package com.lwg.challenge.remote.model.user
 import com.lwg.challenge.remote.model.BaseResponse
 import kotlinx.serialization.Serializable
 
+/** GET /api/v1/users/me */
 @Serializable
 data class UserInfoResponse(
     val data: UserInfoData = UserInfoData(),

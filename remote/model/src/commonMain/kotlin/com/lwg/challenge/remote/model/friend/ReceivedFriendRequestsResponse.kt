@@ -6,21 +6,9 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 /**
- * GET /api/v1/friends/requests/received 성공 응답.
+ * GET /api/v1/friends/requests/received
  *
- * ```
- * { "error": false, "code": 200, "message": "",
- *   "data": {
- *     "requests": [
- *       { "id": 901,
- *         "fromUser": { "id": 42, "nickname": "민수", "profileImageUrl": "..." },
- *         "requestedAt": "2026-06-24 18:00:00" }
- *     ]
- *   } }
- * ```
- *
- * `id` 는 `friendships.id` (PENDING). `requestedAt` 은 "yyyy-MM-dd HH:mm:ss" (KST) (friendships.created_at).
- * `created_at DESC` 정렬. 받은 요청 없으면 빈 배열.
+ * 정렬된 채로 도착하므로 앱이 재정렬하지 않는다.
  */
 @Serializable
 data class ReceivedFriendRequestsResponse(
@@ -34,6 +22,7 @@ data class ReceivedRequestListData(
 
 @Serializable
 data class FriendRequestDto(
+    /** requestId — 수락·거절 호출의 `{id}` 다. 보낸 사람의 userId 가 아니다. */
     val id: Long = 0L,
     val fromUser: UserBriefDto = UserBriefDto(),
     /** "yyyy-MM-dd HH:mm:ss" (KST). 포맷이 어긋나면 null. */

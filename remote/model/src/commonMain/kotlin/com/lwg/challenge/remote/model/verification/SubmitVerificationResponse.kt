@@ -7,11 +7,6 @@ import kotlinx.serialization.Serializable
 
 /**
  * POST /api/v1/challenges/{id}/verification 성공 응답.
- *
- * ```
- * { "error": false, "code": 200, "message": "",
- *   "data": { "challengeId": 7, "status": "VERIFIED", "verifiedAt": "2026-08-14 15:32:10" } }
- * ```
  */
 @Serializable
 data class SubmitVerificationResponse(
