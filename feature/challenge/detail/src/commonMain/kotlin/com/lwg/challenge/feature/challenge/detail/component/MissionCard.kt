@@ -23,6 +23,7 @@ import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
+import com.lwg.challenge.feature.challenge.detail.contract.VERIFICATION_REJECTED_PREFIX
 import com.lwg.challenge.ui.components.VerificationStatusPill
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -186,7 +187,16 @@ private fun MissionCardMineWithPhotoAndRetakePreview() {
     }
 }
 
-/** 나 / 인증 실패 — 뱃지만 바뀌고 CTA 는 그대로 열려 있다. */
+/**
+ * 나 / AI 반려 — 실패 뱃지가 붙지만 내가 올린 사진은 그대로 남고, 그 아래에 반려 사유가 붙는다.
+ * 카드 한 장으로 완성된 반려 장면이다.
+ *
+ * 재촬영 CTA 가 없는 게 핵심이다. 반려는 자정 판정에서 확정되고 그 시점이 곧 마감이라, 이 카드를
+ * 보는 순간 챌린지는 이미 닫혀 있어 다시 찍을 창이 존재하지 않는다.
+ *
+ * 뱃지(error)와 사유(onSurfaceVariant)가 색으로 경쟁하지 않는지도 여기서 확인한다 — 사유는 판정이
+ * 아니라 판정에 붙는 설명이라 위계가 한 단계 아래다.
+ */
 @Preview
 @Composable
 private fun MissionCardMineFailedPreview() {
@@ -200,13 +210,19 @@ private fun MissionCardMineFailedPreview() {
                 label = "나의 미션",
                 mission = "오늘 운동 1시간 하기",
                 status = VerificationStatus.FAILED,
+                footerSpacing = 12.dp,
                 footer = {
-                    IconTextButton(
-                        text = "다시 인증하기",
-                        icon = Icons.Filled.PhotoCamera,
-                        onClick = {},
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = ChallengeTheme.typography.bold16,
+                    // isLoading 으로 때우지 않고 URL 을 채우는 이유: 로딩 문구는 분기가 어디서
+                    // 끝났든 똑같이 나와서, 실패 문구가 사진 자리를 가로채도 프리뷰가 같아 보인다.
+                    VerificationPhoto(
+                        status = VerificationStatus.FAILED,
+                        photoUrl = "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
+                        cacheKey = "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger|2026-01-01T09:30",
+                    )
+                    VerticalSpacer(8.dp)
+                    RejectionReasonText(
+                        text = "${VERIFICATION_REJECTED_PREFIX}책상 위 커피잔 사진으로, " +
+                            "미션 수행 증거로 보기 어렵습니다.",
                     )
                 },
             )

@@ -51,6 +51,11 @@ class VerificationWireFixtureTest {
     private val photoDeletedWire =
         """{"error":false,"code":200,"message":"","data":{"challengeId":7,"challenger":{"userId":1,"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-08-14 15:32:10","photoDeleted":false},"opponent":{"userId":14,"status":"VERIFIED","photoUrl":null,"verifiedAt":"2026-08-14 15:41:03","photoDeleted":true}}}"""
 
+    // AI 판정이 실린 실측 응답 — 반려된 challenger 는 FAILED 인데 photoUrl 이 살아 있고, 판정이
+    // 없는 opponent 는 aiReason 이 **명시적 null 키**로 온다 (서버가 그 모양을 계약 테스트로 잠갔다).
+    private val aiReasonWire =
+        """{"error":false,"code":200,"message":"","data":{"challengeId":7,"challenger":{"userId":1,"status":"FAILED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-09-22 21:14:03","photoDeleted":false,"aiReason":"책상 위 커피잔 사진으로, 미션(주 3회 운동) 수행 증거로 보기 어렵습니다."},"opponent":{"userId":14,"status":"PENDING","photoUrl":null,"verifiedAt":null,"photoDeleted":false,"aiReason":null}}}"""
+
     @Test
     fun `null 최대 응답 원문이 역직렬화된다 - 명시적 null 키가 예외가 아니다`() {
         val response = json.decodeFromString<ChallengeVerificationsResponse>(nullMaxVerificationsWire)
@@ -121,6 +126,51 @@ class VerificationWireFixtureTest {
 
         assertFalse(verifications.challenger.photoDeleted)
         assertFalse(verifications.opponent.photoDeleted)
+    }
+
+    /**
+     * AI 반려 건의 원문 — 이 프로젝트에서 처음으로 `FAILED` 인데 `photoUrl` 이 살아 있는 응답이다.
+     * 상태만 보고 사진이 없다고 단정하던 전제가 여기서 깨진다.
+     */
+    @Test
+    fun `AI 판정이 실린 원문이 도메인까지 통과하고 반려 건의 사진이 남는다`() {
+        val verifications = json.decodeFromString<ChallengeVerificationsResponse>(aiReasonWire)
+            .toChallengeVerifications(TEST_BASE_URL)
+
+        assertEquals(VerificationStatus.FAILED, verifications.challenger.status)
+        assertEquals(
+            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
+            verifications.challenger.photoUrl,
+        )
+        assertEquals(LocalDateTime(2026, 9, 22, 21, 14, 3), verifications.challenger.verifiedAt)
+
+        val reason = assertNotNull(verifications.challenger.aiReason)
+        assertTrue(reason.startsWith("책상 위 커피잔"))
+    }
+
+    /** `photoUrl`·`verifiedAt` 과 같은 취급 — 값이 없을 때도 키는 남고, 그게 예외가 되면 안 된다. */
+    @Test
+    fun `aiReason 이 명시적 null 키로 와도 역직렬화가 성립한다`() {
+        val response = json.decodeFromString<ChallengeVerificationsResponse>(aiReasonWire)
+
+        assertEquals(200, response.code)
+        assertNull(response.data.opponent.aiReason)
+        assertEquals("PENDING", response.data.opponent.status)
+    }
+
+    /**
+     * 서버가 아직 이 키를 주지 않는 환경 — `photoDeleted` 와 같은 선례다. 기본값이 없으면 키 누락이
+     * `MissingFieldException` 이 돼 인증 현황 조회가 통째로 죽는다. 이 픽스처에는 `aiReason` 키가
+     * 아예 없다.
+     */
+    @Test
+    fun `aiReason 키가 없는 응답도 역직렬화되고 null 로 채워진다`() {
+        val verifications = json.decodeFromString<ChallengeVerificationsResponse>(nullMaxVerificationsWire)
+            .toChallengeVerifications(TEST_BASE_URL)
+
+        assertNull(verifications.challenger.aiReason)
+        assertNull(verifications.opponent.aiReason)
+        assertEquals(VerificationStatus.VERIFIED, verifications.challenger.status, "응답 전체가 살아남는다")
     }
 
     @Test

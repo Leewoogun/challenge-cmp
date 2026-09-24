@@ -29,6 +29,7 @@ import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.feature.challenge.detail.component.ForfeitText
 import com.lwg.challenge.feature.challenge.detail.component.MissionCard
 import com.lwg.challenge.feature.challenge.detail.component.OathSummaryCard
+import com.lwg.challenge.feature.challenge.detail.component.RejectionReasonText
 import com.lwg.challenge.feature.challenge.detail.component.VerificationPhoto
 import com.lwg.challenge.feature.challenge.detail.component.VsHeaderCard
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
@@ -48,6 +49,12 @@ private val PREVIEW_VERIFIED_AT = LocalDateTime(2026, 1, 1, 9, 30, 0)
 /** CTA 는 버튼 자체가 여백을 가져서 사진(12dp)보다 위 간격을 넉넉히 준다. */
 private val CtaFooterSpacing = 16.dp
 private val PhotoFooterSpacing = 12.dp
+
+/**
+ * 사진과 반려 사유 사이. 사진 아래 액션(12dp)보다 좁혀서 사유가 별도 블록이 아니라 **바로 위
+ * 사진에 붙는 설명**으로 읽히게 한다 — 같은 12dp 면 "다시 찍기" 와 같은 위계로 보인다.
+ */
+private val RejectionReasonSpacing = 8.dp
 
 /**
  * 상세 본문. VS 헤더 → 나의 미션 → 상대 미션 → 영혼의 맹세 순으로 한 스크롤에 쌓는다.
@@ -119,9 +126,19 @@ internal fun ChallengeDetailScreen(
                             cacheKey = uiState.myPhotoCacheKey,
                             photoDeleted = uiState.myPhotoDeleted,
                         )
+                        // 사유가 없으면 이 자리가 간격째 빠진다. 상태를 함께 보지 않는 이유는
+                        // 사유가 실려 왔다는 것 자체가 미인증 처리됐다는 뜻이기 때문이다(계약 보장).
+                        uiState.myAiReasonText?.let { reasonText ->
+                            VerticalSpacer(RejectionReasonSpacing)
+                            RejectionReasonText(text = reasonText)
+                        }
                     }
                 }
 
+                // 반려 사유를 여기에는 붙이지 않는다. 이 가지는 canVerify(= IN_PROGRESS)일 때만
+                // 나오는데 반려는 자정 판정이 내리는 결론이고 그 시점에 챌린지는 이미 COMPLETED 라,
+                // 두 조건이 동시에 참일 수 없다. 일어날 수 없는 조합에 코드를 두면 가정에 대한
+                // 방어 로직이 되고, 사유가 어디에 붙는지가 두 자리로 갈린다.
                 MyMissionSlot.MY_PHOTO_WITH_RETAKE -> {
                     {
                         VerificationPhoto(
@@ -161,6 +178,10 @@ internal fun ChallengeDetailScreen(
                     photoDeleted = uiState.opponentPhotoDeleted,
                     onRetry = onRetry,
                 )
+                uiState.opponentAiReasonText?.let { reasonText ->
+                    VerticalSpacer(RejectionReasonSpacing)
+                    RejectionReasonText(text = reasonText)
+                }
             },
         )
 
@@ -266,7 +287,12 @@ private fun ChallengeDetailScreenVerificationUnknownPreview() {
     }
 }
 
-/** 내 인증 실패 — 다시 인증할 수 없어 하단 슬롯이 통째로 빠지고 실패 뱃지만 남는다. */
+/**
+ * 내 인증 실패 · **마감까지 미제출** — 낼 사진이 없어 하단 슬롯이 통째로 빠지고 실패 뱃지만 남는다.
+ *
+ * 진입점(`canVerify`)을 일부러 열어 둔 채 확인한다 — 내 인증 상태가 게이트보다 먼저 걸러진다는 게
+ * 이 장면의 요지다. 사진이 있는 실패는 아래 [ChallengeDetailScreenMyVerificationRejectedPreview] 다.
+ */
 @Preview
 @Composable
 private fun ChallengeDetailScreenMyVerificationFailedPreview() {
@@ -274,6 +300,76 @@ private fun ChallengeDetailScreenMyVerificationFailedPreview() {
         ChallengeDetailScreen(
             uiState = previewData(
                 verifications = previewVerifications(myStatus = VerificationStatus.FAILED),
+            ),
+            onVerifyClick = {},
+            onForfeitClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/**
+ * 내 인증 실패 · **AI 반려** — 같은 `FAILED` 인데 내가 올린 사진이 그대로 남는다. 위
+ * [ChallengeDetailScreenMyVerificationFailedPreview] 와 가르는 것은 사진 유무뿐이다.
+ *
+ * 재촬영 CTA 가 붙지 않아야 한다 — 반려는 자정 판정에서 확정되고 그 시점이 곧 마감이라 챌린지가
+ * 이미 닫혀 있다. `canVerify = false` 가 그 사실을 옮긴 것이다.
+ *
+ * 사진 아래에 반려 사유가 한 단계 낮은 위계로 붙는다. 사유가 실려 왔다는 것 자체가 미인증 처리됐다는
+ * 뜻이라 상태를 함께 보지 않는다
+ * ([com.lwg.challenge.feature.challenge.detail.contract.VerificationSection.myAiReason] 참조).
+ * 상대 칸에 붙는 모양은 아래 [ChallengeDetailScreenOpponentVerificationRejectedPreview] 다.
+ */
+@Preview
+@Composable
+private fun ChallengeDetailScreenMyVerificationRejectedPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                headlineText = "패배",
+                headlineTone = HeadlineTone.LOSE,
+                verifications = previewVerifications(
+                    myStatus = VerificationStatus.FAILED,
+                    myPhotoUrl = "https://example.com/mine.jpg",
+                    myAiReason = "책상 위 커피잔 사진으로, 미션 수행 증거로 보기 어렵습니다.",
+                    opponentStatus = VerificationStatus.VERIFIED,
+                    opponentPhotoUrl = "https://example.com/theirs.jpg",
+                ),
+                canVerify = false,
+            ),
+            onVerifyClick = {},
+            onForfeitClick = {},
+            onRetry = {},
+        )
+    }
+}
+
+/**
+ * 상대 인증이 **AI 반려** — 같은 사유 한 줄이 상대 카드의 사진 아래에 붙는다.
+ *
+ * 위 [ChallengeDetailScreenMyVerificationRejectedPreview] 와 짝으로 둔다. 내 카드는 슬롯 분기를
+ * 거쳐, 상대 카드는 분기 없이 사진 다음에 바로 붙어 **그리는 자리가 서로 다르기** 때문에 두 장을
+ * 모두 눈으로 확인해야 한다(렌더링을 덮는 UI 테스트가 없다).
+ *
+ * 사유가 길어 줄바꿈되는 모양도 여기서 드러난다 — 자르지 않는 것이 이 문구의 규칙이다.
+ */
+@Preview
+@Composable
+private fun ChallengeDetailScreenOpponentVerificationRejectedPreview() {
+    PreviewContainer {
+        ChallengeDetailScreen(
+            uiState = previewData(
+                headlineText = "승리",
+                headlineTone = HeadlineTone.WIN,
+                verifications = previewVerifications(
+                    myStatus = VerificationStatus.VERIFIED,
+                    myPhotoUrl = "https://example.com/mine.jpg",
+                    opponentStatus = VerificationStatus.FAILED,
+                    opponentPhotoUrl = "https://example.com/theirs.jpg",
+                    opponentAiReason = "실내에서 찍힌 책상 위 커피잔 사진으로 보이며, 미션으로 약속한 " +
+                        "야외 달리기를 수행했다고 볼 만한 장면이 확인되지 않습니다.",
+                ),
+                canVerify = false,
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -342,7 +438,7 @@ private fun ChallengeDetailScreenWinPreview() {
     }
 }
 
-/** 판정 완료 · 패배 — 내 인증이 FAILED 라 내 카드 하단 슬롯이 통째로 빠지고 상대만 사진을 든다. */
+/** 판정 완료 · 패배 — 내가 미제출로 FAILED 라 하단 슬롯이 통째로 빠지고 상대만 사진을 든다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenLosePreview() {
@@ -618,19 +714,23 @@ private fun previewVerifications(
     myPhotoUrl: String? = null,
     myPhotoDeleted: Boolean = false,
     myVerifiedAt: LocalDateTime? = PREVIEW_VERIFIED_AT,
+    myAiReason: String? = null,
     opponentStatus: VerificationStatus = VerificationStatus.PENDING,
     opponentPhotoUrl: String? = null,
     opponentPhotoDeleted: Boolean = false,
     opponentVerifiedAt: LocalDateTime? = PREVIEW_VERIFIED_AT,
+    opponentAiReason: String? = null,
 ) = VerificationSection(
     myStatus = myStatus,
     myPhotoUrl = myPhotoUrl,
     myPhotoDeleted = myPhotoDeleted,
     myVerifiedAt = myVerifiedAt,
+    myAiReason = myAiReason,
     opponentStatus = opponentStatus,
     opponentPhotoUrl = opponentPhotoUrl,
     opponentPhotoDeleted = opponentPhotoDeleted,
     opponentVerifiedAt = opponentVerifiedAt,
+    opponentAiReason = opponentAiReason,
 )
 
 private fun previewData(

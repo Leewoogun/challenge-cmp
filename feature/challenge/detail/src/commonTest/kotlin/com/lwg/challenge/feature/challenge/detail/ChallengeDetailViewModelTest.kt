@@ -27,6 +27,7 @@ import com.lwg.challenge.feature.challenge.detail.contract.MyMissionSlot
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_NOT_SIGNED_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_UNREADABLE_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
+import com.lwg.challenge.feature.challenge.detail.contract.VERIFICATION_REJECTED_PREFIX
 import com.lwg.challenge.feature.challenge.detail.contract.VerificationSection
 import com.lwg.challenge.ui.components.RESULT_BOTH_LOSE_TEXT
 import com.lwg.challenge.ui.components.RESULT_DRAW_TEXT
@@ -85,6 +86,15 @@ private val REPLACED_VERIFIED_AT = LocalDateTime.parse("2026-01-01T11:05:00")
 
 private const val CHALLENGER_PHOTO_URL = "https://api.example.com/verifications/1/photo"
 private const val OPPONENT_PHOTO_URL = "https://api.example.com/verifications/2/photo"
+
+/**
+ * 두 값을 가른 이유: 사유가 내 칸과 상대 칸에서 각각 나오는지 관점이 뒤집혀도 구분되어야 한다.
+ *
+ * 둘 다 **반려** 사유다 — 사유가 실린 칸은 곧 미인증 처리된 칸이라(계약 보장) 통과 문구가 이 자리에
+ * 올 일이 없다. 통과처럼 읽히는 픽스처를 두면 계약이 배제한 조합을 테스트가 정상으로 가르친다.
+ */
+private const val AI_REASON = "책상 위 커피잔 사진으로 미션 수행 증거로 보기 어렵습니다."
+private const val OPPONENT_AI_REASON = "사진에서 미션 수행 장면을 확인할 수 없습니다."
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ChallengeDetailViewModelTest {
@@ -216,10 +226,12 @@ class ChallengeDetailViewModelTest {
         challengerPhotoUrl: String? = null,
         challengerPhotoDeleted: Boolean = false,
         challengerVerifiedAt: LocalDateTime? = VERIFIED_AT,
+        challengerAiReason: String? = null,
         opponentStatus: VerificationStatus = VerificationStatus.PENDING,
         opponentPhotoUrl: String? = null,
         opponentPhotoDeleted: Boolean = false,
         opponentVerifiedAt: LocalDateTime? = VERIFIED_AT,
+        opponentAiReason: String? = null,
     ) = ChallengeVerifications(
         challengeId = CHALLENGE_ID,
         challenger = party(
@@ -228,6 +240,7 @@ class ChallengeDetailViewModelTest {
             photoUrl = challengerPhotoUrl,
             photoDeleted = challengerPhotoDeleted,
             verifiedAt = challengerVerifiedAt,
+            aiReason = challengerAiReason,
         ),
         opponent = party(
             userId = OPPONENT_ID,
@@ -235,22 +248,32 @@ class ChallengeDetailViewModelTest {
             photoUrl = opponentPhotoUrl,
             photoDeleted = opponentPhotoDeleted,
             verifiedAt = opponentVerifiedAt,
+            aiReason = opponentAiReason,
         ),
     )
 
-    /** 인증 전에는 확정 시각이 없다는 서버 불변식을 픽스처에서도 깨지 않는다. */
+    /**
+     * 확정 시각은 **사진을 낸 적이 있을 때만** 있다는 서버 불변식을 픽스처에서도 깨지 않는다.
+     *
+     * `VERIFIED` 는 물론이고 AI 가 반려한 `FAILED`(사진이 남아 있거나 탈퇴로 지워진 칸)도 제출은
+     * 이미 끝난 뒤라 시각이 남는다. 시각이 없는 `FAILED` 는 마감까지 미제출한 경우뿐이다.
+     */
     private fun party(
         userId: Long,
         status: VerificationStatus,
         photoUrl: String?,
         photoDeleted: Boolean = false,
         verifiedAt: LocalDateTime? = VERIFIED_AT,
+        aiReason: String? = null,
     ) = PartyVerification(
         userId = userId,
         status = status,
         photoUrl = photoUrl,
-        verifiedAt = verifiedAt.takeIf { status == VerificationStatus.VERIFIED },
+        verifiedAt = verifiedAt.takeIf {
+            status == VerificationStatus.VERIFIED || photoUrl != null || photoDeleted
+        },
         photoDeleted = photoDeleted,
+        aiReason = aiReason,
     )
 
     /** 인증을 마치고 상세로 돌아오는 경로. 백스택에 남아 있던 ViewModel 이 그대로 재구독된다. */
@@ -739,7 +762,8 @@ class ChallengeDetailViewModelTest {
         )
         assertEquals(MyMissionSlot.MY_PHOTO_WITH_RETAKE, createViewModel().data().myMissionSlot)
 
-        // FAILED 는 진입점이 열려 있는데도 보여줄 것이 없는 조합이라 canVerify 보다 먼저 걸러진다.
+        // 사진이 없는 FAILED — 마감까지 미제출한 경우다. 진입점이 열려 있는데도 보여줄 것이 없는
+        // 조합이라 canVerify 보다 먼저 걸러진다. 사진이 있는 FAILED(AI 반려)는 아래 별도 테스트다.
         fakeVerificationRepository.verifications = sampleVerifications(
             challengerStatus = VerificationStatus.FAILED,
         )
@@ -752,6 +776,132 @@ class ChallengeDetailViewModelTest {
             challengerPhotoUrl = CHALLENGER_PHOTO_URL,
         )
         assertEquals(MyMissionSlot.MY_PHOTO, createViewModel().data().myMissionSlot)
+    }
+
+    /**
+     * AI 가 반려한 인증은 `FAILED` 인데 내가 올린 사진이 그대로 남는다 — 상태만 보고 슬롯을 비우면
+     * 사용자가 실제로 낸 사진이 화면에서 사라진다.
+     *
+     * [MyMissionSlot.MY_PHOTO_WITH_RETAKE] 가 아닌 이유는 반려가 자정 판정(=마감)에서 확정되기
+     * 때문이다 — 그 시점에 챌린지는 이미 `COMPLETED` 라 다시 찍을 창이 없다. 아래 단언이 그
+     * 실제 조합(COMPLETED + FAILED + 사진)을 그대로 세운다.
+     */
+    @Test
+    fun `AI 가 반려한 인증은 사진이 남아 내 카드에 그대로 그려진다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(status = "COMPLETED")
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.FAILED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+            challengerAiReason = AI_REASON,
+        )
+
+        val state = createViewModel().data()
+
+        assertEquals(VerificationStatus.FAILED, state.myVerificationStatus)
+        assertEquals(MyMissionSlot.MY_PHOTO, state.myMissionSlot)
+        assertEquals(CHALLENGER_PHOTO_URL, state.myPhotoUrl, "반려돼도 낸 사진은 남는다")
+        assertFalse(state.canVerify, "판정은 마감 시점에 내려지므로 재촬영 창이 없다")
+    }
+
+    /** 같은 `FAILED` 라도 사진이 없으면 미제출로 마감한 것이라 슬롯이 비어야 한다. */
+    @Test
+    fun `사진 없는 FAILED 는 미제출이라 슬롯이 비어 있다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(status = "COMPLETED")
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.FAILED,
+        )
+
+        val state = createViewModel().data()
+
+        assertEquals(MyMissionSlot.NONE, state.myMissionSlot)
+        assertNull(state.myPhotoUrl)
+        assertNull(state.verifications?.myVerifiedAt, "낸 적이 없으니 확정 시각도 없다")
+    }
+
+    /**
+     * 양측이 모두 반려된 판정. 사유가 실린 칸은 **그 인증이 AI 판별로 미인증 처리된 칸**이라
+     * (계약 보장) 둘 다 `FAILED` + 사진이다. 통과한 칸에 사유가 실린 픽스처를 세우지 않는 이유가
+     * 이것이다 — 계약이 배제한 조합으로 단언을 세우면 앱에 판정 사본을 들이는 근거가 된다.
+     */
+    @Test
+    fun `AI 판정 사유가 양측 모두 State 까지 도달한다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(status = "COMPLETED")
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.FAILED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+            challengerAiReason = AI_REASON,
+            opponentStatus = VerificationStatus.FAILED,
+            opponentPhotoUrl = OPPONENT_PHOTO_URL,
+            opponentAiReason = OPPONENT_AI_REASON,
+        )
+
+        val state = createViewModel().data()
+
+        assertEquals(AI_REASON, state.myAiReason)
+        assertEquals(OPPONENT_AI_REASON, state.opponentAiReason)
+    }
+
+    /**
+     * 통과한 인증에는 사유가 실려 오지 않는다 — 서버가 통과·검증 불가·호출 실패 건의 사유를 컬럼에만
+     * 두고 wire 에는 싣지 않기 때문이다. 빈 문자열로 뭉개지도 않는다.
+     */
+    @Test
+    fun `AI 판정 사유가 없으면 State 에서도 null 이다`() = runTest {
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.VERIFIED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+        )
+
+        val state = createViewModel().data()
+
+        assertNull(state.myAiReason)
+        assertNull(state.opponentAiReason)
+        assertNull(state.myAiReasonText, "그릴 사유가 없으면 접두어만 남은 문구를 만들지 않는다")
+        assertNull(state.opponentAiReasonText)
+    }
+
+    /**
+     * 화면에 그릴 문구는 State 가 접두어까지 붙여 확정한다 — 내 카드와 상대 카드가 각자 조립하면
+     * 한쪽만 고쳐져 같은 사실이 두 문장으로 갈린다. 렌더링을 덮는 UI 테스트가 없어, 조립이 어디서
+     * 끝나는지를 잠그는 단언이 여기뿐이다.
+     */
+    @Test
+    fun `AI 판정 사유는 접두어가 붙은 표시 문구로 나온다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(status = "COMPLETED")
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.FAILED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+            challengerAiReason = AI_REASON,
+            opponentStatus = VerificationStatus.FAILED,
+            opponentPhotoUrl = OPPONENT_PHOTO_URL,
+            opponentAiReason = OPPONENT_AI_REASON,
+        )
+
+        val state = createViewModel().data()
+
+        assertEquals("$VERIFICATION_REJECTED_PREFIX$AI_REASON", state.myAiReasonText)
+        assertEquals("$VERIFICATION_REJECTED_PREFIX$OPPONENT_AI_REASON", state.opponentAiReasonText)
+    }
+
+    /** 관점이 뒤집히면 사유도 함께 뒤집힌다 — 사진·상태와 같은 칸에서 나온 값이다. */
+    @Test
+    fun `내가 opponent 여도 AI 판정 사유가 내 칸에서 나온다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(status = "COMPLETED")
+        fakeUserInfoRepository.userInfo = userInfo(OPPONENT_ID)
+        fakeVerificationRepository.verifications = sampleVerifications(
+            challengerStatus = VerificationStatus.FAILED,
+            challengerPhotoUrl = CHALLENGER_PHOTO_URL,
+            challengerAiReason = OPPONENT_AI_REASON,
+            opponentStatus = VerificationStatus.FAILED,
+            opponentPhotoUrl = OPPONENT_PHOTO_URL,
+            opponentAiReason = AI_REASON,
+        )
+
+        val state = createViewModel().data()
+
+        assertEquals(AI_REASON, state.myAiReason)
+        assertEquals(OPPONENT_AI_REASON, state.opponentAiReason)
+        assertEquals(MyMissionSlot.MY_PHOTO, state.myMissionSlot, "반려된 내 사진은 opponent 칸에서도 남는다")
     }
 
     /** 진입점은 챌린지 상태만 본다 — 현황을 못 받았다고 주 액션이 사라지지 않는다. */

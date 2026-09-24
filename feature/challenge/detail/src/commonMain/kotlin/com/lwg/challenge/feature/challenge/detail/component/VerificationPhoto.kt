@@ -81,14 +81,26 @@ internal fun VerificationPhoto(
                 PhotoRetryMessage(text = STATUS_UNKNOWN_TEXT, onRetry = onRetry)
             }
             status == VerificationStatus.PENDING -> PhotoMessage(NOT_VERIFIED_TEXT)
-            status == VerificationStatus.FAILED -> PhotoMessage(VERIFICATION_FAILED_TEXT)
             // 삭제는 되돌아오지 않는 정상 종결이라 로드 실패의 어휘("불러오지 못했어요" · 재시도)를
-            // 쓰면 안 된다. 더 중요한 건 바로 아래 분기가 진짜 데이터 이상을 잡는 감지기라는 점이다 —
+            // 쓰면 안 된다. 더 중요한 건 아래 URL 분기가 진짜 데이터 이상을 잡는 감지기라는 점이다 —
             // 두 신호를 한 문구로 합치면 URL 유실 버그가 탈퇴자 뒤에 영영 숨는다.
+            //
+            // FAILED 보다 위에 두는 이유: 탈퇴는 status 와 무관한 사실이고, 서버의 photoDeleted
+            // 판정식이 '제출은 했는데 사진 키가 없고 소유자가 탈퇴' 라서 반려 후 탈퇴 조합에서 참이
+            // 된다. 그 칸에서 할 말은 "인증하지 못했어요" 가 아니라 사진이 지워졌다는 사실이다.
             photoDeleted -> PhotoMessage(PHOTO_DELETED_TEXT)
+            // 사진이 없는 FAILED 만 미제출로 마감한 경우다. 사진이 있는 FAILED 는 AI 가 반려한
+            // 것이라 사용자가 실제로 올린 사진이 남아 있고, 그건 아래로 떨어져 그대로 그려진다.
+            // 조건을 붙여도 기존 데이터의 동작은 바뀌지 않는다 — 여태 FAILED 는 마감까지 미제출뿐이라
+            // photoUrl 이 100% null 이었고, 그 경로는 지금도 이 분기에서 끝난다.
+            status == VerificationStatus.FAILED && photoUrl == null ->
+                PhotoMessage(VERIFICATION_FAILED_TEXT)
             // 인증은 됐는데 URL 이 없는 건 정상 경로가 아니다. 빈 칸으로 두면 원인 없는 공백이 되므로
             // 로드 실패와 같은 문구로 드러낸다(재시도할 대상 URL 이 없어 버튼은 붙이지 않는다).
             photoUrl == null -> PhotoMessage(LOAD_FAILED_TEXT)
+            // 여기까지 온 것을 사진으로 본다. status == VERIFIED 를 긍정 조건으로 세우지 않는 이유는
+            // 이 체인이 '무엇이 없는지' 를 차례로 걷어내는 소거형이기 때문이다 — VERIFIED 를 문턱으로
+            // 세우는 순간 AI 가 반려한 FAILED 가 다시 사진을 잃는다.
             else -> RemotePhoto(url = photoUrl, cacheKey = cacheKey)
         }
     }
@@ -235,6 +247,10 @@ private fun VerificationPhotoNotVerifiedPreview() {
     }
 }
 
+/**
+ * 마감까지 미제출 — 낼 사진이 없는 `FAILED` 다. 아래 [VerificationPhotoFailedWithPhotoPreview] 와
+ * 나란히 두는 이유는 같은 상태값이 전혀 다른 두 화면을 만들기 때문이다.
+ */
 @Preview
 @Composable
 private fun VerificationPhotoFailedPreview() {
@@ -245,6 +261,31 @@ private fun VerificationPhotoFailedPreview() {
                 .padding(20.dp),
         ) {
             VerificationPhoto(status = VerificationStatus.FAILED, photoUrl = null, cacheKey = null)
+        }
+    }
+}
+
+/**
+ * AI 가 반려한 인증 — 상태는 `FAILED` 인데 사용자가 올린 사진이 남아 있다. 위
+ * [VerificationPhotoFailedPreview] 와 달리 실패 문구가 아니라 사진이 나와야 한다.
+ *
+ * 프리뷰는 네트워크를 못 타 Coil 의 로딩 슬롯까지만 확인된다 — 그래도 실패 문구가 사진 자리를
+ * 가로채지 않는다는 건 여기서 드러난다.
+ */
+@Preview
+@Composable
+private fun VerificationPhotoFailedWithPhotoPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(20.dp),
+        ) {
+            VerificationPhoto(
+                status = VerificationStatus.FAILED,
+                photoUrl = "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
+                cacheKey = "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger|2026-01-01T09:30",
+            )
         }
     }
 }

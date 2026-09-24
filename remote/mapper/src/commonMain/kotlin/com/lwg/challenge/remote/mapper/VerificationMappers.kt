@@ -34,6 +34,7 @@ private fun PartyVerificationDto.toPartyVerification(baseUrl: String): PartyVeri
     photoUrl = joinPhotoUrl(baseUrl, photoUrl),
     verifiedAt = verifiedAt,
     photoDeleted = photoDeleted,
+    aiReason = aiReason,
 )
 
 /**

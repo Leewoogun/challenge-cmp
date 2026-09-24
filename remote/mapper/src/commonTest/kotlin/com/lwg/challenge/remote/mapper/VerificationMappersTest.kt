@@ -16,6 +16,8 @@ import kotlin.test.assertTrue
 /** 운영 BuildKonfig.BASE_URL 과 같은 형태 — trailing slash 가 있다. 이게 실제 조합 조건이다. */
 internal const val TEST_BASE_URL = "http://10.0.2.2:8080/"
 
+internal const val AI_REASON = "책상 위 커피잔 사진으로 미션 수행 증거로 보기 어렵습니다."
+
 class VerificationMappersTest {
 
     private val verifiedParty = PartyVerificationDto(
@@ -103,6 +105,49 @@ class VerificationMappersTest {
 
         assertFalse(verifications.challenger.photoDeleted)
         assertFalse(verifications.opponent.photoDeleted)
+    }
+
+    /**
+     * AI 반려 건 — 이 프로젝트에서 처음으로 `FAILED` 인데 사진이 있는 칸이다. 사유와 사진이 함께
+     * 도메인까지 가야 화면이 둘을 가릴 수 있다.
+     */
+    @Test
+    fun `AI 가 반려한 칸은 사유와 사진이 함께 도메인까지 간다`() {
+        val verifications = ChallengeVerificationsResponse(
+            ChallengeVerificationsData(
+                challengeId = 7L,
+                challenger = PartyVerificationDto(
+                    userId = 1L,
+                    status = "FAILED",
+                    photoUrl = "/api/v1/challenges/7/photos/challenger",
+                    verifiedAt = LocalDateTime(2026, 9, 22, 21, 14, 3),
+                    aiReason = AI_REASON,
+                ),
+                opponent = PartyVerificationDto(userId = 14L, status = "PENDING"),
+            ),
+        ).toChallengeVerifications(TEST_BASE_URL)
+
+        assertEquals(VerificationStatus.FAILED, verifications.challenger.status)
+        assertEquals(AI_REASON, verifications.challenger.aiReason)
+        assertEquals(
+            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
+            verifications.challenger.photoUrl,
+            "반려됐다고 사진을 버리지 않는다",
+        )
+    }
+
+    @Test
+    fun `aiReason 이 null 이면 도메인에서도 null 로 남는다`() {
+        val verifications = ChallengeVerificationsResponse(
+            ChallengeVerificationsData(
+                challengeId = 7L,
+                challenger = verifiedParty,
+                opponent = PartyVerificationDto(userId = 14L, status = "PENDING", aiReason = null),
+            ),
+        ).toChallengeVerifications(TEST_BASE_URL)
+
+        assertNull(verifications.challenger.aiReason, "판정이 없는 칸은 빈 문자열로 뭉개지 않는다")
+        assertNull(verifications.opponent.aiReason)
     }
 
     @Test

@@ -236,10 +236,12 @@ class ChallengeDetailViewModel(
             myPhotoUrl = mine.photoUrl,
             myPhotoDeleted = mine.photoDeleted,
             myVerifiedAt = mine.verifiedAt,
+            myAiReason = mine.aiReason,
             opponentStatus = other.status,
             opponentPhotoUrl = other.photoUrl,
             opponentPhotoDeleted = other.photoDeleted,
             opponentVerifiedAt = other.verifiedAt,
+            opponentAiReason = other.aiReason,
         )
     }
 

@@ -41,6 +41,15 @@ internal const val FORFEIT_BY_OTHER_SUFFIX = "님이 기권했어요"
 /** 기권자가 양측 어느 쪽과도 맞지 않을 때. 아는 사실만 말한다. */
 internal const val FORFEIT_UNKNOWN_ACTOR_TEXT = "기권으로 끝났어요"
 
+/**
+ * AI 반려 사유 앞에 붙는 접두. `"$VERIFICATION_REJECTED_PREFIX$aiReason"`.
+ *
+ * 스펙 원문은 합쇼체("인정되지 않았습니다")인데 해요체로 낮췄다 — 이 화면과 인증 카드의 사용자 노출
+ * 문구가 전부 해요체라("아직 인증하지 않았어요" · "인증하지 못했어요" · "사진을 불러오지 못했어요"),
+ * 한 줄만 합쇼체면 그 자리가 튄다.
+ */
+internal const val VERIFICATION_REJECTED_PREFIX = "인증이 인정되지 않았어요: "
+
 @Stable
 sealed interface ChallengeDetailUiState {
 
@@ -119,6 +128,31 @@ sealed interface ChallengeDetailUiState {
         val opponentPhotoDeleted: Boolean get() = verifications?.opponentPhotoDeleted == true
 
         /**
+         * AI 판정 사유. 현황을 모르면 `null`.
+         *
+         * non-null 이면 **그 인증은 AI 판별로 미인증 처리된 것**이다(API 계약 보장). 그래서
+         * [myVerificationStatus] 를 함께 보지 않는다 — 같이 보면 '반려란 무엇인가' 의 판정 사본이
+         * 앱에 생긴다. 통과·검증 불가·호출 실패 건의 사유는 서버가 컬럼에만 두고 wire 에는 싣지 않아
+         * 여기까지 오지 않는다.
+         */
+        val myAiReason: String? get() = verifications?.myAiReason
+
+        /** [myAiReason] 과 같은 계약이 그대로 적용된다. */
+        val opponentAiReason: String? get() = verifications?.opponentAiReason
+
+        /**
+         * 내 카드에 그릴 반려 사유 문구. 사유가 없으면 `null` 이고 그 자리가 통째로 빠진다.
+         *
+         * 접두어 결합을 화면이 아니라 여기서 끝내는 이유는 [opponentMissionLabel] 과 같다 —
+         * 두 카드가 같은 문장을 그려야 하는데 조립을 호출부에 맡기면 한쪽만 고쳐져 갈린다.
+         */
+        val myAiReasonText: String? get() = myAiReason?.let { "$VERIFICATION_REJECTED_PREFIX$it" }
+
+        /** [myAiReasonText] 와 같은 규칙. 상대 칸이라고 문구가 달라지지 않는다. */
+        val opponentAiReasonText: String?
+            get() = opponentAiReason?.let { "$VERIFICATION_REJECTED_PREFIX$it" }
+
+        /**
          * 내 인증 사진을 이미지 로더 캐시에서 식별할 키. 사진이 없으면 `null`.
          *
          * 사진을 교체해도 [myPhotoUrl] 은 그대로다. Coil 은 URL 을 키로 메모리·디스크 캐시를 따로
@@ -141,10 +175,18 @@ sealed interface ChallengeDetailUiState {
          * 진행 중이면 사진 아래에 교체 액션을 함께 두고, 마감 뒤에는 사진만 남긴다.
          *
          * [VerificationStatus.FAILED] 를 [canVerify] 보다 먼저 보는 이유는 그대로다:
-         * [STATUS_IN_PROGRESS] + `FAILED` 는 진입점이 열려 있는데도 보여줄 것도 시킬 것도 없는
-         * 조합이라, 내 인증 상태를 먼저 걷어낸 뒤에야 게이트로 떨어뜨릴 수 있다.
+         * [STATUS_IN_PROGRESS] + `FAILED` 는 진입점이 열려 있는데도 시킬 것이 없는 조합이라, 내
+         * 인증 상태를 먼저 걷어낸 뒤에야 게이트로 떨어뜨릴 수 있다.
          *
-         * [verifications] 가 `null`(조회 실패·관점 미상) 이면 앞 두 분기가 모두 빗나가 [canVerify] 로
+         * 다만 `FAILED` 가 **보여줄 것도 없다는 뜻은 아니다.** 마감까지 미제출한 `FAILED` 와 AI 가
+         * 반려한 `FAILED` 를 가르는 것은 사진 유무뿐이고([VerificationStatus.FAILED] 참조),
+         * 후자는 사용자가 실제로 올린 사진이 남아 있다. 그래서 사진이 있으면 그것만 남긴다.
+         *
+         * 사진이 있어도 [MyMissionSlot.MY_PHOTO_WITH_RETAKE] 가 아닌 이유: 반려는 자정 판정 배치가
+         * 내리는 결론이고 그 시점이 곧 마감이라, `FAILED` 를 보는 순간 챌린지는 이미 닫혀 있고
+         * [canVerify] 가 false 다. 다시 찍을 창이 구조적으로 존재하지 않는다.
+         *
+         * [verifications] 가 `null`(조회 실패·관점 미상) 이면 앞 분기들이 모두 빗나가 [canVerify] 로
          * 내려간다 — 의도한 경로다.
          */
         val myMissionSlot: MyMissionSlot
@@ -152,7 +194,9 @@ sealed interface ChallengeDetailUiState {
                 myVerificationStatus == VerificationStatus.VERIFIED ->
                     if (canVerify) MyMissionSlot.MY_PHOTO_WITH_RETAKE else MyMissionSlot.MY_PHOTO
 
-                myVerificationStatus == VerificationStatus.FAILED -> MyMissionSlot.NONE
+                myVerificationStatus == VerificationStatus.FAILED ->
+                    if (myPhotoUrl != null) MyMissionSlot.MY_PHOTO else MyMissionSlot.NONE
+
                 canVerify -> MyMissionSlot.VERIFY_CTA
                 else -> MyMissionSlot.NONE
             }
@@ -178,10 +222,14 @@ sealed interface ChallengeDetailUiState {
 }
 
 /**
- * 사진 URL 은 그대로 두고 캐시 키만 인증 확정 시각으로 가른다 — URL 에 쿼리를 붙이면 서버 계약이
+ * 사진 URL 은 그대로 두고 캐시 키만 **제출 확정 시각**으로 가른다 — URL 에 쿼리를 붙이면 서버 계약이
  * 정한 사진 경로 모양이 바뀌므로 요청은 손대지 않는다.
  *
- * [verifiedAt] 이 없으면(아직 인증 전) 갈라놓을 대상 자체가 없어 URL 만 남기며, 이는 키를 지정하지
+ * 가르는 기준이 '인증 확정' 이 아니라 '제출 확정' 이어야 한다. 서버는 제출 시점에만 이 값을 쓰고
+ * 이후 판정은 건드리지 않으므로, 인증이 인정됐는지와 무관하게 사진 바이트가 바뀐 순간만 이 값이
+ * 움직인다 — 바로 그게 캐시를 갈라야 하는 순간이다.
+ *
+ * [verifiedAt] 이 없으면(아직 제출 전) 갈라놓을 대상 자체가 없어 URL 만 남기며, 이는 키를 지정하지
  * 않았을 때의 Coil 기본 동작과 같다.
  */
 private fun photoCacheKey(photoUrl: String?, verifiedAt: LocalDateTime?): String? {
@@ -200,13 +248,18 @@ enum class MyMissionSlot {
     /** 아직 인증하지 않았고, 지금 인증할 수 있다. */
     VERIFY_CTA,
 
-    /** 인증을 마쳤고 마감이 지나 이제 바꿀 수 없다 — 내 사진만 남는다. */
+    /**
+     * 내가 낸 사진만 남는다 — 마감이 지나 이제 바꿀 수 없다.
+     *
+     * 인증이 인정된 경우와 AI 가 반려한 경우가 여기서 만난다. 둘 다 사진은 그대로 두고 결과만
+     * 뱃지가 말하므로, 슬롯을 갈라야 할 이유가 없다.
+     */
     MY_PHOTO,
 
     /** 인증을 마쳤지만 아직 진행 중이라 다시 찍어 교체할 수 있다. */
     MY_PHOTO_WITH_RETAKE,
 
-    /** 인증이 끝났거나(실패) 챌린지가 닫혀 할 것도 보여줄 것도 없다. */
+    /** 챌린지가 닫혔거나 마감까지 사진을 내지 못해, 할 것도 보여줄 것도 없다. */
     NONE,
 }
 
@@ -234,15 +287,25 @@ data class SignatureSection(
  * 묶음 자체가 nullable 인 이유는 '모른다' 와 '아직 아무도 인증하지 않았다' 가 다른 상태이기 때문이다.
  * 후자는 두 칸 모두 [VerificationStatus.PENDING] 으로 채워져 온다.
  *
- * @property myPhotoUrl 인증 사진의 절대 URL. 미인증이면 null. 인증 헤더가 필요한 URL 이라 외부로
- *   그대로 내보낼 수 없다.
+ * @property myPhotoUrl 인증 사진의 절대 URL. **제출한 적이 없으면** null — 미인증과 같은 말이
+ *   아니다(AI 가 반려한 칸은 미인증 처리인데도 내가 올린 사진이 남아 있다 —
+ *   [com.lwg.challenge.domain.model.verification.PartyVerification.photoUrl] 에 같은 계약이 있다).
+ *   인증 헤더가 필요한 URL 이라 외부로 그대로 내보낼 수 없다.
  * @property myVerifiedAt 화면에 그리는 값이 아니라 사진 캐시 키의 재료다
  *   ([ChallengeDetailUiState.Data.myPhotoCacheKey]). 사진을 교체하면 [myPhotoUrl] 은 그대로인 채
  *   서버가 이 값을 갱신하므로, 이 값이 달라졌다는 건 같은 주소의 바이트가 바뀌었다는 뜻이다.
  * @property opponentVerifiedAt [myVerifiedAt] 과 같은 용도. 상대가 교체한 사진도 재진입 때 새 값이
  *   실려 오므로 같은 경로로 잡힌다.
- * @property opponentPhotoDeleted 탈퇴로 사진이 영구 삭제됨. `VERIFIED` + [opponentPhotoUrl] `null`
- *   조합이 정상인 유일한 경우라, 이 값이 없으면 데이터 이상과 구분되지 않는다.
+ * @property opponentPhotoDeleted 탈퇴로 사진이 영구 삭제됨. 제출을 마친 칸(`VERIFIED`, 그리고
+ *   AI 가 반려한 `FAILED`) + [opponentPhotoUrl] `null` 이 정상인 경우가 이것뿐이라, 이 값이 없으면
+ *   데이터 이상과 구분되지 않는다
+ *   ([com.lwg.challenge.domain.model.verification.PartyVerification.photoDeleted] 에 같은 계약이 있다).
+ * @property myAiReason AI 판정 사유. non-null 이면 **그 인증이 AI 판별로 미인증 처리됐다**는
+ *   뜻이다(API 계약 보장). 그래서 화면은 [myStatus] 를 함께 보지 않는다 — 같이 보면 '반려란
+ *   무엇인가' 의 판정 사본이 앱에 생긴다. 통과·검증 불가·호출 실패 건의 사유는 서버가 컬럼에만 두고
+ *   wire 에는 싣지 않는다
+ *   ([com.lwg.challenge.domain.model.verification.PartyVerification.aiReason] 에 같은 계약이 있다).
+ * @property opponentAiReason [myAiReason] 과 같다. 상대 칸이라고 계약이 달라지지 않는다.
  */
 @Immutable
 data class VerificationSection(
@@ -250,8 +313,10 @@ data class VerificationSection(
     val myPhotoUrl: String?,
     val myPhotoDeleted: Boolean,
     val myVerifiedAt: LocalDateTime?,
+    val myAiReason: String?,
     val opponentStatus: VerificationStatus,
     val opponentPhotoUrl: String?,
     val opponentPhotoDeleted: Boolean,
     val opponentVerifiedAt: LocalDateTime?,
+    val opponentAiReason: String?,
 )
