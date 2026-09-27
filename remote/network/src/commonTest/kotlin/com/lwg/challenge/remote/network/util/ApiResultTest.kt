@@ -43,6 +43,17 @@ class ApiResultTest {
         assertEquals(listOf("server down"), recorder.messages)
     }
 
+    // Ktor Auth 가 401 을 세션 만료로 처리해 로그인 화면으로 보낸다. 여기서 또 알리면 중복이다.
+    @Test
+    fun `HttpError 401 은 onError 를 호출하지 않는다`() {
+        val recorder = Recorder()
+
+        ApiResult.Failure.HttpError(code = 401, message = "Unauthorized", body = "")
+            .suspendOnFailureWithErrorHandling(recorder.onError)
+
+        assertEquals(emptyList(), recorder.messages)
+    }
+
     @Test
     fun `NetworkError 는 네트워크 안내 문구로 onError 를 호출한다`() {
         val recorder = Recorder()

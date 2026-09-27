@@ -6,9 +6,10 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
+const val CODE_UNAUTHORIZED = 401
+
 /**
- * 모든 서버 API 응답을 [BaseResponse] 상속 타입으로 받는 것을 컴파일 시점에 강제한다 (ADR-0002).
- * 비-envelope 외부 API 가 필요해지면 별도 결과 타입을 두고, 이 채널은 손대지 않는다.
+ * 모든 서버 API 응답을 [BaseResponse] 상속 타입으로 받는 것을 컴파일 시점에 강제한다
  */
 sealed interface ApiResult<out T : BaseResponse> {
     data class Success<T : BaseResponse>(val response: T) : ApiResult<T>
@@ -41,7 +42,7 @@ inline fun <T : BaseResponse> ApiResult<T>.suspendOnFailureWithErrorHandling(
         when (this) {
             is ApiResult.Failure.HttpError -> {
                 Logger.e("HttpError: code=$code, message=$message, body=$body")
-                onError(message)
+                if (code != CODE_UNAUTHORIZED) onError(message)
             }
 
             is ApiResult.Failure.NetworkError -> {
