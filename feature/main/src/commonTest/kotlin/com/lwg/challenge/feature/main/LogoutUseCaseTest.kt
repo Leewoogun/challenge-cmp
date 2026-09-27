@@ -28,18 +28,6 @@ class LogoutUseCaseTest {
         assertTrue(userInfoRepository.clearUserInfoCacheCalled)
     }
 
-    // 서버가 죽었다고 사용자를 로그인 상태에 가둘 수는 없다.
-    @Test
-    fun `서버 logout 이 실패해도 로컬 정리는 모두 수행된다`() = runTest {
-        loginRepository.logoutFails = true
-
-        logoutUseCase(LogoutReason.USER)
-
-        assertTrue(loginRepository.logoutCalled)
-        assertTrue(loginRepository.clearTokensCalled)
-        assertTrue(userInfoRepository.clearUserInfoCacheCalled)
-    }
-
     // 갱신이 이미 실패해 서버가 세션을 끊은 뒤다. 부르면 401 → 갱신 재시도 → 만료 이벤트로 재진입한다.
     @Test
     fun `SESSION_EXPIRED 면 서버를 부르지 않고 로컬만 정리한다`() = runTest {

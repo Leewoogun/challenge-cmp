@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
@@ -54,7 +56,6 @@ internal fun ChallengeBottomBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 val selectedItem = BottomNavItem.find(currentRoute)
@@ -63,6 +64,7 @@ internal fun ChallengeBottomBar(
                         item = item,
                         selected = item == selectedItem,
                         onClick = { onTabSelected(item.route) },
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }
@@ -75,6 +77,7 @@ private fun BottomNavTab(
     item: BottomNavItem,
     selected: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val color: Color = if (selected) {
         ChallengeTheme.colorScheme.primary
@@ -83,9 +86,10 @@ private fun BottomNavTab(
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
@@ -111,6 +115,36 @@ private fun ChallengeBottomBarPreview() {
             ChallengeBottomBar(
                 currentRoute = Route.Home,
                 onTabSelected = {},
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun BottomNavTabSelectedPreview() {
+    ChallengeTheme {
+        Row(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            BottomNavTab(
+                item = BottomNavItem.HOME,
+                selected = true,
+                onClick = {},
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun BottomNavTabUnselectedPreview() {
+    ChallengeTheme {
+        Row(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            BottomNavTab(
+                item = BottomNavItem.RANKING,
+                selected = false,
+                onClick = {},
+                modifier = Modifier.weight(1f),
             )
         }
     }

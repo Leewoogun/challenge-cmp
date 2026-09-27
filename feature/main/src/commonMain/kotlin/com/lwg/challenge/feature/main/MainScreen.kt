@@ -27,6 +27,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.feature.main.contract.MainUiEffect
 import com.lwg.challenge.feature.challenge.create.ChallengeCreateRoute
 import com.lwg.challenge.feature.challenge.detail.ChallengeDetailRoute
 import com.lwg.challenge.feature.challenge.oath.OathRoute
@@ -100,12 +101,6 @@ fun MainRoute(
         }
     }
 
-    LaunchedEffect(viewModel) {
-        viewModel.loggedOut.collect {
-            navigator.switchTab(Route.Login)
-        }
-    }
-
     // Splash/Login 을 벗어난 순간이 곧 인증 영역 진입이다. 자동 로그인 경로도 같은 지점을 지난다.
     // 알림 권한은 이때 묻는다 — 로그인 전에 물으면 왜 필요한지 알 수 없는 시점에 뜬다.
     val isAuthenticatedArea = backStack.lastOrNull().let {
@@ -118,12 +113,19 @@ fun MainRoute(
     }
 
     LaunchedEffect(viewModel) {
-        viewModel.pushNavigation.collect { route ->
-            if (backStack.lastOrNull() == route) return@collect
+        viewModel.uiEffect.collect { effect ->
+            when (effect) {
+                MainUiEffect.NavigateToLogin -> navigator.switchTab(Route.Login)
 
-            // 탭 루트가 목적지면 백스택을 정리한다 — 뒤로가기가 알림 전 화면으로 돌아가면 혼란스럽다.
-            if (BottomNavItem.find(route) != null) navigator.switchTab(route)
-            else navigator.navigateTo(route)
+                is MainUiEffect.NavigateToPush -> {
+                    val route = effect.route
+                    if (backStack.lastOrNull() == route) return@collect
+
+                    // 탭 루트가 목적지면 백스택을 정리한다 — 뒤로가기가 알림 전 화면으로 돌아가면 혼란스럽다.
+                    if (BottomNavItem.find(route) != null) navigator.switchTab(route)
+                    else navigator.navigateTo(route)
+                }
+            }
         }
     }
 

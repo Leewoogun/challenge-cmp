@@ -2,6 +2,7 @@ package com.lwg.challenge.feature.main
 
 import app.cash.turbine.test
 import com.lwg.challenge.domain.usecase.LogoutUseCase
+import com.lwg.challenge.feature.main.contract.MainUiEffect
 import com.lwg.challenge.navigation.Route
 import com.lwg.challenge.push.PushEvent
 import com.lwg.challenge.push.PushEventBus
@@ -55,11 +56,11 @@ class MainViewModelTest {
     fun `인증 영역에 들어온 뒤 알림이 도착하면 즉시 목적지를 방출한다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.pushNavigation.test {
+        viewModel.uiEffect.test {
             viewModel.setAuthenticatedArea(true)
             pushEventBus.emit(PushEvent.ChallengeAccepted(7L))
 
-            assertEquals(Route.Challenge.Detail(7L), awaitItem())
+            assertEquals(MainUiEffect.NavigateToPush(Route.Challenge.Detail(7L)), awaitItem())
         }
     }
 
@@ -67,12 +68,12 @@ class MainViewModelTest {
     fun `알림이 먼저 도착해도 인증 영역 진입 시점에 방출한다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.pushNavigation.test {
+        viewModel.uiEffect.test {
             pushEventBus.emit(PushEvent.ChallengeAccepted(7L))
             expectNoEvents()
 
             viewModel.setAuthenticatedArea(true)
-            assertEquals(Route.Challenge.Detail(7L), awaitItem())
+            assertEquals(MainUiEffect.NavigateToPush(Route.Challenge.Detail(7L)), awaitItem())
         }
     }
 
@@ -80,10 +81,10 @@ class MainViewModelTest {
     fun `방출 후 pending 이 소비되어 재방출하지 않는다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.pushNavigation.test {
+        viewModel.uiEffect.test {
             viewModel.setAuthenticatedArea(true)
             pushEventBus.emit(PushEvent.ChallengeAccepted(7L))
-            assertEquals(Route.Challenge.Detail(7L), awaitItem())
+            assertEquals(MainUiEffect.NavigateToPush(Route.Challenge.Detail(7L)), awaitItem())
 
             assertNull(pushEventBus.pending.value)
             expectNoEvents()
@@ -94,7 +95,7 @@ class MainViewModelTest {
     fun `미인증 상태에서는 방출하지 않는다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.pushNavigation.test {
+        viewModel.uiEffect.test {
             pushEventBus.emit(PushEvent.ChallengeAccepted(7L))
 
             expectNoEvents()
@@ -105,10 +106,10 @@ class MainViewModelTest {
     fun `로그아웃으로 인증 영역을 벗어나면 게이트가 닫힌다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.pushNavigation.test {
+        viewModel.uiEffect.test {
             viewModel.setAuthenticatedArea(true)
             pushEventBus.emit(PushEvent.ChallengeAccepted(7L))
-            assertEquals(Route.Challenge.Detail(7L), awaitItem())
+            assertEquals(MainUiEffect.NavigateToPush(Route.Challenge.Detail(7L)), awaitItem())
 
             viewModel.setAuthenticatedArea(false)
             pushEventBus.emit(PushEvent.ChallengeAccepted(9L))
@@ -123,18 +124,14 @@ class MainViewModelTest {
 
         pushEventBus.emit(PushEvent.ChallengeAccepted(7L))
 
-        // loggedOut 은 cold Flow 이고 _logoutRequested 에 replay 가 없어 구독 뒤에 불러야 한다.
-        viewModel.loggedOut.test {
-            viewModel.logout()
-            awaitItem()
-        }
+        viewModel.logout()
 
         assertNull(
             pushEventBus.pending.value,
             "로그아웃 시 딥링크를 버리지 않으면 다음 로그인한 사람이 앞사람 목적지로 끌려간다",
         )
 
-        viewModel.pushNavigation.test {
+        viewModel.uiEffect.test {
             viewModel.setAuthenticatedArea(true)
 
             expectNoEvents()
@@ -145,10 +142,7 @@ class MainViewModelTest {
     fun `수동 로그아웃은 USER 로 처리돼 서버 세션까지 끊는다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.loggedOut.test {
-            viewModel.logout()
-            awaitItem()
-        }
+        viewModel.logout()
 
         assertEquals(listOf("logout", "clearTokens"), fakeLoginRepository.callLog)
     }
@@ -158,10 +152,7 @@ class MainViewModelTest {
     fun `탈퇴는 WITHDRAWN 으로 처리돼 서버를 부르지 않는다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.loggedOut.test {
-            viewModel.withdrawn()
-            awaitItem()
-        }
+        viewModel.withdrawn()
 
         assertEquals(listOf("clearTokens"), fakeLoginRepository.callLog)
     }
@@ -171,10 +162,7 @@ class MainViewModelTest {
     fun `세션 만료는 SESSION_EXPIRED 로 처리돼 서버를 부르지 않는다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.loggedOut.test {
-            authEventBus.emitSessionExpired()
-            awaitItem()
-        }
+        authEventBus.emitSessionExpired()
 
         assertEquals(listOf("clearTokens"), fakeLoginRepository.callLog)
     }
@@ -183,11 +171,11 @@ class MainViewModelTest {
     fun `CHALLENGE_ACCEPTED 는 상세로 간다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.pushNavigation.test {
+        viewModel.uiEffect.test {
             viewModel.setAuthenticatedArea(true)
             pushEventBus.emit(PushEvent.ChallengeAccepted(7L))
 
-            assertEquals(Route.Challenge.Detail(7L), awaitItem())
+            assertEquals(MainUiEffect.NavigateToPush(Route.Challenge.Detail(7L)), awaitItem())
         }
     }
 
@@ -195,11 +183,11 @@ class MainViewModelTest {
     fun `CHALLENGE_REQUEST 는 홈으로 간다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.pushNavigation.test {
+        viewModel.uiEffect.test {
             viewModel.setAuthenticatedArea(true)
             pushEventBus.emit(PushEvent.ChallengeRequest(7L))
 
-            assertEquals(Route.Home, awaitItem())
+            assertEquals(MainUiEffect.NavigateToPush(Route.Home), awaitItem())
         }
     }
 
@@ -207,11 +195,11 @@ class MainViewModelTest {
     fun `CHALLENGE_REJECTED 는 홈으로 간다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.pushNavigation.test {
+        viewModel.uiEffect.test {
             viewModel.setAuthenticatedArea(true)
             pushEventBus.emit(PushEvent.ChallengeRejected(7L))
 
-            assertEquals(Route.Home, awaitItem())
+            assertEquals(MainUiEffect.NavigateToPush(Route.Home), awaitItem())
         }
     }
 
@@ -219,11 +207,11 @@ class MainViewModelTest {
     fun `OPPONENT_VERIFIED 는 상세로 간다`() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.pushNavigation.test {
+        viewModel.uiEffect.test {
             viewModel.setAuthenticatedArea(true)
             pushEventBus.emit(PushEvent.OpponentVerified(7L))
 
-            assertEquals(Route.Challenge.Detail(7L), awaitItem())
+            assertEquals(MainUiEffect.NavigateToPush(Route.Challenge.Detail(7L)), awaitItem())
         }
     }
 }

@@ -31,6 +31,9 @@ interface LoginRepository {
      *
      * 로컬 토큰은 건드리지 않는다 — [clearTokens] 와의 순서는 호출자(LogoutUseCase) 책임이다.
      * 토큰이 남아 있어야 이 호출에 Bearer 가 실린다.
+     *
+     * 실패를 예외로 올리지 않는다. 구현체가 삼키고 로그만 남긴다 — 로그아웃이 실패해서
+     * 호출자의 로컬 정리가 건너뛰어지면 사용자가 로그인 상태에 갇힌다.
      */
     suspend fun logout()
 

@@ -12,9 +12,6 @@ class FakeLoginRepository : LoginRepository {
     /** 서버 logout 이 clearTokens 보다 먼저 불렸는지 보기 위해 순서를 그대로 기록한다. */
     val callLog = mutableListOf<String>()
 
-    /** 설정하면 [logout] 이 실패한다 — 서버가 죽어도 로컬 정리가 도는지 보기 위한 스위치. */
-    var logoutFails = false
-
     val logoutCalled: Boolean get() = callLog.contains("logout")
     val clearTokensCalled: Boolean get() = callLog.contains("clearTokens")
 
@@ -33,7 +30,6 @@ class FakeLoginRepository : LoginRepository {
 
     override suspend fun logout() {
         callLog += "logout"
-        if (logoutFails) throw IllegalStateException("서버 로그아웃 실패")
     }
 
     override suspend fun clearTokens() {

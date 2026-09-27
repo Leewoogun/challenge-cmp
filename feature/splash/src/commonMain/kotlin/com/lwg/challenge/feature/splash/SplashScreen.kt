@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -33,7 +34,7 @@ internal fun SplashScreen() {
                 style = ChallengeTheme.typography.bold48,
                 color = ChallengeTheme.colorScheme.onPrimary,
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            VerticalSpacer(24.dp)
             CircularProgressIndicator(color = ChallengeTheme.colorScheme.onPrimary)
         }
     }
