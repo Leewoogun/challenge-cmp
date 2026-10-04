@@ -25,7 +25,7 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.feature.mypage.archivePreviewItem
 import com.lwg.challenge.feature.mypage.contract.ArchiveChallengeItemState
-import com.lwg.challenge.ui.components.BetStrip
+import com.lwg.challenge.ui.components.ChallengePenaltyArea
 import com.lwg.challenge.ui.components.ChallengeOutcomePill
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -87,7 +87,7 @@ internal fun ArchiveChallengeCard(
                 missionEmphasized = false,
             )
 
-            BetStrip(text = item.betText)
+            ChallengePenaltyArea(text = item.betText)
         }
     }
 }

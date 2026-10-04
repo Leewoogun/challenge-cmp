@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.ui.components.BetStrip
+import com.lwg.challenge.ui.components.ChallengePenaltyArea
 import com.lwg.challenge.ui.components.ProfilePlaceholder
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -90,7 +90,7 @@ internal fun ReceivedChallengeCard(
                 )
             }
 
-            BetStrip(
+            ChallengePenaltyArea(
                 text = betText,
                 modifier = Modifier.padding(top = 10.dp),
             )

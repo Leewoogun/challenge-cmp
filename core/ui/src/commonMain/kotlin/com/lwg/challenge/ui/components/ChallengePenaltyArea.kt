@@ -22,15 +22,8 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 내기 띠. 홈의 챌린지 카드 2종과 계약서 보관함 카드가 픽셀 동일하게 공유한다.
- *
- * 챌린지를 카드로 그리는 화면이면 어디서든 이걸 쓴다 — 사본을 뜨지 마라.
- *
- * @param text "내기: {내용}" 전체 문구. 포맷팅은 호출부(State)의 책임이다.
- */
 @Composable
-fun BetStrip(
+fun ChallengePenaltyArea(
     text: String,
     modifier: Modifier = Modifier,
 ) {
@@ -72,7 +65,7 @@ private fun BetStripPreview() {
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(24.dp),
         ) {
-            BetStrip(text = "내기: 커피 사기 ☕")
+            ChallengePenaltyArea(text = "내기: 커피 사기 ☕")
         }
     }
 }

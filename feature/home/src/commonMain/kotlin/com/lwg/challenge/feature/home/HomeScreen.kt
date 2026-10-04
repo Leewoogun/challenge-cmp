@@ -34,12 +34,10 @@ import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.feature.home.component.ChallengeCard
-import com.lwg.challenge.feature.home.component.HomeEmptyState
-import com.lwg.challenge.feature.home.component.HomeEmptyStateType
+import com.lwg.challenge.feature.home.component.NoChallengeSection
 import com.lwg.challenge.feature.home.component.HomeTopBar
 import com.lwg.challenge.feature.home.component.StatsBar
 import com.lwg.challenge.feature.home.component.receivedChallengesSection
-import com.lwg.challenge.feature.home.contract.HomeEmptyType
 import com.lwg.challenge.feature.home.contract.HomeUiState
 import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
 import kotlinx.datetime.LocalDateTime
@@ -88,7 +86,7 @@ internal fun HomeScreen(
                     muted = uiState.isRecordMuted,
                 )
             }
-            // 0건이면 섹션 통째로 미노출 — 전용 빈 상태 카드를 두지 않는다 (design.md §2.4).
+
             if (uiState.receivedChallenges.isNotEmpty()) {
                 receivedChallengesSection(
                     challenges = uiState.receivedChallenges,
@@ -103,8 +101,6 @@ internal fun HomeScreen(
                 onAddFriendClick = onAddFriendClick,
                 onCreateChallengeClick = onCreateChallengeClick,
             )
-            // 진행 중 빈 상태 카드가 떠 있어도 그 아래 이어 붙는다 — 진행 중은 0건인데 최근 결과는
-            // 있는 조합이 정상이라, 빈 상태와 이 구획은 서로를 가리지 않는다.
             if (uiState.completedChallenges.isNotEmpty()) {
                 completedChallengesSection(
                     challenges = uiState.completedChallenges,
@@ -124,8 +120,6 @@ internal fun HomeLoadingScreen(
         statusBarColor = ChallengeTheme.colorScheme.surface,
         topBar = {
             HomeTopBar(
-                // 하드코딩이 아니라 "아직 모른다" 의 표현이다. 개수를 받기 전에 켰다가 응답이 0이면
-                // 점이 깜빡 켜졌다 꺼진다 — 로딩 중에는 끈 채로 두고 Data 전이 때 한 번에 켠다.
                 hasUnreadNotification = false,
                 onBellClick = onBellClick,
             )
@@ -152,28 +146,20 @@ private fun LazyListScope.challengesSection(
     item(key = "challenges-section-title") {
         SectionTitleRow(title = "진행 중인 챌린지", count = uiState.inProgressChallenges.size)
     }
-    if (uiState.emptyType == HomeEmptyType.NONE) {
+    if (!uiState.isInProgressEmpty) {
         items(
             items = uiState.inProgressChallenges,
             key = { it.challengeId },
         ) { challenge ->
             ChallengeCard(
-                challengeId = challenge.challengeId,
-                myMission = challenge.me.mission,
-                opponentNickname = challenge.opponent.nickname,
-                opponentMission = challenge.opponent.mission,
-                remainingText = uiState.deadlineTextOf(challenge),
-                myVerificationStatus = challenge.me.verificationStatus,
-                opponentVerificationStatus = challenge.opponent.verificationStatus,
-                penalty = challenge.penalty,
+                challenge = challenge,
+                deadlineTimeText = uiState.deadlineTextOf(challenge),
                 onClick = { onChallengeClick(challenge.challengeId) },
-                outcome = null,
             )
         }
     } else {
         item(key = "challenges-empty-state") {
-            HomeEmptyState(
-                type = uiState.emptyType.toDesignSystem(),
+            NoChallengeSection(
                 onClickAddFriend = onAddFriendClick,
                 onClickCreateChallenge = onCreateChallengeClick,
             )
@@ -186,8 +172,6 @@ private fun LazyListScope.completedChallengesSection(
     onChallengeClick: (Long) -> Unit,
 ) {
     item(key = "completed-challenges-section-title") {
-        // "최근 결과" 는 시안에 없는 새 문구다. 전용 디자인이 없으므로 진행 중 구획과 같은 규격을
-        // 그대로 써서 두 구획이 같은 위계로 읽히게 한다.
         SectionTitleRow(title = "최근 결과", count = challenges.size)
     }
     items(
@@ -195,15 +179,8 @@ private fun LazyListScope.completedChallengesSection(
         key = { it.challengeId },
     ) { challenge ->
         ChallengeCard(
-            challengeId = challenge.challengeId,
-            myMission = challenge.me.mission,
-            opponentNickname = challenge.opponent.nickname,
-            opponentMission = challenge.opponent.mission,
-            myVerificationStatus = challenge.me.verificationStatus,
-            opponentVerificationStatus = challenge.opponent.verificationStatus,
-            penalty = challenge.penalty,
+            challenge = challenge,
             onClick = { onChallengeClick(challenge.challengeId) },
-            outcome = challenge.outcome,
         )
     }
 }
@@ -244,12 +221,6 @@ private fun HomeFab(onClick: () -> Unit) {
             modifier = Modifier.size(28.dp),
         )
     }
-}
-
-private fun HomeEmptyType.toDesignSystem(): HomeEmptyStateType = when (this) {
-    HomeEmptyType.FIRST_USER -> HomeEmptyStateType.FIRST_USER
-    HomeEmptyType.NO_ACTIVE_CHALLENGE -> HomeEmptyStateType.NO_ACTIVE_CHALLENGE
-    HomeEmptyType.NONE -> error("HomeEmptyType.NONE 는 HomeEmptyState 진입 전에 분기됨")
 }
 
 private val previewChallenges = listOf(
@@ -378,7 +349,7 @@ private fun HomeScreenDataPreview() {
 
 @Preview
 @Composable
-private fun HomeScreenFirstUserPreview() {
+private fun HomeScreenNoRecordPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
             HomeScreen(
@@ -447,8 +418,6 @@ private fun HomeScreenWithCompletedChallengesPreview() {
 
 /**
  * 이번 변경의 핵심 장면 — 진행 중 0건이라 빈 상태 카드가 뜨고, 그 아래 최근 결과 구획이 함께 보인다.
- *
- * 전적까지 0이지만 판정된 결과가 있어 [HomeEmptyType.FIRST_USER] 로 떨어지지 않는 조합도 겸한다.
  */
 @Preview
 @Composable

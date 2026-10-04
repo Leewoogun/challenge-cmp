@@ -1,9 +1,12 @@
 package com.lwg.challenge.feature.home.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
@@ -84,7 +87,26 @@ private fun ReceivedChallengesHeaderPreview() {
     }
 }
 
-internal fun previewReceivedChallenges(): List<ReceivedChallengeItemState> {
+@Preview
+@Composable
+private fun ReceivedChallengesSectionPreview() {
+    ChallengeTheme {
+        LazyColumn(
+            modifier = Modifier.background(ChallengeTheme.colorScheme.background),
+            contentPadding = PaddingValues(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            receivedChallengesSection(
+                challenges = previewReceivedChallenges(),
+                onAccept = {},
+                onReject = {},
+                isActionable = { true },
+            )
+        }
+    }
+}
+
+private fun previewReceivedChallenges(): List<ReceivedChallengeItemState> {
     val now = LocalDateTime.parse("2026-06-27T09:00:00")
     return listOf(
         ReceivedChallengeItemState(

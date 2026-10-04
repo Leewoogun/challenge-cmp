@@ -13,7 +13,6 @@ import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.user.UserInfo
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
-import com.lwg.challenge.feature.home.contract.HomeEmptyType
 import com.lwg.challenge.feature.home.contract.HomeUiEffect
 import com.lwg.challenge.feature.home.contract.HomeUiState
 import com.lwg.challenge.utils.datetime.KST
@@ -161,21 +160,9 @@ class HomeViewModelTest {
         assertEquals(7, state.record.win)
     }
 
-    @Test
-    fun `전적 0 + 챌린지 0 이면 emptyType FIRST_USER`() = runTest {
-        fakeRecord.record = UserRecord.Empty
-        fakeChallenges.challenges = emptyList()
-        fakeChallengeRepo.challenges = emptyList()
-
-        val viewModel = createViewModel()
-        subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as HomeUiState.Data
-
-        assertEquals(HomeEmptyType.FIRST_USER, state.emptyType)
-    }
 
     @Test
-    fun `기존 사용자 + 챌린지 0 이면 emptyType NO_ACTIVE_CHALLENGE`() = runTest {
+    fun `진행 중 챌린지 0 이면 isInProgressEmpty`() = runTest {
         fakeRecord.record = UserRecord(win = 5, lose = 1, draw = 0, currentStreak = 2)
         fakeChallenges.challenges = emptyList()
 
@@ -183,11 +170,11 @@ class HomeViewModelTest {
         subscribeUiState(viewModel)
         val state = viewModel.uiState.value as HomeUiState.Data
 
-        assertEquals(HomeEmptyType.NO_ACTIVE_CHALLENGE, state.emptyType)
+        assertTrue(state.isInProgressEmpty)
     }
 
     @Test
-    fun `챌린지가 있으면 emptyType NONE 이며 카드 정보가 그대로 전달된다`() = runTest {
+    fun `진행 중 챌린지가 있으면 isInProgressEmpty 가 아니며 카드 정보가 그대로 전달된다`() = runTest {
         fakeRecord.record = UserRecord(win = 7, lose = 3, draw = 2, currentStreak = 3)
         fakeChallenges.challenges = listOf(activeChallenge(challengeId = 1001L))
 
@@ -195,7 +182,7 @@ class HomeViewModelTest {
         subscribeUiState(viewModel)
         val state = viewModel.uiState.value as HomeUiState.Data
 
-        assertEquals(HomeEmptyType.NONE, state.emptyType)
+        assertFalse(state.isInProgressEmpty)
         assertEquals(1, state.challenges.size)
         assertEquals(1001L, state.challenges.first().challengeId)
     }
@@ -377,18 +364,6 @@ class HomeViewModelTest {
         assertFalse(state.hasUnreadNotification)
     }
 
-    @Test
-    fun `받은 도전장이 있으면 전적 0 이어도 emptyType 은 NO_ACTIVE_CHALLENGE`() = runTest {
-        fakeRecord.record = UserRecord.Empty
-        fakeChallenges.challenges = emptyList()
-        fakeChallengeRepo.challenges = listOf(receivedChallenge(challengeId = 60L))
-
-        val viewModel = createViewModel()
-        subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as HomeUiState.Data
-
-        assertEquals(HomeEmptyType.NO_ACTIVE_CHALLENGE, state.emptyType)
-    }
 
     /**
      * 수락은 별도 라우트(맹세 화면)로 빠져 홈 ViewModel 에 성공 콜백이 없다. 맹세 후 홈이 갱신되는
@@ -594,7 +569,7 @@ class HomeViewModelTest {
      * 빈 상태 문구가 "진행 중인 챌린지가 없어요" 라 화면과 문구가 어긋난다.
      */
     @Test
-    fun `진행 중 0건이어도 판정 완료가 있으면 emptyType 은 NO_ACTIVE_CHALLENGE`() = runTest {
+    fun `진행 중 0건이면 판정 완료가 있어도 isInProgressEmpty`() = runTest {
         fakeRecord.record = UserRecord(win = 5, lose = 1, draw = 0, currentStreak = 2)
         fakeChallenges.challenges = listOf(
             completedChallenge(challengeId = 21L),
@@ -605,23 +580,11 @@ class HomeViewModelTest {
         subscribeUiState(viewModel)
         val state = viewModel.uiState.value as HomeUiState.Data
 
-        assertEquals(HomeEmptyType.NO_ACTIVE_CHALLENGE, state.emptyType)
+        assertTrue(state.isInProgressEmpty)
         assertTrue(state.inProgressChallenges.isEmpty())
         assertEquals(2, state.completedChallenges.size)
     }
 
-    @Test
-    fun `전적 0 + 진행 중 0 + 받은 도전장 0 이어도 최근 결과가 있으면 FIRST_USER 가 아니다`() = runTest {
-        fakeRecord.record = UserRecord.Empty
-        fakeChallengeRepo.challenges = emptyList()
-        fakeChallenges.challenges = listOf(completedChallenge(challengeId = 23L))
-
-        val viewModel = createViewModel()
-        subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as HomeUiState.Data
-
-        assertEquals(HomeEmptyType.NO_ACTIVE_CHALLENGE, state.emptyType)
-    }
 
     // 정렬 책임은 서버에 있다. 분할이 안정적이지 않으면 서버가 정한 순서가 화면에서 뒤집힌다.
     @Test

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,29 +24,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 홈 화면 챌린지 영역의 빈 상태 카드.
+ * 진행 중인 챌린지가 없을 때 홈에 띄우는 빈 상태 카드.
  *
- * design.md §2 / §3 / §4.3 — 신규 사용자([HomeEmptyStateType.FIRST_USER]) 와
- * 기존 사용자의 진행 중 챌린지 0개([HomeEmptyStateType.NO_ACTIVE_CHALLENGE]) 분기.
- *
- * 친구/랭킹 등 다른 화면의 빈 상태에도 재사용 가능하도록 컴포넌트 단위로 분리.
- *
- * @param type 빈 상태 분기.
  * @param onClickAddFriend "친구 등록" CTA 클릭.
  * @param onClickCreateChallenge "챌린지 만들기" CTA 클릭.
  */
 @Composable
-internal fun HomeEmptyState(
-    type: HomeEmptyStateType,
+internal fun NoChallengeSection(
     onClickAddFriend: () -> Unit,
     onClickCreateChallenge: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val (headline, subline) = textsFor(type)
     val primary = ChallengeTheme.colorScheme.primary
 
     Surface(
@@ -77,23 +69,23 @@ internal fun HomeEmptyState(
                 )
             }
 
-            VerticalGap(16.dp)
+            VerticalSpacer(16.dp)
 
             Text(
-                text = headline,
+                text = "진행 중인 챌린지가 없어요",
                 style = ChallengeTheme.typography.bold16,
                 color = ChallengeTheme.colorScheme.onBackground,
             )
 
-            VerticalGap(4.dp)
+            VerticalSpacer(4.dp)
 
             Text(
-                text = subline,
+                text = "친구에게 새 챌린지를 걸어보세요",
                 style = ChallengeTheme.typography.medium12,
                 color = ChallengeTheme.colorScheme.onSurfaceVariant,
             )
 
-            VerticalGap(20.dp)
+            VerticalSpacer(20.dp)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -117,45 +109,16 @@ internal fun HomeEmptyState(
     }
 }
 
-@Composable
-private fun VerticalGap(height: androidx.compose.ui.unit.Dp) {
-    Box(modifier = Modifier.height(height))
-}
-
-private fun textsFor(type: HomeEmptyStateType): Pair<String, String> = when (type) {
-    HomeEmptyStateType.FIRST_USER -> "아직 진행 중인 챌린지가 없어요" to "친구를 등록하고 첫 약속을 걸어보세요"
-    HomeEmptyStateType.NO_ACTIVE_CHALLENGE -> "진행 중인 챌린지가 없어요" to "새 챌린지를 시작해 다시 불을 붙여보세요"
-}
-
 @Preview
 @Composable
-private fun HomeEmptyStateFirstUserPreview() {
+private fun NoChallengeSectionPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(16.dp),
         ) {
-            HomeEmptyState(
-                type = HomeEmptyStateType.FIRST_USER,
-                onClickAddFriend = {},
-                onClickCreateChallenge = {},
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun HomeEmptyStateNoActiveChallengePreview() {
-    ChallengeTheme {
-        Box(
-            modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
-                .padding(16.dp),
-        ) {
-            HomeEmptyState(
-                type = HomeEmptyStateType.NO_ACTIVE_CHALLENGE,
+            NoChallengeSection(
                 onClickAddFriend = {},
                 onClickCreateChallenge = {},
             )
