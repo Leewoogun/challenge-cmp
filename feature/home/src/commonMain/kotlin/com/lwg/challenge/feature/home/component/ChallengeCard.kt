@@ -44,7 +44,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * @param outcome 판정 결과. null 이면 [remainingText] 유무로 진행 중/결과 미상을 가른다.
  * @param myVerificationStatus 현재 사용자 인증 상태 (status pill 색/아이콘/라벨 결정).
  * @param opponentVerificationStatus 상대 인증 상태.
- * @param bet 내기 내용 (카드 하단 띠).
+ * @param penalty 진 쪽이 해야 하는 벌칙 (카드 하단 띠).
  */
 @Composable
 internal fun ChallengeCard(
@@ -54,7 +54,7 @@ internal fun ChallengeCard(
     opponentMission: String,
     myVerificationStatus: VerificationStatus,
     opponentVerificationStatus: VerificationStatus,
-    bet: String,
+    penalty: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     remainingText: String? = null,
@@ -97,7 +97,7 @@ internal fun ChallengeCard(
                 status = opponentVerificationStatus,
             )
 
-            BetStrip(text = "내기: $bet")
+            BetStrip(text = "내기: $penalty")
         }
     }
 }
@@ -211,7 +211,7 @@ private fun ChallengeCardPreview() {
             remainingText = "3시간 남음",
             myVerificationStatus = VerificationStatus.VERIFIED,
             opponentVerificationStatus = VerificationStatus.PENDING,
-            bet = "커피 사기 ☕",
+            penalty = "커피 사기 ☕",
             onClick = {},
         )
         ChallengeCard(
@@ -222,7 +222,7 @@ private fun ChallengeCardPreview() {
             remainingText = "곧 마감",
             myVerificationStatus = VerificationStatus.FAILED,
             opponentVerificationStatus = VerificationStatus.VERIFIED,
-            bet = "점심 사기 🍚",
+            penalty = "점심 사기 🍚",
             onClick = {},
         )
     }
@@ -239,7 +239,7 @@ private fun ChallengeCardWinPreview() {
             opponentMission = "책 30페이지 읽기",
             myVerificationStatus = VerificationStatus.VERIFIED,
             opponentVerificationStatus = VerificationStatus.FAILED,
-            bet = "커피 사기 ☕",
+            penalty = "커피 사기 ☕",
             onClick = {},
             outcome = ChallengeOutcome.WIN,
         )
@@ -257,7 +257,7 @@ private fun ChallengeCardLosePreview() {
             opponentMission = "10000보 걷기",
             myVerificationStatus = VerificationStatus.FAILED,
             opponentVerificationStatus = VerificationStatus.VERIFIED,
-            bet = "점심 사기 🍚",
+            penalty = "점심 사기 🍚",
             onClick = {},
             outcome = ChallengeOutcome.LOSE,
         )
@@ -275,7 +275,7 @@ private fun ChallengeCardDrawPreview() {
             opponentMission = "영어 단어 30개 외우기",
             myVerificationStatus = VerificationStatus.VERIFIED,
             opponentVerificationStatus = VerificationStatus.VERIFIED,
-            bet = "치킨 사기 🍗",
+            penalty = "치킨 사기 🍗",
             onClick = {},
             outcome = ChallengeOutcome.DRAW,
         )
@@ -293,7 +293,7 @@ private fun ChallengeCardBothLosePreview() {
             opponentMission = "일기 쓰기",
             myVerificationStatus = VerificationStatus.FAILED,
             opponentVerificationStatus = VerificationStatus.FAILED,
-            bet = "떡볶이 사기 🍢",
+            penalty = "떡볶이 사기 🍢",
             onClick = {},
             outcome = ChallengeOutcome.BOTH_LOSE,
         )
@@ -312,7 +312,7 @@ private fun ChallengeCardUnknownOutcomePreview() {
             opponentMission = "블로그 글 1개 쓰기",
             myVerificationStatus = VerificationStatus.VERIFIED,
             opponentVerificationStatus = VerificationStatus.VERIFIED,
-            bet = "아이스크림 사기 🍦",
+            penalty = "아이스크림 사기 🍦",
             onClick = {},
             remainingText = null,
             outcome = null,

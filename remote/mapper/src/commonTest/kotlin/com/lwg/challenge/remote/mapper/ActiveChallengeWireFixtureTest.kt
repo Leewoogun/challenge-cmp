@@ -99,9 +99,7 @@ class ActiveChallengeWireFixtureTest {
     @Test
     fun `실서버 원문의 두 항목이 모두 도메인까지 살아남고 드롭이 없다`() {
         val result = parse().toActiveChallenges()
-
-        assertEquals(0, result.droppedCount)
-        assertEquals(2, result.items.size)
+        assertEquals(2, result.size)
     }
 
     @Test
@@ -110,34 +108,34 @@ class ActiveChallengeWireFixtureTest {
 
         assertEquals(
             listOf(30L, 29L),
-            result.items.map { it.challengeId },
+            result.map { it.challengeId },
             "정렬은 서버 책임이다. 앱이 뒤집으면 홈 카드 순서가 서버 정책과 어긋난다",
         )
         assertEquals(
             listOf(ActiveChallengeStatus.IN_PROGRESS, ActiveChallengeStatus.COMPLETED),
-            result.items.map { it.status },
+            result.map { it.status },
         )
     }
 
     @Test
     fun `IN_PROGRESS 항목 - 마감 시각과 인증 상태와 텍스트가 그대로 매핑된다`() {
-        val challenge = parse().toActiveChallenges().items.first()
+        val challenge = parse().toActiveChallenges().first()
 
         assertEquals(30L, challenge.challengeId)
         assertEquals(ActiveChallengeStatus.IN_PROGRESS, challenge.status)
         assertNull(challenge.outcome)
         assertEquals(LocalDateTime(2026, 8, 26, 0, 0, 0), challenge.deadline)
-        assertEquals(VerificationStatus.VERIFIED, challenge.myVerificationStatus)
-        assertEquals(VerificationStatus.VERIFIED, challenge.opponentVerificationStatus)
-        assertEquals("책", challenge.myMission)
-        assertEquals("이우건", challenge.opponentNickname)
-        assertEquals("사진 테스크", challenge.opponentMission)
-        assertEquals("사진", challenge.bet)
+        assertEquals(VerificationStatus.VERIFIED, challenge.me.verificationStatus)
+        assertEquals(VerificationStatus.VERIFIED, challenge.opponent.verificationStatus)
+        assertEquals("책", challenge.me.mission)
+        assertEquals("이우건", challenge.opponent.nickname)
+        assertEquals("사진 테스크", challenge.opponent.mission)
+        assertEquals("사진", challenge.penalty)
     }
 
     @Test
     fun `COMPLETED 항목 - 현행 4값 myResult BOTH_LOSE 가 outcome 으로 매핑된다`() {
-        val challenge = parse().toActiveChallenges().items.last()
+        val challenge = parse().toActiveChallenges().last()
 
         assertEquals(29L, challenge.challengeId)
         assertEquals(ActiveChallengeStatus.COMPLETED, challenge.status)
@@ -147,26 +145,24 @@ class ActiveChallengeWireFixtureTest {
 
     @Test
     fun `COMPLETED 항목 - 판정 feature 로 처음 실제로 흐르기 시작한 FAILED 가 양측 모두 도메인까지 온다`() {
-        val challenge = parse().toActiveChallenges().items.last()
+        val challenge = parse().toActiveChallenges().last()
 
         // FAILED 는 VerificationStatusDto 에 정의만 돼 있고 실서버 응답에 실려 온 적이 없던 값이다.
         // 판정 feature 가 붙으면서 처음 흐르기 시작했으므로 원문에서 도메인까지의 경로를 여기서 고정한다.
-        assertEquals(VerificationStatus.FAILED, challenge.myVerificationStatus)
-        assertEquals(VerificationStatus.FAILED, challenge.opponentVerificationStatus)
+        assertEquals(VerificationStatus.FAILED, challenge.me.verificationStatus)
+        assertEquals(VerificationStatus.FAILED, challenge.opponent.verificationStatus)
     }
 
     @Test
     fun `myResult 를 3값으로 접던 시절 원문도 깨지지 않고 LOSE 로 읽힌다`() {
         val result = parseLegacyFolded().toActiveChallenges()
-
-        assertEquals(0, result.droppedCount)
-        assertEquals(listOf(30L, 29L), result.items.map { it.challengeId })
+        assertEquals(listOf(30L, 29L), result.map { it.challengeId })
         assertEquals(
             ChallengeOutcome.LOSE,
-            result.items.last().outcome,
+            result.last().outcome,
             "3값 시절 서버는 BOTH_LOSE 를 LOSE 로 접어 보냈다. 접힌 값도 그대로 읽혀야 한다",
         )
-        assertEquals(ActiveChallengeStatus.COMPLETED, result.items.last().status)
+        assertEquals(ActiveChallengeStatus.COMPLETED, result.last().status)
     }
 
     @Test
@@ -188,8 +184,7 @@ class ActiveChallengeWireFixtureTest {
         }
 
         val result = parse().toActiveChallenges()
-        assertEquals(0, result.droppedCount)
-        assertEquals(2, result.items.size)
+        assertEquals(2, result.size)
     }
 
     @Test
@@ -204,7 +199,7 @@ class ActiveChallengeWireFixtureTest {
         val dto = parse().data.activeChallenges.first()
         assertNull(dto.myResult)
 
-        val challenge = assertNotNull(parse().toActiveChallenges().items.firstOrNull())
+        val challenge = assertNotNull(parse().toActiveChallenges().firstOrNull())
         assertNull(challenge.outcome)
     }
 }

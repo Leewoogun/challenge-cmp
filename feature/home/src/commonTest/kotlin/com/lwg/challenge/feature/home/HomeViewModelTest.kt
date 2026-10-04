@@ -5,6 +5,8 @@ package com.lwg.challenge.feature.home
 import app.cash.turbine.test
 import com.lwg.challenge.domain.model.ActiveChallenge
 import com.lwg.challenge.domain.model.ActiveChallengeStatus
+import com.lwg.challenge.domain.model.MyChallengeInfo
+import com.lwg.challenge.domain.model.OpponentChallengeInfo
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
@@ -117,18 +119,22 @@ class HomeViewModelTest {
         deadline: LocalDateTime = LocalDateTime.parse("2026-12-31T23:59:59"),
         myVerificationStatus: VerificationStatus = VerificationStatus.PENDING,
         opponentVerificationStatus: VerificationStatus = VerificationStatus.VERIFIED,
-        bet: String = "커피 사기 ☕",
+        penalty: String = "커피 사기 ☕",
         status: ActiveChallengeStatus = ActiveChallengeStatus.IN_PROGRESS,
         outcome: ChallengeOutcome? = null,
     ) = ActiveChallenge(
         challengeId = challengeId,
-        myMission = myMission,
-        opponentNickname = opponentNickname,
-        opponentMission = opponentMission,
+        me = MyChallengeInfo(
+            mission = myMission,
+            verificationStatus = myVerificationStatus,
+        ),
+        opponent = OpponentChallengeInfo(
+            nickname = opponentNickname,
+            mission = opponentMission,
+            verificationStatus = opponentVerificationStatus,
+        ),
         deadline = deadline,
-        myVerificationStatus = myVerificationStatus,
-        opponentVerificationStatus = opponentVerificationStatus,
-        bet = bet,
+        penalty = penalty,
         status = status,
         outcome = outcome,
     )

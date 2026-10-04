@@ -2,6 +2,7 @@ package com.lwg.challenge.remote.mapper
 
 import com.lwg.challenge.domain.model.challenge.ChallengeArchive
 import com.lwg.challenge.domain.model.challenge.ChallengeHistory
+import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.remote.model.challenge.ChallengeHistoryDto
 import com.lwg.challenge.remote.model.challenge.ChallengeHistoryResponse
 
@@ -47,3 +48,6 @@ private fun ChallengeHistoryDto.toChallengeHistory(): ChallengeHistory? {
         myResult = outcome,
     )
 }
+
+private fun String?.toChallengeOutcomeOrNull(): ChallengeOutcome? =
+    this?.let { raw -> ChallengeOutcome.entries.find { it.name == raw } }

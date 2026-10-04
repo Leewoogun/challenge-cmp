@@ -20,8 +20,6 @@ sealed interface HomeUiState {
     data class Data(
         val record: UserRecord,
         val challenges: List<ActiveChallenge>,
-        // 매핑 시점에 1회 측정해 주입한다 — 카드마다 Composable 에서 재측정하면 남은 시간 표기가
-        // 서로 어긋나고 테스트가 불가능해진다 (ReceivedChallengeItemState 선례).
         val now: LocalDateTime,
         val userInfo: UserInfo? = null,
         val receivedChallenges: List<ReceivedChallengeItemState> = emptyList(),
@@ -29,10 +27,6 @@ sealed interface HomeUiState {
         val inFlightIds: Set<Long> = emptySet(),
     ) : HomeUiState {
 
-        // 정렬 책임은 서버에 있어 [challenges] 를 앱에서 재정렬하지 않는다. filter 는 안정 분할이라
-        // 두 구획 각각의 내부 순서가 서버가 준 순서 그대로 남는다.
-        // get() 이 아니라 생성자 밖 val 인 이유: 매 호출마다 새 List 인스턴스가 나오면 이 목록을
-        // 받는 LazyColumn 하위 Composable 의 skipping 이 깨진다 (CLAUDE.md "UI State 파싱 규칙").
         val inProgressChallenges: List<ActiveChallenge> =
             challenges.filter { it.status == ActiveChallengeStatus.IN_PROGRESS }
 

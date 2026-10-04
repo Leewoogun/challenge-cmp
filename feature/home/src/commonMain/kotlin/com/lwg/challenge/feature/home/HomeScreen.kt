@@ -27,6 +27,8 @@ import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ActiveChallenge
 import com.lwg.challenge.domain.model.ActiveChallengeStatus
+import com.lwg.challenge.domain.model.MyChallengeInfo
+import com.lwg.challenge.domain.model.OpponentChallengeInfo
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
@@ -157,13 +159,13 @@ private fun LazyListScope.challengesSection(
         ) { challenge ->
             ChallengeCard(
                 challengeId = challenge.challengeId,
-                myMission = challenge.myMission,
-                opponentNickname = challenge.opponentNickname,
-                opponentMission = challenge.opponentMission,
+                myMission = challenge.me.mission,
+                opponentNickname = challenge.opponent.nickname,
+                opponentMission = challenge.opponent.mission,
                 remainingText = uiState.deadlineTextOf(challenge),
-                myVerificationStatus = challenge.myVerificationStatus,
-                opponentVerificationStatus = challenge.opponentVerificationStatus,
-                bet = challenge.bet,
+                myVerificationStatus = challenge.me.verificationStatus,
+                opponentVerificationStatus = challenge.opponent.verificationStatus,
+                penalty = challenge.penalty,
                 onClick = { onChallengeClick(challenge.challengeId) },
                 outcome = null,
             )
@@ -194,12 +196,12 @@ private fun LazyListScope.completedChallengesSection(
     ) { challenge ->
         ChallengeCard(
             challengeId = challenge.challengeId,
-            myMission = challenge.myMission,
-            opponentNickname = challenge.opponentNickname,
-            opponentMission = challenge.opponentMission,
-            myVerificationStatus = challenge.myVerificationStatus,
-            opponentVerificationStatus = challenge.opponentVerificationStatus,
-            bet = challenge.bet,
+            myMission = challenge.me.mission,
+            opponentNickname = challenge.opponent.nickname,
+            opponentMission = challenge.opponent.mission,
+            myVerificationStatus = challenge.me.verificationStatus,
+            opponentVerificationStatus = challenge.opponent.verificationStatus,
+            penalty = challenge.penalty,
             onClick = { onChallengeClick(challenge.challengeId) },
             outcome = challenge.outcome,
         )
@@ -253,25 +255,33 @@ private fun HomeEmptyType.toDesignSystem(): HomeEmptyStateType = when (this) {
 private val previewChallenges = listOf(
     ActiveChallenge(
         challengeId = 1L,
-        myMission = "오늘 운동 1시간 하기",
-        opponentNickname = "우건",
-        opponentMission = "책 30페이지 읽기",
+        me = MyChallengeInfo(
+            mission = "오늘 운동 1시간 하기",
+            verificationStatus = VerificationStatus.VERIFIED,
+        ),
+        opponent = OpponentChallengeInfo(
+            nickname = "우건",
+            mission = "책 30페이지 읽기",
+            verificationStatus = VerificationStatus.PENDING,
+        ),
         deadline = LocalDateTime.parse("2026-06-27T10:00:00"),
-        myVerificationStatus = VerificationStatus.VERIFIED,
-        opponentVerificationStatus = VerificationStatus.PENDING,
-        bet = "커피 사기 ☕",
+        penalty = "커피 사기 ☕",
         status = ActiveChallengeStatus.IN_PROGRESS,
         outcome = null,
     ),
     ActiveChallenge(
         challengeId = 2L,
-        myMission = "물 2L 마시기",
-        opponentNickname = "민지",
-        opponentMission = "10000보 걷기",
+        me = MyChallengeInfo(
+            mission = "물 2L 마시기",
+            verificationStatus = VerificationStatus.PENDING,
+        ),
+        opponent = OpponentChallengeInfo(
+            nickname = "민지",
+            mission = "10000보 걷기",
+            verificationStatus = VerificationStatus.FAILED,
+        ),
         deadline = LocalDateTime.parse("2026-06-27T22:00:00"),
-        myVerificationStatus = VerificationStatus.PENDING,
-        opponentVerificationStatus = VerificationStatus.FAILED,
-        bet = "점심 사기 🍚",
+        penalty = "점심 사기 🍚",
         status = ActiveChallengeStatus.IN_PROGRESS,
         outcome = null,
     ),
@@ -280,25 +290,33 @@ private val previewChallenges = listOf(
 private val previewCompletedChallenges = listOf(
     ActiveChallenge(
         challengeId = 3L,
-        myMission = "아침 6시 기상하기",
-        opponentNickname = "도윤",
-        opponentMission = "영어 단어 30개 외우기",
+        me = MyChallengeInfo(
+            mission = "아침 6시 기상하기",
+            verificationStatus = VerificationStatus.VERIFIED,
+        ),
+        opponent = OpponentChallengeInfo(
+            nickname = "도윤",
+            mission = "영어 단어 30개 외우기",
+            verificationStatus = VerificationStatus.FAILED,
+        ),
         deadline = LocalDateTime.parse("2026-06-26T23:59:00"),
-        myVerificationStatus = VerificationStatus.VERIFIED,
-        opponentVerificationStatus = VerificationStatus.FAILED,
-        bet = "치킨 사기 🍗",
+        penalty = "치킨 사기 🍗",
         status = ActiveChallengeStatus.COMPLETED,
         outcome = ChallengeOutcome.WIN,
     ),
     ActiveChallenge(
         challengeId = 4L,
-        myMission = "야식 참기",
-        opponentNickname = "지훈",
-        opponentMission = "일기 쓰기",
+        me = MyChallengeInfo(
+            mission = "야식 참기",
+            verificationStatus = VerificationStatus.FAILED,
+        ),
+        opponent = OpponentChallengeInfo(
+            nickname = "지훈",
+            mission = "일기 쓰기",
+            verificationStatus = VerificationStatus.FAILED,
+        ),
         deadline = LocalDateTime.parse("2026-06-25T23:59:00"),
-        myVerificationStatus = VerificationStatus.FAILED,
-        opponentVerificationStatus = VerificationStatus.FAILED,
-        bet = "떡볶이 사기 🍢",
+        penalty = "떡볶이 사기 🍢",
         status = ActiveChallengeStatus.COMPLETED,
         outcome = ChallengeOutcome.BOTH_LOSE,
     ),

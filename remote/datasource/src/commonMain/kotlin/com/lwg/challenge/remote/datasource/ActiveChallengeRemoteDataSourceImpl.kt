@@ -17,12 +17,7 @@ class ActiveChallengeRemoteDataSourceImpl(
 
     override fun getActiveChallenges(onError: (String) -> Unit): Flow<List<ActiveChallenge>> = flow {
         activeChallengeApi.getActiveChallenges()
-            .suspendOnSuccess {
-                val mapped = response.toActiveChallenges()
-                // deadline 파싱 실패 항목은 매퍼가 걸렀다. 항목당 발화하면 스낵바가 연달아 떠서 1회만 알린다 (api-contract §3)
-                if (mapped.droppedCount > 0) onError("일부 항목을 불러오지 못했어요")
-                this@flow.emit(mapped.items)
-            }
+            .suspendOnSuccess { this@flow.emit(response.toActiveChallenges()) }
             .suspendOnFailureWithErrorHandling(onError)
     }
 }

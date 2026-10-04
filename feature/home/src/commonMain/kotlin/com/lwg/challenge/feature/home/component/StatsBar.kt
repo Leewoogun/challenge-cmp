@@ -24,11 +24,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 홈 화면 상단의 4분할 전적 카드.
- *
- * design.md §4.2 props 명세 그대로.
- * - 4개 셀: 승 / 패 / 무 / 연승
- * - [muted] 이면 4개 셀 전부 muted 톤, 아니면 셀별 의미 색
- *   (승=primary, 패=error, 무=onBackground, 연승=warning). 판정은 State 책임.
  */
 @Composable
 internal fun StatsBar(
