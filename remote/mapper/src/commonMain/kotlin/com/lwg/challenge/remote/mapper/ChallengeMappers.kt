@@ -3,6 +3,7 @@ package com.lwg.challenge.remote.mapper
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateBody
 import com.lwg.challenge.remote.model.challenge.DeadlineTypeDto
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengeDto
@@ -27,11 +28,13 @@ fun ReceivedChallengeDto.toReceivedChallenge(): ReceivedChallenge? {
     val deadline = deadline ?: return null
     return ReceivedChallenge(
         challengeId = challengeId,
-        challengerId = challengerId,
-        challengerNickname = challengerNickname,
-        challengerProfileImageUrl = challengerProfileImageUrl,
-        challengerMission = challengerMission,
-        betContent = betContent,
+        opponent = ReceivedOpponentInfo(
+            id = challengerId,
+            nickname = challengerNickname,
+            profileImageUrl = challengerProfileImageUrl,
+            mission = challengerMission,
+        ),
+        penalty = betContent,
         deadline = deadline,
         createdAt = createdAt,
     )

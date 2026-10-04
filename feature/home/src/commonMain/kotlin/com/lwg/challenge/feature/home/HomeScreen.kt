@@ -6,24 +6,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ActiveChallenge
 import com.lwg.challenge.domain.model.ActiveChallengeStatus
@@ -33,106 +25,65 @@ import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
 import com.lwg.challenge.feature.home.component.ChallengeCard
 import com.lwg.challenge.feature.home.component.NoChallengeSection
-import com.lwg.challenge.feature.home.component.HomeTopBar
 import com.lwg.challenge.feature.home.component.StatsBar
 import com.lwg.challenge.feature.home.component.receivedChallengesSection
 import com.lwg.challenge.feature.home.contract.HomeUiState
-import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun HomeScreen(
     uiState: HomeUiState.Data,
-    onBellClick: () -> Unit,
-    onFabClick: () -> Unit,
     onChallengeClick: (Long) -> Unit,
     onAddFriendClick: () -> Unit,
     onCreateChallengeClick: () -> Unit,
-    onAcceptClick: (ReceivedChallengeItemState) -> Unit,
-    onRejectClick: (ReceivedChallengeItemState) -> Unit,
+    onAcceptClick: (ReceivedChallenge) -> Unit,
+    onRejectClick: (ReceivedChallenge) -> Unit,
 ) {
-    ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
-        topBar = {
-            HomeTopBar(
-                hasUnreadNotification = uiState.hasUnreadNotification,
-                onBellClick = onBellClick,
-                debugAccountLabel = uiState.debugAccountLabel,
-            )
-        },
-        floatingActionButton = {
-            HomeFab(onClick = onFabClick)
-        },
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 20.dp,
+            end = 20.dp,
+            top = 16.dp,
+            bottom = 96.dp,
+        ),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                end = 20.dp,
-                top = 16.dp,
-                bottom = 96.dp,
-            ),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            item(key = "record") {
-                StatsBar(
-                    win = uiState.record.win,
-                    lose = uiState.record.lose,
-                    draw = uiState.record.draw,
-                    streakText = uiState.streakText,
-                    muted = uiState.isRecordMuted,
-                )
-            }
-
-            if (uiState.receivedChallenges.isNotEmpty()) {
-                receivedChallengesSection(
-                    challenges = uiState.receivedChallenges,
-                    onAccept = onAcceptClick,
-                    onReject = onRejectClick,
-                    isActionable = uiState::isActionable,
-                )
-            }
-            challengesSection(
-                uiState = uiState,
-                onChallengeClick = onChallengeClick,
-                onAddFriendClick = onAddFriendClick,
-                onCreateChallengeClick = onCreateChallengeClick,
+        item(key = "record") {
+            StatsBar(
+                win = uiState.record.win,
+                lose = uiState.record.lose,
+                draw = uiState.record.draw,
+                streakText = uiState.streakText,
+                muted = uiState.isRecordMuted,
             )
-            if (uiState.completedChallenges.isNotEmpty()) {
-                completedChallengesSection(
-                    challenges = uiState.completedChallenges,
-                    onChallengeClick = onChallengeClick,
-                )
-            }
         }
-    }
-}
 
-@Composable
-internal fun HomeLoadingScreen(
-    onBellClick: () -> Unit,
-    onFabClick: () -> Unit,
-) {
-    ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
-        topBar = {
-            HomeTopBar(
-                hasUnreadNotification = false,
-                onBellClick = onBellClick,
+        if (uiState.receivedChallenges.isNotEmpty()) {
+            receivedChallengesSection(
+                challenges = uiState.receivedChallenges,
+                deadlineTextOf = uiState::deadlineTextOf,
+                isUrgent = uiState::isUrgent,
+                isActionable = uiState::isActionable,
+                onAccept = onAcceptClick,
+                onReject = onRejectClick,
             )
-        },
-        floatingActionButton = {
-            HomeFab(onClick = onFabClick)
-        },
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
+        }
+        challengesSection(
+            uiState = uiState,
+            onChallengeClick = onChallengeClick,
+            onAddFriendClick = onAddFriendClick,
+            onCreateChallengeClick = onCreateChallengeClick,
+        )
+        if (uiState.completedChallenges.isNotEmpty()) {
+            completedChallengesSection(
+                challenges = uiState.completedChallenges,
+                onChallengeClick = onChallengeClick,
+            )
         }
     }
 }
@@ -202,23 +153,6 @@ private fun SectionTitleRow(title: String, count: Int) {
             style = ChallengeTheme.typography.medium10,
             color = ChallengeTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 4.dp),
-        )
-    }
-}
-
-@Composable
-private fun HomeFab(onClick: () -> Unit) {
-    FloatingActionButton(
-        onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        containerColor = ChallengeTheme.colorScheme.primary,
-        contentColor = ChallengeTheme.colorScheme.onPrimary,
-        modifier = Modifier.size(56.dp),
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = "챌린지 만들기",
-            modifier = Modifier.size(28.dp),
         )
     }
 }
@@ -296,31 +230,29 @@ private val previewCompletedChallenges = listOf(
 private val previewNow = LocalDateTime.parse("2026-06-27T09:00:00")
 
 private val previewReceivedChallenges = listOf(
-    ReceivedChallengeItemState(
-        model = ReceivedChallenge(
-            challengeId = 501L,
-            challengerId = 3L,
-            challengerNickname = "도윤",
-            challengerProfileImageUrl = null,
-            challengerMission = "아침 6시 기상하기",
-            betContent = "치킨 사기 🍗",
-            deadline = LocalDateTime.parse("2026-06-27T09:40:00"),
-            createdAt = LocalDateTime.parse("2026-06-27T08:00:00"),
+    ReceivedChallenge(
+        challengeId = 501L,
+        opponent = ReceivedOpponentInfo(
+            id = 3L,
+            nickname = "도윤",
+            profileImageUrl = null,
+            mission = "아침 6시 기상하기",
         ),
-        now = previewNow,
+        penalty = "치킨 사기 🍗",
+        deadline = LocalDateTime.parse("2026-06-27T09:40:00"),
+        createdAt = LocalDateTime.parse("2026-06-27T08:00:00"),
     ),
-    ReceivedChallengeItemState(
-        model = ReceivedChallenge(
-            challengeId = 502L,
-            challengerId = 4L,
-            challengerNickname = "민지",
-            challengerProfileImageUrl = null,
-            challengerMission = "10000보 걷기",
-            betContent = "커피 사기 ☕",
-            deadline = LocalDateTime.parse("2026-06-28T12:00:00"),
-            createdAt = LocalDateTime.parse("2026-06-27T07:00:00"),
+    ReceivedChallenge(
+        challengeId = 502L,
+        opponent = ReceivedOpponentInfo(
+            id = 4L,
+            nickname = "민지",
+            profileImageUrl = null,
+            mission = "10000보 걷기",
         ),
-        now = previewNow,
+        penalty = "커피 사기 ☕",
+        deadline = LocalDateTime.parse("2026-06-28T12:00:00"),
+        createdAt = LocalDateTime.parse("2026-06-27T07:00:00"),
     ),
 )
 
@@ -335,8 +267,6 @@ private fun HomeScreenDataPreview() {
                     challenges = previewChallenges,
                     now = previewNow,
                 ),
-                onBellClick = {},
-                onFabClick = {},
                 onChallengeClick = {},
                 onAddFriendClick = {},
                 onCreateChallengeClick = {},
@@ -358,8 +288,6 @@ private fun HomeScreenNoRecordPreview() {
                     challenges = emptyList(),
                     now = previewNow,
                 ),
-                onBellClick = {},
-                onFabClick = {},
                 onChallengeClick = {},
                 onAddFriendClick = {},
                 onCreateChallengeClick = {},
@@ -381,8 +309,6 @@ private fun HomeScreenNoActiveChallengePreview() {
                     challenges = emptyList(),
                     now = previewNow,
                 ),
-                onBellClick = {},
-                onFabClick = {},
                 onChallengeClick = {},
                 onAddFriendClick = {},
                 onCreateChallengeClick = {},
@@ -404,8 +330,6 @@ private fun HomeScreenWithCompletedChallengesPreview() {
                     challenges = previewChallenges + previewCompletedChallenges,
                     now = previewNow,
                 ),
-                onBellClick = {},
-                onFabClick = {},
                 onChallengeClick = {},
                 onAddFriendClick = {},
                 onCreateChallengeClick = {},
@@ -430,8 +354,6 @@ private fun HomeScreenNoActiveWithCompletedChallengesPreview() {
                     challenges = previewCompletedChallenges,
                     now = previewNow,
                 ),
-                onBellClick = {},
-                onFabClick = {},
                 onChallengeClick = {},
                 onAddFriendClick = {},
                 onCreateChallengeClick = {},
@@ -454,8 +376,6 @@ private fun HomeScreenWithReceivedChallengesPreview() {
                     now = previewNow,
                     receivedChallenges = previewReceivedChallenges,
                 ),
-                onBellClick = {},
-                onFabClick = {},
                 onChallengeClick = {},
                 onAddFriendClick = {},
                 onCreateChallengeClick = {},
@@ -479,26 +399,11 @@ private fun HomeScreenUnreadNotificationPreview() {
                     now = previewNow,
                     unreadCount = 3,
                 ),
-                onBellClick = {},
-                onFabClick = {},
                 onChallengeClick = {},
                 onAddFriendClick = {},
                 onCreateChallengeClick = {},
                 onAcceptClick = {},
                 onRejectClick = {},
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun HomeLoadingScreenPreview() {
-    ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            HomeLoadingScreen(
-                onBellClick = {},
-                onFabClick = {},
             )
         }
     }

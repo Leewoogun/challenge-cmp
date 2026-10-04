@@ -33,11 +33,11 @@ class ChallengeMappersTest {
         assertEquals(0, result.droppedCount)
         val challenge = result.items.single()
         assertEquals(7L, challenge.challengeId)
-        assertEquals(42L, challenge.challengerId)
-        assertEquals("민수", challenge.challengerNickname)
-        assertEquals("https://example.com/profile.jpg", challenge.challengerProfileImageUrl)
-        assertEquals("오늘 운동 1시간 하기", challenge.challengerMission)
-        assertEquals("커피 사기", challenge.betContent)
+        assertEquals(42L, challenge.opponent.id)
+        assertEquals("민수", challenge.opponent.nickname)
+        assertEquals("https://example.com/profile.jpg", challenge.opponent.profileImageUrl)
+        assertEquals("오늘 운동 1시간 하기", challenge.opponent.mission)
+        assertEquals("커피 사기", challenge.penalty)
         assertEquals(LocalDateTime(2026, 7, 28, 15, 4, 5), challenge.deadline)
         assertEquals(LocalDateTime(2026, 7, 28, 2, 11, 0), challenge.createdAt)
     }
@@ -72,7 +72,7 @@ class ChallengeMappersTest {
     fun `challengerProfileImageUrl null - null 유지`() {
         val result = response(dto.copy(challengerProfileImageUrl = null)).toReceivedChallenges()
 
-        assertNull(result.items.single().challengerProfileImageUrl)
+        assertNull(result.items.single().opponent.profileImageUrl)
     }
 
     @Test

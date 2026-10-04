@@ -15,7 +15,7 @@ Clean Architecture 경계면 교차 검증을 수행하는 에이전트.
 
 1. Domain Model의 필드 목록 확인
 2. `feature/{name}/src/commonMain/.../contract/{Name}State.kt` 읽기
-3. **검증**: UI에서 사용해야 할 Domain Model 필드가 UiState/ItemState의 `get()` 프로퍼티로 제공되는지
+3. **검증**: UI에서 사용해야 할 Domain Model 필드가 UiState 에 담기는지 (도메인 모델 그대로, 또는 Data 의 `get()` / `fun`). 문자열 포맷팅만을 위한 ItemState 는 없어야 한다 (CLAUDE.md "UI State 파싱 규칙")
 
 ### C: Repository Interface ↔ RepositoryImpl 시그니처 일치
 

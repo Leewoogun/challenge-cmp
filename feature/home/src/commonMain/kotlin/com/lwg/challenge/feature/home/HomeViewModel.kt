@@ -6,7 +6,7 @@ import com.lwg.challenge.domain.repository.ChallengeRepository
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.feature.home.contract.HomeUiEffect
 import com.lwg.challenge.feature.home.contract.HomeUiState
-import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
+import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.utils.datetime.nowKst
 import com.lwg.challenge.utils.flow.TriggerStateFlow
 import com.lwg.challenge.utils.flow.triggerStateIn
@@ -35,16 +35,12 @@ class HomeViewModel(
 
     private val homeDataFlow: Flow<HomeUiState.Data> = getHomeDataUseCase(::showMessage)
         .map { data ->
-            // now 는 매핑 시점에 1회만 측정한다 — 항목마다 재측정하면 임박 판정이 서로 어긋난다.
-            val now = nowKst()
             HomeUiState.Data(
                 record = data.record,
                 challenges = data.challenges,
-                now = now,
+                now = nowKst(),
                 userInfo = data.userInfo,
-                receivedChallenges = data.receivedChallenges.map {
-                    ReceivedChallengeItemState(it, now)
-                },
+                receivedChallenges = data.receivedChallenges,
                 unreadCount = data.unreadCount,
             )
         }
@@ -58,8 +54,8 @@ class HomeViewModel(
             initialValue = HomeUiState.Loading,
         )
 
-    fun rejectChallenge(item: ReceivedChallengeItemState) {
-        val challengeId = item.challengeId
+    fun rejectChallenge(challenge: ReceivedChallenge) {
+        val challengeId = challenge.challengeId
         if (challengeId in _inFlightIds.value) return
 
         _inFlightIds.update { it + challengeId }

@@ -26,38 +26,30 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
 import com.lwg.challenge.ui.components.ChallengePenaltyArea
 import com.lwg.challenge.ui.components.ProfilePlaceholder
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 받은 도전장 카드. design.md §2.3 / §4.3.
+ * 받은 도전장 카드.
  *
- * 표시 문구(`titleText` / `missionLabelText` / `betText` / `deadlineText`)와 임박 판정([isUrgent]) 은
- * `ReceivedChallengeItemState` 가 계산해서 넘긴다 — 컴포저블에서 포맷팅/파생 계산을 하지 않는다.
- * 특히 임박 판정은 `deadline - now` 비교라 `now` 를 ViewModel 이 1회 측정해 주입해야 한다.
- *
+ * @param deadlineText 마감까지 남은 시간. `now` 가 필요해 State 가 계산해서 넘긴다.
  * @param isUrgent 잔여 1시간 이하. true 면 남은 시간을 `error`, 아니면 `warning` 으로 렌더한다.
  * @param actionsEnabled 수락/거절 in-flight 동안 false. 해당 카드의 두 버튼만 비활성화된다.
  */
 @Composable
 internal fun ReceivedChallengeCard(
-    challengerNickname: String,
-    challengerProfileImageUrl: String?,
-    titleText: String,
+    challenge: ReceivedChallenge,
     deadlineText: String,
     isUrgent: Boolean,
-    missionLabelText: String,
-    challengerMission: String,
-    betText: String,
     onAccept: () -> Unit,
     onReject: () -> Unit,
     modifier: Modifier = Modifier,
     actionsEnabled: Boolean = true,
 ) {
-    @Suppress("UNUSED_VARIABLE")
-    val profileImageUrl = challengerProfileImageUrl
-
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -66,8 +58,7 @@ internal fun ReceivedChallengeCard(
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             HeaderRow(
-                challengerNickname = challengerNickname,
-                titleText = titleText,
+                opponentNickname = challenge.opponent.nickname,
                 deadlineText = deadlineText,
                 isUrgent = isUrgent,
             )
@@ -77,12 +68,12 @@ internal fun ReceivedChallengeCard(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
-                    text = missionLabelText,
+                    text = "${challenge.opponent.nickname}의 미션",
                     style = ChallengeTheme.typography.medium12,
                     color = ChallengeTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = challengerMission,
+                    text = challenge.opponent.mission,
                     style = ChallengeTheme.typography.bold14,
                     color = ChallengeTheme.colorScheme.onBackground,
                     maxLines = 2,
@@ -91,7 +82,7 @@ internal fun ReceivedChallengeCard(
             }
 
             ChallengePenaltyArea(
-                text = betText,
+                text = "내기: ${challenge.penalty}",
                 modifier = Modifier.padding(top = 10.dp),
             )
 
@@ -107,8 +98,7 @@ internal fun ReceivedChallengeCard(
 
 @Composable
 private fun HeaderRow(
-    challengerNickname: String,
-    titleText: String,
+    opponentNickname: String,
     deadlineText: String,
     isUrgent: Boolean,
 ) {
@@ -123,14 +113,14 @@ private fun HeaderRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ProfilePlaceholder(nickname = challengerNickname)
+        ProfilePlaceholder(nickname = opponentNickname)
 
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
-                text = titleText,
+                text = "${opponentNickname}의 도전장",
                 style = ChallengeTheme.typography.bold14,
                 color = ChallengeTheme.colorScheme.onBackground,
                 maxLines = 1,
@@ -204,14 +194,9 @@ private fun ReceivedChallengeCardPreview() {
                 .padding(20.dp),
         ) {
             ReceivedChallengeCard(
-                challengerNickname = "도윤",
-                challengerProfileImageUrl = null,
-                titleText = "도윤의 도전장",
+                challenge = previewReceivedChallenge(mission = "아침 6시 기상하기"),
                 deadlineText = "5시간 32분",
                 isUrgent = false,
-                missionLabelText = "도윤의 미션",
-                challengerMission = "아침 6시 기상하기",
-                betText = "내기: 치킨 사기 🍗",
                 onAccept = {},
                 onReject = {},
             )
@@ -229,15 +214,10 @@ private fun ReceivedChallengeCardLongMissionPreview() {
                 .padding(20.dp),
         ) {
             ReceivedChallengeCard(
-                challengerNickname = "도윤",
-                challengerProfileImageUrl = null,
-                titleText = "도윤의 도전장",
+                challenge = previewReceivedChallenge(mission = "아침 6시에 일어나서 30분 스트레칭하고 찬물 샤워까지 끝낸 다음 " +
+                    "출근 전에 책 20페이지 읽고 인증샷 남기기"),
                 deadlineText = "42분",
                 isUrgent = true,
-                missionLabelText = "도윤의 미션",
-                challengerMission = "아침 6시에 일어나서 30분 스트레칭하고 찬물 샤워까지 끝낸 다음 " +
-                    "출근 전에 책 20페이지 읽고 인증샷 남기기",
-                betText = "내기: 치킨 사기 🍗",
                 onAccept = {},
                 onReject = {},
             )
@@ -255,14 +235,9 @@ private fun ReceivedChallengeCardActionsDisabledPreview() {
                 .padding(20.dp),
         ) {
             ReceivedChallengeCard(
-                challengerNickname = "도윤",
-                challengerProfileImageUrl = null,
-                titleText = "도윤의 도전장",
+                challenge = previewReceivedChallenge(mission = "아침 6시 기상하기"),
                 deadlineText = "곧 마감",
                 isUrgent = true,
-                missionLabelText = "도윤의 미션",
-                challengerMission = "아침 6시 기상하기",
-                betText = "내기: 치킨 사기 🍗",
                 onAccept = {},
                 onReject = {},
                 actionsEnabled = false,
@@ -270,3 +245,16 @@ private fun ReceivedChallengeCardActionsDisabledPreview() {
         }
     }
 }
+
+private fun previewReceivedChallenge(mission: String) = ReceivedChallenge(
+    challengeId = 501L,
+    opponent = ReceivedOpponentInfo(
+        id = 3L,
+        nickname = "도윤",
+        profileImageUrl = null,
+        mission = mission,
+    ),
+    penalty = "치킨 사기 🍗",
+    deadline = LocalDateTime.parse("2026-06-27T14:00:00"),
+    createdAt = null,
+)

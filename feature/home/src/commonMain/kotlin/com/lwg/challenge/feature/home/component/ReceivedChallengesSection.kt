@@ -15,21 +15,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
-import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
+import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
+import com.lwg.challenge.domain.model.UserRecord
+import com.lwg.challenge.feature.home.contract.HomeUiState
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 받은 도전장 섹션. design.md §2.2 / §4.4.
- *
- * 홈이 이미 `LazyColumn` 이라 중첩 `LazyColumn` 대신 [LazyListScope] 로 펼친다.
- * 빈 목록이면 호출부가 아예 호출하지 않는다 — 전용 빈 상태 카드를 두지 않는다.
+ * 받은 도전장 섹션.
  */
 internal fun LazyListScope.receivedChallengesSection(
-    challenges: List<ReceivedChallengeItemState>,
-    onAccept: (ReceivedChallengeItemState) -> Unit,
-    onReject: (ReceivedChallengeItemState) -> Unit,
-    isActionable: (ReceivedChallengeItemState) -> Boolean,
+    challenges: List<ReceivedChallenge>,
+    deadlineTextOf: (ReceivedChallenge) -> String,
+    isUrgent: (ReceivedChallenge) -> Boolean,
+    isActionable: (ReceivedChallenge) -> Boolean,
+    onAccept: (ReceivedChallenge) -> Unit,
+    onReject: (ReceivedChallenge) -> Unit,
 ) {
     item(key = "received-challenges-section-title") {
         ReceivedChallengesHeader(count = challenges.size)
@@ -37,19 +38,14 @@ internal fun LazyListScope.receivedChallengesSection(
     items(
         items = challenges,
         key = { "received-${it.challengeId}" },
-    ) { item ->
+    ) { challenge ->
         ReceivedChallengeCard(
-            challengerNickname = item.challengerNickname,
-            challengerProfileImageUrl = item.challengerProfileImageUrl,
-            titleText = item.titleText,
-            deadlineText = item.deadlineText,
-            isUrgent = item.isUrgent,
-            missionLabelText = item.missionLabelText,
-            challengerMission = item.challengerMission,
-            betText = item.betText,
-            onAccept = { onAccept(item) },
-            onReject = { onReject(item) },
-            actionsEnabled = isActionable(item),
+            challenge = challenge,
+            deadlineText = deadlineTextOf(challenge),
+            isUrgent = isUrgent(challenge),
+            onAccept = { onAccept(challenge) },
+            onReject = { onReject(challenge) },
+            actionsEnabled = isActionable(challenge),
         )
     }
 }
@@ -96,44 +92,51 @@ private fun ReceivedChallengesSectionPreview() {
             contentPadding = PaddingValues(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            val state = previewState()
             receivedChallengesSection(
-                challenges = previewReceivedChallenges(),
+                challenges = state.receivedChallenges,
+                deadlineTextOf = state::deadlineTextOf,
+                isUrgent = state::isUrgent,
+                isActionable = state::isActionable,
                 onAccept = {},
                 onReject = {},
-                isActionable = { true },
             )
         }
     }
 }
 
-private fun previewReceivedChallenges(): List<ReceivedChallengeItemState> {
+private fun previewState(): HomeUiState.Data {
     val now = LocalDateTime.parse("2026-06-27T09:00:00")
-    return listOf(
-        ReceivedChallengeItemState(
-            ReceivedChallenge(
-                challengeId = 501L,
-                challengerId = 3L,
-                challengerNickname = "도윤",
-                challengerProfileImageUrl = null,
-                challengerMission = "아침 6시 기상하기",
-                betContent = "치킨 사기 🍗",
-                deadline = LocalDateTime.parse("2026-06-27T14:00:00"),
-                createdAt = LocalDateTime.parse("2026-06-27T08:00:00"),
+    val challenges = listOf(
+        ReceivedChallenge(
+            challengeId = 501L,
+            opponent = ReceivedOpponentInfo(
+                id = 3L,
+                nickname = "도윤",
+                profileImageUrl = null,
+                mission = "아침 6시 기상하기",
             ),
-            now,
+            penalty = "치킨 사기 🍗",
+            deadline = LocalDateTime.parse("2026-06-27T14:00:00"),
+            createdAt = LocalDateTime.parse("2026-06-27T08:00:00"),
         ),
-        ReceivedChallengeItemState(
-            ReceivedChallenge(
-                challengeId = 502L,
-                challengerId = 4L,
-                challengerNickname = "민지",
-                challengerProfileImageUrl = null,
-                challengerMission = "10000보 걷기",
-                betContent = "커피 사기 ☕",
-                deadline = LocalDateTime.parse("2026-06-27T09:42:00"),
-                createdAt = LocalDateTime.parse("2026-06-27T07:00:00"),
+        ReceivedChallenge(
+            challengeId = 502L,
+            opponent = ReceivedOpponentInfo(
+                id = 4L,
+                nickname = "민지",
+                profileImageUrl = null,
+                mission = "10000보 걷기",
             ),
-            now,
+            penalty = "커피 사기 ☕",
+            deadline = LocalDateTime.parse("2026-06-27T09:42:00"),
+            createdAt = LocalDateTime.parse("2026-06-27T07:00:00"),
         ),
+    )
+    return HomeUiState.Data(
+        record = UserRecord.Empty,
+        challenges = emptyList(),
+        now = now,
+        receivedChallenges = challenges,
     )
 }

@@ -11,6 +11,7 @@ import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
 import com.lwg.challenge.domain.model.user.UserInfo
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.feature.home.contract.HomeUiEffect
@@ -101,11 +102,13 @@ class HomeViewModelTest {
         deadline: LocalDateTime = nowKst().plus(3.hours),
     ) = ReceivedChallenge(
         challengeId = challengeId,
-        challengerId = challengeId * 10,
-        challengerNickname = nickname,
-        challengerProfileImageUrl = null,
-        challengerMission = mission,
-        betContent = bet,
+        opponent = ReceivedOpponentInfo(
+            id = challengeId * 10,
+            nickname = nickname,
+            profileImageUrl = null,
+            mission = mission,
+        ),
+        penalty = bet,
         deadline = deadline,
         createdAt = nowKst(),
     )
@@ -297,8 +300,8 @@ class HomeViewModelTest {
         assertEquals(1, state.receivedChallenges.size)
         val item = state.receivedChallenges.first()
         assertEquals(55L, item.challengeId)
-        assertEquals("민수의 도전장", item.titleText)
-        assertEquals("내기: 커피 사기", item.betText)
+        assertEquals("민수", item.opponent.nickname)
+        assertEquals("커피 사기", item.penalty)
     }
 
     @Test
@@ -539,10 +542,11 @@ class HomeViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        val items = (viewModel.uiState.value as HomeUiState.Data).receivedChallenges
+        val state = viewModel.uiState.value as HomeUiState.Data
+        val items = state.receivedChallenges
 
-        assertTrue(items.first { it.challengeId == 91L }.isUrgent)
-        assertFalse(items.first { it.challengeId == 92L }.isUrgent)
+        assertTrue(state.isUrgent(items.first { it.challengeId == 91L }))
+        assertFalse(state.isUrgent(items.first { it.challengeId == 92L }))
     }
 
     @Test

@@ -6,6 +6,7 @@ import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
+import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
@@ -62,11 +63,13 @@ class ChallengeRemoteDataSourceImplTest {
 
     private val expectedReceived = ReceivedChallenge(
         challengeId = 7L,
-        challengerId = 42L,
-        challengerNickname = "민수",
-        challengerProfileImageUrl = null,
-        challengerMission = "오늘 운동 1시간 하기",
-        betContent = "커피 사기",
+        opponent = ReceivedOpponentInfo(
+            id = 42L,
+            nickname = "민수",
+            profileImageUrl = null,
+            mission = "오늘 운동 1시간 하기",
+        ),
+        penalty = "커피 사기",
         deadline = LocalDateTime(2026, 7, 28, 15, 0, 0),
         createdAt = LocalDateTime(2026, 7, 28, 2, 11, 0),
     )
@@ -144,7 +147,7 @@ class ChallengeRemoteDataSourceImplTest {
         val emitted = dataSource.getReceivedChallenges(onError = { errors.add(it) }).toList()
 
         assertEquals(listOf(listOf(expectedReceived)), emitted)
-        assertNull(emitted.single().single().challengerProfileImageUrl)
+        assertNull(emitted.single().single().opponent.profileImageUrl)
         assertEquals(emptyList(), errors)
         assertEquals(1, api.getReceivedCallCount)
     }

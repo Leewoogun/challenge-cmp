@@ -112,7 +112,7 @@ sealed interface {Name}UiState {
    - Loading 대신 optimistic 초기값을 즉시 표시 → 빈 화면 깜빡임 제거
    - 예: 사용자 이름은 이전 화면에서 전달받은 값을 우선 표시하고, 서버 데이터가 들어오면 `Data` 로 교체
 
-**UI State 파싱 규칙**: 모든 UI 표시용 파생 데이터는 State 의 `get()` 프로퍼티로 제공
+**UI State 파싱 규칙**: 표시용 파생값은 State 의 `get()` / `fun` 으로 제공한다. 단, 아이템 문자열 포맷팅 때문에 도메인 모델을 감싸는 ItemState 를 새로 분리해야 한다면 분리하지 말고 Composable 에서 조합한다 (CLAUDE.md "UI State 파싱 규칙")
 
 ### 2단계: Contract - Effect 정의
 
@@ -266,7 +266,8 @@ internal fun {Name}Screen(
 ```
 
 **UI 작성 시 금지 사항**:
-- ❌ Composable에서 문자열 포맷팅, 조건 판별 등 파싱 금지 → State의 `get()` 프로퍼티로 제공
+- ❌ Composable에서 조건 판별·파생 계산 금지 → State의 `get()` / `fun` 으로 제공
+- ✅ 아이템 문자열 포맷팅은 ItemState 를 만들지 않고 Composable 에서 모델 값으로 조합 (CLAUDE.md "UI State 파싱 규칙")
 
 ### 7단계: 화면 전용 컴포넌트 분리 (필수)
 

@@ -122,31 +122,40 @@ class HomeModule
 - Composable: `collectAsStateWithLifecycle()` 사용
 
 ### UI State 파싱 규칙
-- Composable에서 문자열 포맷팅/조건 판별/파생 계산 금지. 모든 표시용 데이터는 State의 `get()` 으로 제공
-- **파생값이 없으면 도메인 모델을 그대로 UiState에 담는다** — 게터만 위임하는 ItemState 는 만들지 않는다
+- Composable에서 조건 판별/파생 계산 금지. 표시용 파생값은 State의 `get()` / `fun` 으로 제공
+  - 화면 단위 파생값 → Data 의 `get()`
+  - 아이템 1개에만 의존하는 파생값 → Data 의 `fun` (호출부: `uiState::isActionable`)
+- **문자열 포맷팅은 예외**: 아이템 문자열을 만들려고 도메인 모델을 감싸는 ItemState 를 새로 분리해야 한다면, 분리하지 말고 Composable 에서 모델 값으로 조합한다 (`"${challenge.opponent.nickname}의 미션"`). 분리 없이 Data 의 `get()` 으로 낼 수 있는 문자열은 `get()` 으로 둔다
+- **도메인 모델은 그대로 UiState에 담는다** — 게터만 위임하거나 문자열만 만드는 ItemState 는 만들지 않는다
 - 도메인 모델은 `compose_compiler_config.conf` 에 등록돼 stable 로 취급되므로 그대로 넘겨도 skipping 이 동작한다
 
 ```kotlin
 @Immutable
 data class Data(
-    // ✅ 파생값 없음 → 도메인 모델 그대로
-    val friends: List<Friend>,
-    val selectedFriendId: Long?,
-    // ✅ 파생값 여러 개 → ItemState 로 승격
-    val challenges: List<ChallengeItemState>,
+    // ✅ 도메인 모델 그대로
+    val challenges: List<Challenge>,
+    val now: LocalDateTime,
 ) : SomeUiState {
 
-    // 화면 단위 파생값은 Data 의 get()
-    val isFriendsEmpty: Boolean get() = friends.isEmpty()
+    // ✅ 화면 단위 파생값은 Data 의 get()
+    val isChallengesEmpty: Boolean get() = challenges.isEmpty()
+    val headerText: String get() = "진행 중 ${challenges.size}개"
 
-    // 아이템 1개에만 의존하는 파생값은 Data 의 fun (호출부: `uiState::isActionable`)
-    fun isActionable(item: ChallengeItemState): Boolean = ...
+    // ✅ 아이템 1개 + 모델 밖 값(now 등)이 필요한 파생값은 Data 의 fun
+    fun deadlineTextOf(challenge: Challenge): String = challenge.deadline.toRelativeKoreanString(now)
+    fun isUrgent(challenge: Challenge): Boolean = ...
 }
 
-@Immutable
+// ✅ 아이템 문자열은 ItemState 를 만들지 않고 Composable 에서 조합
+@Composable
+fun ChallengeCard(challenge: Challenge, deadlineText: String) {
+    Text("${challenge.opponent.nickname}의 미션")
+    Text(deadlineText)
+}
+
+// ❌ 문자열 포맷팅만을 위해 모델을 감싸는 ItemState
 data class ChallengeItemState(private val model: Challenge) {
-    val dateText: String get() = ...
-    val isError: Boolean get() = model.statusCode == "50"
+    val missionLabelText: String get() = "${model.opponent.nickname}의 미션"
 }
 ```
 

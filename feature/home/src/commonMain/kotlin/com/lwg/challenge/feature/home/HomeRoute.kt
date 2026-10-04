@@ -5,8 +5,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lwg.challenge.feature.home.contract.HomeUiEffect
+import com.lwg.challenge.designsystem.components.ChallengeScaffold
+import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.feature.home.component.HomeFab
+import com.lwg.challenge.feature.home.component.HomeLoadingScreen
+import com.lwg.challenge.feature.home.component.HomeTopBar
 import com.lwg.challenge.feature.home.contract.HomeUiState
-import com.lwg.challenge.feature.home.contract.ReceivedChallengeItemState
+import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.navigation.Route
@@ -29,8 +34,8 @@ fun HomeRoute(
         },
         onAddFriendClick = { navigateAction.switchTab(Route.Friends.List) },
         onCreateChallengeClick = { navigateAction.navigateTo(Route.Challenge.Create) },
-        onAcceptClick = { item ->
-            navigateAction.navigateTo(Route.Challenge.Oath(item.challengeId))
+        onAcceptClick = { challenge ->
+            navigateAction.navigateTo(Route.Challenge.Oath(challenge.challengeId))
         },
         onRejectClick = viewModel::rejectChallenge,
     )
@@ -52,23 +57,32 @@ private fun HomeContent(
     onChallengeClick: (Long) -> Unit,
     onAddFriendClick: () -> Unit,
     onCreateChallengeClick: () -> Unit,
-    onAcceptClick: (ReceivedChallengeItemState) -> Unit,
-    onRejectClick: (ReceivedChallengeItemState) -> Unit,
+    onAcceptClick: (ReceivedChallenge) -> Unit,
+    onRejectClick: (ReceivedChallenge) -> Unit,
 ) {
-    when (uiState) {
-        HomeUiState.Loading -> HomeLoadingScreen(
-            onBellClick = onBellClick,
-            onFabClick = onFabClick,
-        )
-        is HomeUiState.Data -> HomeScreen(
-            uiState = uiState,
-            onBellClick = onBellClick,
-            onFabClick = onFabClick,
-            onChallengeClick = onChallengeClick,
-            onAddFriendClick = onAddFriendClick,
-            onCreateChallengeClick = onCreateChallengeClick,
-            onAcceptClick = onAcceptClick,
-            onRejectClick = onRejectClick,
-        )
+    ChallengeScaffold(
+        statusBarColor = ChallengeTheme.colorScheme.surface,
+        topBar = {
+            HomeTopBar(
+                hasUnreadNotification = uiState.hasUnreadNotification,
+                onBellClick = onBellClick,
+                debugAccountLabel = uiState.debugAccountLabel,
+            )
+        },
+        floatingActionButton = {
+            HomeFab(onClick = onFabClick)
+        },
+    ) {
+        when (uiState) {
+            HomeUiState.Loading -> HomeLoadingScreen()
+            is HomeUiState.Data -> HomeScreen(
+                uiState = uiState,
+                onChallengeClick = onChallengeClick,
+                onAddFriendClick = onAddFriendClick,
+                onCreateChallengeClick = onCreateChallengeClick,
+                onAcceptClick = onAcceptClick,
+                onRejectClick = onRejectClick,
+            )
+        }
     }
 }
