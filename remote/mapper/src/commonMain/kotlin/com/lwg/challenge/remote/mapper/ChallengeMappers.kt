@@ -43,7 +43,7 @@ fun ReceivedChallengeDto.toReceivedChallenge(): ReceivedChallenge? {
 fun ChallengeCreateInput.toBody(): ChallengeCreateBody = ChallengeCreateBody(
     opponentId = opponentId,
     myMission = myMission,
-    betContent = betContent,
+    betContent = penalty,
     deadlineType = deadlineType.toDto(),
     signature = SignatureCodec.encode(signature),
 )

@@ -107,7 +107,7 @@ internal fun OathForm(
             ContractCard(
                 opponentNickname = uiState.challengerNickname,
                 myMission = uiState.myMission,
-                betContent = uiState.betContent,
+                penalty = uiState.betContent,
                 deadlineText = uiState.deadlineText,
                 opponentMission = uiState.challengerMission,
                 opponentMissionLabel = uiState.challengerMissionLabel,

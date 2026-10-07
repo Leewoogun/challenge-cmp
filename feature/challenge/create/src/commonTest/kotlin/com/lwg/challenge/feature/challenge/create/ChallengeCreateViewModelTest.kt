@@ -7,9 +7,9 @@ import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.domain.usecase.CreateChallengeUseCase
-import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiEffect
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -58,8 +58,21 @@ class ChallengeCreateViewModelTest {
         }
     }
 
-    private fun ChallengeCreateViewModel.data(): ChallengeCreateUiState.Data =
-        assertIs<ChallengeCreateUiState.Data>(uiState.value)
+    private fun ChallengeCreateViewModel.friendPick(): ChallengeCreateUiState.FriendPick =
+        assertIs<ChallengeCreateUiState.FriendPick>(uiState.value)
+
+    private fun ChallengeCreateViewModel.missionInput(): ChallengeCreateUiState.MissionInput =
+        assertIs<ChallengeCreateUiState.MissionInput>(uiState.value)
+
+    private fun ChallengeCreateViewModel.oath(): ChallengeCreateUiState.Oath =
+        assertIs<ChallengeCreateUiState.Oath>(uiState.value)
+
+    private fun ChallengeCreateViewModel.fillMissionAndGoToOath() {
+        selectFriend(sampleFriend(9))
+        updateMyMission("오늘 운동 1시간 하기")
+        updatePenalty("커피 사기")
+        goToOathStep()
+    }
 
     private fun sampleFriend(id: Long, nickname: String = "친구$id") = Friend(
         userId = id,
@@ -82,8 +95,7 @@ class ChallengeCreateViewModelTest {
         subscribeUiState(viewModel)
 
         assertEquals(1, fakeFriendsRepository.callCount)
-        val state = viewModel.data()
-        assertEquals(ChallengeCreateStep.FRIEND_PICK, state.step)
+        val state = viewModel.friendPick()
         assertEquals(listOf(1L, 2L), state.friends.map { it.userId })
     }
 
@@ -92,7 +104,7 @@ class ChallengeCreateViewModelTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
 
-        val state = viewModel.data()
+        val state = viewModel.friendPick()
         assertTrue(state.isFriendsEmpty)
         assertFalse(state.loadFailed)
     }
@@ -112,7 +124,7 @@ class ChallengeCreateViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
 
-        val state = viewModel.data()
+        val state = viewModel.friendPick()
         assertTrue(state.loadFailed)
         assertFalse(state.isFriendsEmpty)
     }
@@ -123,29 +135,27 @@ class ChallengeCreateViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        assertTrue(viewModel.data().loadFailed)
+        assertTrue(viewModel.friendPick().loadFailed)
 
         fakeFriendsRepository.error = null
         fakeFriendsRepository.friends = listOf(sampleFriend(1))
         viewModel.retryLoadFriends()
 
         assertEquals(2, fakeFriendsRepository.callCount)
-        val state = viewModel.data()
+        val state = viewModel.friendPick()
         assertFalse(state.loadFailed)
         assertEquals(listOf(1L), state.friends.map { it.userId })
     }
 
     @Test
-    fun `selectFriend 는 선택을 저장하고 미션 입력 단계로 넘어간다`() = runTest {
+    fun `selectFriend 는 미션 입력 단계로 넘어간다`() = runTest {
         fakeFriendsRepository.friends = listOf(sampleFriend(7))
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        viewModel.selectFriend(7L)
+        viewModel.selectFriend(sampleFriend(7))
 
-        val state = viewModel.data()
-        assertEquals(7L, state.selectedFriendId)
-        assertEquals(ChallengeCreateStep.MISSION_INPUT, state.step)
+        viewModel.missionInput()
     }
 
     @Test
@@ -154,108 +164,106 @@ class ChallengeCreateViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        viewModel.selectFriend(7L)
+        viewModel.selectFriend(sampleFriend(7))
         viewModel.goToPreviousStep()
 
-        val state = viewModel.data()
-        assertEquals(ChallengeCreateStep.FRIEND_PICK, state.step)
-        assertEquals(7L, state.selectedFriendId)
+        assertEquals(7L, viewModel.friendPick().selectedFriendId)
     }
 
     @Test
     fun `미션이 공백뿐이면 맹세 단계로 넘어갈 수 없다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
+        viewModel.selectFriend(sampleFriend(7))
 
         viewModel.updateMyMission("   ")
-        viewModel.updateBetContent("커피 사기")
+        viewModel.updatePenalty("커피 사기")
 
-        assertFalse(viewModel.data().canProceedToOath)
+        assertFalse(viewModel.missionInput().canProceedToOath)
     }
 
     @Test
     fun `내기를 입력하지 않으면 맹세 단계로 넘어갈 수 없다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
+        viewModel.selectFriend(sampleFriend(7))
 
         viewModel.updateMyMission("오늘 운동 1시간 하기")
 
-        assertFalse(viewModel.data().canProceedToOath)
+        assertFalse(viewModel.missionInput().canProceedToOath)
     }
 
     @Test
     fun `미션과 내기가 모두 유효하면 맹세 단계로 넘어갈 수 있다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
+        viewModel.selectFriend(sampleFriend(7))
 
         viewModel.updateMyMission("오늘 운동 1시간 하기")
-        viewModel.updateBetContent("커피 사기")
+        viewModel.updatePenalty("커피 사기")
 
-        assertTrue(viewModel.data().canProceedToOath)
+        assertTrue(viewModel.missionInput().canProceedToOath)
     }
 
     @Test
     fun `goToOathStep 은 미션과 내기가 유효할 때만 맹세 단계로 넘어간다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        viewModel.selectFriend(7L)
+        viewModel.selectFriend(sampleFriend(7))
 
         viewModel.updateMyMission("오늘 운동 1시간 하기")
         viewModel.goToOathStep()
-        assertEquals(ChallengeCreateStep.MISSION_INPUT, viewModel.data().step)
+        viewModel.missionInput()
 
-        viewModel.updateBetContent("커피 사기")
+        viewModel.updatePenalty("커피 사기")
         viewModel.goToOathStep()
-        assertEquals(ChallengeCreateStep.OATH, viewModel.data().step)
+        assertEquals(7L, viewModel.oath().opponent.userId)
     }
 
     @Test
     fun `goToPreviousStep 은 맹세에서 미션 입력 그리고 상대 선택으로 한 단계씩 내려간다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        viewModel.selectFriend(7L)
-        viewModel.updateMyMission("오늘 운동 1시간 하기")
-        viewModel.updateBetContent("커피 사기")
-        viewModel.goToOathStep()
-        assertEquals(ChallengeCreateStep.OATH, viewModel.data().step)
+        viewModel.fillMissionAndGoToOath()
+        viewModel.oath()
 
         viewModel.goToPreviousStep()
-        assertEquals(ChallengeCreateStep.MISSION_INPUT, viewModel.data().step)
+        val missionInput = viewModel.missionInput()
+        assertEquals("오늘 운동 1시간 하기", missionInput.myMission)
+        assertEquals("커피 사기", missionInput.penalty)
 
         viewModel.goToPreviousStep()
-        assertEquals(ChallengeCreateStep.FRIEND_PICK, viewModel.data().step)
+        viewModel.friendPick()
 
         // 첫 단계에서는 더 내려갈 곳이 없다 — 화면을 벗어나는 건 Route 의 popBackStack 책임이다.
         viewModel.goToPreviousStep()
-        assertEquals(ChallengeCreateStep.FRIEND_PICK, viewModel.data().step)
+        viewModel.friendPick()
     }
 
     @Test
     fun `서명이 비어 있으면 제출할 수 없고 획을 하나 그으면 제출할 수 있다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        viewModel.updateMyMission("오늘 운동 1시간 하기")
-        viewModel.updateBetContent("커피 사기")
+        viewModel.fillMissionAndGoToOath()
 
-        assertFalse(viewModel.data().canSubmit)
+        assertFalse(viewModel.oath().canSubmit)
 
         viewModel.updateSignature(sampleSignature())
 
-        assertTrue(viewModel.data().canSubmit)
+        assertTrue(viewModel.oath().canSubmit)
     }
 
     @Test
     fun `clearSignature 후에는 제출할 수 없다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        viewModel.updateMyMission("오늘 운동 1시간 하기")
-        viewModel.updateBetContent("커피 사기")
+        viewModel.fillMissionAndGoToOath()
         viewModel.updateSignature(sampleSignature())
-        assertTrue(viewModel.data().canSubmit)
+        assertTrue(viewModel.oath().canSubmit)
 
         viewModel.clearSignature()
 
-        val state = viewModel.data()
+        val state = viewModel.oath()
         assertTrue(state.signature.isEmpty)
         assertFalse(state.canSubmit)
     }
@@ -266,44 +274,45 @@ class ChallengeCreateViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        viewModel.selectFriend(9L)
-        viewModel.updateMyMission("오늘 운동 1시간 하기")
-        viewModel.updateBetContent("커피 사기")
+        viewModel.fillMissionAndGoToOath()
 
         viewModel.submit()
 
         assertTrue(fakeChallengeRepository.createCalls.isEmpty())
-        assertFalse(viewModel.data().isSubmitting)
+        assertFalse(viewModel.oath().isSubmitting)
     }
 
     @Test
     fun `updateMyMission 은 100자를 넘는 입력을 잘라낸다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
+        viewModel.selectFriend(sampleFriend(7))
 
         viewModel.updateMyMission("가".repeat(101))
 
-        assertEquals(100, viewModel.data().myMission.length)
+        assertEquals(100, viewModel.missionInput().myMission.length)
     }
 
     @Test
     fun `마감 기본값은 오늘이고 selectDeadline 으로 내일로 바꾼다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
+        viewModel.selectFriend(sampleFriend(7))
 
-        assertEquals(DeadlineType.TODAY, viewModel.data().deadlineType)
+        assertEquals(DeadlineType.TODAY, viewModel.missionInput().deadlineType)
 
         viewModel.selectDeadline(DeadlineType.TOMORROW)
 
-        assertEquals(DeadlineType.TOMORROW, viewModel.data().deadlineType)
+        assertEquals(DeadlineType.TOMORROW, viewModel.missionInput().deadlineType)
     }
 
     @Test
     fun `마감 옵션 힌트가 오늘 내일 KST 날짜로 노출된다`() = runTest {
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
+        viewModel.selectFriend(sampleFriend(7))
 
-        val state = viewModel.data()
+        val state = viewModel.missionInput()
         val hintFormat = Regex("""\d{1,2}/\d{1,2} 24:00""")
         assertTrue(hintFormat.matches(state.todayDeadlineHint), state.todayDeadlineHint)
         assertTrue(hintFormat.matches(state.tomorrowDeadlineHint), state.tomorrowDeadlineHint)
@@ -331,10 +340,11 @@ class ChallengeCreateViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        viewModel.selectFriend(9L)
+        viewModel.selectFriend(sampleFriend(9))
         viewModel.updateMyMission("오늘 운동 1시간 하기")
-        viewModel.updateBetContent("커피 사기")
+        viewModel.updatePenalty("커피 사기")
         viewModel.selectDeadline(DeadlineType.TOMORROW)
+        viewModel.goToOathStep()
         viewModel.updateSignature(sampleSignature())
 
         viewModel.uiEffect.test {
@@ -347,7 +357,7 @@ class ChallengeCreateViewModelTest {
         val input = fakeChallengeRepository.createCalls.first()
         assertEquals(9L, input.opponentId)
         assertEquals("오늘 운동 1시간 하기", input.myMission)
-        assertEquals("커피 사기", input.betContent)
+        assertEquals("커피 사기", input.penalty)
         assertEquals(DeadlineType.TOMORROW, input.deadlineType)
         assertEquals(sampleSignature(), input.signature)
     }
@@ -359,9 +369,7 @@ class ChallengeCreateViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        viewModel.selectFriend(9L)
-        viewModel.updateMyMission("오늘 운동 1시간 하기")
-        viewModel.updateBetContent("커피 사기")
+        viewModel.fillMissionAndGoToOath()
         viewModel.updateSignature(sampleSignature())
 
         viewModel.uiEffect.test {
@@ -372,11 +380,27 @@ class ChallengeCreateViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
 
-        val state = viewModel.data()
+        val state = viewModel.oath()
         assertFalse(state.isSubmitting)
         assertEquals("오늘 운동 1시간 하기", state.myMission)
-        assertEquals("커피 사기", state.betContent)
-        assertEquals(ChallengeCreateStep.MISSION_INPUT, state.step)
+        assertEquals("커피 사기", state.penalty)
+    }
+
+    @Test
+    fun `제출 중에는 뒤로가기로 이전 단계로 돌아가지 않는다`() = runTest {
+        fakeChallengeRepository.createGate = CompletableDeferred()
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        viewModel.fillMissionAndGoToOath()
+        viewModel.updateSignature(sampleSignature())
+        viewModel.submit()
+        assertTrue(viewModel.oath().isSubmitting)
+
+        viewModel.goToPreviousStep()
+
+        assertTrue(viewModel.oath().isSubmitting)
+        fakeChallengeRepository.createGate?.complete(Unit)
     }
 
     @Test
@@ -385,9 +409,7 @@ class ChallengeCreateViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        viewModel.selectFriend(9L)
-        viewModel.updateMyMission("오늘 운동 1시간 하기")
-        viewModel.updateBetContent("커피 사기")
+        viewModel.fillMissionAndGoToOath()
         viewModel.updateSignature(sampleSignature())
 
         viewModel.submit()

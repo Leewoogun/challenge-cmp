@@ -30,7 +30,7 @@ private const val EMPTY_VALUE_TEXT = "—"
 fun ContractCard(
     opponentNickname: String,
     myMission: String?,
-    betContent: String,
+    penalty: String,
     deadlineText: String,
     modifier: Modifier = Modifier,
     opponentMission: String? = null,
@@ -68,7 +68,7 @@ fun ContractCard(
                 )
                 ContractRow(
                     label = "내기",
-                    value = betContent,
+                    value = penalty,
                     valueColor = ChallengeTheme.colorScheme.primary,
                 )
                 ContractRow(label = "마감", value = deadlineText)
@@ -150,7 +150,7 @@ private fun ContractCardPreview() {
             ContractCard(
                 opponentNickname = "우건",
                 myMission = "오늘 운동 1시간 하기",
-                betContent = "커피 사기",
+                penalty = "커피 사기",
                 deadlineText = "7/28 24:00",
             )
         }
@@ -169,7 +169,7 @@ private fun ContractCardMissionEmptyPreview() {
             ContractCard(
                 opponentNickname = "우건",
                 myMission = null,
-                betContent = "커피 사기",
+                penalty = "커피 사기",
                 deadlineText = "7/28 24:00",
             )
         }
@@ -188,7 +188,7 @@ private fun ContractCardWithOpponentMissionPreview() {
             ContractCard(
                 opponentNickname = "우건",
                 myMission = null,
-                betContent = "커피 사기",
+                penalty = "커피 사기",
                 deadlineText = "5시간 32분",
                 opponentMission = "오늘 운동 1시간 하기",
                 opponentMissionLabel = "우건의 미션",
@@ -209,7 +209,7 @@ private fun ContractCardCustomMyMissionLabelPreview() {
             ContractCard(
                 opponentNickname = "지민",
                 myMission = "오늘 운동 1시간 하기",
-                betContent = "커피 사기",
+                penalty = "커피 사기",
                 deadlineText = "7/28 24:00",
                 opponentMission = "책 30페이지 읽기",
                 opponentMissionLabel = "지민의 미션",
@@ -231,7 +231,7 @@ private fun ContractCardWithFooterPreview() {
             ContractCard(
                 opponentNickname = "우건",
                 myMission = "오늘 운동 1시간 하기",
-                betContent = "커피 사기",
+                penalty = "커피 사기",
                 deadlineText = "7/28 24:00",
                 footer = {
                     Text(

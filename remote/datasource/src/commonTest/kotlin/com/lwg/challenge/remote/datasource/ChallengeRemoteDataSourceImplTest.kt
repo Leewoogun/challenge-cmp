@@ -83,7 +83,7 @@ class ChallengeRemoteDataSourceImplTest {
     private val createInput = ChallengeCreateInput(
         opponentId = 42L,
         myMission = "오늘 운동 1시간 하기",
-        betContent = "커피 사기",
+        penalty = "커피 사기",
         deadlineType = DeadlineType.TODAY,
         signature = signature,
     )

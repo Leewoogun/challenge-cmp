@@ -6,75 +6,100 @@ import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.signature.Signature
 
-/** 미션 / 내기 입력 최대 길이. 서버 검증(trim 기준 1~100자)과 동일한 상한. */
+/** 미션 / 내기 입력 최대 길이. */
 const val MAX_INPUT_LENGTH = 100
-
-/** 챌린지 생성 위저드 단계. 선언 순서가 곧 진행 순서다 — `WizardProgressBar` 가 ordinal 로 진행도를 그린다. */
-enum class ChallengeCreateStep {
-    FRIEND_PICK,
-    MISSION_INPUT,
-    OATH,
-}
 
 @Stable
 sealed interface ChallengeCreateUiState {
 
-    /** TopBar 뒤로가기 분기와 progress 렌더가 Loading 중에도 필요해 공통 프로퍼티로 노출한다. */
     val step: ChallengeCreateStep
 
     @Immutable
     data object Loading : ChallengeCreateUiState {
-        override val step: ChallengeCreateStep get() = ChallengeCreateStep.FRIEND_PICK
+        override val step: ChallengeCreateStep
+            get() = ChallengeCreateStep.FRIEND_PICK
     }
 
     @Immutable
-    data class Data(
-        override val step: ChallengeCreateStep,
+    data class FriendPick(
         val friends: List<Friend>,
         val selectedFriendId: Long?,
-        val myMission: String,
-        val betContent: String,
-        val deadlineType: DeadlineType,
-        val todayDeadlineHint: String,
-        val tomorrowDeadlineHint: String,
-        val signature: Signature,
-        val isSubmitting: Boolean,
         val loadFailed: Boolean,
     ) : ChallengeCreateUiState {
 
-        /** 미션·내기 입력이 끝나 맹세 step 으로 넘어갈 수 있는가. */
-        val canProceedToOath: Boolean
-            get() = !isSubmitting &&
-                myMissionCount in 1..MAX_INPUT_LENGTH &&
-                betContentCount in 1..MAX_INPUT_LENGTH
-
-        /**
-         * 실제 제출 가능 여부. 입력 조건 + 서명 유효.
-         *
-         * 유효 서명 판정은 "획 ≥ 1개" 뿐이다 — 서버 검증과 규칙이 갈라지면 클라를 통과한 서명이
-         * 서버에서 거부된다.
-         */
-        val canSubmit: Boolean get() = canProceedToOath && !signature.isEmpty
+        override val step: ChallengeCreateStep
+            get() = ChallengeCreateStep.FRIEND_PICK
 
         val isFriendsEmpty: Boolean get() = friends.isEmpty() && !loadFailed
 
-        val selectedFriend: Friend? get() = friends.firstOrNull { it.userId == selectedFriendId }
+        fun isSelected(friend: Friend): Boolean = friend.userId == selectedFriendId
+    }
 
-        val opponentNicknameText: String get() = selectedFriend?.nickname.orEmpty()
+    @Immutable
+    data class MissionInput(
+        val myMission: String,
+        val penalty: String,
+        val deadlineType: DeadlineType,
+        val todayDeadlineHint: String,
+        val tomorrowDeadlineHint: String,
+    ) : ChallengeCreateUiState {
 
-        val deadlineHintText: String
-            get() = when (deadlineType) {
-                DeadlineType.TODAY -> todayDeadlineHint
-                DeadlineType.TOMORROW -> tomorrowDeadlineHint
-            }
+        override val step: ChallengeCreateStep
+            get() = ChallengeCreateStep.MISSION_INPUT
+
+        val canProceedToOath: Boolean
+            get() = myMissionCount in 1..MAX_INPUT_LENGTH &&
+                penaltyCount in 1..MAX_INPUT_LENGTH
 
         val myMissionCount: Int get() = myMission.trim().length
-        val betContentCount: Int get() = betContent.trim().length
+        val penaltyCount: Int get() = penalty.trim().length
 
         val myMissionCounterText: String get() = "$myMissionCount/$MAX_INPUT_LENGTH"
-        val betContentCounterText: String get() = "$betContentCount/$MAX_INPUT_LENGTH"
+        val penaltyCounterText: String get() = "$penaltyCount/$MAX_INPUT_LENGTH"
 
         val isMyMissionAtMax: Boolean get() = myMissionCount >= MAX_INPUT_LENGTH
-        val isBetContentAtMax: Boolean get() = betContentCount >= MAX_INPUT_LENGTH
+        val isPenaltyAtMax: Boolean get() = penaltyCount >= MAX_INPUT_LENGTH
     }
+
+    @Immutable
+    data class Oath(
+        val opponent: Friend,
+        val myMission: String,
+        val penalty: String,
+        val deadlineText: String,
+        val signature: Signature,
+        val isSubmitting: Boolean,
+    ) : ChallengeCreateUiState {
+
+        override val step: ChallengeCreateStep
+            get() = ChallengeCreateStep.OATH
+
+        /**
+         * 유효 서명 판정은 "획 ≥ 1개" 뿐이다 — 서버 검증과 규칙이 갈라지면 클라를 통과한 서명이
+         * 서버에서 거부된다.
+         */
+        val canSubmit: Boolean get() = !isSubmitting && !signature.isEmpty
+    }
+}
+
+/** 위저드에서 사용자가 입력한 값. 단계를 오가도 유지되도록 ViewModel 이 들고 있는다. */
+internal data class UserInputState(
+    val step: ChallengeCreateStep = ChallengeCreateStep.FRIEND_PICK,
+    val selectedFriend: Friend? = null,
+    val myMission: String = "",
+    val penalty: String = "",
+    val deadlineType: DeadlineType = DeadlineType.TODAY,
+    val signature: Signature = Signature.Empty,
+    val isSubmitting: Boolean = false,
+) {
+    val canProceedToOath: Boolean
+        get() = !isSubmitting &&
+            myMission.trim().length in 1..MAX_INPUT_LENGTH &&
+            penalty.trim().length in 1..MAX_INPUT_LENGTH
+}
+
+enum class ChallengeCreateStep {
+    FRIEND_PICK,
+    MISSION_INPUT,
+    OATH,
 }

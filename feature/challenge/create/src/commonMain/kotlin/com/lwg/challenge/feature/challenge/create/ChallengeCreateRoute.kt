@@ -8,15 +8,20 @@ import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.ChallengeTopBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.DeadlineType
+import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.feature.challenge.create.component.ChallengeCreateLoading
 import com.lwg.challenge.feature.challenge.create.component.WizardProgressBar
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiEffect
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
+import com.lwg.challenge.feature.challenge.create.screen.FriendPickScreen
+import com.lwg.challenge.feature.challenge.create.screen.MissionInputScreen
+import com.lwg.challenge.feature.challenge.create.screen.OathScreen
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.navigation.Route
+import com.lwg.challenge.ui.components.PlatformBackHandler
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -36,22 +41,24 @@ fun ChallengeCreateRoute(
         }
     }
 
+    val onBack = {
+        if (uiState.step != ChallengeCreateStep.FRIEND_PICK) {
+            viewModel.goToPreviousStep()
+        } else {
+            navigator.popBackStack()
+        }
+    }
+
+    PlatformBackHandler(enabled = true, onBack = onBack)
+
     ChallengeCreateContent(
         uiState = uiState,
-        // 단계 되돌리기는 TopBar 뒤로가기만 한다. PlatformBackHandler 가 :core:ui 로 옮겨져 이제 쓸 수는
-        // 있으나, 위저드의 시스템 백 동작을 맞추는 건 별도 작업이라 여기서는 손대지 않는다.
-        onBack = {
-            if (uiState.step != ChallengeCreateStep.FRIEND_PICK) {
-                viewModel.goToPreviousStep()
-            } else {
-                navigator.popBackStack()
-            }
-        },
+        onBack = onBack,
         onSelectFriend = viewModel::selectFriend,
         onClickAddFriend = { navigator.navigateTo(Route.Friends.Search) },
         onRetryLoadFriends = viewModel::retryLoadFriends,
         onMyMissionChange = viewModel::updateMyMission,
-        onBetContentChange = viewModel::updateBetContent,
+        onPenaltyChange = viewModel::updatePenalty,
         onDeadlineChange = viewModel::selectDeadline,
         onNext = viewModel::goToOathStep,
         onSignatureChange = viewModel::updateSignature,
@@ -63,11 +70,11 @@ fun ChallengeCreateRoute(
 private fun ChallengeCreateContent(
     uiState: ChallengeCreateUiState,
     onBack: () -> Unit,
-    onSelectFriend: (Long) -> Unit,
+    onSelectFriend: (Friend) -> Unit,
     onClickAddFriend: () -> Unit,
     onRetryLoadFriends: () -> Unit,
     onMyMissionChange: (String) -> Unit,
-    onBetContentChange: (String) -> Unit,
+    onPenaltyChange: (String) -> Unit,
     onDeadlineChange: (DeadlineType) -> Unit,
     onNext: () -> Unit,
     onSignatureChange: (Signature) -> Unit,
@@ -86,15 +93,23 @@ private fun ChallengeCreateContent(
         when (uiState) {
             ChallengeCreateUiState.Loading -> ChallengeCreateLoading()
 
-            is ChallengeCreateUiState.Data -> ChallengeCreateScreen(
+            is ChallengeCreateUiState.FriendPick -> FriendPickScreen(
                 uiState = uiState,
                 onSelectFriend = onSelectFriend,
                 onClickAddFriend = onClickAddFriend,
                 onRetryLoadFriends = onRetryLoadFriends,
+            )
+
+            is ChallengeCreateUiState.MissionInput -> MissionInputScreen(
+                uiState = uiState,
                 onMyMissionChange = onMyMissionChange,
-                onBetContentChange = onBetContentChange,
+                onPenaltyChange = onPenaltyChange,
                 onDeadlineChange = onDeadlineChange,
                 onNext = onNext,
+            )
+
+            is ChallengeCreateUiState.Oath -> OathScreen(
+                uiState = uiState,
                 onSignatureChange = onSignatureChange,
                 onSubmit = onSubmit,
             )

@@ -6,6 +6,7 @@ import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.ChallengeRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.YearMonth
@@ -24,6 +25,9 @@ class FakeChallengeRepository : ChallengeRepository {
 
     val createCalls = mutableListOf<ChallengeCreateInput>()
 
+    /** 설정하면 complete 될 때까지 createChallenge 응답을 붙잡아 둔다. */
+    var createGate: CompletableDeferred<Unit>? = null
+
     override fun getReceivedChallenges(
         onError: (String) -> Unit,
     ): Flow<List<ReceivedChallenge>> = emptyFlow()
@@ -39,6 +43,7 @@ class FakeChallengeRepository : ChallengeRepository {
         onError: (String) -> Unit,
     ) {
         createCalls += input
+        createGate?.await()
         createError.let { if (it == null) onSuccess(createdChallengeId) else onError(it) }
     }
 

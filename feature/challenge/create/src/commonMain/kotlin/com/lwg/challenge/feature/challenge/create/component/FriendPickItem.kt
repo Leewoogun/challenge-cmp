@@ -26,11 +26,6 @@ import com.lwg.challenge.ui.components.ProfilePlaceholder
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 대결 상대 선택 항목 카드. design.md §4.1.
- *
- * 이미지 로딩 라이브러리 부재로 [profileImageUrl] 은 시그니처에만 받고 실제 로드는 하지 않는다.
- * 전적(승/패) 행은 렌더하지 않는다 — `GET /api/v1/friends` 응답에 전적 필드가 없다(design.md §1.2).
- *
  * @param profileImageUrl 원격 프로필 URL. 현재는 렌더에 사용하지 않는다(이미지 로더 도입 시 후속).
  * @param selected 선택 여부. 선택 시 2.dp primary border 로 강조한다.
  */

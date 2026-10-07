@@ -7,16 +7,36 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/** 친구 목록 응답 대기 화면. design.md §1.2 Loading. */
+/**
+ * @param overlay true 면 아래 화면 위에 반투명 배경으로 덮고 터치를 막는다 (제출 대기용).
+ */
 @Composable
 internal fun ChallengeCreateLoading(
     modifier: Modifier = Modifier,
+    overlay: Boolean = false,
 ) {
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .then(
+                if (overlay) {
+                    Modifier
+                        .background(ChallengeTheme.colorScheme.background.copy(alpha = 0.6f))
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    awaitPointerEvent().changes.forEach { it.consume() }
+                                }
+                            }
+                        }
+                } else {
+                    Modifier
+                },
+            ),
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
@@ -25,10 +45,10 @@ internal fun ChallengeCreateLoading(
 
 @Preview
 @Composable
-private fun ChallengeCreateLoadingPreview() {
+private fun ChallengeCreateLoadingOverlayPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            ChallengeCreateLoading()
+            ChallengeCreateLoading(overlay = true)
         }
     }
 }

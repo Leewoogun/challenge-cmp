@@ -17,7 +17,7 @@ import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 위저드 진행 표시. design.md §1.1 — 단계 수만큼 칸을 그리고 도달한 칸을 primary 로 채운다.
+ * 위저드 진행 표시. 단계 수만큼 칸을 그리고 도달한 칸을 primary 로 채운다.
  *
  * 3단계(상대 선택 / 미션 입력 / 영혼의 맹세)라 3칸이 된다. 칸 수를 상수로 박지 않고
  * [ChallengeCreateStep] 개수를 따르므로 단계가 늘거나 줄어도 도달 불가 칸이 생기지 않는다.

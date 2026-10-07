@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.challenge.create.component
+package com.lwg.challenge.feature.challenge.create.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,23 +20,16 @@ import com.lwg.challenge.ui.components.LabeledInputField
 import com.lwg.challenge.ui.components.LoadingIconButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.DeadlineType
-import com.lwg.challenge.domain.model.signature.Signature
-import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
+import com.lwg.challenge.feature.challenge.create.component.StepHeader
+import com.lwg.challenge.feature.challenge.create.component.DeadlineSelector
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * step1 — 미션 · 내기 · 마감 입력. design.md §1.3.
- *
- * 키보드가 올라오면 CTA 가 가려지므로 세로 스크롤을 건다.
- * `imePadding()` 은 걸지 않는다 — [ChallengeScaffold] 의 contentWindowInsets(safeDrawing)가
- * 이미 IME 를 포함해 본문 높이를 줄여주므로, 여기서 또 걸면 키보드 높이만큼 두 번 밀린다.
- */
 @Composable
-internal fun MissionInputStep(
-    uiState: ChallengeCreateUiState.Data,
+internal fun MissionInputScreen(
+    uiState: ChallengeCreateUiState.MissionInput,
     onMyMissionChange: (String) -> Unit,
-    onBetContentChange: (String) -> Unit,
+    onPenaltyChange: (String) -> Unit,
     onDeadlineChange: (DeadlineType) -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
@@ -64,18 +57,16 @@ internal fun MissionInputStep(
                 counterText = uiState.myMissionCounterText,
                 counterAtMax = uiState.isMyMissionAtMax,
                 imeAction = ImeAction.Next,
-                enabled = !uiState.isSubmitting,
             )
 
             LabeledInputField(
                 label = "내기 (진 사람이 해야 할 것)",
-                value = uiState.betContent,
-                onValueChange = onBetContentChange,
+                value = uiState.penalty,
+                onValueChange = onPenaltyChange,
                 placeholder = "예) 커피 사기",
-                counterText = uiState.betContentCounterText,
-                counterAtMax = uiState.isBetContentAtMax,
+                counterText = uiState.penaltyCounterText,
+                counterAtMax = uiState.isPenaltyAtMax,
                 imeAction = ImeAction.Done,
-                enabled = !uiState.isSubmitting,
             )
 
             DeadlineSelector(
@@ -83,10 +74,8 @@ internal fun MissionInputStep(
                 onValueChange = onDeadlineChange,
                 todayHintText = uiState.todayDeadlineHint,
                 tomorrowHintText = uiState.tomorrowDeadlineHint,
-                enabled = !uiState.isSubmitting,
             )
 
-            // 제출은 맹세 step 에서만 일어나므로 이 버튼은 단계 이동만 한다 — loading 상태가 없다.
             LoadingIconButton(
                 text = "다음",
                 icon = Icons.Filled.SportsKabaddi,
@@ -100,13 +89,13 @@ internal fun MissionInputStep(
 
 @Preview
 @Composable
-private fun MissionInputStepEmptyPreview() {
+private fun MissionInputScreenEmptyPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            MissionInputStep(
+            MissionInputScreen(
                 uiState = previewState(),
                 onMyMissionChange = {},
-                onBetContentChange = {},
+                onPenaltyChange = {},
                 onDeadlineChange = {},
                 onNext = {},
             )
@@ -116,37 +105,17 @@ private fun MissionInputStepEmptyPreview() {
 
 @Preview
 @Composable
-private fun MissionInputStepFilledPreview() {
+private fun MissionInputScreenFilledPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            MissionInputStep(
+            MissionInputScreen(
                 uiState = previewState(
                     myMission = "오늘 운동 1시간 하기",
-                    betContent = "커피 사기",
+                    penalty = "커피 사기",
                     deadlineType = DeadlineType.TOMORROW,
                 ),
                 onMyMissionChange = {},
-                onBetContentChange = {},
-                onDeadlineChange = {},
-                onNext = {},
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun MissionInputStepSubmittingPreview() {
-    ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            MissionInputStep(
-                uiState = previewState(
-                    myMission = "오늘 운동 1시간 하기",
-                    betContent = "커피 사기",
-                    isSubmitting = true,
-                ),
-                onMyMissionChange = {},
-                onBetContentChange = {},
+                onPenaltyChange = {},
                 onDeadlineChange = {},
                 onNext = {},
             )
@@ -156,19 +125,12 @@ private fun MissionInputStepSubmittingPreview() {
 
 private fun previewState(
     myMission: String = "",
-    betContent: String = "",
+    penalty: String = "",
     deadlineType: DeadlineType = DeadlineType.TODAY,
-    isSubmitting: Boolean = false,
-) = ChallengeCreateUiState.Data(
-    step = ChallengeCreateStep.MISSION_INPUT,
-    friends = emptyList(),
-    selectedFriendId = 1L,
+) = ChallengeCreateUiState.MissionInput(
     myMission = myMission,
-    betContent = betContent,
+    penalty = penalty,
     deadlineType = deadlineType,
     todayDeadlineHint = "7/28 24:00",
     tomorrowDeadlineHint = "7/29 24:00",
-    signature = Signature.Empty,
-    isSubmitting = isSubmitting,
-    loadFailed = false,
 )

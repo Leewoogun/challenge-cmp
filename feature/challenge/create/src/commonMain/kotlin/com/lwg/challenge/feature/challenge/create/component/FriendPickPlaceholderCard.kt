@@ -27,13 +27,6 @@ import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * step0 의 빈 상태 / 로드 실패 카드. design.md §1.2.
- *
- * `:core:ui` 의 `EmptyStateCard` 와 레이아웃이 겹치지만 CTA 아이콘까지 호출부가 정해야 해 별도로 둔다.
- *
- * @param ctaIcon 빈 상태는 친구 추가, 실패는 재시도 — 아이콘까지 호출부가 정한다.
- */
 @Composable
 internal fun FriendPickPlaceholderCard(
     title: String,
