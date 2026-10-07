@@ -53,9 +53,9 @@ interface FriendsApi {
 
     /** GET /api/v1/friends — 친구 목록 (ACCEPTED). `accepted_at DESC`. */
     @GET("api/v1/friends")
-    suspend fun listFriends(): ApiResult<FriendsResponse>
+    suspend fun getFriendList(): ApiResult<FriendsResponse>
 
     /** GET /api/v1/friends/requests/received — 받은 요청 목록 (PENDING). `created_at DESC`. */
     @GET("api/v1/friends/requests/received")
-    suspend fun listReceivedRequests(): ApiResult<ReceivedFriendRequestsResponse>
+    suspend fun getReceivedRequestList(): ApiResult<ReceivedFriendRequestsResponse>
 }

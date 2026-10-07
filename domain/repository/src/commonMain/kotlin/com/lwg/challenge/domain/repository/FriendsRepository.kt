@@ -14,11 +14,11 @@ interface FriendsRepository {
         onError: (String) -> Unit,
     ): Flow<List<UserSearchResult>>
 
-    fun listFriends(
+    fun getFriendList(
         onError: (String) -> Unit,
     ): Flow<List<Friend>>
 
-    fun listReceivedRequests(
+    fun getReceivedRequestList(
         onError: (String) -> Unit,
     ): Flow<List<FriendRequest>>
 

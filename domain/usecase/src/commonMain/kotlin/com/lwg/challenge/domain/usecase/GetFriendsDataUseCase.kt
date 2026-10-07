@@ -9,8 +9,8 @@ class GetFriendsDataUseCase(
     private val friendsRepository: FriendsRepository,
 ) {
     operator fun invoke(onError: (String) -> Unit): Flow<FriendsData> = combine(
-        friendsRepository.listReceivedRequests(onError),
-        friendsRepository.listFriends(onError),
+        friendsRepository.getReceivedRequestList(onError),
+        friendsRepository.getFriendList(onError),
     ) { receivedRequests, friends ->
         FriendsData(receivedRequests = receivedRequests, friends = friends)
     }

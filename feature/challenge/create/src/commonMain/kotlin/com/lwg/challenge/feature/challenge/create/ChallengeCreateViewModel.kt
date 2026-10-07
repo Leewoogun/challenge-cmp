@@ -43,7 +43,7 @@ class ChallengeCreateViewModel(
     private val _userInputForm = MutableStateFlow(UserInputState())
 
     private val friendsFlow = friendsRepository
-        .listFriends(
+        .getFriendList(
             onError = { message ->
                 _friendListLoadFailed.update { true }
                 showMessage(message)

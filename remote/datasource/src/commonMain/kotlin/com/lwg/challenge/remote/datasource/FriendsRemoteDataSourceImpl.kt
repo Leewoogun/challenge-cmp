@@ -29,18 +29,18 @@ class FriendsRemoteDataSourceImpl(
             .suspendOnFailureWithErrorHandling(onError)
     }
 
-    override fun listFriends(
+    override fun getFriendList(
         onError: (String) -> Unit,
     ): Flow<List<Friend>> = flow {
-        friendsApi.listFriends()
+        friendsApi.getFriendList()
             .suspendOnSuccess { this@flow.emit(response.toFriends()) }
             .suspendOnFailureWithErrorHandling(onError)
     }
 
-    override fun listReceivedRequests(
+    override fun getReceivedRequestList(
         onError: (String) -> Unit,
     ): Flow<List<FriendRequest>> = flow {
-        friendsApi.listReceivedRequests()
+        friendsApi.getReceivedRequestList()
             .suspendOnSuccess { this@flow.emit(response.toFriendRequests()) }
             .suspendOnFailureWithErrorHandling(onError)
     }

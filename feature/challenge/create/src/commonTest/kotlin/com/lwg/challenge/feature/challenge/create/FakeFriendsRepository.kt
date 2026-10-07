@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 
 /**
- * 테스트용 [FriendsRepository] 페이크. 위저드가 쓰는 `listFriends` 만 의미 있게 구현한다.
+ * 테스트용 [FriendsRepository] 페이크. 위저드가 쓰는 `getFriendList` 만 의미 있게 구현한다.
  *
  * 실제 구현(`FriendsRemoteDataSourceImpl`)과 같은 **cold flow** 계약을 지킨다 — 호출 시점이 아니라
  * 수집 시점에 [callCount] 가 오르고 [error] 가 평가된다. 이걸 어기면 파이프라인이 상류를 재수집해
@@ -22,13 +22,13 @@ class FakeFriendsRepository : FriendsRepository {
     /** 수집 시점에 읽어 1회 emit 한다. */
     var friends: List<Friend> = emptyList()
 
-    /** listFriends 수집 시 onError 로 넘길 메시지. null 이면 정상 흐름. */
+    /** getFriendList 수집 시 onError 로 넘길 메시지. null 이면 정상 흐름. */
     var error: String? = null
 
     var callCount: Int = 0
         private set
 
-    override fun listFriends(onError: (String) -> Unit): Flow<List<Friend>> = flow {
+    override fun getFriendList(onError: (String) -> Unit): Flow<List<Friend>> = flow {
         callCount++
         val message = error
         if (message == null) {
@@ -43,7 +43,7 @@ class FakeFriendsRepository : FriendsRepository {
         onError: (String) -> Unit,
     ): Flow<List<UserSearchResult>> = emptyFlow()
 
-    override fun listReceivedRequests(onError: (String) -> Unit): Flow<List<FriendRequest>> =
+    override fun getReceivedRequestList(onError: (String) -> Unit): Flow<List<FriendRequest>> =
         emptyFlow()
 
     override suspend fun sendRequest(

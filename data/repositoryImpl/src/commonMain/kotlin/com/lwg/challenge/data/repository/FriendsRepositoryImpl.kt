@@ -18,13 +18,13 @@ class FriendsRepositoryImpl(
         onError: (String) -> Unit,
     ): Flow<List<UserSearchResult>> = friendsRemoteDataSource.searchUsers(nickname, onError)
 
-    override fun listFriends(
+    override fun getFriendList(
         onError: (String) -> Unit,
-    ): Flow<List<Friend>> = friendsRemoteDataSource.listFriends(onError)
+    ): Flow<List<Friend>> = friendsRemoteDataSource.getFriendList(onError)
 
-    override fun listReceivedRequests(
+    override fun getReceivedRequestList(
         onError: (String) -> Unit,
-    ): Flow<List<FriendRequest>> = friendsRemoteDataSource.listReceivedRequests(onError)
+    ): Flow<List<FriendRequest>> = friendsRemoteDataSource.getReceivedRequestList(onError)
 
     override suspend fun sendRequest(
         receiverId: Long,

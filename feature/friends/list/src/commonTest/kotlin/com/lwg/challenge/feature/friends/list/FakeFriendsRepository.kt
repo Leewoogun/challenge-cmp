@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * 테스트용 [FriendsRepository] 페이크.
  *
- * - `listFriends` / `listReceivedRequests` / `searchUsers` 는 StateFlow 백킹 → 외부에서 emit 변경 가능.
+ * - `getFriendList` / `getReceivedRequestList` / `searchUsers` 는 StateFlow 백킹 → 외부에서 emit 변경 가능.
  * - `searchInitialError` / 각 mutation 의 `*Result` 로 성공/실패 시나리오 주입.
  * - mutation 호출 시 인자 기록 (호출 검증용).
  */
@@ -46,10 +46,10 @@ class FakeFriendsRepository : FriendsRepository {
         return searchResultsFlow.asStateFlow()
     }
 
-    override fun listFriends(onError: (String) -> Unit): Flow<List<Friend>> =
+    override fun getFriendList(onError: (String) -> Unit): Flow<List<Friend>> =
         friendsFlow.asStateFlow()
 
-    override fun listReceivedRequests(onError: (String) -> Unit): Flow<List<FriendRequest>> =
+    override fun getReceivedRequestList(onError: (String) -> Unit): Flow<List<FriendRequest>> =
         receivedRequestsFlow.asStateFlow()
 
     override suspend fun sendRequest(
