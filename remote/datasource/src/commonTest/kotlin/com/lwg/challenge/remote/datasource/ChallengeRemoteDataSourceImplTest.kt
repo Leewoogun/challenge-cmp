@@ -31,6 +31,7 @@ import com.lwg.challenge.remote.model.challenge.DeadlineTypeDto
 import com.lwg.challenge.remote.model.challenge.ForfeitChallengeData
 import com.lwg.challenge.remote.model.challenge.ForfeitChallengeResponse
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengeDto
+import com.lwg.challenge.remote.model.challenge.ReceivedChallengeOpponentDto
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengesData
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengesResponse
 import com.lwg.challenge.remote.model.challenge.RejectChallengeData
@@ -51,14 +52,16 @@ class ChallengeRemoteDataSourceImplTest {
 
     private val receivedDto = ReceivedChallengeDto(
         challengeId = 7L,
-        challengerId = 42L,
-        challengerNickname = "민수",
-        challengerProfileImageUrl = null,
-        challengerMission = "오늘 운동 1시간 하기",
         betContent = "커피 사기",
         challengeDate = LocalDate(2026, 7, 28),
         deadline = LocalDateTime(2026, 7, 28, 15, 0, 0),
         createdAt = LocalDateTime(2026, 7, 28, 2, 11, 0),
+        opponent = ReceivedChallengeOpponentDto(
+            id = 42L,
+            nickname = "민수",
+            profileImageUrl = null,
+            mission = "오늘 운동 1시간 하기",
+        ),
     )
 
     private val expectedReceived = ReceivedChallenge(

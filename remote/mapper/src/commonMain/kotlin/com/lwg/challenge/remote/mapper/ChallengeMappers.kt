@@ -29,10 +29,10 @@ fun ReceivedChallengeDto.toReceivedChallenge(): ReceivedChallenge? {
     return ReceivedChallenge(
         challengeId = challengeId,
         opponent = ReceivedOpponentInfo(
-            id = challengerId,
-            nickname = challengerNickname,
-            profileImageUrl = challengerProfileImageUrl,
-            mission = challengerMission,
+            id = opponent.id,
+            nickname = opponent.nickname,
+            profileImageUrl = opponent.profileImageUrl,
+            mission = opponent.mission,
         ),
         penalty = betContent,
         deadline = deadline,

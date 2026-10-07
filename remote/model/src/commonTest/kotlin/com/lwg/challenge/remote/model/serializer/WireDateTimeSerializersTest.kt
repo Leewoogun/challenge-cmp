@@ -19,9 +19,9 @@ class WireDateTimeSerializersTest {
     private fun body(deadline: String, createdAt: String = "\"2026-07-31 09:31:01\"") = """
         { "error": false, "code": 200, "message": "",
           "data": { "challenges": [
-            { "challengeId": 7, "challengerId": 42, "challengerNickname": "민수",
-              "challengerProfileImageUrl": "https://cdn/u/42.jpg",
-              "challengerMission": "오늘 운동 1시간 하기", "betContent": "커피 사기",
+            { "challengeId": 7, "betContent": "커피 사기",
+              "opponent": { "id": 42, "nickname": "민수",
+                "profileImageUrl": "https://cdn/u/42.jpg", "mission": "오늘 운동 1시간 하기" },
               "challengeDate": "2026-07-31",
               "deadline": $deadline,
               "createdAt": $createdAt }
@@ -62,7 +62,7 @@ class WireDateTimeSerializersTest {
     fun `필드 누락은 기본값 null`() {
         val missing = """
             { "error": false, "code": 200, "message": "",
-              "data": { "challenges": [ { "challengeId": 7 } ] } }
+              "data": { "challenges": [ { "challengeId": 7, "opponent": { "id": 42 } } ] } }
         """.trimIndent()
 
         val challenge = json.decodeFromString<ReceivedChallengesResponse>(missing)

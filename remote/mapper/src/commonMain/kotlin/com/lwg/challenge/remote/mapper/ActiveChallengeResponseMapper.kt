@@ -25,13 +25,13 @@ private fun ActiveChallengeDto.toActiveChallenge(): ActiveChallenge? {
     return ActiveChallenge(
         challengeId = challengeId,
         me = MyChallengeInfo(
-            mission = myMission,
-            verificationStatus = myVerificationStatus.toDomain(),
+            mission = me.mission,
+            verificationStatus = me.verificationStatus.toDomain(),
         ),
         opponent = OpponentChallengeInfo(
-            nickname = opponentNickname,
-            mission = opponentMission,
-            verificationStatus = opponentVerificationStatus.toDomain(),
+            nickname = opponent.nickname,
+            mission = opponent.mission,
+            verificationStatus = opponent.verificationStatus.toDomain(),
         ),
         deadline = deadline,
         penalty = bet,

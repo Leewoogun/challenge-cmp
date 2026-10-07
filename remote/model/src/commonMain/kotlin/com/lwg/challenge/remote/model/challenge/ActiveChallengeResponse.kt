@@ -24,19 +24,29 @@ data class ActiveChallengeListData(
 @Serializable
 data class ActiveChallengeDto(
     val challengeId: Long = 0L,
-    val myMission: String = "",
-    val opponentNickname: String = "",
-    val opponentMission: String = "",
     /** "yyyy-MM-dd HH:mm:ss" (KST) (예: "2026-05-26 00:00:00"). 포맷이 어긋나면 null. */
     @Serializable(with = WireLocalDateTimeSerializer::class)
     val deadline: LocalDateTime? = null,
-    val myVerificationStatus: VerificationStatusDto = VerificationStatusDto.PENDING,
-    val opponentVerificationStatus: VerificationStatusDto = VerificationStatusDto.PENDING,
     val bet: String = "",
     /** 이 목록에는 `IN_PROGRESS` / `COMPLETED` 만 온다. */
     val status: ActiveChallengeStatusDto,
     /** 내 시점 판정 결과. `IN_PROGRESS` 면 null. */
     val myResult: ChallengeOutcomeDto? = null,
+    val me: ActiveChallengeMeDto,
+    val opponent: ActiveChallengeOpponentDto,
+)
+
+@Serializable
+data class ActiveChallengeMeDto(
+    val mission: String = "",
+    val verificationStatus: VerificationStatusDto = VerificationStatusDto.PENDING,
+)
+
+@Serializable
+data class ActiveChallengeOpponentDto(
+    val nickname: String = "",
+    val mission: String = "",
+    val verificationStatus: VerificationStatusDto = VerificationStatusDto.PENDING,
 )
 
 @Serializable

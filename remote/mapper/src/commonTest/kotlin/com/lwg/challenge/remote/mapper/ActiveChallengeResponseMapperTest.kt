@@ -5,6 +5,8 @@ import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.remote.model.challenge.ActiveChallengeDto
 import com.lwg.challenge.remote.model.challenge.ActiveChallengeListData
+import com.lwg.challenge.remote.model.challenge.ActiveChallengeMeDto
+import com.lwg.challenge.remote.model.challenge.ActiveChallengeOpponentDto
 import com.lwg.challenge.remote.model.challenge.ActiveChallengeResponse
 import com.lwg.challenge.remote.model.challenge.ActiveChallengeStatusDto
 import com.lwg.challenge.remote.model.challenge.ChallengeOutcomeDto
@@ -18,15 +20,19 @@ class ActiveChallengeResponseMapperTest {
 
     private val dto = ActiveChallengeDto(
         challengeId = 1001L,
-        myMission = "오늘 운동 1시간 하기",
-        opponentNickname = "민수",
-        opponentMission = "책 30페이지 읽기",
         deadline = LocalDateTime(2026, 7, 28, 15, 4, 5),
-        myVerificationStatus = VerificationStatusDto.PENDING,
-        opponentVerificationStatus = VerificationStatusDto.VERIFIED,
         bet = "커피 사기 ☕",
         status = ActiveChallengeStatusDto.IN_PROGRESS,
         myResult = null,
+        me = ActiveChallengeMeDto(
+            mission = "오늘 운동 1시간 하기",
+            verificationStatus = VerificationStatusDto.PENDING,
+        ),
+        opponent = ActiveChallengeOpponentDto(
+            nickname = "민수",
+            mission = "책 30페이지 읽기",
+            verificationStatus = VerificationStatusDto.VERIFIED,
+        ),
     )
 
     private val completedDto = dto.copy(
@@ -126,8 +132,14 @@ class ActiveChallengeResponseMapperTest {
     @Test
     fun `VerificationStatusDto - 도메인 3종 모두 매핑`() {
         val result = response(
-            dto.copy(myVerificationStatus = VerificationStatusDto.PENDING, opponentVerificationStatus = VerificationStatusDto.VERIFIED),
-            dto.copy(myVerificationStatus = VerificationStatusDto.FAILED, opponentVerificationStatus = VerificationStatusDto.PENDING),
+            dto.copy(
+                me = dto.me.copy(verificationStatus = VerificationStatusDto.PENDING),
+                opponent = dto.opponent.copy(verificationStatus = VerificationStatusDto.VERIFIED),
+            ),
+            dto.copy(
+                me = dto.me.copy(verificationStatus = VerificationStatusDto.FAILED),
+                opponent = dto.opponent.copy(verificationStatus = VerificationStatusDto.PENDING),
+            ),
         ).toActiveChallenges()
 
         assertEquals(

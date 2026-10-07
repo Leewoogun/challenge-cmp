@@ -25,11 +25,6 @@ data class ReceivedChallengesData(
 @Serializable
 data class ReceivedChallengeDto(
     val challengeId: Long = 0L,
-    val challengerId: Long = 0L,
-    val challengerNickname: String = "",
-    /** 카카오 프로필 미설정 시 null. */
-    val challengerProfileImageUrl: String? = null,
-    val challengerMission: String = "",
     val betContent: String = "",
     /** "yyyy-MM-dd" (예: "2026-07-28"). 매핑하지 않고 버린다. */
     @Serializable(with = WireLocalDateSerializer::class)
@@ -40,4 +35,14 @@ data class ReceivedChallengeDto(
     /** "yyyy-MM-dd HH:mm:ss" (KST). 포맷이 어긋나면 null. */
     @Serializable(with = WireLocalDateTimeSerializer::class)
     val createdAt: LocalDateTime? = null,
+    val opponent: ReceivedChallengeOpponentDto,
+)
+
+@Serializable
+data class ReceivedChallengeOpponentDto(
+    val id: Long = 0L,
+    val nickname: String = "",
+    /** 카카오 프로필 미설정 시 null. */
+    val profileImageUrl: String? = null,
+    val mission: String = "",
 )
