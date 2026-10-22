@@ -69,31 +69,29 @@ class OathViewModelTest {
     ) = ChallengeDetail(
         challengeId = CHALLENGE_ID,
         status = "PENDING",
-        result = null,
+        myResult = null,
         forfeitedBy = null,
         challengeDate = LocalDate.parse("2026-01-01"),
         // 상대 시간 문자열은 실행 시점 시계에 의존한다. 이미 지난 마감으로 고정해 결과를 결정론적으로 만든다.
         deadline = LocalDateTime.parse("2026-01-01T00:00:00"),
         betContent = "커피 사기",
-        challenger = ContractParty(
-            userId = 1L,
+        me = ContractParty(
+            nickname = "나",
+            profileImageUrl = null,
+            mission = null,
+        ),
+        opponent = ContractParty(
             nickname = "우건",
             profileImageUrl = null,
             mission = "오늘 운동 1시간 하기",
         ),
-        opponent = ContractParty(
-            userId = 2L,
-            nickname = "나",
-            profileImageUrl = null,
-            mission = "",
-        ),
         contract = Contract(
             content = "영혼의 맹세",
             isFinalized = false,
-            challengerSignature = challengerSignature,
-            challengerSignedAt = challengerSignature?.let { LocalDateTime.parse("2026-01-01T00:00:00") },
-            opponentSignature = null,
-            opponentSignedAt = null,
+            mySignature = null,
+            mySignedAt = null,
+            opponentSignature = challengerSignature,
+            opponentSignedAt = challengerSignature?.let { LocalDateTime.parse("2026-01-01T00:00:00") },
         ),
     )
 
@@ -110,7 +108,7 @@ class OathViewModelTest {
         assertEquals("마감", state.deadlineText)
         assertEquals("우건의 미션", state.challengerMissionLabel)
         assertEquals("우건의 서명", state.challengerSignatureLabel)
-        assertEquals(assertNotNull(sampleDetail().contract).challengerSignature, state.challengerSignature)
+        assertEquals(assertNotNull(sampleDetail().contract).opponentSignature, state.challengerSignature)
         assertEquals("", state.myMission)
         assertTrue(state.signature.isEmpty)
         assertFalse(state.isSubmitting)

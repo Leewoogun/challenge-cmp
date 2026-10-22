@@ -1,12 +1,15 @@
 package com.lwg.challenge.remote.mapper
 
-import com.lwg.challenge.domain.model.challenge.ChallengeResult
+import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
+import com.lwg.challenge.domain.model.challenge.ChallengeSide
 import com.lwg.challenge.domain.model.challenge.SignatureSlotState
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.remote.model.challenge.ChallengeDetailData
 import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
+import com.lwg.challenge.remote.model.challenge.ChallengeOutcomeDto
+import com.lwg.challenge.remote.model.challenge.ChallengeSideDto
 import com.lwg.challenge.remote.model.challenge.ContractDto
 import com.lwg.challenge.remote.model.challenge.ContractPartyDto
 import kotlinx.datetime.LocalDate
@@ -18,7 +21,7 @@ import kotlin.test.assertNull
 
 class ChallengeDetailMapperTest {
 
-    private val challengerSignature = Signature(
+    private val mySignature = Signature(
         listOf(SignatureStroke(listOf(SignaturePoint(123, 456), SignaturePoint(130, 460)))),
     )
 
@@ -29,8 +32,8 @@ class ChallengeDetailMapperTest {
     private val contract = ContractDto(
         content = "나는 나의 미션을 완수할 것을 맹세한다.",
         isFinalized = true,
-        challengerSignature = SignatureCodec.encode(challengerSignature),
-        challengerSignedAt = LocalDateTime(2026, 8, 3, 11, 20, 0),
+        mySignature = SignatureCodec.encode(mySignature),
+        mySignedAt = LocalDateTime(2026, 8, 3, 11, 20, 0),
         opponentSignature = SignatureCodec.encode(opponentSignature),
         opponentSignedAt = LocalDateTime(2026, 8, 3, 12, 5, 0),
     )
@@ -41,14 +44,12 @@ class ChallengeDetailMapperTest {
         challengeDate = LocalDate(2026, 8, 3),
         deadline = LocalDateTime(2026, 8, 4, 0, 0, 0),
         betContent = "커피 사기",
-        challenger = ContractPartyDto(
-            userId = 1L,
+        me = ContractPartyDto(
             nickname = "이우건",
             profileImageUrl = null,
             mission = "운동 1시간",
         ),
         opponent = ContractPartyDto(
-            userId = 14L,
             nickname = "테스터1",
             profileImageUrl = "https://example.com/profile.jpg",
             mission = "책 30페이지",
@@ -70,9 +71,9 @@ class ChallengeDetailMapperTest {
         assertEquals("커피 사기", detail.betContent)
         assertEquals("나는 나의 미션을 완수할 것을 맹세한다.", contract.content)
         assertEquals(true, contract.isFinalized)
-        assertEquals(LocalDateTime(2026, 8, 3, 11, 20, 0), contract.challengerSignedAt)
+        assertEquals(LocalDateTime(2026, 8, 3, 11, 20, 0), contract.mySignedAt)
         assertEquals(LocalDateTime(2026, 8, 3, 12, 5, 0), contract.opponentSignedAt)
-        assertEquals(SignatureSlotState.SIGNED, contract.challengerSignatureState)
+        assertEquals(SignatureSlotState.SIGNED, contract.mySignatureState)
         assertEquals(SignatureSlotState.SIGNED, contract.opponentSignatureState)
     }
 
@@ -95,7 +96,7 @@ class ChallengeDetailMapperTest {
         assertEquals(SignatureSlotState.NOT_SIGNED, mapped.opponentSignatureState)
         assertNull(mapped.opponentSignature)
         assertNull(mapped.opponentSignedAt)
-        assertEquals(SignatureSlotState.SIGNED, mapped.challengerSignatureState)
+        assertEquals(SignatureSlotState.SIGNED, mapped.mySignatureState)
     }
 
     @Test
@@ -143,90 +144,65 @@ class ChallengeDetailMapperTest {
         val detail = assertNotNull(response().toChallengeDetail())
         val mapped = assertNotNull(detail.contract)
 
-        assertEquals(challengerSignature, mapped.challengerSignature)
+        assertEquals(mySignature, mapped.mySignature)
         assertEquals(opponentSignature, mapped.opponentSignature)
     }
 
     @Test
-    fun `challenger 와 opponent 는 역할 그대로 매핑된다`() {
+    fun `me 와 opponent 가 그대로 매핑된다`() {
         val detail = assertNotNull(response().toChallengeDetail())
 
-        assertEquals(1L, detail.challenger.userId)
-        assertEquals("이우건", detail.challenger.nickname)
-        assertEquals("운동 1시간", detail.challenger.mission)
-        assertNull(detail.challenger.profileImageUrl)
+        assertEquals("이우건", detail.me.nickname)
+        assertEquals("운동 1시간", detail.me.mission)
+        assertNull(detail.me.profileImageUrl)
 
-        assertEquals(14L, detail.opponent.userId)
         assertEquals("테스터1", detail.opponent.nickname)
         assertEquals("책 30페이지", detail.opponent.mission)
         assertEquals("https://example.com/profile.jpg", detail.opponent.profileImageUrl)
     }
 
     @Test
-    fun `result 4종 문자열이 각각 대응 ChallengeResult 로 매핑된다`() {
+    fun `myResult 4종이 각각 대응 ChallengeOutcome 으로 매핑된다`() {
         val expected = mapOf(
-            "CHALLENGER_WIN" to ChallengeResult.CHALLENGER_WIN,
-            "OPPONENT_WIN" to ChallengeResult.OPPONENT_WIN,
-            "DRAW" to ChallengeResult.DRAW,
-            "BOTH_LOSE" to ChallengeResult.BOTH_LOSE,
+            ChallengeOutcomeDto.WIN to ChallengeOutcome.WIN,
+            ChallengeOutcomeDto.LOSE to ChallengeOutcome.LOSE,
+            ChallengeOutcomeDto.DRAW to ChallengeOutcome.DRAW,
+            ChallengeOutcomeDto.BOTH_LOSE to ChallengeOutcome.BOTH_LOSE,
         )
 
-        expected.forEach { (raw, result) ->
+        expected.forEach { (dto, outcome) ->
             val detail = assertNotNull(
-                response(data.copy(status = "COMPLETED", result = raw)).toChallengeDetail(),
+                response(data.copy(status = "COMPLETED", myResult = dto)).toChallengeDetail(),
             )
 
-            assertEquals(result, detail.result, "'$raw' 이 $result 로 매핑돼야 한다")
+            assertEquals(outcome, detail.myResult)
         }
     }
 
     @Test
-    fun `result 가 null - 도메인도 null 이다`() {
-        val detail = assertNotNull(response(data.copy(result = null)).toChallengeDetail())
+    fun `myResult 가 null - 도메인도 null 이다`() {
+        val detail = assertNotNull(response(data.copy(myResult = null)).toChallengeDetail())
 
-        assertNull(detail.result, "COMPLETED 이전에는 판정 결과가 없다")
+        assertNull(detail.myResult)
     }
 
     @Test
-    fun `forfeitedBy 가 값 그대로 통과한다`() {
-        val detail = assertNotNull(
-            response(
-                data.copy(status = "COMPLETED", result = "OPPONENT_WIN", forfeitedBy = 1L),
-            ).toChallengeDetail(),
+    fun `forfeitedBy ME 와 OPPONENT 가 ChallengeSide 로 매핑된다`() {
+        val byMe = assertNotNull(
+            response(data.copy(status = "COMPLETED", forfeitedBy = ChallengeSideDto.ME)).toChallengeDetail(),
+        )
+        val byOpponent = assertNotNull(
+            response(data.copy(status = "COMPLETED", forfeitedBy = ChallengeSideDto.OPPONENT)).toChallengeDetail(),
         )
 
-        assertEquals(
-            1L,
-            detail.forfeitedBy,
-            "매퍼가 판단할 것이 없다. userId → 역할 환산은 내 userId 를 아는 화면 계층의 몫이다",
-        )
+        assertEquals(ChallengeSide.ME, byMe.forfeitedBy)
+        assertEquals(ChallengeSide.OPPONENT, byOpponent.forfeitedBy)
     }
 
     @Test
     fun `forfeitedBy 가 null - 도메인도 null 이다`() {
         val detail = assertNotNull(response().toChallengeDetail())
 
-        assertNull(detail.forfeitedBy, "기권 없이 끝났거나 아직 끝나지 않았다")
-    }
-
-    @Test
-    fun `모르는 result 문자열 - null 로 흡수되고 나머지 필드는 정상 매핑된다`() {
-        val detail = assertNotNull(
-            response(data.copy(status = "COMPLETED", result = "CANCELLED")).toChallengeDetail(),
-            "모르는 결과값 하나가 상세 매핑 전체를 무너뜨리면 안 된다",
-        )
-
-        assertNull(
-            detail.result,
-            "모르는 결과를 아무 결과로 날조하는 것보다 '결과 없음'이 보수적이다",
-        )
-        assertEquals(7L, detail.challengeId)
-        assertEquals("COMPLETED", detail.status)
-        assertEquals("커피 사기", detail.betContent)
-        assertEquals(LocalDate(2026, 8, 3), detail.challengeDate)
-        assertEquals(LocalDateTime(2026, 8, 4, 0, 0, 0), detail.deadline)
-        assertEquals("이우건", detail.challenger.nickname)
-        assertEquals("테스터1", detail.opponent.nickname)
-        assertNotNull(detail.contract)
+        assertNull(detail.forfeitedBy)
     }
 }

@@ -45,7 +45,7 @@ private fun ActiveChallengeStatusDto.toDomain(): ActiveChallengeStatus = when (t
     ActiveChallengeStatusDto.COMPLETED -> ActiveChallengeStatus.COMPLETED
 }
 
-private fun ChallengeOutcomeDto.toDomain(): ChallengeOutcome = when (this) {
+internal fun ChallengeOutcomeDto.toDomain(): ChallengeOutcome = when (this) {
     ChallengeOutcomeDto.WIN -> ChallengeOutcome.WIN
     ChallengeOutcomeDto.LOSE -> ChallengeOutcome.LOSE
     ChallengeOutcomeDto.DRAW -> ChallengeOutcome.DRAW

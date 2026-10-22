@@ -143,9 +143,10 @@ class OathViewModel(
 
         return OathUiState.Data(
             challengeId = challengeId,
-            challengerNickname = challenger.nickname,
-            challengerMission = challenger.mission.orEmpty(),
-            challengerSignature = contract?.challengerSignature,
+            // 맹세 화면은 받은 사람만 열므로 신청자가 opponent 로 온다.
+            challengerNickname = opponent.nickname,
+            challengerMission = opponent.mission.orEmpty(),
+            challengerSignature = contract?.opponentSignature,
             betContent = betContent,
             deadlineText = deadline.toRelativeKoreanString(now),
             myMission = previous?.myMission.orEmpty(),

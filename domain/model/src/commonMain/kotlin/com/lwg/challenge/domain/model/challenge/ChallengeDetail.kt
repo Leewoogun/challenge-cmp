@@ -5,45 +5,41 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 
 /**
- * 챌린지 상세 + 계약서 1건.
- *
- * [challenger] / [opponent] 는 서버가 준 **역할 그대로**다 — '나 / 상대' 관점 변환은 하지 않는다.
- * 내가 어느 쪽인지 판별은 내 userId 를 아는 화면 계층의 몫이다.
+ * 챌린지 상세 + 계약서 1건. [me] / [opponent] 는 요청한 사람 시점이다.
  *
  * @property status 챌린지 진행 상태 문자열. 계약 완결 여부는 이 값이 아니라 [Contract.isFinalized] 가 정한다
- * @property result 판정 결과. `COMPLETED` 되기 전까지 null 이며, 서버 불변식상
- *   `status == "COMPLETED"` 와 `result != null` 은 동치다. [challenger] / [opponent] 와 마찬가지로
- *   **역할 기준**이다 — 내 시점 변환은 [ChallengeResult.outcomeFor] 로 화면 계층이 한다
- * @property forfeitedBy 기권으로 끝난 챌린지면 기권한 사람의 userId, 아니면 null.
- *   [challenger] / [opponent] 와 마찬가지로 **역할 변환 없는 원본**이라, 내가 기권했는지 판별은
- *   내 userId 를 아는 화면 계층의 몫이다
+ * @property myResult 내 시점 판정 결과. `COMPLETED` 되기 전까지 null
+ * @property forfeitedBy 기권한 쪽. 기권 없이 끝났거나 아직 진행 중이면 null
  * @property challengeDate 챌린지 기준 날짜 (KST). 포맷이 어긋나면 null
  * @property deadline 마감 시각 (KST)
- * @property contract soul-oath 도입 이전에 만들어진 챌린지는 계약서가 없어 null 이다. 정상 상태이며
- *   계약 §3.1 nullable 표에 등재돼 있다 — 챌린지 자체는 계약서 없이도 온전하다
+ * @property contract soul-oath 도입 이전에 만들어진 챌린지는 계약서가 없어 null 이다
  */
 data class ChallengeDetail(
     val challengeId: Long,
     val status: String,
-    val result: ChallengeResult?,
-    val forfeitedBy: Long?,
+    val myResult: ChallengeOutcome?,
+    val forfeitedBy: ChallengeSide?,
     val challengeDate: LocalDate?,
     val deadline: LocalDateTime,
     val betContent: String,
-    val challenger: ContractParty,
+    val me: ContractParty,
     val opponent: ContractParty,
     val contract: Contract?,
 )
+
+/** 챌린지의 나 / 상대 구분. */
+enum class ChallengeSide {
+    ME,
+    OPPONENT,
+}
 
 /**
  * 계약 당사자 1명.
  *
  * @property profileImageUrl 카카오 프로필 미설정 시 null
- * @property mission 이 사람이 스스로에게 건 미션. 아직 맹세하지 않았으면 null —
- *   `PENDING` 구간의 정상 상태이지 오류가 아니다
+ * @property mission 이 사람이 스스로에게 건 미션. 아직 맹세하지 않았으면 null
  */
 data class ContractParty(
-    val userId: Long,
     val nickname: String,
     val profileImageUrl: String?,
     val mission: String?,
@@ -60,14 +56,14 @@ data class ContractParty(
 data class Contract(
     val content: String,
     val isFinalized: Boolean,
-    val challengerSignature: Signature?,
-    val challengerSignedAt: LocalDateTime?,
+    val mySignature: Signature?,
+    val mySignedAt: LocalDateTime?,
     val opponentSignature: Signature?,
     val opponentSignedAt: LocalDateTime?,
 ) {
 
-    val challengerSignatureState: SignatureSlotState
-        get() = slotState(challengerSignature, challengerSignedAt)
+    val mySignatureState: SignatureSlotState
+        get() = slotState(mySignature, mySignedAt)
 
     val opponentSignatureState: SignatureSlotState
         get() = slotState(opponentSignature, opponentSignedAt)

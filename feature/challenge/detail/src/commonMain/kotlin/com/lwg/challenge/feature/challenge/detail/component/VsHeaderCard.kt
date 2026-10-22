@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
@@ -37,9 +36,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  * 상세 최상단 대결 헤더. 양측 아바타를 "VS" 로 마주 세우고 그 아래 헤드라인 한 줄을 붙인다.
  *
  * 헤드라인 문구·강조를 파라미터로 받는 이유: 이 한 자리의 주인이 "남은 시간: 5시간 32분"(마감 전) →
- * "판정 대기 중"(마감 후) → "승리"(판정 후) 로 바뀌는데, 무엇을 그릴지는 시각 비교뿐 아니라
- * **내가 어느 쪽인가**(관점) 까지 알아야 정해진다. 둘 다 Composable 밖에서 이미 끝나 있어, 여기서는
- * [headlineTone] 을 색·아이콘으로 옮기는 일만 한다.
+ * "판정 대기 중"(마감 후) → "승리"(판정 후) 로 바뀌고, 그 판단은 Composable 밖에서 이미 끝나 있어
+ * 여기서는 [headlineTone] 을 색·아이콘으로 옮기는 일만 한다.
  *
  * 상호작용이 없다 — 아바타는 표시 전용이라 탭 콜백을 뚫지 않는다.
  *
@@ -121,12 +119,9 @@ private data class HeadlineVisual(
  * 헤드라인 톤을 색·아이콘으로 옮긴다. 색만 따로 고르면 "승리" 에 시계 아이콘이 남는 조합이 생겨
  * 둘을 한 자리에서 같이 집는다.
  *
- * [Icons.Filled.Schedule] 은 **아직 결과가 없을 때만** 쓴다 — 그래서 색이 같은 중립이라도
- * [HeadlineTone.NEUTRAL] 과 [HeadlineTone.DECIDED_NEUTRAL] 이 다른 아이콘으로 갈린다.
- *
  * 승/패/무 세 톤은 홈 카드와 같은 승패무를 말하므로 [challengeOutcomeVisualOf] 에 위임한다 —
- * 상세만 매핑을 따로 들고 있으면 같은 결과가 두 화면에서 다른 색이 된다. 나머지 세 톤은 결과가
- * 아니라 **마감 전·판정 전·관점 미상** 이라는 상세 고유의 사정이라 여기 남는다.
+ * 상세만 매핑을 따로 들고 있으면 같은 결과가 두 화면에서 다른 색이 된다. 나머지 두 톤은 결과가
+ * 아니라 **마감 전·판정 전** 이라는 상세 고유의 사정이라 여기 남는다.
  */
 @Composable
 private fun headlineVisualOf(tone: HeadlineTone): HeadlineVisual = when (tone) {
@@ -138,12 +133,6 @@ private fun headlineVisualOf(tone: HeadlineTone): HeadlineVisual = when (tone) {
     HeadlineTone.NEUTRAL -> HeadlineVisual(
         accent = ChallengeTheme.colorScheme.onSurfaceVariant,
         icon = Icons.Filled.Schedule,
-    )
-
-    // 누군가는 이겼다는 사실은 참이라 트로피를 쓰고, 그게 보는 사람 것인지 몰라 색만 거둔다.
-    HeadlineTone.DECIDED_NEUTRAL -> HeadlineVisual(
-        accent = ChallengeTheme.colorScheme.onSurfaceVariant,
-        icon = Icons.Filled.EmojiEvents,
     )
 
     HeadlineTone.WIN -> outcomeVisual(ChallengeOutcome.WIN)
@@ -225,19 +214,6 @@ private fun VsHeaderCardAfterDeadlinePreview() {
             opponentNickname = "우건",
             headlineText = "판정 대기 중",
             headlineTone = HeadlineTone.NEUTRAL,
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun VsHeaderCardDecidedNeutralPreview() {
-    VsHeaderCardPreviewContainer {
-        VsHeaderCard(
-            myNickname = "지훈",
-            opponentNickname = "우건",
-            headlineText = "우건 승리",
-            headlineTone = HeadlineTone.DECIDED_NEUTRAL,
         )
     }
 }

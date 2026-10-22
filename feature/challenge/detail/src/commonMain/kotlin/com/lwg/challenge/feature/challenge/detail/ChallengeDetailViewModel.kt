@@ -3,23 +3,18 @@ package com.lwg.challenge.feature.challenge.detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
+import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
+import com.lwg.challenge.domain.model.challenge.ChallengeSide
 import com.lwg.challenge.domain.model.challenge.Contract
 import com.lwg.challenge.domain.model.challenge.SignatureSlotState
-import com.lwg.challenge.domain.model.challenge.outcomeFor
-import com.lwg.challenge.domain.model.user.CacheStrategy
 import com.lwg.challenge.domain.model.verification.ChallengeVerifications
 import com.lwg.challenge.domain.repository.ChallengeRepository
-import com.lwg.challenge.domain.repository.UserInfoRepository
 import com.lwg.challenge.domain.repository.VerificationRepository
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailModalEffect
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiEffect
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
 import com.lwg.challenge.feature.challenge.detail.contract.FORFEIT_BY_ME_TEXT
 import com.lwg.challenge.feature.challenge.detail.contract.FORFEIT_BY_OTHER_SUFFIX
-import com.lwg.challenge.feature.challenge.detail.contract.FORFEIT_UNKNOWN_ACTOR_TEXT
-import com.lwg.challenge.feature.challenge.detail.contract.MY_LABEL
-import com.lwg.challenge.feature.challenge.detail.contract.MY_MISSION_LABEL
-import com.lwg.challenge.feature.challenge.detail.contract.ResultView
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_NOT_SIGNED_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_UNREADABLE_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.STATUS_IN_PROGRESS
@@ -36,7 +31,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -53,7 +47,6 @@ private val HEADLINE_TICK_INTERVAL = 1.minutes
 class ChallengeDetailViewModel(
     @InjectedParam private val challengeId: Long,
     private val challengeRepository: ChallengeRepository,
-    private val userInfoRepository: UserInfoRepository,
     private val verificationRepository: VerificationRepository,
 ) : ViewModel() {
 
@@ -147,8 +140,6 @@ class ChallengeDetailViewModel(
         }
 
         loadJob = viewModelScope.launch {
-            val myUserId = myUserId()
-
             var loaded: ChallengeDetail? = null
             challengeRepository.getChallengeDetail(
                 challengeId = challengeId,
@@ -159,9 +150,9 @@ class ChallengeDetailViewModel(
 
             // 상세를 먼저 그려 두고 인증 현황이 도착할 때 다시 갱신하면 하단 슬롯이 CTA 에서 사진으로
             // 바뀌며 손가락 아래에서 버튼이 사라진다. 두 조회를 다 마친 뒤 한 번에 세운다.
-            val verifications = loadVerificationSection(myUserId)
-            _uiState.update { detail.toData(myUserId, verifications) }
-            startHeadlineTicker(detail.deadline, detail.resultView(myUserId))
+            val verifications = loadVerificationSection()
+            _uiState.update { detail.toData(verifications) }
+            startHeadlineTicker(detail.deadline, detail.myResult)
         }
     }
 
@@ -176,7 +167,7 @@ class ChallengeDetailViewModel(
      * @param result 매 회차 같은 값을 그대로 다시 넘긴다. 빠뜨리면 티커가 한 번 도는 것만으로 결과
      *   문구가 시간 표기로 되돌아간다.
      */
-    private fun startHeadlineTicker(deadline: LocalDateTime, result: ResultView?) {
+    private fun startHeadlineTicker(deadline: LocalDateTime, result: ChallengeOutcome?) {
         // retry() 로 두 번째 티커가 얹히면 같은 state 를 두 루프가 갱신한다.
         headlineTicker?.cancel()
         headlineTicker = viewModelScope.launch {
@@ -187,7 +178,7 @@ class ChallengeDetailViewModel(
         }
     }
 
-    private fun refreshHeadline(deadline: LocalDateTime, result: ResultView?) {
+    private fun refreshHeadline(deadline: LocalDateTime, result: ChallengeOutcome?) {
         _uiState.update { current ->
             // retry() 직후 아직 살아 있는 티커가 여기로 들어온다. Loading/Error 에는 갱신할 헤더
             // 표기 자체가 없다.
@@ -207,174 +198,68 @@ class ChallengeDetailViewModel(
     }
 
     /**
-     * 인증 현황을 '나 / 상대' 로 세운다. 모르면 `null` 이고 하단 슬롯은 [ChallengeDetailUiState.Data.canVerify] 만
-     * 따른다 — 진행 중이면 인증 CTA, 아니면 빈칸.
-     *
-     * 조회 실패를 [ChallengeDetailUiState.Error] 로 승격하지 않는 이유는 계약서만으로 화면이 이미
-     * 성립하기 때문이다 — 없는 건 사진과 뱃지뿐이다.
+     * 모르면 `null` 이고 하단 슬롯은 [ChallengeDetailUiState.Data.canVerify] 만 따른다.
+     * 계약서만으로 화면이 성립하므로 조회 실패를 [ChallengeDetailUiState.Error] 로 올리지 않는다.
      */
-    private suspend fun loadVerificationSection(myUserId: Long?): VerificationSection? {
-        // 관점을 모르면 어느 칸이 내 것인지 집을 수 없다. 받아 와도 '나/상대' 로 세울 수 없어 부르지 않는다.
-        if (myUserId == null) return null
-
+    private suspend fun loadVerificationSection(): VerificationSection? {
         var section: VerificationSection? = null
         verificationRepository.getVerifications(
             challengeId = challengeId,
-            onSuccess = { verifications -> section = verifications.toVerificationSection(myUserId) },
+            onSuccess = { verifications -> section = verifications.toVerificationSection() },
             // 사용자가 할 수 있는 조치가 없어 알리지 않는다.
             onError = {},
         )
         return section
     }
 
-    private fun ChallengeVerifications.toVerificationSection(myUserId: Long): VerificationSection? {
-        val mine = partyOf(myUserId) ?: return null
-        val other = if (mine.userId == challenger.userId) opponent else challenger
+    private fun ChallengeVerifications.toVerificationSection(): VerificationSection = VerificationSection(
+        myStatus = me.status,
+        myPhotoUrl = me.photoUrl,
+        myPhotoDeleted = me.photoDeleted,
+        myVerifiedAt = me.verifiedAt,
+        myAiReason = me.aiReason,
+        opponentStatus = opponent.status,
+        opponentPhotoUrl = opponent.photoUrl,
+        opponentPhotoDeleted = opponent.photoDeleted,
+        opponentVerifiedAt = opponent.verifiedAt,
+        opponentAiReason = opponent.aiReason,
+    )
 
-        return VerificationSection(
-            myStatus = mine.status,
-            myPhotoUrl = mine.photoUrl,
-            myPhotoDeleted = mine.photoDeleted,
-            myVerifiedAt = mine.verifiedAt,
-            myAiReason = mine.aiReason,
-            opponentStatus = other.status,
-            opponentPhotoUrl = other.photoUrl,
-            opponentPhotoDeleted = other.photoDeleted,
-            opponentVerifiedAt = other.verifiedAt,
-            opponentAiReason = other.aiReason,
-        )
-    }
-
-    /**
-     * 내 userId. 실패하면 `null` 이고 화면은 그대로 진행한다 — 관점 미상 fallback 이 흡수한다.
-     *
-     * 조회 실패를 스낵바로 알리지 않는 이유는 사용자가 할 수 있는 게 없기 때문이다. 계약서는
-     * 여전히 정확하게(역할 그대로) 보인다.
-     */
-    private suspend fun myUserId(): Long? =
-        userInfoRepository
-            .getUserInfo(onError = {}, cacheStrategy = CacheStrategy.CACHE_FIRST)
-            .firstOrNull()
-            ?.id
-
-    /**
-     * 서버는 [ChallengeDetail.challenger] / [ChallengeDetail.opponent] 를 역할 그대로 준다.
-     * 화면은 '나 / 상대' 로 보여줘야 하므로 내 userId 로 어느 쪽이 나인지 여기서 판정한다.
-     */
-    private fun ChallengeDetail.toData(
-        myUserId: Long?,
-        verifications: VerificationSection?,
-    ): ChallengeDetailUiState.Data {
+    private fun ChallengeDetail.toData(verifications: VerificationSection?): ChallengeDetailUiState.Data {
         // 시계는 ViewModel 에서만 읽는다 — 여기서 1회, 이후로는 티커가 1분마다 1회.
-        // Composable 에서 읽으면 recomposition 마다 시계를 보게 돼 갱신 주기가 렌더 사정에 끌려간다.
-        // 티커는 그 지점을 ViewModel 에 묶어 둔 채 주기만 명시적으로 고정한 것이다.
-        val now = nowKst()
-
-        val isMeOpponent = isMeOpponent(myUserId)
-        val isPerspectiveKnown = isPerspectiveKnown(myUserId)
-
-        val me = if (isMeOpponent) opponent else challenger
-        val other = if (isMeOpponent) challenger else opponent
-
-        // 관점을 모르면(userInfo 실패·양쪽 어디와도 불일치) 챌린저를 "나" 라고 부르지 않는다.
-        // 서명 아래 라벨이 "나" 인데 실제로는 상대 서명이면 계약서를 잘못 읽게 만든다.
-        // 계약이 역할 기준으로 내려오는 것과 같은 이유로, 모를 땐 역할 그대로 실명으로 보여준다.
-        // 서명 라벨과 계약서 미션 라벨은 한 카드에 같이 놓이므로 한 분기에서 같이 확정한다 —
-        // 따로 계산하면 한쪽만 고쳐서 "우건" 서명 위에 "나의 미션" 이 다시 붙는다.
-        val (myLabel, myMissionLabel) = if (isPerspectiveKnown) {
-            MY_LABEL to MY_MISSION_LABEL
-        } else {
-            challenger.nickname to "${challenger.nickname}의 미션"
-        }
-
-        val headline = headlineDisplay(resultView(myUserId), deadline, now)
+        val headline = headlineDisplay(myResult, deadline, nowKst())
 
         return ChallengeDetailUiState.Data(
-            myLabel = myLabel,
-            myMissionLabel = myMissionLabel,
             myMission = me.mission,
-            opponentNickname = other.nickname,
-            opponentMission = other.mission,
+            opponentNickname = opponent.nickname,
+            opponentMission = opponent.mission,
             betContent = betContent,
             headlineText = headline.text,
             headlineTone = headline.tone,
             deadlineAbsoluteText = deadlineAbsoluteText(challengeDate, deadline),
-            // 계약서가 없으면(soul-oath 이전 생성) 서명 묶음 자체가 없다. 빈 값으로 채우면 있지도
-            // 않은 맹세를 '서명 대기 중' 으로 그리게 된다.
-            signatures = contract?.toSignatureSection(isMeOpponent),
+            signatures = contract?.toSignatureSection(),
             verifications = verifications,
             canVerify = status == STATUS_IN_PROGRESS,
-            forfeitNoticeText = forfeitNotice(myUserId),
+            forfeitNoticeText = forfeitNotice(),
             isForfeiting = false,
         )
     }
 
-    /**
-     * 기권으로 끝난 챌린지에 붙일 안내 한 줄. 기권이 아니면 `null` 이고 그 자리가 통째로 빠진다.
-     *
-     * [myUserId] 비교를 먼저 두는 것이 계약이다 — 관점을 알 때만 "내가" 로 말하고, 관점을 모르면
-     * (`myUserId == null`) 자연히 실명 분기로 떨어진다. 라벨·헤드라인이 관점을 모를 때 "나" 를 버리고
-     * 실명으로 낮추는 것과 같은 판단이다.
-     */
-    private fun ChallengeDetail.forfeitNotice(myUserId: Long?): String? = when (forfeitedBy) {
+    private fun ChallengeDetail.forfeitNotice(): String? = when (forfeitedBy) {
         null -> null
-        myUserId -> FORFEIT_BY_ME_TEXT
-        challenger.userId -> "${challenger.nickname}$FORFEIT_BY_OTHER_SUFFIX"
-        opponent.userId -> "${opponent.nickname}$FORFEIT_BY_OTHER_SUFFIX"
-
-        // 양측 어느 userId 와도 맞지 않으면 닉네임을 지어낼 수 없다. 없는 이름을 날조하는 대신
-        // 아는 사실만 말한다.
-        else -> FORFEIT_UNKNOWN_ACTOR_TEXT
+        ChallengeSide.ME -> FORFEIT_BY_ME_TEXT
+        ChallengeSide.OPPONENT -> "${opponent.nickname}$FORFEIT_BY_OTHER_SUFFIX"
     }
 
-    /**
-     * 관점 판정. 라벨·서명·인증 칸·결과 문구가 모두 이 하나에 매달려 있어 식을 따로 적지 않는다 —
-     * 한쪽만 고치면 "우건" 서명 위에 "나의 미션" 이 붙는 것과 같은 어긋남이 결과 표기에서도 난다.
-     */
-    private fun ChallengeDetail.isMeOpponent(myUserId: Long?): Boolean =
-        myUserId != null && myUserId == opponent.userId
-
-    private fun ChallengeDetail.isPerspectiveKnown(myUserId: Long?): Boolean =
-        isMeOpponent(myUserId) || (myUserId != null && myUserId == challenger.userId)
-
-    /**
-     * 판정 결과를 어느 관점으로 말할지 정한다. 아직 판정 전이면 `null` 이고 헤더는 시간 표기로 남는다.
-     *
-     * 관점을 모르면 승패를 내 것으로 말할 수 없어 역할 실명으로 낮춘다 — 서명·미션 라벨이 같은
-     * 상황에서 "나" 를 버리는 것과 같은 판단이다.
-     */
-    private fun ChallengeDetail.resultView(myUserId: Long?): ResultView? {
-        val result = this.result ?: return null
-
-        return if (isPerspectiveKnown(myUserId)) {
-            ResultView.Mine(result.outcomeFor(isMeOpponent(myUserId)))
-        } else {
-            ResultView.ByRole(
-                result = result,
-                challengerNickname = challenger.nickname,
-                opponentNickname = opponent.nickname,
-            )
-        }
-    }
-
-    private fun Contract.toSignatureSection(isMeOpponent: Boolean): SignatureSection = SignatureSection(
-        mySignature = if (isMeOpponent) opponentSignature else challengerSignature,
-        mySignatureHint = signatureHint(
-            if (isMeOpponent) opponentSignatureState else challengerSignatureState,
-        ),
-        opponentSignature = if (isMeOpponent) challengerSignature else opponentSignature,
-        opponentSignatureHint = signatureHint(
-            if (isMeOpponent) challengerSignatureState else opponentSignatureState,
-        ),
+    private fun Contract.toSignatureSection(): SignatureSection = SignatureSection(
+        mySignature = mySignature,
+        mySignatureHint = signatureHint(mySignatureState),
+        opponentSignature = opponentSignature,
+        opponentSignatureHint = signatureHint(opponentSignatureState),
         isFinalized = isFinalized,
     )
 
-    /**
-     * 서명이 비어 보이는 이유를 문구로 확정한다.
-     *
-     * [SignatureSlotState.UNREADABLE] 은 **서명을 한 사람**이다. 이걸 '서명 대기 중' 으로 그리면
-     * 사용자에게 거짓을 보여주는 것이라 문구를 갈라 놓는다.
-     */
+    /** [SignatureSlotState.UNREADABLE] 은 서명을 한 사람이라 '서명 대기 중' 으로 그리면 거짓이 된다. */
     private fun signatureHint(state: SignatureSlotState): String = when (state) {
         SignatureSlotState.UNREADABLE -> SIGNATURE_UNREADABLE_HINT
         SignatureSlotState.NOT_SIGNED, SignatureSlotState.SIGNED -> SIGNATURE_NOT_SIGNED_HINT

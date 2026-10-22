@@ -42,19 +42,19 @@ class VerificationWireFixtureTest {
 
     // 한쪽만 인증한 상태 — 미인증 party 는 두 필드가 명시적 null (키는 존재)
     private val nullMaxVerificationsWire =
-        """{"error":false,"code":200,"message":"","data":{"challengeId":7,"challenger":{"userId":1,"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-08-14 15:32:10"},"opponent":{"userId":14,"status":"PENDING","photoUrl":null,"verifiedAt":null}}}"""
+        """{"error":false,"code":200,"message":"","data":{"challengeId":7,"me":{"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-08-14 15:32:10"},"opponent":{"status":"PENDING","photoUrl":null,"verifiedAt":null}}}"""
 
     private val bothVerifiedWire =
-        """{"error":false,"code":200,"message":"","data":{"challengeId":7,"challenger":{"userId":1,"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-08-14 15:32:10"},"opponent":{"userId":14,"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/opponent","verifiedAt":"2026-08-14 15:41:03"}}}"""
+        """{"error":false,"code":200,"message":"","data":{"challengeId":7,"me":{"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-08-14 15:32:10"},"opponent":{"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/opponent","verifiedAt":"2026-08-14 15:41:03"}}}"""
 
     // 탈퇴자가 낀 실측 응답 — 상대는 VERIFIED 인데 photoUrl 이 null 이고 photoDeleted 만 true 다.
     private val photoDeletedWire =
-        """{"error":false,"code":200,"message":"","data":{"challengeId":7,"challenger":{"userId":1,"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-08-14 15:32:10","photoDeleted":false},"opponent":{"userId":14,"status":"VERIFIED","photoUrl":null,"verifiedAt":"2026-08-14 15:41:03","photoDeleted":true}}}"""
+        """{"error":false,"code":200,"message":"","data":{"challengeId":7,"me":{"status":"VERIFIED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-08-14 15:32:10","photoDeleted":false},"opponent":{"status":"VERIFIED","photoUrl":null,"verifiedAt":"2026-08-14 15:41:03","photoDeleted":true}}}"""
 
-    // AI 판정이 실린 실측 응답 — 반려된 challenger 는 FAILED 인데 photoUrl 이 살아 있고, 판정이
+    // AI 판정이 실린 실측 응답 — 반려된 me 는 FAILED 인데 photoUrl 이 살아 있고, 판정이
     // 없는 opponent 는 aiReason 이 **명시적 null 키**로 온다 (서버가 그 모양을 계약 테스트로 잠갔다).
     private val aiReasonWire =
-        """{"error":false,"code":200,"message":"","data":{"challengeId":7,"challenger":{"userId":1,"status":"FAILED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-09-22 21:14:03","photoDeleted":false,"aiReason":"책상 위 커피잔 사진으로, 미션(주 3회 운동) 수행 증거로 보기 어렵습니다."},"opponent":{"userId":14,"status":"PENDING","photoUrl":null,"verifiedAt":null,"photoDeleted":false,"aiReason":null}}}"""
+        """{"error":false,"code":200,"message":"","data":{"challengeId":7,"me":{"status":"FAILED","photoUrl":"/api/v1/challenges/7/photos/challenger","verifiedAt":"2026-09-22 21:14:03","photoDeleted":false,"aiReason":"책상 위 커피잔 사진으로, 미션(주 3회 운동) 수행 증거로 보기 어렵습니다."},"opponent":{"status":"PENDING","photoUrl":null,"verifiedAt":null,"photoDeleted":false,"aiReason":null}}}"""
 
     @Test
     fun `null 최대 응답 원문이 역직렬화된다 - 명시적 null 키가 예외가 아니다`() {
@@ -63,7 +63,6 @@ class VerificationWireFixtureTest {
         assertEquals(200, response.code)
         assertFalse(response.error)
         assertEquals(7L, response.data.challengeId)
-        assertEquals(14L, response.data.opponent.userId)
         assertEquals("PENDING", response.data.opponent.status)
         assertNull(response.data.opponent.photoUrl)
         assertNull(response.data.opponent.verifiedAt)
@@ -75,29 +74,25 @@ class VerificationWireFixtureTest {
             .toChallengeVerifications(TEST_BASE_URL)
 
         assertEquals(7L, verifications.challengeId)
-        assertEquals(14L, verifications.opponent.userId)
         assertEquals(VerificationStatus.PENDING, verifications.opponent.status)
         assertNull(verifications.opponent.photoUrl)
         assertNull(verifications.opponent.verifiedAt)
 
-        assertEquals(VerificationStatus.VERIFIED, verifications.challenger.status)
+        assertEquals(VerificationStatus.VERIFIED, verifications.me.status)
         assertEquals(
             "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            verifications.challenger.photoUrl,
+            verifications.me.photoUrl,
         )
-        assertEquals(LocalDateTime(2026, 8, 14, 15, 32, 10), verifications.challenger.verifiedAt)
+        assertEquals(LocalDateTime(2026, 8, 14, 15, 32, 10), verifications.me.verifiedAt)
     }
 
     @Test
-    fun `양측 VERIFIED 응답이 역할 그대로 매핑된다`() {
+    fun `양측 VERIFIED 응답이 me 와 opponent 로 매핑된다`() {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(bothVerifiedWire)
             .toChallengeVerifications(TEST_BASE_URL)
-
-        assertEquals(1L, verifications.challenger.userId)
-        assertEquals(14L, verifications.opponent.userId)
-        assertEquals(VerificationStatus.VERIFIED, verifications.challenger.status)
+        assertEquals(VerificationStatus.VERIFIED, verifications.me.status)
         assertEquals(VerificationStatus.VERIFIED, verifications.opponent.status)
-        assertNotNull(verifications.challenger.photoUrl)
+        assertNotNull(verifications.me.photoUrl)
         assertNotNull(verifications.opponent.photoUrl)
         assertEquals(LocalDateTime(2026, 8, 14, 15, 41, 3), verifications.opponent.verifiedAt)
     }
@@ -111,8 +106,8 @@ class VerificationWireFixtureTest {
         assertNull(verifications.opponent.photoUrl)
         assertTrue(verifications.opponent.photoDeleted)
 
-        assertNotNull(verifications.challenger.photoUrl)
-        assertFalse(verifications.challenger.photoDeleted)
+        assertNotNull(verifications.me.photoUrl)
+        assertFalse(verifications.me.photoDeleted)
     }
 
     /**
@@ -124,7 +119,7 @@ class VerificationWireFixtureTest {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(nullMaxVerificationsWire)
             .toChallengeVerifications(TEST_BASE_URL)
 
-        assertFalse(verifications.challenger.photoDeleted)
+        assertFalse(verifications.me.photoDeleted)
         assertFalse(verifications.opponent.photoDeleted)
     }
 
@@ -137,14 +132,14 @@ class VerificationWireFixtureTest {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(aiReasonWire)
             .toChallengeVerifications(TEST_BASE_URL)
 
-        assertEquals(VerificationStatus.FAILED, verifications.challenger.status)
+        assertEquals(VerificationStatus.FAILED, verifications.me.status)
         assertEquals(
             "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            verifications.challenger.photoUrl,
+            verifications.me.photoUrl,
         )
-        assertEquals(LocalDateTime(2026, 9, 22, 21, 14, 3), verifications.challenger.verifiedAt)
+        assertEquals(LocalDateTime(2026, 9, 22, 21, 14, 3), verifications.me.verifiedAt)
 
-        val reason = assertNotNull(verifications.challenger.aiReason)
+        val reason = assertNotNull(verifications.me.aiReason)
         assertTrue(reason.startsWith("책상 위 커피잔"))
     }
 
@@ -168,9 +163,9 @@ class VerificationWireFixtureTest {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(nullMaxVerificationsWire)
             .toChallengeVerifications(TEST_BASE_URL)
 
-        assertNull(verifications.challenger.aiReason)
+        assertNull(verifications.me.aiReason)
         assertNull(verifications.opponent.aiReason)
-        assertEquals(VerificationStatus.VERIFIED, verifications.challenger.status, "응답 전체가 살아남는다")
+        assertEquals(VerificationStatus.VERIFIED, verifications.me.status, "응답 전체가 살아남는다")
     }
 
     @Test
@@ -196,9 +191,9 @@ class VerificationWireFixtureTest {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(isoWire)
             .toChallengeVerifications(TEST_BASE_URL)
 
-        assertNull(verifications.challenger.verifiedAt, "T 구분자는 wire 포맷이 아니라 읽지 않는다")
-        assertEquals(VerificationStatus.VERIFIED, verifications.challenger.status)
-        assertNotNull(verifications.challenger.photoUrl)
+        assertNull(verifications.me.verifiedAt, "T 구분자는 wire 포맷이 아니라 읽지 않는다")
+        assertEquals(VerificationStatus.VERIFIED, verifications.me.status)
+        assertNotNull(verifications.me.photoUrl)
         assertEquals(VerificationStatus.PENDING, verifications.opponent.status)
     }
 }

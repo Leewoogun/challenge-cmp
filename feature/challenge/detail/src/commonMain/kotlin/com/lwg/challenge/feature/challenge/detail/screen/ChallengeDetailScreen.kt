@@ -507,44 +507,6 @@ private fun ChallengeDetailScreenBothLosePreview() {
     }
 }
 
-/**
- * 관점 미상 + 판정 완료 — 승패를 내 것으로 말할 수 없어 실명("우건 승리")으로 내려가고, 톤도 축하색
- * 대신 중립으로 남는다(진 사람에게 승리색을 보여주지 않는다). 다만 결과는 이미 났으므로 아이콘은
- * 판정 대기 중의 시계가 아니라 트로피다.
- */
-@Preview
-@Composable
-private fun ChallengeDetailScreenUnknownPerspectiveResultPreview() {
-    PreviewContainer {
-        ChallengeDetailScreen(
-            uiState = previewData(
-                myLabel = "지훈",
-                headlineText = "우건 승리",
-                headlineTone = HeadlineTone.DECIDED_NEUTRAL,
-                verifications = null,
-                canVerify = false,
-            ),
-            onVerifyClick = {},
-            onForfeitClick = {},
-            onRetry = {},
-        )
-    }
-}
-
-/** 관점 미상 — 라벨이 "나" 가 아니라 챌린저 실명으로 나오고, 어느 칸이 내 것인지 몰라 현황도 빠진다. */
-@Preview
-@Composable
-private fun ChallengeDetailScreenUnknownPerspectivePreview() {
-    PreviewContainer {
-        ChallengeDetailScreen(
-            uiState = previewData(myLabel = "지훈", verifications = null),
-            onVerifyClick = {},
-            onForfeitClick = {},
-            onRetry = {},
-        )
-    }
-}
-
 /** 서명을 읽지 못한 칸 — "서명 대기 중" 이 아니라 실패를 밝힌다(서명은 한 사람이다). */
 @Preview
 @Composable
@@ -734,7 +696,6 @@ private fun previewVerifications(
 )
 
 private fun previewData(
-    myLabel: String = "나",
     myMission: String? = "책 30페이지 읽기",
     opponentMission: String? = "오늘 운동 1시간 하기",
     opponentSignature: Signature? = previewSignature(),
@@ -752,8 +713,6 @@ private fun previewData(
     forfeitNoticeText: String? = null,
     isForfeiting: Boolean = false,
 ) = ChallengeDetailUiState.Data(
-    myLabel = myLabel,
-    myMissionLabel = "${myLabel}의 미션",
     myMission = myMission,
     opponentNickname = "우건",
     opponentMission = opponentMission,

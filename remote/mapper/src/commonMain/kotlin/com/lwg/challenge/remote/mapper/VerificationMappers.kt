@@ -24,12 +24,11 @@ fun SubmitVerificationResponse.toSubmitResult(): VerificationSubmitResult = Veri
 fun ChallengeVerificationsResponse.toChallengeVerifications(baseUrl: String): ChallengeVerifications =
     ChallengeVerifications(
         challengeId = data.challengeId,
-        challenger = data.challenger.toPartyVerification(baseUrl),
+        me = data.me.toPartyVerification(baseUrl),
         opponent = data.opponent.toPartyVerification(baseUrl),
     )
 
 private fun PartyVerificationDto.toPartyVerification(baseUrl: String): PartyVerification = PartyVerification(
-    userId = userId,
     status = status.toVerificationStatusOrDefault(),
     photoUrl = joinPhotoUrl(baseUrl, photoUrl),
     verifiedAt = verifiedAt,

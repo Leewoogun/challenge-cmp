@@ -21,7 +21,6 @@ internal const val AI_REASON = "책상 위 커피잔 사진으로 미션 수행 
 class VerificationMappersTest {
 
     private val verifiedParty = PartyVerificationDto(
-        userId = 1L,
         status = "VERIFIED",
         photoUrl = "/api/v1/challenges/7/photos/challenger",
         verifiedAt = LocalDateTime(2026, 8, 14, 15, 32, 10),
@@ -57,18 +56,16 @@ class VerificationMappersTest {
         val verifications = ChallengeVerificationsResponse(
             ChallengeVerificationsData(
                 challengeId = 7L,
-                challenger = verifiedParty,
-                opponent = PartyVerificationDto(userId = 14L, status = "PENDING"),
+                me = verifiedParty,
+                opponent = PartyVerificationDto(status = "PENDING"),
             ),
         ).toChallengeVerifications(TEST_BASE_URL)
 
         assertEquals(
             "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            verifications.challenger.photoUrl,
+            verifications.me.photoUrl,
         )
-        assertEquals(LocalDateTime(2026, 8, 14, 15, 32, 10), verifications.challenger.verifiedAt)
-        assertEquals(1L, verifications.challenger.userId)
-        assertEquals(14L, verifications.opponent.userId)
+        assertEquals(LocalDateTime(2026, 8, 14, 15, 32, 10), verifications.me.verifiedAt)
         assertNull(verifications.opponent.photoUrl)
     }
 
@@ -77,9 +74,8 @@ class VerificationMappersTest {
         val verifications = ChallengeVerificationsResponse(
             ChallengeVerificationsData(
                 challengeId = 7L,
-                challenger = verifiedParty,
+                me = verifiedParty,
                 opponent = PartyVerificationDto(
-                    userId = 14L,
                     status = "VERIFIED",
                     photoUrl = null,
                     photoDeleted = true,
@@ -90,7 +86,7 @@ class VerificationMappersTest {
         assertTrue(verifications.opponent.photoDeleted)
         assertNull(verifications.opponent.photoUrl, "삭제된 칸은 조인할 대상이 없다")
         assertEquals(VerificationStatus.VERIFIED, verifications.opponent.status, "인증했다는 사실 자체는 남는다")
-        assertFalse(verifications.challenger.photoDeleted)
+        assertFalse(verifications.me.photoDeleted)
     }
 
     @Test
@@ -98,12 +94,12 @@ class VerificationMappersTest {
         val verifications = ChallengeVerificationsResponse(
             ChallengeVerificationsData(
                 challengeId = 7L,
-                challenger = verifiedParty,
-                opponent = PartyVerificationDto(userId = 14L, status = "PENDING"),
+                me = verifiedParty,
+                opponent = PartyVerificationDto(status = "PENDING"),
             ),
         ).toChallengeVerifications(TEST_BASE_URL)
 
-        assertFalse(verifications.challenger.photoDeleted)
+        assertFalse(verifications.me.photoDeleted)
         assertFalse(verifications.opponent.photoDeleted)
     }
 
@@ -116,22 +112,21 @@ class VerificationMappersTest {
         val verifications = ChallengeVerificationsResponse(
             ChallengeVerificationsData(
                 challengeId = 7L,
-                challenger = PartyVerificationDto(
-                    userId = 1L,
+                me = PartyVerificationDto(
                     status = "FAILED",
                     photoUrl = "/api/v1/challenges/7/photos/challenger",
                     verifiedAt = LocalDateTime(2026, 9, 22, 21, 14, 3),
                     aiReason = AI_REASON,
                 ),
-                opponent = PartyVerificationDto(userId = 14L, status = "PENDING"),
+                opponent = PartyVerificationDto(status = "PENDING"),
             ),
         ).toChallengeVerifications(TEST_BASE_URL)
 
-        assertEquals(VerificationStatus.FAILED, verifications.challenger.status)
-        assertEquals(AI_REASON, verifications.challenger.aiReason)
+        assertEquals(VerificationStatus.FAILED, verifications.me.status)
+        assertEquals(AI_REASON, verifications.me.aiReason)
         assertEquals(
             "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            verifications.challenger.photoUrl,
+            verifications.me.photoUrl,
             "반려됐다고 사진을 버리지 않는다",
         )
     }
@@ -141,12 +136,12 @@ class VerificationMappersTest {
         val verifications = ChallengeVerificationsResponse(
             ChallengeVerificationsData(
                 challengeId = 7L,
-                challenger = verifiedParty,
-                opponent = PartyVerificationDto(userId = 14L, status = "PENDING", aiReason = null),
+                me = verifiedParty,
+                opponent = PartyVerificationDto(status = "PENDING", aiReason = null),
             ),
         ).toChallengeVerifications(TEST_BASE_URL)
 
-        assertNull(verifications.challenger.aiReason, "판정이 없는 칸은 빈 문자열로 뭉개지 않는다")
+        assertNull(verifications.me.aiReason, "판정이 없는 칸은 빈 문자열로 뭉개지 않는다")
         assertNull(verifications.opponent.aiReason)
     }
 
@@ -220,14 +215,14 @@ class VerificationMappersTest {
         val verifications = ChallengeVerificationsResponse(
             ChallengeVerificationsData(
                 challengeId = 7L,
-                challenger = verifiedParty,
-                opponent = PartyVerificationDto(userId = 14L, status = "PENDING"),
+                me = verifiedParty,
+                opponent = PartyVerificationDto(status = "PENDING"),
             ),
         ).toChallengeVerifications("http://10.0.2.2:8080")
 
         assertEquals(
             "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            verifications.challenger.photoUrl,
+            verifications.me.photoUrl,
         )
         assertNull(verifications.opponent.photoUrl)
     }

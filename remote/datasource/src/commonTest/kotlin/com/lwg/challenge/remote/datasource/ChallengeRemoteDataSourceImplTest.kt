@@ -97,14 +97,12 @@ class ChallengeRemoteDataSourceImplTest {
         challengeDate = LocalDate(2026, 8, 3),
         deadline = LocalDateTime(2026, 8, 4, 0, 0, 0),
         betContent = "커피 사기",
-        challenger = ContractPartyDto(
-            userId = 1L,
+        me = ContractPartyDto(
             nickname = "이우건",
             profileImageUrl = null,
             mission = "운동 1시간",
         ),
         opponent = ContractPartyDto(
-            userId = 14L,
             nickname = "테스터1",
             profileImageUrl = null,
             mission = "책 30페이지",
@@ -112,10 +110,10 @@ class ChallengeRemoteDataSourceImplTest {
         contract = ContractDto(
             content = "계약서 본문",
             isFinalized = false,
-            challengerSignature = SignatureCodec.encode(
+            mySignature = SignatureCodec.encode(
                 Signature(listOf(SignatureStroke(listOf(SignaturePoint(123, 456))))),
             ),
-            challengerSignedAt = LocalDateTime(2026, 8, 3, 11, 20, 0),
+            mySignedAt = LocalDateTime(2026, 8, 3, 11, 20, 0),
         ),
     )
 
@@ -421,9 +419,9 @@ class ChallengeRemoteDataSourceImplTest {
         assertEquals(emptyList(), errors)
         val detail = details.single()
         assertEquals(7L, detail.challengeId)
-        assertEquals("이우건", detail.challenger.nickname)
+        assertEquals("이우건", detail.me.nickname)
         assertEquals("테스터1", detail.opponent.nickname)
-        assertEquals(LocalDateTime(2026, 8, 3, 11, 20, 0), assertNotNull(detail.contract).challengerSignedAt)
+        assertEquals(LocalDateTime(2026, 8, 3, 11, 20, 0), assertNotNull(detail.contract).mySignedAt)
     }
 
     @Test
@@ -559,7 +557,9 @@ class ChallengeRemoteDataSourceImplTest {
 private class FakeChallengeApi(
     private val createResult: ApiResult<ChallengeCreateResponse> = ApiResult.Success(ChallengeCreateResponse()),
     private val receivedResult: ApiResult<ReceivedChallengesResponse> = ApiResult.Success(ReceivedChallengesResponse()),
-    private val detailResult: ApiResult<ChallengeDetailResponse> = ApiResult.Success(ChallengeDetailResponse()),
+    private val detailResult: ApiResult<ChallengeDetailResponse> = ApiResult.Success(
+        ChallengeDetailResponse(ChallengeDetailData(me = ContractPartyDto(), opponent = ContractPartyDto())),
+    ),
     private val historiesResult: ApiResult<ChallengeHistoryResponse> = ApiResult.Success(ChallengeHistoryResponse()),
     private val acceptResult: ApiResult<AcceptChallengeResponse> = ApiResult.Success(AcceptChallengeResponse()),
     private val rejectResult: ApiResult<RejectChallengeResponse> = ApiResult.Success(RejectChallengeResponse()),

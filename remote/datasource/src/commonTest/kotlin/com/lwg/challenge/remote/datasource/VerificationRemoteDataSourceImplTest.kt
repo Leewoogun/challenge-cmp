@@ -46,13 +46,12 @@ class VerificationRemoteDataSourceImplTest {
 
     private val verificationsData = ChallengeVerificationsData(
         challengeId = 7L,
-        challenger = PartyVerificationDto(
-            userId = 1L,
+        me = PartyVerificationDto(
             status = "VERIFIED",
             photoUrl = "/api/v1/challenges/7/photos/challenger",
             verifiedAt = LocalDateTime(2026, 8, 14, 15, 32, 10),
         ),
-        opponent = PartyVerificationDto(userId = 14L, status = "PENDING"),
+        opponent = PartyVerificationDto(status = "PENDING"),
     )
 
     private fun dataSource(api: FakeVerificationApi = FakeVerificationApi()) =
@@ -196,7 +195,7 @@ class VerificationRemoteDataSourceImplTest {
         assertEquals(7L, api.capturedVerificationsId)
         assertEquals(emptyList(), errors)
         val verifications = results.single()
-        assertEquals(VerificationStatus.VERIFIED, verifications.challenger.status)
+        assertEquals(VerificationStatus.VERIFIED, verifications.me.status)
         assertEquals(VerificationStatus.PENDING, verifications.opponent.status)
         assertNull(verifications.opponent.photoUrl)
     }
@@ -220,7 +219,11 @@ private class FakeVerificationApi(
     private val submitResult: ApiResult<SubmitVerificationResponse> =
         ApiResult.Success(SubmitVerificationResponse()),
     private val verificationsResult: ApiResult<ChallengeVerificationsResponse> =
-        ApiResult.Success(ChallengeVerificationsResponse()),
+        ApiResult.Success(
+            ChallengeVerificationsResponse(
+                ChallengeVerificationsData(me = PartyVerificationDto(), opponent = PartyVerificationDto()),
+            ),
+        ),
 ) : VerificationApi {
 
     var capturedSubmitId: Long? = null

@@ -6,10 +6,8 @@ import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.signature.Signature
 import kotlinx.datetime.LocalDateTime
 
-/** 관점(내가 어느 쪽인지)을 판정했을 때 내 서명 칸에 붙는 라벨. */
 internal const val MY_LABEL = "나"
 
-/** 관점을 판정했을 때 계약서 내 미션 행에 붙는 라벨. */
 internal const val MY_MISSION_LABEL = "나의 미션"
 
 /** 아직 서명하지 않은 칸의 안내 문구. */
@@ -35,11 +33,8 @@ internal const val FORFEIT_ENTRY_TEXT = "기권하기"
 /** 내가 기권했을 때의 안내. */
 internal const val FORFEIT_BY_ME_TEXT = "내가 기권했어요"
 
-/** 기권자를 실명으로 말할 때의 접미. `"${nickname}$FORFEIT_BY_OTHER_SUFFIX"`. */
+/** 상대가 기권했을 때의 접미. `"${nickname}$FORFEIT_BY_OTHER_SUFFIX"`. */
 internal const val FORFEIT_BY_OTHER_SUFFIX = "님이 기권했어요"
-
-/** 기권자가 양측 어느 쪽과도 맞지 않을 때. 아는 사실만 말한다. */
-internal const val FORFEIT_UNKNOWN_ACTOR_TEXT = "기권으로 끝났어요"
 
 /**
  * AI 반려 사유 앞에 붙는 접두. `"$VERIFICATION_REJECTED_PREFIX$aiReason"`.
@@ -61,10 +56,6 @@ sealed interface ChallengeDetailUiState {
     data class Error(val message: String) : ChallengeDetailUiState
 
     /**
-     * @property myLabel 보통 [MY_LABEL] 이지만, 내가 어느 쪽인지 판정하지 못하면 챌린저 닉네임이 온다.
-     *   관점을 모르는 채 "나" 라고 부르면 계약서를 잘못 읽게 되므로 그럴 땐 역할 그대로 보여준다.
-     * @property myMissionLabel [myLabel] 과 같은 판정에서 함께 나온다. 서명 라벨만 실명으로 낮추고
-     *   계약서 행은 "나의 미션" 으로 두면 한 카드 안에서 관점을 안다/모른다가 엇갈린다.
      * @property myMission 아직 맹세하지 않았으면 `null` — 빈 문자열로 뭉개면 값 없는 행을 그린다.
      * @property opponentMission 상대가 아직 맹세하지 않았으면(`PENDING`) `null` 이고 행 자체가 빠진다.
      * @property headlineText 헤더 한 자리를 남은 시간 → "판정 대기 중" → 판정 결과가 차례로
@@ -79,17 +70,13 @@ sealed interface ChallengeDetailUiState {
      *   재제출이 사진 교체로 허용되면서 `VERIFIED` 가 진입점을 닫을 근거가 아니게 됐다. 마감 뒤의
      *   교체는 서버가 여전히 거부하므로 그 조건만 남는다.
      * @property forfeitNoticeText 기권으로 끝난 챌린지에만 붙는 한 줄("내가 기권했어요" /
-     *   "우건님이 기권했어요"). 기권이 아니면 `null` 이고 그 자리가 통째로 빠진다. 관점 판정이 이미
-     *   끝난 값이라 화면이 다시 누가 기권했는지 묻지 않는다. [headlineText] 와 달리 시간이 흘러도
-     *   변하지 않아 티커가 건드리지 않는다.
+     *   "우건님이 기권했어요"). 기권이 아니면 `null` 이고 그 자리가 통째로 빠진다.
      * @property isForfeiting 기권 요청이 나가 있는 동안 참. 진입점을 잠그는 데만 쓴다. 전체 화면
      *   로딩으로 덮지 않는 이유는 이미 읽고 있던 계약서가 사라지기 때문이다
      *   (`MyPageUiState.isWithdrawing` 과 같은 판단).
      */
     @Immutable
     data class Data(
-        val myLabel: String,
-        val myMissionLabel: String,
         val myMission: String?,
         val opponentNickname: String,
         val opponentMission: String?,
@@ -100,7 +87,7 @@ sealed interface ChallengeDetailUiState {
         /** 계약서가 없는 챌린지(soul-oath 이전 생성)면 null. 서명 블록을 통째로 그리지 않는다. */
         val signatures: SignatureSection?,
         /**
-         * 인증 현황을 모르면(조회 실패·관점 미상) null. 사진도 뱃지도 없이 하단 슬롯은 [canVerify] 만
+         * 인증 현황 조회에 실패하면 null. 사진도 뱃지도 없이 하단 슬롯은 [canVerify] 만
          * 따른다 — 진행 중이면 인증 CTA, 아니면 빈칸.
          */
         val verifications: VerificationSection?,
@@ -109,9 +96,12 @@ sealed interface ChallengeDetailUiState {
         val isForfeiting: Boolean,
     ) : ChallengeDetailUiState {
 
+        val myLabel: String get() = MY_LABEL
+
+        val myMissionLabel: String get() = MY_MISSION_LABEL
+
         val opponentLabel: String get() = opponentNickname
 
-        /** 상대 미션 카드 라벨. [myMissionLabel] 과 달리 관점 판정과 무관해 닉네임에서 바로 만든다. */
         val opponentMissionLabel: String get() = "${opponentNickname}의 미션"
 
         val myVerificationStatus: VerificationStatus? get() = verifications?.myStatus
@@ -186,7 +176,7 @@ sealed interface ChallengeDetailUiState {
          * 내리는 결론이고 그 시점이 곧 마감이라, `FAILED` 를 보는 순간 챌린지는 이미 닫혀 있고
          * [canVerify] 가 false 다. 다시 찍을 창이 구조적으로 존재하지 않는다.
          *
-         * [verifications] 가 `null`(조회 실패·관점 미상) 이면 앞 분기들이 모두 빗나가 [canVerify] 로
+         * [verifications] 가 `null`(조회 실패) 이면 앞 분기들이 모두 빗나가 [canVerify] 로
          * 내려간다 — 의도한 경로다.
          */
         val myMissionSlot: MyMissionSlot
@@ -212,7 +202,7 @@ sealed interface ChallengeDetailUiState {
          * 기권 진입점과 다시 찍기가 동시에 보이는 조합이 구조적으로 존재하지 않는다. 이 배타성이
          * 이 파생의 존재 이유이고, 별도 가드로 지키지 않는 이유다.
          *
-         * 인증 현황을 모르면([verifications] 이 `null` — 조회 실패·관점 미상) [myMissionSlot] 이
+         * 인증 현황을 모르면([verifications] 이 `null` — 조회 실패) [myMissionSlot] 이
          * [MyMissionSlot.VERIFY_CTA] 로 떨어지므로 기권 진입점도 함께 열린다. 의도한 것이다 —
          * 인증 CTA 와 같은 근거로 열고, 실제 자격은 서버가 판정한다. 여기에만 가드를 더하면 두
          * 진입점이 서로 다른 근거로 갈린다.

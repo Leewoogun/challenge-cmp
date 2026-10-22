@@ -1,40 +1,27 @@
 package com.lwg.challenge.remote.mapper
 
-import com.lwg.challenge.domain.model.challenge.ChallengeResult
+import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
+import com.lwg.challenge.domain.model.challenge.ChallengeSide
 import com.lwg.challenge.domain.model.challenge.SignatureSlotState
-import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * 2026-08-03 로컬 실서버 `GET /api/v1/challenges/{18,21}` 실제 응답. 손으로 쓴 픽스처가 아니라
- * 서버가 실제로 보낸 본문이다. 서버가 shape 을 바꾸면 이 테스트가 깨진다.
+ * `GET /api/v1/challenges/{id}` 원문 JSON 에서 도메인까지 한 번에 통과시킨다.
  *
- * [ChallengeDetailMapperTest] 는 DTO 를 코드로 조립해 매퍼만 검증한다 — 그래서 DTO 바인딩 층
- * (JSON 키 이름, 날짜 포맷, 서명이 객체가 아니라 문자열로 오는지) 이 통째로 사각지대다.
- * 이 테스트는 원문 바이트에서 시작해 도메인 모델까지 한 번에 통과시켜 그 구간을 덮는다.
- *
- * IN_PROGRESS 와 PENDING 두 상태를 모두 고정한다. 처음에는 IN_PROGRESS 만 떠 뒀는데, 그건
- * 유일하게 동작하는 상태였고 화면이 실제로 여는 PENDING 은 역직렬화가 깨져 있었다.
- * 실서버에서 떴다는 사실이 대표 응답을 떴다는 뜻은 아니다.
- *
- * 다만 "서버가 shape 을 바꾸면 깨진다" 는 키가 **줄어들** 때만 참이다. result / forfeitedBy 가
- * 뒤늦게 추가됐을 때 이 테스트는 깨지지 않았다 — 늘어난 키는 `ignoreUnknownKeys` 가 흡수한다.
- * 키가 추가되는 방향의 변경은 여기서 잡히지 않으니, 새 필드는 픽스처를 새로 떠서 덮어야 한다.
- *
- * 세 번째 픽스처([nullMaxWireResponse])는 성격이 다르다. 앞의 둘은 실서버에서 뜬 것이라
- * "지금 존재하는 것"만 덮는다. 이건 계약 §3.1 nullable 표에서 파생한 "계약이 허용하는 것" 이고,
- * 모든 nullable 이 동시에 null 인 조합은 실서버로 만들 수 없어 backend-dev 가 서버 테스트에서
- * 합성해 넘겼다.
+ * [inProgressWireResponse] · [completedWireResponse] · [notSignedWireResponse] 는 2026-10-07 로컬 서버에서
+ * 이우건(user 1) 토큰으로 뜬 실제 응답이다. [nullMaxWireResponse] · [forfeitedWireResponse] 는 실서버로
+ * 만들기 어려운 조합이라 같은 shape 으로 합성했다.
  */
 class ChallengeDetailWireFixtureTest {
 
@@ -47,353 +34,128 @@ class ChallengeDetailWireFixtureTest {
         prettyPrint = true
     }
 
-    // 🔴 라벨 — 이 픽스처와 아래 [pendingWireResponse] 는 **2026-08-03 캡처 당시의 서버**다.
-    // 그때는 `result` 키가 생략됐지만 **현재 서버는 모든 상태에서 그 키를 항상 보낸다**.
-    // `result` 는 challenge-result feature 에서 나중에 추가된 필드이고, 이 둘은 그 필드가
-    // 존재하기 이전의 서버를 박제한 것이다.
-    // 근거(서버 레포) — `WireShapeContractTest` 가 `@JsonInclude(NON_NULL)` **부재**를 계약으로
-    // 고정하고, `ChallengeDetailControllerTest` 가 응답 **원문**에 `"result":null` 이 있음을 단언한다.
-    // 따라서 이 둘은 **현행 wire 의 증거가 아니라 '키 부재 내성' 의 증거로만 유효하다** — 매퍼가
-    // 키 부재를 견딘다는 것, 즉 누군가 전역 `@JsonInclude(NON_NULL)` 을 켜는 날의 안전망이다.
-    // 현행 shape 은 [nullMaxWireResponse] · [completedWireResponse] · 기권 전/후 쌍이 대표한다.
-    // 본문은 캡처 원문 그대로다. 사람이 손대는 순간 증거이기를 그만두므로 한 글자도 고치지 않는다.
-    private val wireResponse =
-        """{"data":{"challengeId":18,"status":"IN_PROGRESS","challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":16,"nickname":"테스터3","profileImageUrl":null,"mission":"운동 1시간"},"opponent":{"userId":15,"nickname":"테스터2","profileImageUrl":null,"mission":"책 30페이지 읽기"},"contract":{"content":"영혼의 맹세\n\n2026년 8월 3일, 테스터3와 테스터2는\n아래의 약속을 걸고 맹세한다.\n\n· 테스터3의 미션: 운동 1시간\n· 테스터2의 미션: 책 30페이지 읽기\n· 내기: 커피 사기\n· 마감: 2026년 8월 3일 24:00\n\n서명한 맹세는 무를 수 없다.","isFinalized":true,"challengerSignature":"{\"v\":1,\"g\":1000,\"s\":[[123,456,130,460],[700,200,705,210]]}","challengerSignedAt":"2026-08-03 13:37:12","opponentSignature":"{\"v\":1,\"g\":1000,\"s\":[[123,456,130,460],[700,200,705,210]]}","opponentSignedAt":"2026-08-03 13:37:13"}},"error":false,"code":200,"message":""}"""
+    private val inProgressWireResponse =
+        """{"data":{"challengeId":33,"status":"IN_PROGRESS","myResult":null,"forfeitedBy":null,"challengeDate":"2026-10-07","deadline":"2026-10-08 00:00:00","betContent":"커피","me":{"nickname":"이우건","profileImageUrl":"http://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http%3A%2F%2Ft1.kakaocdn.net%2Faccount_images%2Fdefault_profile.jpeg","mission":"미션입니다"},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":"내 미션"},"contract":{"content":"영혼의 맹세\n\n2026년 10월 7일, 이우건과 테스터1은\n아래의 약속을 걸고 맹세한다.\n\n· 이우건의 미션: 미션입니다\n· 테스터1의 미션: 내 미션\n· 내기: 커피\n· 마감: 2026년 10월 7일 24:00\n\n서명한 맹세는 무를 수 없다.","isFinalized":true,"mySignature":"{\"v\":1,\"g\":1000,\"s\":[[353,682,363,627,376,584,395,535,416,483,438,431,459,385,484,336,507,295,526,267,544,244,557,229,568,219,577,215,583,216,587,221,590,230,596,260,598,290,600,328,600,370,600,415,600,455,599,502,600,549,600,590,600,629,602,665,604,696,607,718,610,735,614,747,618,754,627,757,639,752,653,740,671,724,690,706,707,687,726,665,747,639,766,614,784,586,807,554,829,524,851,498,872,480,892,472,911,472,926,479,938,491,948,508,957,531,963,559,969,589,974,623,978,668,985,756,986,758]]}","mySignedAt":"2026-10-07 10:51:37","opponentSignature":"{\"v\":1,\"g\":1000,\"s\":[[220,476,222,491,227,522,248,641,262,701,279,752,296,780,317,768,351,684,396,563,442,466,475,410,491,387,503,380,515,384,535,416,546,455,563,562,578,701,594,805,604,854,612,867,627,859,652,816,684,756,709,706,734,662,761,634,792,627,829,622,868,608,913,594,946,591,948,591]]}","opponentSignedAt":"2026-10-07 11:00:31"}},"error":false,"code":200,"message":""}"""
 
-    // 🔴 위 [wireResponse] 라벨과 같은 2026-08-03 캡처 — `result` 키가 없는 옛 서버 shape 이다.
-    // `GET /api/v1/challenges/21` — 맹세 화면이 실제로 여는 상태. 상대가 아직 맹세하지 않아
-    // opponent.mission 이 명시적 null 로 온다. 서명 획 좌표만 앞 3점으로 줄였다.
-    private val pendingWireResponse =
-        """{"data":{"challengeId":21,"status":"PENDING","challengeDate":"2026-08-04","deadline":"2026-08-05 00:00:00","betContent":"Coffee","challenger":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":"Run5km"},"opponent":{"userId":15,"nickname":"테스터2","profileImageUrl":null,"mission":null},"contract":{"content":"영혼의 맹세","isFinalized":false,"challengerSignature":"{\"v\":1,\"g\":1000,\"s\":[[93,204,99,217,104,229]]}","challengerSignedAt":"2026-08-03 14:10:59","opponentSignature":null,"opponentSignedAt":null}},"error":false,"code":200,"message":""}"""
-
-    // 계약 §3.1 nullable 표의 모든 항목이 동시에 null 인 "null 최대" 응답. contract 자체가 null 인
-    // 챌린지는 soul-oath 도입 이전에 만들어진 것이라 계약서가 없다 — 오류가 아니라 정상 상태다.
-    // result 는 IN_PROGRESS 라 명시적 null 로 온다 (키는 존재). forfeitedBy 도 같다 — 기권 없이
-    // 진행 중이라 값이 없을 뿐, 서버는 모든 상태에서 키를 실어 보낸다.
-    private val nullMaxWireResponse =
-        """{"data":{"challengeId":7,"status":"IN_PROGRESS","result":null,"forfeitedBy":null,"challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":1,"nickname":"이우건","profileImageUrl":null,"mission":null},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":null},"contract":null},"error":false,"code":200,"message":""}"""
-
-    // 판정이 끝난 챌린지. 위의 두 실서버 픽스처는 result 도입 이전에 뜬 것이라 키 자체가 없고,
-    // 그건 그것대로 '키 누락도 null 로 떨어진다' 를 고정한다. 값이 실린 shape 은 여기서 덮는다.
     private val completedWireResponse =
-        """{"data":{"challengeId":30,"status":"COMPLETED","result":"CHALLENGER_WIN","challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":16,"nickname":"테스터3","profileImageUrl":null,"mission":"운동 1시간"},"opponent":{"userId":15,"nickname":"테스터2","profileImageUrl":null,"mission":"책 30페이지 읽기"},"contract":null},"error":false,"code":200,"message":""}"""
+        """{"data":{"challengeId":31,"status":"COMPLETED","myResult":"LOSE","forfeitedBy":null,"challengeDate":"2026-09-02","deadline":"2026-09-03 00:00:00","betContent":"사진 변경 테스트","me":{"nickname":"이우건","profileImageUrl":"http://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http%3A%2F%2Ft1.kakaocdn.net%2Faccount_images%2Fdefault_profile.jpeg","mission":"사진 변경 이우건"},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":"사진 변경"},"contract":{"content":"영혼의 맹세\n\n2026년 9월 2일, 테스터1과 이우건은\n아래의 약속을 걸고 맹세한다.\n\n· 테스터1의 미션: 사진 변경\n· 이우건의 미션: 사진 변경 이우건\n· 내기: 사진 변경 테스트\n· 마감: 2026년 9월 2일 24:00\n\n서명한 맹세는 무를 수 없다.","isFinalized":true,"mySignature":"{\"v\":1,\"g\":1000,\"s\":[[102,413,116,450,125,483,137,524,150,567,163,608,177,652,189,687,201,717,213,740,227,762,241,777,255,786,269,787,283,778,296,765,311,739,326,708,342,673,357,634,373,591,388,548,401,504,412,455,420,407,425,356,428,307,429,260,429,221,429,188,430,165,431,151,433,148,443,145,457,154,476,183,497,226,521,278,546,339,570,398,594,464,617,528,638,586,656,641,672,688,686,730,697,765,706,789,712,805,717,815,723,821,728,822,733,815,740,797,747,768,751,735,753,696,755,653,755,652]]}","mySignedAt":"2026-09-02 12:45:31","opponentSignature":"{\"v\":1,\"g\":1000,\"s\":[[344,716,339,719,339,716,339,709,342,640,367,453,412,281,445,177,462,147,475,139,483,151,489,207,493,312,496,461,509,604,527,708,546,759,567,771,590,753,621,704,655,655,689,616,718,576,742,552,757,559,770,589,784,639,795,681,803,705,823,700,845,683]]}","opponentSignedAt":"2026-09-02 12:45:11"}},"error":false,"code":200,"message":""}"""
 
-    // 기권으로 끝난 챌린지. backend-dev 실서버 캡처 — 2026-09-05 23:00 KST, throwaway DB
-    // `challenge_forfeit_capture` + 포트 18082.
-    // 경로: test-login 1·2 → 친구 → 신청 → 수락 → user2(opponent) 기권 → `GET /api/v1/challenges/1`.
-    // `curl` 출력 원문 그대로이고 손댄 곳이 0이다 — [wireResponse] 와 같은 부류(서버가 실제로 보낸
-    // 바이트)다. opponent(userId 2)가 기권했으므로 result 는 반대편 승리인 CHALLENGER_WIN 이다.
-    //
-    // 아래 [forfeitedBeforeWireResponse] 와 **같은 챌린지의 기권 전/후 한 쌍**이다.
-    // status · result · forfeitedBy 세 필드만 다르고 그 diff 가 이 feature 의 wire 변경 전부다.
+    // 내가 수락하지 않은 채 만료된 챌린지 — 내 미션과 서명이 없다.
+    private val notSignedWireResponse =
+        """{"data":{"challengeId":24,"status":"EXPIRED","myResult":null,"forfeitedBy":null,"challengeDate":"2026-08-07","deadline":"2026-08-08 00:00:00","betContent":"fcm","me":{"nickname":"이우건","profileImageUrl":"http://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http%3A%2F%2Ft1.kakaocdn.net%2Faccount_images%2Fdefault_profile.jpeg","mission":null},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":"푸쉬"},"contract":{"content":"영혼의 맹세\n\n2026년 8월 7일, 테스터1과 이우건은\n아래의 약속을 걸고 맹세한다.\n\n· 테스터1의 미션: 푸쉬\n· 이우건의 미션: (수락 시 기재)\n· 내기: fcm\n· 마감: 2026년 8월 7일 24:00\n\n서명한 맹세는 무를 수 없다.","isFinalized":false,"mySignature":null,"mySignedAt":null,"opponentSignature":"{\"v\":1,\"g\":1000,\"s\":[[119,710,124,697,137,644,154,546,166,462,179,373,201,275,229,179,259,108,290,91,322,109,365,164,406,250,447,352,485,469,513,573,537,648,557,696,576,724,597,735,624,721,649,679,661,639,687,534,696,497]]}","opponentSignedAt":"2026-08-07 14:24:05"}},"error":false,"code":200,"message":""}"""
+
+    private val nullMaxWireResponse =
+        """{"data":{"challengeId":7,"status":"IN_PROGRESS","myResult":null,"forfeitedBy":null,"challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","me":{"nickname":"이우건","profileImageUrl":null,"mission":null},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":null},"contract":null},"error":false,"code":200,"message":""}"""
+
     private val forfeitedWireResponse =
-        """{"data":{"challengeId":1,"status":"COMPLETED","result":"CHALLENGER_WIN","forfeitedBy":2,"challengeDate":"2026-09-06","deadline":"2026-09-07 00:00:00","betContent":"커피 사기","challenger":{"userId":1,"nickname":"테스터1","profileImageUrl":null,"mission":"운동 1시간"},"opponent":{"userId":2,"nickname":"테스터2","profileImageUrl":null,"mission":"책 30쪽"},"contract":{"content":"영혼의 맹세\n\n2026년 9월 6일, 테스터1과 테스터2는\n아래의 약속을 걸고 맹세한다.\n\n· 테스터1의 미션: 운동 1시간\n· 테스터2의 미션: 책 30쪽\n· 내기: 커피 사기\n· 마감: 2026년 9월 6일 24:00\n\n서명한 맹세는 무를 수 없다.","isFinalized":true,"challengerSignature":"{\"v\":1,\"g\":1000,\"s\":[[100,200,110,210]]}","challengerSignedAt":"2026-09-05 23:00:49","opponentSignature":"{\"v\":1,\"g\":1000,\"s\":[[100,200,110,210]]}","opponentSignedAt":"2026-09-05 23:00:49"}},"error":false,"code":200,"message":""}"""
+        """{"data":{"challengeId":33,"status":"COMPLETED","myResult":"WIN","forfeitedBy":"OPPONENT","challengeDate":"2026-10-07","deadline":"2026-10-08 00:00:00","betContent":"커피","me":{"nickname":"이우건","profileImageUrl":"http://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http%3A%2F%2Ft1.kakaocdn.net%2Faccount_images%2Fdefault_profile.jpeg","mission":"미션입니다"},"opponent":{"userId":14,"nickname":"테스터1","profileImageUrl":null,"mission":"내 미션"},"contract":{"content":"영혼의 맹세\n\n2026년 10월 7일, 이우건과 테스터1은\n아래의 약속을 걸고 맹세한다.\n\n· 이우건의 미션: 미션입니다\n· 테스터1의 미션: 내 미션\n· 내기: 커피\n· 마감: 2026년 10월 7일 24:00\n\n서명한 맹세는 무를 수 없다.","isFinalized":true,"mySignature":"{\"v\":1,\"g\":1000,\"s\":[[353,682,363,627,376,584,395,535,416,483,438,431,459,385,484,336,507,295,526,267,544,244,557,229,568,219,577,215,583,216,587,221,590,230,596,260,598,290,600,328,600,370,600,415,600,455,599,502,600,549,600,590,600,629,602,665,604,696,607,718,610,735,614,747,618,754,627,757,639,752,653,740,671,724,690,706,707,687,726,665,747,639,766,614,784,586,807,554,829,524,851,498,872,480,892,472,911,472,926,479,938,491,948,508,957,531,963,559,969,589,974,623,978,668,985,756,986,758]]}","mySignedAt":"2026-10-07 10:51:37","opponentSignature":"{\"v\":1,\"g\":1000,\"s\":[[220,476,222,491,227,522,248,641,262,701,279,752,296,780,317,768,351,684,396,563,442,466,475,410,491,387,503,380,515,384,535,416,546,455,563,562,578,701,594,805,604,854,612,867,627,859,652,816,684,756,709,706,734,662,761,634,792,627,829,622,868,608,913,594,946,591,948,591]]}","opponentSignedAt":"2026-10-07 11:00:31"}},"error":false,"code":200,"message":""}"""
 
-    // 위 [forfeitedWireResponse] 와 같은 챌린지의 **기권 직전** 캡처. 같은 세션에서 함께 떴다.
-    // 기권 전에는 forfeitedBy 가 명시적 null 이고 status 는 IN_PROGRESS, result 는 null 이다.
-    // 나머지 필드는 기권 후와 글자까지 같다 — 기권이 다른 필드를 건드리지 않는다는 증거이고,
-    // 이게 둘을 쌍으로 두는 이유다.
-    private val forfeitedBeforeWireResponse =
-        """{"data":{"challengeId":1,"status":"IN_PROGRESS","result":null,"forfeitedBy":null,"challengeDate":"2026-09-06","deadline":"2026-09-07 00:00:00","betContent":"커피 사기","challenger":{"userId":1,"nickname":"테스터1","profileImageUrl":null,"mission":"운동 1시간"},"opponent":{"userId":2,"nickname":"테스터2","profileImageUrl":null,"mission":"책 30쪽"},"contract":{"content":"영혼의 맹세\n\n2026년 9월 6일, 테스터1과 테스터2는\n아래의 약속을 걸고 맹세한다.\n\n· 테스터1의 미션: 운동 1시간\n· 테스터2의 미션: 책 30쪽\n· 내기: 커피 사기\n· 마감: 2026년 9월 6일 24:00\n\n서명한 맹세는 무를 수 없다.","isFinalized":true,"challengerSignature":"{\"v\":1,\"g\":1000,\"s\":[[100,200,110,210]]}","challengerSignedAt":"2026-09-05 23:00:49","opponentSignature":"{\"v\":1,\"g\":1000,\"s\":[[100,200,110,210]]}","opponentSignedAt":"2026-09-05 23:00:49"}},"error":false,"code":200,"message":""}"""
-
-    private fun parse(): ChallengeDetailResponse = json.decodeFromString(wireResponse)
-
-    private fun parsePending(): ChallengeDetailResponse = json.decodeFromString(pendingWireResponse)
-
-    private fun parseNullMax(): ChallengeDetailResponse = json.decodeFromString(nullMaxWireResponse)
-
-    private fun parseCompleted(): ChallengeDetailResponse = json.decodeFromString(completedWireResponse)
-
-    private fun parseForfeited(): ChallengeDetailResponse = json.decodeFromString(forfeitedWireResponse)
-
-    private fun parseForfeitedBefore(): ChallengeDetailResponse =
-        json.decodeFromString(forfeitedBeforeWireResponse)
+    private fun parse(raw: String): ChallengeDetailResponse = json.decodeFromString(raw)
 
     @Test
-    fun `실서버 응답 원문이 ChallengeDetailResponse 로 역직렬화된다`() {
-        val response = parse()
-
+    fun `진행 중 원문이 역직렬화되고 기본 필드와 날짜 포맷이 매핑된다`() {
+        val response = parse(inProgressWireResponse)
         assertEquals(200, response.code)
         assertFalse(response.error)
-    }
 
-    @Test
-    fun `실서버 응답이 도메인 모델로 매핑된다`() {
-        assertNotNull(parse().toChallengeDetail())
-    }
-
-    @Test
-    fun `기본 필드와 날짜 포맷이 그대로 매핑된다`() {
-        val detail = assertNotNull(parse().toChallengeDetail())
-
-        assertEquals(18L, detail.challengeId)
-        assertEquals("IN_PROGRESS", detail.status)
-        assertEquals("커피 사기", detail.betContent)
-        assertEquals(LocalDate(2026, 8, 3), detail.challengeDate)
-        assertEquals(LocalDateTime(2026, 8, 4, 0, 0, 0), detail.deadline)
-    }
-
-    @Test
-    fun `challenger 와 opponent 역할이 뒤집히지 않는다`() {
-        val detail = assertNotNull(parse().toChallengeDetail())
-
-        assertEquals(16L, detail.challenger.userId)
-        assertEquals("테스터3", detail.challenger.nickname)
-        assertEquals("운동 1시간", detail.challenger.mission)
-
-        assertEquals(15L, detail.opponent.userId)
-        assertEquals("테스터2", detail.opponent.nickname)
-        assertEquals("책 30페이지 읽기", detail.opponent.mission)
-    }
-
-    @Test
-    fun `양측 서명이 문자열에서 디코드되고 두 슬롯 모두 SIGNED 다`() {
-        val contract = assertNotNull(assertNotNull(parse().toChallengeDetail()).contract)
-
-        val challengerSignature = assertNotNull(contract.challengerSignature)
-        val opponentSignature = assertNotNull(contract.opponentSignature)
-
-        assertEquals(2, challengerSignature.strokeCount)
-        assertEquals(4, challengerSignature.pointCount)
-        assertEquals(2, opponentSignature.strokeCount)
-        assertEquals(4, opponentSignature.pointCount)
-
-        assertEquals(SignatureSlotState.SIGNED, contract.challengerSignatureState)
-        assertEquals(SignatureSlotState.SIGNED, contract.opponentSignatureState)
-    }
-
-    @Test
-    fun `평탄 배열이 x y 쌍으로 정확히 복원된다`() {
-        val signature =
-            assertNotNull(assertNotNull(assertNotNull(parse().toChallengeDetail()).contract).challengerSignature)
-
-        assertEquals(SignaturePoint(123, 456), signature.strokes[0].points[0])
-        assertEquals(SignaturePoint(130, 460), signature.strokes[0].points[1])
-        assertEquals(SignaturePoint(700, 200), signature.strokes[1].points[0])
-    }
-
-    @Test
-    fun `바이트 왕복 - 서버가 돌려준 서명 문자열과 코덱이 만든 문자열이 완전히 같다`() {
-        val response = parse()
         val detail = assertNotNull(response.toChallengeDetail())
-        val wireContract = assertNotNull(response.data.contract)
-        val domainContract = assertNotNull(detail.contract)
-
-        val roundTripMeaning =
-            "서버가 저장·반환하는 서명 문자열과 SignatureCodec 이 만들어내는 문자열이 바이트 단위로 같아야 한다. " +
-                "다르면 앱이 다시 저장하는 순간 서버 데이터의 표현이 바뀐다"
-
-        assertEquals(
-            assertNotNull(wireContract.challengerSignature),
-            SignatureCodec.encode(assertNotNull(domainContract.challengerSignature)),
-            roundTripMeaning,
-        )
-        assertEquals(
-            assertNotNull(wireContract.opponentSignature),
-            SignatureCodec.encode(assertNotNull(domainContract.opponentSignature)),
-            roundTripMeaning,
-        )
-    }
-
-    @Test
-    fun `확정된 계약의 서명 시각이 파싱된다`() {
-        val contract = assertNotNull(assertNotNull(parse().toChallengeDetail()).contract)
-
-        assertTrue(contract.isFinalized)
-        assertEquals(LocalDateTime(2026, 8, 3, 13, 37, 12), contract.challengerSignedAt)
-        assertEquals(LocalDateTime(2026, 8, 3, 13, 37, 13), contract.opponentSignedAt)
-    }
-
-    @Test
-    fun `PENDING 응답 원문이 역직렬화된다 - 상대 미션이 명시적 null 이어도 예외가 아니다`() {
-        val response = parsePending()
-
-        assertEquals(200, response.code)
-        assertFalse(response.error)
-        assertEquals(21L, response.data.challengeId)
-        assertEquals("PENDING", response.data.status)
-    }
-
-    @Test
-    fun `PENDING 응답이 도메인 모델로 매핑된다`() {
-        assertNotNull(parsePending().toChallengeDetail())
-    }
-
-    @Test
-    fun `PENDING 상대 미션은 null 로 남고 빈 문자열로 뭉개지지 않는다`() {
-        val detail = assertNotNull(parsePending().toChallengeDetail())
-
-        assertNull(
-            detail.opponent.mission,
-            "상대가 아직 맹세하지 않은 상태다. 빈 문자열로 바꾸면 '미션 없음'과 '빈 미션'이 같아진다",
-        )
-        assertNotEquals("", detail.opponent.mission)
-        assertEquals("테스터2", detail.opponent.nickname)
-    }
-
-    @Test
-    fun `PENDING 이어도 챌린저 미션은 그대로 온다`() {
-        val detail = assertNotNull(parsePending().toChallengeDetail())
-
-        assertEquals("Run5km", detail.challenger.mission)
-        assertEquals(14L, detail.challenger.userId)
-    }
-
-    @Test
-    fun `PENDING 계약은 미확정이고 챌린저만 서명돼 있다`() {
-        val contract = assertNotNull(assertNotNull(parsePending().toChallengeDetail()).contract)
-
-        assertFalse(contract.isFinalized)
-        assertEquals(SignatureSlotState.SIGNED, contract.challengerSignatureState)
-        assertEquals(SignatureSlotState.NOT_SIGNED, contract.opponentSignatureState)
-    }
-
-    @Test
-    fun `contract 가 null 인 응답 원문이 역직렬화된다`() {
-        val response = parseNullMax()
-
-        assertEquals(200, response.code)
-        assertFalse(response.error)
-        assertEquals(7L, response.data.challengeId)
-        assertNull(response.data.contract)
-    }
-
-    @Test
-    fun `contract 가 null 이어도 도메인 모델로 매핑되고 계약서만 null 로 남는다`() {
-        val detail = assertNotNull(
-            parseNullMax().toChallengeDetail(),
-            "계약서가 없다고 상세 전체를 버리면 안 된다. deadline 과 달리 계약서 없이도 챌린지는 성립한다",
-        )
-
-        assertNull(
-            detail.contract,
-            "soul-oath 이전에 만들어진 챌린지다. 빈 Contract 로 채우면 없던 맹세를 날조하게 된다",
-        )
-    }
-
-    @Test
-    fun `contract 가 null 이어도 최상위 필드는 그대로 매핑된다`() {
-        val detail = assertNotNull(parseNullMax().toChallengeDetail())
-
-        assertEquals(7L, detail.challengeId)
+        assertEquals(33L, detail.challengeId)
         assertEquals("IN_PROGRESS", detail.status)
-        assertEquals("커피 사기", detail.betContent)
-        assertEquals(LocalDate(2026, 8, 3), detail.challengeDate)
-        assertEquals(LocalDateTime(2026, 8, 4, 0, 0, 0), detail.deadline)
-        assertEquals("이우건", detail.challenger.nickname)
+        assertEquals("커피", detail.betContent)
+        assertEquals(LocalDate(2026, 10, 7), detail.challengeDate)
+        assertEquals(LocalDateTime(2026, 10, 8, 0, 0, 0), detail.deadline)
+        assertNull(detail.myResult)
+        assertNull(detail.forfeitedBy)
+    }
+
+    @Test
+    fun `me 와 opponent 가 그대로 매핑된다`() {
+        val detail = assertNotNull(parse(inProgressWireResponse).toChallengeDetail())
+
+        assertEquals("이우건", detail.me.nickname)
+        assertEquals("미션입니다", detail.me.mission)
         assertEquals("테스터1", detail.opponent.nickname)
-    }
-
-    @Test
-    fun `양측 미션이 모두 null 로 남고 빈 문자열로 뭉개지지 않는다`() {
-        val detail = assertNotNull(parseNullMax().toChallengeDetail())
-
-        assertNull(detail.challenger.mission)
-        assertNull(detail.opponent.mission)
-        assertNotEquals("", detail.challenger.mission)
-        assertNotEquals("", detail.opponent.mission)
-    }
-
-    @Test
-    fun `양측 profileImageUrl 이 null 로 남는다`() {
-        val detail = assertNotNull(parseNullMax().toChallengeDetail())
-
-        assertNull(detail.challenger.profileImageUrl)
+        assertEquals("내 미션", detail.opponent.mission)
         assertNull(detail.opponent.profileImageUrl)
     }
 
     @Test
-    fun `result 가 명시적 null 인 원문 - 역직렬화되고 도메인도 null 이다`() {
-        assertNull(parseNullMax().data.result)
-        assertNull(assertNotNull(parseNullMax().toChallengeDetail()).result)
+    fun `양측 서명이 디코드되고 두 슬롯 모두 SIGNED 다`() {
+        val contract = assertNotNull(assertNotNull(parse(inProgressWireResponse).toChallengeDetail()).contract)
+
+        assertTrue(contract.isFinalized)
+        assertNotNull(contract.mySignature)
+        assertNotNull(contract.opponentSignature)
+        assertEquals(SignatureSlotState.SIGNED, contract.mySignatureState)
+        assertEquals(SignatureSlotState.SIGNED, contract.opponentSignatureState)
+        assertEquals(LocalDateTime(2026, 10, 7, 10, 51, 37), contract.mySignedAt)
+        assertEquals(LocalDateTime(2026, 10, 7, 11, 0, 31), contract.opponentSignedAt)
     }
 
     @Test
-    fun `result 키가 없는 원문도 null 로 떨어진다`() {
-        assertNull(assertNotNull(parse().toChallengeDetail()).result)
-        assertNull(assertNotNull(parsePending().toChallengeDetail()).result)
-    }
+    fun `바이트 왕복 - 서버가 돌려준 서명 문자열과 코덱이 만든 문자열이 같다`() {
+        val response = parse(inProgressWireResponse)
+        val wireContract = assertNotNull(response.data.contract)
+        val domainContract = assertNotNull(assertNotNull(response.toChallengeDetail()).contract)
 
-    @Test
-    fun `COMPLETED 원문이 역직렬화되고 result 가 문자열로 온다`() {
-        val response = parseCompleted()
-
-        assertEquals(200, response.code)
-        assertFalse(response.error)
-        assertEquals("COMPLETED", response.data.status)
-        assertEquals("CHALLENGER_WIN", response.data.result)
-    }
-
-    @Test
-    fun `COMPLETED 원문의 result 가 역할 기준 그대로 매핑된다`() {
-        val detail = assertNotNull(parseCompleted().toChallengeDetail())
-
+        // 다르면 앱이 다시 저장하는 순간 서버 데이터의 표현이 바뀐다.
         assertEquals(
-            ChallengeResult.CHALLENGER_WIN,
-            detail.result,
-            "'나 / 상대' 로 뒤집지 않는다. 관점 변환은 화면 계층의 몫이다",
+            assertNotNull(wireContract.mySignature),
+            SignatureCodec.encode(assertNotNull(domainContract.mySignature)),
         )
-        assertEquals(30L, detail.challengeId)
+        assertEquals(
+            assertNotNull(wireContract.opponentSignature),
+            SignatureCodec.encode(assertNotNull(domainContract.opponentSignature)),
+        )
+    }
+
+    @Test
+    fun `완료 원문의 myResult 가 내 시점 결과로 매핑된다`() {
+        val detail = assertNotNull(parse(completedWireResponse).toChallengeDetail())
+
         assertEquals("COMPLETED", detail.status)
-        assertEquals(16L, detail.challenger.userId)
-        assertEquals(15L, detail.opponent.userId)
+        assertEquals(ChallengeOutcome.LOSE, detail.myResult)
+        assertNull(detail.forfeitedBy)
     }
 
     @Test
-    fun `기권 원문의 forfeitedBy 가 값 그대로 매핑된다`() {
-        val detail = assertNotNull(parseForfeited().toChallengeDetail())
+    fun `내 서명이 없으면 내 슬롯은 NOT_SIGNED 이고 내 미션은 null 로 남는다`() {
+        val detail = assertNotNull(parse(notSignedWireResponse).toChallengeDetail())
+        val contract = assertNotNull(detail.contract)
 
-        assertEquals(2L, detail.forfeitedBy)
-        assertEquals(
-            detail.opponent.userId,
-            detail.forfeitedBy,
-            "역할 변환 없는 원본이다. 누가 기권했는지 판별은 내 userId 를 아는 화면 계층의 몫이다",
-        )
-        assertNotEquals(
-            detail.challenger.userId,
-            detail.forfeitedBy,
-            "기권자는 opponent 다. challenger 와 붙으면 역할 좌표계가 뒤집힌 것이다",
-        )
-        assertEquals("COMPLETED", detail.status)
-        assertEquals(
-            ChallengeResult.CHALLENGER_WIN,
-            detail.result,
-            "기권자의 반대편이 이긴다. opponent 가 기권했으니 CHALLENGER_WIN 이다",
-        )
+        assertNull(detail.me.mission)
+        assertFalse(contract.isFinalized)
+        assertEquals(SignatureSlotState.NOT_SIGNED, contract.mySignatureState)
+        assertEquals(SignatureSlotState.SIGNED, contract.opponentSignatureState)
     }
 
     @Test
-    fun `기권 전 원문은 forfeitedBy 가 명시적 null 이고 나머지 필드는 기권 후와 같다`() {
-        val before = assertNotNull(parseForfeitedBefore().toChallengeDetail())
-        val after = assertNotNull(parseForfeited().toChallengeDetail())
+    fun `nullable 이 모두 null 인 원문도 매핑되고 계약서만 null 로 남는다`() {
+        val detail = assertNotNull(parse(nullMaxWireResponse).toChallengeDetail())
 
-        assertNull(parseForfeitedBefore().data.forfeitedBy)
-        assertNull(before.forfeitedBy)
-        assertEquals("IN_PROGRESS", before.status)
-        assertNull(before.result)
-
-        val pairMeaning = "같은 챌린지의 기권 전/후다. 기권이 이 필드를 건드리면 안 된다"
-        assertEquals(after.challengeId, before.challengeId, pairMeaning)
-        assertEquals(after.deadline, before.deadline, pairMeaning)
-        assertEquals(after.challengeDate, before.challengeDate, pairMeaning)
-        assertEquals(after.betContent, before.betContent, pairMeaning)
-        assertEquals(after.challenger.userId, before.challenger.userId, pairMeaning)
-        assertEquals(after.challenger.nickname, before.challenger.nickname, pairMeaning)
-        assertEquals(after.challenger.mission, before.challenger.mission, pairMeaning)
-        assertEquals(after.opponent.userId, before.opponent.userId, pairMeaning)
-        assertEquals(after.opponent.nickname, before.opponent.nickname, pairMeaning)
-        assertEquals(after.opponent.mission, before.opponent.mission, pairMeaning)
-        assertEquals(
-            assertNotNull(after.contract).isFinalized,
-            assertNotNull(before.contract).isFinalized,
-            pairMeaning,
-        )
+        assertNull(detail.contract)
+        assertNull(detail.me.mission)
+        assertNull(detail.opponent.mission)
+        assertNull(detail.me.profileImageUrl)
+        assertNull(detail.myResult)
+        assertNull(detail.forfeitedBy)
+        assertEquals(LocalDateTime(2026, 8, 4, 0, 0, 0), detail.deadline)
     }
 
     @Test
-    fun `forfeitedBy 가 명시적 null 이거나 키가 없으면 도메인도 null 이다`() {
-        assertNull(parseNullMax().data.forfeitedBy)
-        assertNull(assertNotNull(parseNullMax().toChallengeDetail()).forfeitedBy)
-        assertNull(assertNotNull(parse().toChallengeDetail()).forfeitedBy)
+    fun `기권 원문의 forfeitedBy 가 ChallengeSide 로 매핑된다`() {
+        val detail = assertNotNull(parse(forfeitedWireResponse).toChallengeDetail())
+
+        assertEquals(ChallengeSide.OPPONENT, detail.forfeitedBy)
+        assertEquals(ChallengeOutcome.WIN, detail.myResult)
+    }
+
+    @Test
+    fun `예전 역할 기준 shape 이 오면 빈 값으로 넘어가지 않고 파싱이 실패한다`() {
+        val legacy = """{"data":{"challengeId":18,"status":"IN_PROGRESS","challengeDate":"2026-08-03","deadline":"2026-08-04 00:00:00","betContent":"커피 사기","challenger":{"userId":16,"nickname":"테스터3","profileImageUrl":null,"mission":"운동 1시간"},"opponent":{"userId":15,"nickname":"테스터2","profileImageUrl":null,"mission":"책 30페이지 읽기"},"contract":null},"error":false,"code":200,"message":""}"""
+
+        assertFailsWith<SerializationException> {
+            json.decodeFromString<ChallengeDetailResponse>(legacy)
+        }
     }
 }
