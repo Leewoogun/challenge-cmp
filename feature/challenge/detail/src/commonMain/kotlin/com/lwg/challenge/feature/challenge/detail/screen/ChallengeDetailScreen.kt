@@ -43,30 +43,13 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 private const val VERIFY_CTA_TEXT = "인증하기"
 private const val RETAKE_CTA_TEXT = "다시 찍기"
 
-/** 프리뷰 사진 캐시 키가 실행 시점 시계에 흔들리지 않게 고정한다. */
 private val PREVIEW_VERIFIED_AT = LocalDateTime(2026, 1, 1, 9, 30, 0)
 
-/** CTA 는 버튼 자체가 여백을 가져서 사진(12dp)보다 위 간격을 넉넉히 준다. */
 private val CtaFooterSpacing = 16.dp
 private val PhotoFooterSpacing = 12.dp
 
-/**
- * 사진과 반려 사유 사이. 사진 아래 액션(12dp)보다 좁혀서 사유가 별도 블록이 아니라 **바로 위
- * 사진에 붙는 설명**으로 읽히게 한다 — 같은 12dp 면 "다시 찍기" 와 같은 위계로 보인다.
- */
 private val RejectionReasonSpacing = 8.dp
 
-/**
- * 상세 본문. VS 헤더 → 나의 미션 → 상대 미션 → 영혼의 맹세 순으로 한 스크롤에 쌓는다.
- *
- * 본문 전체를 `verticalScroll` 로 감싸도 안전하다 — 서명은
- * [com.lwg.challenge.ui.components.signature.SignatureView] 로만 렌더되고 `pointerInput` 이 없어서,
- * 입력 화면과 달리 드래그가 "획 긋기"와 경합하지 않는다.
- *
- * 계약서의 `content` 문자열은 그리지 않는다. 계약 조건은 구조화된 필드로 조립한다.
- *
- * @param onRetry 전체 재조회. 인증 현황만 다시 받는 경로가 없어 상세까지 함께 다시 받는다.
- */
 @Composable
 internal fun ChallengeDetailScreen(
     uiState: ChallengeDetailUiState.Data,
@@ -103,9 +86,6 @@ internal fun ChallengeDetailScreen(
                 MyMissionSlot.VERIFY_CTA, MyMissionSlot.NONE -> CtaFooterSpacing
             },
             footer = when (uiState.myMissionSlot) {
-                // 인증 CTA 는 스크롤 밖 고정에서 이 카드 안으로 들어왔다. 재구성으로 "나의 미션" 이
-                // VS 헤더 바로 다음에 와 진입 시 첫 화면에 들어오고, 계약서는 아래로 내려갔다.
-                // 카드 안에 두면 어느 미션에 대한 인증인지가 버튼과 붙는 이득도 함께 얻는다.
                 MyMissionSlot.VERIFY_CTA -> {
                     {
                         IconTextButton(
@@ -126,19 +106,12 @@ internal fun ChallengeDetailScreen(
                             cacheKey = uiState.myPhotoCacheKey,
                             photoDeleted = uiState.myPhotoDeleted,
                         )
-                        // 사유가 없으면 이 자리가 간격째 빠진다. 상태를 함께 보지 않는 이유는
-                        // 사유가 실려 왔다는 것 자체가 미인증 처리됐다는 뜻이기 때문이다(계약 보장).
                         uiState.myAiReasonText?.let { reasonText ->
                             VerticalSpacer(RejectionReasonSpacing)
                             RejectionReasonText(text = reasonText)
                         }
                     }
                 }
-
-                // 반려 사유를 여기에는 붙이지 않는다. 이 가지는 canVerify(= IN_PROGRESS)일 때만
-                // 나오는데 반려는 자정 판정이 내리는 결론이고 그 시점에 챌린지는 이미 COMPLETED 라,
-                // 두 조건이 동시에 참일 수 없다. 일어날 수 없는 조합에 코드를 두면 가정에 대한
-                // 방어 로직이 되고, 사유가 어디에 붙는지가 두 자리로 갈린다.
                 MyMissionSlot.MY_PHOTO_WITH_RETAKE -> {
                     {
                         VerificationPhoto(
@@ -148,8 +121,6 @@ internal fun ChallengeDetailScreen(
                             photoDeleted = uiState.myPhotoDeleted,
                         )
                         VerticalSpacer(12.dp)
-                        // 이미 인증을 마친 카드라 재촬영은 주 액션이 아니다. Filled 로 두면 완료 표시보다
-                        // 버튼이 더 강조돼 "아직 인증이 안 됐나" 로 읽힌다.
                         IconTextButton(
                             text = RETAKE_CTA_TEXT,
                             icon = Icons.Filled.PhotoCamera,
@@ -187,17 +158,11 @@ internal fun ChallengeDetailScreen(
 
         OathSummaryCard(
             betContent = uiState.betContent,
-            // VS 헤더가 이미 상대 표기를 들고 있어, 계약서까지 "남은 시간" 이면 마감이 오늘 자정인지
-            // 내일인지 화면 어디에서도 복원되지 않는다. 계약 조건 쪽은 절대 시각으로 못 박는다.
             deadlineText = uiState.deadlineAbsoluteText,
             signatures = uiState.signatures,
             myLabel = uiState.myLabel,
             opponentLabel = uiState.opponentLabel,
         )
-
-        // 인증 CTA 바로 아래가 아니라 본문 맨 아래에 둔다 — 되돌릴 수 없는 행위를 주 액션(인증하기)
-        // 바로 옆에 놓으면 오탭 거리가 0이 된다. 기권은 자주 쓰는 길이 아니라 찾아 내려가야 하는
-        // 출구다. 마이페이지가 회원 탈퇴를 화면 맨 아래에 둔 것과 같은 배치 판단이다.
         if (uiState.canForfeit) {
             Box(
                 modifier = Modifier.fillMaxWidth(),

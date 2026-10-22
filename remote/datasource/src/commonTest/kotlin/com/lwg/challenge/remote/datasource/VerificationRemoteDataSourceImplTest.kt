@@ -7,9 +7,9 @@ import com.lwg.challenge.remote.api.VerificationApi
 import com.lwg.challenge.remote.api.createVerificationApi
 import com.lwg.challenge.remote.model.verification.ChallengeVerificationsData
 import com.lwg.challenge.remote.model.verification.ChallengeVerificationsResponse
-import com.lwg.challenge.remote.model.verification.PartyVerificationDto
 import com.lwg.challenge.remote.model.verification.SubmitVerificationData
 import com.lwg.challenge.remote.model.verification.SubmitVerificationResponse
+import com.lwg.challenge.remote.model.verification.VerificationResultDto
 import com.lwg.challenge.remote.network.util.ApiResult
 import com.lwg.challenge.remote.network.util.ApiResultConverterFactory
 import de.jensklingenberg.ktorfit.Ktorfit
@@ -46,12 +46,12 @@ class VerificationRemoteDataSourceImplTest {
 
     private val verificationsData = ChallengeVerificationsData(
         challengeId = 7L,
-        me = PartyVerificationDto(
+        me = VerificationResultDto(
             status = "VERIFIED",
             photoUrl = "/api/v1/challenges/7/photos/challenger",
             verifiedAt = LocalDateTime(2026, 8, 14, 15, 32, 10),
         ),
-        opponent = PartyVerificationDto(status = "PENDING"),
+        opponent = VerificationResultDto(status = "PENDING"),
     )
 
     private fun dataSource(api: FakeVerificationApi = FakeVerificationApi()) =
@@ -195,9 +195,9 @@ class VerificationRemoteDataSourceImplTest {
         assertEquals(7L, api.capturedVerificationsId)
         assertEquals(emptyList(), errors)
         val verifications = results.single()
-        assertEquals(VerificationStatus.VERIFIED, verifications.me.status)
-        assertEquals(VerificationStatus.PENDING, verifications.opponent.status)
-        assertNull(verifications.opponent.photoUrl)
+        assertEquals(VerificationStatus.VERIFIED, verifications.myVerification.status)
+        assertEquals(VerificationStatus.PENDING, verifications.opponentVerification.status)
+        assertNull(verifications.opponentVerification.photoUrl)
     }
 
     @Test
@@ -221,7 +221,7 @@ private class FakeVerificationApi(
     private val verificationsResult: ApiResult<ChallengeVerificationsResponse> =
         ApiResult.Success(
             ChallengeVerificationsResponse(
-                ChallengeVerificationsData(me = PartyVerificationDto(), opponent = PartyVerificationDto()),
+                ChallengeVerificationsData(me = VerificationResultDto(), opponent = VerificationResultDto()),
             ),
         ),
 ) : VerificationApi {

@@ -3,14 +3,14 @@ package com.lwg.challenge.domain.model.verification
 import com.lwg.challenge.domain.model.VerificationStatus
 import kotlinx.datetime.LocalDateTime
 
-/** 챌린지 양측 인증 현황. [me] / [opponent] 는 요청한 사람 시점이다. */
+/** 챌린지 양측 인증 현황. [myVerification] / [opponentVerification] 는 요청한 사람 시점이다. */
 data class ChallengeVerifications(
     val challengeId: Long,
-    val me: PartyVerification,
-    val opponent: PartyVerification,
+    val myVerification: VerificationResult,
+    val opponentVerification: VerificationResult,
 )
 
-data class PartyVerification(
+data class VerificationResult(
     val status: VerificationStatus,
     val photoUrl: String?,
     val verifiedAt: LocalDateTime?,

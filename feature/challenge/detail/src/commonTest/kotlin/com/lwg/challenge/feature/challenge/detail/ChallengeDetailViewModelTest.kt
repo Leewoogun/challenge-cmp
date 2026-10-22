@@ -6,12 +6,12 @@ import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ChallengeSide
 import com.lwg.challenge.domain.model.challenge.Contract
-import com.lwg.challenge.domain.model.challenge.ContractParty
+import com.lwg.challenge.domain.model.challenge.ContractUserInfo
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.domain.model.verification.ChallengeVerifications
-import com.lwg.challenge.domain.model.verification.PartyVerification
+import com.lwg.challenge.domain.model.verification.VerificationResult
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailModalEffect
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiEffect
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
@@ -167,12 +167,12 @@ class ChallengeDetailViewModelTest {
         challengeDate = challengeDate,
         deadline = deadline,
         betContent = "커피 사기",
-        me = ContractParty(
+        me = ContractUserInfo(
             nickname = MY_NICKNAME,
             profileImageUrl = null,
             mission = myMission,
         ),
-        opponent = ContractParty(
+        opponent = ContractUserInfo(
             nickname = opponentNickname,
             profileImageUrl = null,
             mission = opponentMission,
@@ -196,14 +196,14 @@ class ChallengeDetailViewModelTest {
         opponentAiReason: String? = null,
     ) = ChallengeVerifications(
         challengeId = CHALLENGE_ID,
-        me = party(
+        myVerification = party(
             status = myStatus,
             photoUrl = myPhotoUrl,
             photoDeleted = myPhotoDeleted,
             verifiedAt = myVerifiedAt,
             aiReason = myAiReason,
         ),
-        opponent = party(
+        opponentVerification = party(
             status = opponentStatus,
             photoUrl = opponentPhotoUrl,
             photoDeleted = opponentPhotoDeleted,
@@ -218,7 +218,7 @@ class ChallengeDetailViewModelTest {
         photoDeleted: Boolean = false,
         verifiedAt: LocalDateTime? = VERIFIED_AT,
         aiReason: String? = null,
-    ) = PartyVerification(
+    ) = VerificationResult(
         status = status,
         photoUrl = photoUrl,
         verifiedAt = verifiedAt.takeIf {

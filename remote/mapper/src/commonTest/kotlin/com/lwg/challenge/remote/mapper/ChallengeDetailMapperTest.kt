@@ -11,7 +11,7 @@ import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeOutcomeDto
 import com.lwg.challenge.remote.model.challenge.ChallengeSideDto
 import com.lwg.challenge.remote.model.challenge.ContractDto
-import com.lwg.challenge.remote.model.challenge.ContractPartyDto
+import com.lwg.challenge.remote.model.challenge.ContractUserInfoDto
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlin.test.Test
@@ -44,12 +44,12 @@ class ChallengeDetailMapperTest {
         challengeDate = LocalDate(2026, 8, 3),
         deadline = LocalDateTime(2026, 8, 4, 0, 0, 0),
         betContent = "커피 사기",
-        me = ContractPartyDto(
+        me = ContractUserInfoDto(
             nickname = "이우건",
             profileImageUrl = null,
             mission = "운동 1시간",
         ),
-        opponent = ContractPartyDto(
+        opponent = ContractUserInfoDto(
             nickname = "테스터1",
             profileImageUrl = "https://example.com/profile.jpg",
             mission = "책 30페이지",

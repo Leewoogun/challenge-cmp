@@ -32,8 +32,8 @@ data class ChallengeDetailData(
     @Serializable(with = WireLocalDateTimeSerializer::class)
     val deadline: LocalDateTime? = null,
     val betContent: String = "",
-    val me: ContractPartyDto,
-    val opponent: ContractPartyDto,
+    val me: ContractUserInfoDto,
+    val opponent: ContractUserInfoDto,
     /** soul-oath 도입 이전에 만들어진 챌린지는 계약서가 없다. */
     val contract: ContractDto? = null,
 )
@@ -45,7 +45,7 @@ enum class ChallengeSideDto {
 }
 
 @Serializable
-data class ContractPartyDto(
+data class ContractUserInfoDto(
     val nickname: String = "",
     /** 카카오 프로필 미설정 시 null. */
     val profileImageUrl: String? = null,

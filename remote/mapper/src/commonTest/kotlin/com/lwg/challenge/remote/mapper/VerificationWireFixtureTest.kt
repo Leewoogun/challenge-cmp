@@ -74,27 +74,27 @@ class VerificationWireFixtureTest {
             .toChallengeVerifications(TEST_BASE_URL)
 
         assertEquals(7L, verifications.challengeId)
-        assertEquals(VerificationStatus.PENDING, verifications.opponent.status)
-        assertNull(verifications.opponent.photoUrl)
-        assertNull(verifications.opponent.verifiedAt)
+        assertEquals(VerificationStatus.PENDING, verifications.opponentVerification.status)
+        assertNull(verifications.opponentVerification.photoUrl)
+        assertNull(verifications.opponentVerification.verifiedAt)
 
-        assertEquals(VerificationStatus.VERIFIED, verifications.me.status)
+        assertEquals(VerificationStatus.VERIFIED, verifications.myVerification.status)
         assertEquals(
             "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            verifications.me.photoUrl,
+            verifications.myVerification.photoUrl,
         )
-        assertEquals(LocalDateTime(2026, 8, 14, 15, 32, 10), verifications.me.verifiedAt)
+        assertEquals(LocalDateTime(2026, 8, 14, 15, 32, 10), verifications.myVerification.verifiedAt)
     }
 
     @Test
     fun `양측 VERIFIED 응답이 me 와 opponent 로 매핑된다`() {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(bothVerifiedWire)
             .toChallengeVerifications(TEST_BASE_URL)
-        assertEquals(VerificationStatus.VERIFIED, verifications.me.status)
-        assertEquals(VerificationStatus.VERIFIED, verifications.opponent.status)
-        assertNotNull(verifications.me.photoUrl)
-        assertNotNull(verifications.opponent.photoUrl)
-        assertEquals(LocalDateTime(2026, 8, 14, 15, 41, 3), verifications.opponent.verifiedAt)
+        assertEquals(VerificationStatus.VERIFIED, verifications.myVerification.status)
+        assertEquals(VerificationStatus.VERIFIED, verifications.opponentVerification.status)
+        assertNotNull(verifications.myVerification.photoUrl)
+        assertNotNull(verifications.opponentVerification.photoUrl)
+        assertEquals(LocalDateTime(2026, 8, 14, 15, 41, 3), verifications.opponentVerification.verifiedAt)
     }
 
     @Test
@@ -102,12 +102,12 @@ class VerificationWireFixtureTest {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(photoDeletedWire)
             .toChallengeVerifications(TEST_BASE_URL)
 
-        assertEquals(VerificationStatus.VERIFIED, verifications.opponent.status)
-        assertNull(verifications.opponent.photoUrl)
-        assertTrue(verifications.opponent.photoDeleted)
+        assertEquals(VerificationStatus.VERIFIED, verifications.opponentVerification.status)
+        assertNull(verifications.opponentVerification.photoUrl)
+        assertTrue(verifications.opponentVerification.photoDeleted)
 
-        assertNotNull(verifications.me.photoUrl)
-        assertFalse(verifications.me.photoDeleted)
+        assertNotNull(verifications.myVerification.photoUrl)
+        assertFalse(verifications.myVerification.photoDeleted)
     }
 
     /**
@@ -119,8 +119,8 @@ class VerificationWireFixtureTest {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(nullMaxVerificationsWire)
             .toChallengeVerifications(TEST_BASE_URL)
 
-        assertFalse(verifications.me.photoDeleted)
-        assertFalse(verifications.opponent.photoDeleted)
+        assertFalse(verifications.myVerification.photoDeleted)
+        assertFalse(verifications.opponentVerification.photoDeleted)
     }
 
     /**
@@ -132,14 +132,14 @@ class VerificationWireFixtureTest {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(aiReasonWire)
             .toChallengeVerifications(TEST_BASE_URL)
 
-        assertEquals(VerificationStatus.FAILED, verifications.me.status)
+        assertEquals(VerificationStatus.FAILED, verifications.myVerification.status)
         assertEquals(
             "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            verifications.me.photoUrl,
+            verifications.myVerification.photoUrl,
         )
-        assertEquals(LocalDateTime(2026, 9, 22, 21, 14, 3), verifications.me.verifiedAt)
+        assertEquals(LocalDateTime(2026, 9, 22, 21, 14, 3), verifications.myVerification.verifiedAt)
 
-        val reason = assertNotNull(verifications.me.aiReason)
+        val reason = assertNotNull(verifications.myVerification.aiReason)
         assertTrue(reason.startsWith("책상 위 커피잔"))
     }
 
@@ -163,9 +163,9 @@ class VerificationWireFixtureTest {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(nullMaxVerificationsWire)
             .toChallengeVerifications(TEST_BASE_URL)
 
-        assertNull(verifications.me.aiReason)
-        assertNull(verifications.opponent.aiReason)
-        assertEquals(VerificationStatus.VERIFIED, verifications.me.status, "응답 전체가 살아남는다")
+        assertNull(verifications.myVerification.aiReason)
+        assertNull(verifications.opponentVerification.aiReason)
+        assertEquals(VerificationStatus.VERIFIED, verifications.myVerification.status, "응답 전체가 살아남는다")
     }
 
     @Test
@@ -191,9 +191,9 @@ class VerificationWireFixtureTest {
         val verifications = json.decodeFromString<ChallengeVerificationsResponse>(isoWire)
             .toChallengeVerifications(TEST_BASE_URL)
 
-        assertNull(verifications.me.verifiedAt, "T 구분자는 wire 포맷이 아니라 읽지 않는다")
-        assertEquals(VerificationStatus.VERIFIED, verifications.me.status)
-        assertNotNull(verifications.me.photoUrl)
-        assertEquals(VerificationStatus.PENDING, verifications.opponent.status)
+        assertNull(verifications.myVerification.verifiedAt, "T 구분자는 wire 포맷이 아니라 읽지 않는다")
+        assertEquals(VerificationStatus.VERIFIED, verifications.myVerification.status)
+        assertNotNull(verifications.myVerification.photoUrl)
+        assertEquals(VerificationStatus.PENDING, verifications.opponentVerification.status)
     }
 }

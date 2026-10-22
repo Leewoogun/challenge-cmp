@@ -22,8 +22,8 @@ data class ChallengeDetail(
     val challengeDate: LocalDate?,
     val deadline: LocalDateTime,
     val betContent: String,
-    val me: ContractParty,
-    val opponent: ContractParty,
+    val me: ContractUserInfo,
+    val opponent: ContractUserInfo,
     val contract: Contract?,
 )
 
@@ -39,7 +39,7 @@ enum class ChallengeSide {
  * @property profileImageUrl 카카오 프로필 미설정 시 null
  * @property mission 이 사람이 스스로에게 건 미션. 아직 맹세하지 않았으면 null
  */
-data class ContractParty(
+data class ContractUserInfo(
     val nickname: String,
     val profileImageUrl: String?,
     val mission: String?,

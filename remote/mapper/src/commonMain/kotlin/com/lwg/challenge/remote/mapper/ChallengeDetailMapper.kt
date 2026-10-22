@@ -3,11 +3,11 @@ package com.lwg.challenge.remote.mapper
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ChallengeSide
 import com.lwg.challenge.domain.model.challenge.Contract
-import com.lwg.challenge.domain.model.challenge.ContractParty
+import com.lwg.challenge.domain.model.challenge.ContractUserInfo
 import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeSideDto
 import com.lwg.challenge.remote.model.challenge.ContractDto
-import com.lwg.challenge.remote.model.challenge.ContractPartyDto
+import com.lwg.challenge.remote.model.challenge.ContractUserInfoDto
 
 /**
  * 챌린지 상세 응답 DTO → Domain 매핑.
@@ -27,8 +27,8 @@ fun ChallengeDetailResponse.toChallengeDetail(): ChallengeDetail? {
         challengeDate = data.challengeDate,
         deadline = deadline,
         betContent = data.betContent,
-        me = data.me.toContractParty(),
-        opponent = data.opponent.toContractParty(),
+        me = data.me.toContractUserInfo(),
+        opponent = data.opponent.toContractUserInfo(),
         contract = data.contract?.toContract(),
     )
 }
@@ -38,7 +38,7 @@ private fun ChallengeSideDto.toDomain(): ChallengeSide = when (this) {
     ChallengeSideDto.OPPONENT -> ChallengeSide.OPPONENT
 }
 
-private fun ContractPartyDto.toContractParty(): ContractParty = ContractParty(
+private fun ContractUserInfoDto.toContractUserInfo(): ContractUserInfo = ContractUserInfo(
     nickname = nickname,
     profileImageUrl = profileImageUrl,
     mission = mission,

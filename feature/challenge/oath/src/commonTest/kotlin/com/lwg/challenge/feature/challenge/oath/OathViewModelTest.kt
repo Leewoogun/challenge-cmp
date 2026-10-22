@@ -3,7 +3,7 @@ package com.lwg.challenge.feature.challenge.oath
 import app.cash.turbine.test
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.Contract
-import com.lwg.challenge.domain.model.challenge.ContractParty
+import com.lwg.challenge.domain.model.challenge.ContractUserInfo
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
@@ -75,12 +75,12 @@ class OathViewModelTest {
         // 상대 시간 문자열은 실행 시점 시계에 의존한다. 이미 지난 마감으로 고정해 결과를 결정론적으로 만든다.
         deadline = LocalDateTime.parse("2026-01-01T00:00:00"),
         betContent = "커피 사기",
-        me = ContractParty(
+        me = ContractUserInfo(
             nickname = "나",
             profileImageUrl = null,
             mission = null,
         ),
-        opponent = ContractParty(
+        opponent = ContractUserInfo(
             nickname = "우건",
             profileImageUrl = null,
             mission = "오늘 운동 1시간 하기",

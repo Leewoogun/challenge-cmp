@@ -2,11 +2,11 @@ package com.lwg.challenge.remote.mapper
 
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.verification.ChallengeVerifications
-import com.lwg.challenge.domain.model.verification.PartyVerification
+import com.lwg.challenge.domain.model.verification.VerificationResult
 import com.lwg.challenge.domain.model.verification.VerificationSubmitResult
 import com.lwg.challenge.remote.model.verification.ChallengeVerificationsResponse
-import com.lwg.challenge.remote.model.verification.PartyVerificationDto
 import com.lwg.challenge.remote.model.verification.SubmitVerificationResponse
+import com.lwg.challenge.remote.model.verification.VerificationResultDto
 
 // 챌린지 인증 응답 DTO → Domain 매핑.
 // 시간 파싱은 DTO 직렬화기(WireLocalDateTimeSerializer)가 하고, 실패는 null 로 도착한다.
@@ -24,11 +24,11 @@ fun SubmitVerificationResponse.toSubmitResult(): VerificationSubmitResult = Veri
 fun ChallengeVerificationsResponse.toChallengeVerifications(baseUrl: String): ChallengeVerifications =
     ChallengeVerifications(
         challengeId = data.challengeId,
-        me = data.me.toPartyVerification(baseUrl),
-        opponent = data.opponent.toPartyVerification(baseUrl),
+        myVerification = data.me.toVerificationResult(baseUrl),
+        opponentVerification = data.opponent.toVerificationResult(baseUrl),
     )
 
-private fun PartyVerificationDto.toPartyVerification(baseUrl: String): PartyVerification = PartyVerification(
+private fun VerificationResultDto.toVerificationResult(baseUrl: String): VerificationResult = VerificationResult(
     status = status.toVerificationStatusOrDefault(),
     photoUrl = joinPhotoUrl(baseUrl, photoUrl),
     verifiedAt = verifiedAt,

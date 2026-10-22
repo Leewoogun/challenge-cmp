@@ -26,7 +26,7 @@ import com.lwg.challenge.remote.model.challenge.ChallengeHistoryDto
 import com.lwg.challenge.remote.model.challenge.ChallengeHistoryListData
 import com.lwg.challenge.remote.model.challenge.ChallengeHistoryResponse
 import com.lwg.challenge.remote.model.challenge.ContractDto
-import com.lwg.challenge.remote.model.challenge.ContractPartyDto
+import com.lwg.challenge.remote.model.challenge.ContractUserInfoDto
 import com.lwg.challenge.remote.model.challenge.DeadlineTypeDto
 import com.lwg.challenge.remote.model.challenge.ForfeitChallengeData
 import com.lwg.challenge.remote.model.challenge.ForfeitChallengeResponse
@@ -97,12 +97,12 @@ class ChallengeRemoteDataSourceImplTest {
         challengeDate = LocalDate(2026, 8, 3),
         deadline = LocalDateTime(2026, 8, 4, 0, 0, 0),
         betContent = "커피 사기",
-        me = ContractPartyDto(
+        me = ContractUserInfoDto(
             nickname = "이우건",
             profileImageUrl = null,
             mission = "운동 1시간",
         ),
-        opponent = ContractPartyDto(
+        opponent = ContractUserInfoDto(
             nickname = "테스터1",
             profileImageUrl = null,
             mission = "책 30페이지",
@@ -558,7 +558,7 @@ private class FakeChallengeApi(
     private val createResult: ApiResult<ChallengeCreateResponse> = ApiResult.Success(ChallengeCreateResponse()),
     private val receivedResult: ApiResult<ReceivedChallengesResponse> = ApiResult.Success(ReceivedChallengesResponse()),
     private val detailResult: ApiResult<ChallengeDetailResponse> = ApiResult.Success(
-        ChallengeDetailResponse(ChallengeDetailData(me = ContractPartyDto(), opponent = ContractPartyDto())),
+        ChallengeDetailResponse(ChallengeDetailData(me = ContractUserInfoDto(), opponent = ContractUserInfoDto())),
     ),
     private val historiesResult: ApiResult<ChallengeHistoryResponse> = ApiResult.Success(ChallengeHistoryResponse()),
     private val acceptResult: ApiResult<AcceptChallengeResponse> = ApiResult.Success(AcceptChallengeResponse()),

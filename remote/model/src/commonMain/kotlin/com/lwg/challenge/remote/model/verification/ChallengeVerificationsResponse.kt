@@ -18,12 +18,12 @@ data class ChallengeVerificationsResponse(
 @Serializable
 data class ChallengeVerificationsData(
     val challengeId: Long = 0L,
-    val me: PartyVerificationDto,
-    val opponent: PartyVerificationDto,
+    val me: VerificationResultDto,
+    val opponent: VerificationResultDto,
 )
 
 @Serializable
-data class PartyVerificationDto(
+data class VerificationResultDto(
     /** `PENDING` / `VERIFIED` / `FAILED`. */
     val status: String = "",
     val photoUrl: String? = null,
