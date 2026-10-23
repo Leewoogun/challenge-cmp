@@ -25,11 +25,10 @@ interface ChallengeRemoteDataSource {
         onError: (String) -> Unit,
     )
 
-    suspend fun getChallengeDetail(
+    fun getChallengeDetail(
         challengeId: Long,
-        onSuccess: (ChallengeDetail) -> Unit,
         onError: (String) -> Unit,
-    )
+    ): Flow<ChallengeDetail>
 
     suspend fun acceptChallenge(
         challengeId: Long,

@@ -3,6 +3,8 @@ package com.lwg.challenge.feature.challenge.detail
 import com.lwg.challenge.domain.model.verification.ChallengeVerifications
 import com.lwg.challenge.domain.model.verification.VerificationSubmitOutcome
 import com.lwg.challenge.domain.repository.VerificationRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 /**
  * 테스트용 [VerificationRepository] 페이크.
@@ -25,17 +27,16 @@ class FakeVerificationRepository : VerificationRepository {
         jpegBytes: ByteArray,
     ): VerificationSubmitOutcome = error("상세 화면은 인증을 제출하지 않는다")
 
-    override suspend fun getVerifications(
+    override fun getVerifications(
         challengeId: Long,
-        onSuccess: (ChallengeVerifications) -> Unit,
         onError: (String) -> Unit,
-    ) {
+    ): Flow<ChallengeVerifications> = flow {
         getVerificationsCallCount++
         val error = getVerificationsError
         if (error != null) {
             onError(error)
-            return
+            return@flow
         }
-        verifications?.let(onSuccess)
+        verifications?.let { emit(it) }
     }
 }

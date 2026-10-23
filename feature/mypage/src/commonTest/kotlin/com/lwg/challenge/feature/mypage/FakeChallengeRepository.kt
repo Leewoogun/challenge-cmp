@@ -117,11 +117,10 @@ class FakeChallengeRepository : ChallengeRepository {
         onError: (String) -> Unit,
     ) = Unit
 
-    override suspend fun getChallengeDetail(
+    override fun getChallengeDetail(
         challengeId: Long,
-        onSuccess: (ChallengeDetail) -> Unit,
         onError: (String) -> Unit,
-    ) = Unit
+    ): Flow<ChallengeDetail> = emptyFlow()
 
     override suspend fun acceptChallenge(
         challengeId: Long,

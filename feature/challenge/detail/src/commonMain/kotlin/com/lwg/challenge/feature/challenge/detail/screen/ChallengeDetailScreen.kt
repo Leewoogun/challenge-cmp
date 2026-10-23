@@ -23,9 +23,15 @@ import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
+import com.lwg.challenge.domain.model.challenge.ChallengeDetail
+import com.lwg.challenge.domain.model.challenge.ChallengeSide
+import com.lwg.challenge.domain.model.challenge.Contract
+import com.lwg.challenge.domain.model.challenge.ContractUserInfo
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
+import com.lwg.challenge.domain.model.verification.ChallengeVerifications
+import com.lwg.challenge.domain.model.verification.VerificationResult
 import com.lwg.challenge.feature.challenge.detail.component.ForfeitText
 import com.lwg.challenge.feature.challenge.detail.component.MissionCard
 import com.lwg.challenge.feature.challenge.detail.component.OathSummaryCard
@@ -33,10 +39,10 @@ import com.lwg.challenge.feature.challenge.detail.component.RejectionReasonText
 import com.lwg.challenge.feature.challenge.detail.component.VerificationPhoto
 import com.lwg.challenge.feature.challenge.detail.component.VsHeaderCard
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
+import com.lwg.challenge.feature.challenge.detail.contract.HeadlineDisplay
 import com.lwg.challenge.feature.challenge.detail.contract.HeadlineTone
 import com.lwg.challenge.feature.challenge.detail.contract.MyMissionSlot
-import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
-import com.lwg.challenge.feature.challenge.detail.contract.VerificationSection
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -44,6 +50,7 @@ private const val VERIFY_CTA_TEXT = "인증하기"
 private const val RETAKE_CTA_TEXT = "다시 찍기"
 
 private val PREVIEW_VERIFIED_AT = LocalDateTime(2026, 1, 1, 9, 30, 0)
+private val PREVIEW_SIGNED_AT = LocalDateTime(2025, 12, 31, 21, 0, 0)
 
 private val CtaFooterSpacing = 16.dp
 private val PhotoFooterSpacing = 12.dp
@@ -58,6 +65,9 @@ internal fun ChallengeDetailScreen(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val myVerification = uiState.verifications?.myVerification
+    val opponentVerification = uiState.verifications?.opponentVerification
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -68,16 +78,16 @@ internal fun ChallengeDetailScreen(
     ) {
         VsHeaderCard(
             myNickname = uiState.myLabel,
-            opponentNickname = uiState.opponentNickname,
-            headlineText = uiState.headlineText,
-            headlineTone = uiState.headlineTone,
+            opponentNickname = uiState.detail.opponent.nickname,
+            headlineText = uiState.headline.text,
+            headlineTone = uiState.headline.tone,
             forfeitText = uiState.forfeitNoticeText,
         )
 
         MissionCard(
             label = uiState.myMissionLabel,
-            mission = uiState.myMission,
-            status = uiState.myVerificationStatus,
+            mission = uiState.detail.me.mission,
+            status = myVerification?.status,
             footerSpacing = when (uiState.myMissionSlot) {
                 MyMissionSlot.MY_PHOTO,
                 MyMissionSlot.MY_PHOTO_WITH_RETAKE,
@@ -101,8 +111,8 @@ internal fun ChallengeDetailScreen(
                 MyMissionSlot.MY_PHOTO -> {
                     {
                         VerificationPhoto(
-                            status = uiState.myVerificationStatus,
-                            photoUrl = uiState.myPhotoUrl,
+                            status = myVerification?.status,
+                            photoUrl = myVerification?.photoUrl,
                             cacheKey = uiState.myPhotoCacheKey,
                             photoDeleted = uiState.myPhotoDeleted,
                         )
@@ -115,8 +125,8 @@ internal fun ChallengeDetailScreen(
                 MyMissionSlot.MY_PHOTO_WITH_RETAKE -> {
                     {
                         VerificationPhoto(
-                            status = uiState.myVerificationStatus,
-                            photoUrl = uiState.myPhotoUrl,
+                            status = myVerification?.status,
+                            photoUrl = myVerification?.photoUrl,
                             cacheKey = uiState.myPhotoCacheKey,
                             photoDeleted = uiState.myPhotoDeleted,
                         )
@@ -138,13 +148,13 @@ internal fun ChallengeDetailScreen(
 
         MissionCard(
             label = uiState.opponentMissionLabel,
-            mission = uiState.opponentMission,
-            status = uiState.opponentVerificationStatus,
+            mission = uiState.detail.opponent.mission,
+            status = opponentVerification?.status,
             footerSpacing = PhotoFooterSpacing,
             footer = {
                 VerificationPhoto(
-                    status = uiState.opponentVerificationStatus,
-                    photoUrl = uiState.opponentPhotoUrl,
+                    status = opponentVerification?.status,
+                    photoUrl = opponentVerification?.photoUrl,
                     cacheKey = uiState.opponentPhotoCacheKey,
                     photoDeleted = uiState.opponentPhotoDeleted,
                     onRetry = onRetry,
@@ -157,11 +167,13 @@ internal fun ChallengeDetailScreen(
         )
 
         OathSummaryCard(
-            betContent = uiState.betContent,
+            betContent = uiState.detail.betContent,
             deadlineText = uiState.deadlineAbsoluteText,
-            signatures = uiState.signatures,
+            contract = uiState.detail.contract,
+            mySignatureHint = uiState.mySignatureHint,
+            opponentSignatureHint = uiState.opponentSignatureHint,
             myLabel = uiState.myLabel,
-            opponentLabel = uiState.opponentLabel,
+            opponentLabel = uiState.detail.opponent.nickname,
         )
         if (uiState.canForfeit) {
             Box(
@@ -191,10 +203,7 @@ private fun ChallengeDetailScreenPendingPreview() {
     }
 }
 
-/**
- * IN_PROGRESS · 내가 인증 완료 — 이번 변경의 핵심 장면. 완료 뱃지와 내 사진은 그대로 남고 그 아래에
- * 보조 강조(Outlined)의 "다시 찍기" 가 붙는다.
- */
+/** IN_PROGRESS · 내가 인증 완료 — 내 사진 아래에 Outlined "다시 찍기" 가 붙는다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenVerifiedWithRetakePreview() {
@@ -213,7 +222,7 @@ private fun ChallengeDetailScreenVerifiedWithRetakePreview() {
     }
 }
 
-/** 마감 후 · 양측 인증 완료 — 교체가 닫혀 두 카드 모두 사진만 들고 재촬영 버튼이 없다. */
+/** 마감 후 · 양측 인증 완료 — 두 카드 모두 사진만 있고 재촬영 버튼이 없다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenBothVerifiedPreview() {
@@ -226,7 +235,7 @@ private fun ChallengeDetailScreenBothVerifiedPreview() {
                     opponentStatus = VerificationStatus.VERIFIED,
                     opponentPhotoUrl = "https://example.com/theirs.jpg",
                 ),
-                canVerify = false,
+                status = "COMPLETED",
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -235,10 +244,7 @@ private fun ChallengeDetailScreenBothVerifiedPreview() {
     }
 }
 
-/**
- * 인증 현황 조회 실패 — 뱃지는 빠지고 사진 영역은 "인증 현황을 불러오지 못했어요" 로 강등되지만
- * CTA 는 그대로 열려 있다(진행 중이면 열린다 — 내 인증 상태를 보지 않는다).
- */
+/** 인증 현황 조회 실패 — 뱃지가 빠지고 사진 영역은 조회 실패 문구, CTA 는 열려 있다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenVerificationUnknownPreview() {
@@ -252,12 +258,7 @@ private fun ChallengeDetailScreenVerificationUnknownPreview() {
     }
 }
 
-/**
- * 내 인증 실패 · **마감까지 미제출** — 낼 사진이 없어 하단 슬롯이 통째로 빠지고 실패 뱃지만 남는다.
- *
- * 진입점(`canVerify`)을 일부러 열어 둔 채 확인한다 — 내 인증 상태가 게이트보다 먼저 걸러진다는 게
- * 이 장면의 요지다. 사진이 있는 실패는 아래 [ChallengeDetailScreenMyVerificationRejectedPreview] 다.
- */
+/** 내 인증 실패 · 마감까지 미제출 — 진행 중이어도 하단 슬롯이 빠지고 실패 뱃지만 남는다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenMyVerificationFailedPreview() {
@@ -273,18 +274,7 @@ private fun ChallengeDetailScreenMyVerificationFailedPreview() {
     }
 }
 
-/**
- * 내 인증 실패 · **AI 반려** — 같은 `FAILED` 인데 내가 올린 사진이 그대로 남는다. 위
- * [ChallengeDetailScreenMyVerificationFailedPreview] 와 가르는 것은 사진 유무뿐이다.
- *
- * 재촬영 CTA 가 붙지 않아야 한다 — 반려는 자정 판정에서 확정되고 그 시점이 곧 마감이라 챌린지가
- * 이미 닫혀 있다. `canVerify = false` 가 그 사실을 옮긴 것이다.
- *
- * 사진 아래에 반려 사유가 한 단계 낮은 위계로 붙는다. 사유가 실려 왔다는 것 자체가 미인증 처리됐다는
- * 뜻이라 상태를 함께 보지 않는다
- * ([com.lwg.challenge.feature.challenge.detail.contract.VerificationSection.myAiReason] 참조).
- * 상대 칸에 붙는 모양은 아래 [ChallengeDetailScreenOpponentVerificationRejectedPreview] 다.
- */
+/** 내 인증 실패 · AI 반려 — 내 사진 아래 반려 사유가 붙고 재촬영 CTA 는 없다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenMyVerificationRejectedPreview() {
@@ -300,7 +290,7 @@ private fun ChallengeDetailScreenMyVerificationRejectedPreview() {
                     opponentStatus = VerificationStatus.VERIFIED,
                     opponentPhotoUrl = "https://example.com/theirs.jpg",
                 ),
-                canVerify = false,
+                status = "COMPLETED",
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -309,15 +299,7 @@ private fun ChallengeDetailScreenMyVerificationRejectedPreview() {
     }
 }
 
-/**
- * 상대 인증이 **AI 반려** — 같은 사유 한 줄이 상대 카드의 사진 아래에 붙는다.
- *
- * 위 [ChallengeDetailScreenMyVerificationRejectedPreview] 와 짝으로 둔다. 내 카드는 슬롯 분기를
- * 거쳐, 상대 카드는 분기 없이 사진 다음에 바로 붙어 **그리는 자리가 서로 다르기** 때문에 두 장을
- * 모두 눈으로 확인해야 한다(렌더링을 덮는 UI 테스트가 없다).
- *
- * 사유가 길어 줄바꿈되는 모양도 여기서 드러난다 — 자르지 않는 것이 이 문구의 규칙이다.
- */
+/** 상대 인증 AI 반려 — 상대 카드는 슬롯 분기 없이 붙어 자리가 달라 따로 확인한다. 긴 사유는 줄바꿈된다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenOpponentVerificationRejectedPreview() {
@@ -334,7 +316,7 @@ private fun ChallengeDetailScreenOpponentVerificationRejectedPreview() {
                     opponentAiReason = "실내에서 찍힌 책상 위 커피잔 사진으로 보이며, 미션으로 약속한 " +
                         "야외 달리기를 수행했다고 볼 만한 장면이 확인되지 않습니다.",
                 ),
-                canVerify = false,
+                status = "COMPLETED",
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -343,13 +325,13 @@ private fun ChallengeDetailScreenOpponentVerificationRejectedPreview() {
     }
 }
 
-/** 계약서 없음(soul-oath 이전 생성) — 내기·마감은 그대로 나오고 서명 블록만 divider 째로 빠진다. */
+/** 계약서 없음 — 서명 블록만 빠진다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenNoContractPreview() {
     PreviewContainer {
         ChallengeDetailScreen(
-            uiState = previewData(signatures = null),
+            uiState = previewData(contract = null),
             onVerifyClick = {},
             onForfeitClick = {},
             onRetry = {},
@@ -357,7 +339,7 @@ private fun ChallengeDetailScreenNoContractPreview() {
     }
 }
 
-/** 마감 후 — 헤더가 "판정 대기 중" NEUTRAL 로 내려가고, 인증은 마쳤지만 교체가 닫혀 사진만 남는다. */
+/** 마감 후 — "판정 대기 중" NEUTRAL, 내 사진만 남는다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenAfterDeadlinePreview() {
@@ -370,7 +352,7 @@ private fun ChallengeDetailScreenAfterDeadlinePreview() {
                     myStatus = VerificationStatus.VERIFIED,
                     myPhotoUrl = "https://example.com/mine.jpg",
                 ),
-                canVerify = false,
+                status = "COMPLETED",
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -379,7 +361,7 @@ private fun ChallengeDetailScreenAfterDeadlinePreview() {
     }
 }
 
-/** 판정 완료 · 승리 — 헤더가 트로피 primary 로 올라서고, 양측 사진은 남고 CTA 는 닫혀 있다. */
+/** 판정 완료 · 승리. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenWinPreview() {
@@ -394,7 +376,7 @@ private fun ChallengeDetailScreenWinPreview() {
                     opponentStatus = VerificationStatus.VERIFIED,
                     opponentPhotoUrl = "https://example.com/theirs.jpg",
                 ),
-                canVerify = false,
+                status = "COMPLETED",
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -403,7 +385,7 @@ private fun ChallengeDetailScreenWinPreview() {
     }
 }
 
-/** 판정 완료 · 패배 — 내가 미제출로 FAILED 라 하단 슬롯이 통째로 빠지고 상대만 사진을 든다. */
+/** 판정 완료 · 패배 — 내가 미제출이라 하단 슬롯이 빠진다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenLosePreview() {
@@ -417,7 +399,7 @@ private fun ChallengeDetailScreenLosePreview() {
                     opponentStatus = VerificationStatus.VERIFIED,
                     opponentPhotoUrl = "https://example.com/theirs.jpg",
                 ),
-                canVerify = false,
+                status = "COMPLETED",
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -426,7 +408,7 @@ private fun ChallengeDetailScreenLosePreview() {
     }
 }
 
-/** 판정 완료 · 무승부 — 양측 VERIFIED 인데도 승자가 없는 장면. 헤더만 중립 onBackground 로 남는다. */
+/** 판정 완료 · 무승부. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenDrawPreview() {
@@ -441,7 +423,7 @@ private fun ChallengeDetailScreenDrawPreview() {
                     opponentStatus = VerificationStatus.VERIFIED,
                     opponentPhotoUrl = "https://example.com/theirs.jpg",
                 ),
-                canVerify = false,
+                status = "COMPLETED",
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -450,7 +432,7 @@ private fun ChallengeDetailScreenDrawPreview() {
     }
 }
 
-/** 판정 완료 · 양측 패배 — 두 사진 영역이 모두 안내 문구로 내려앉고 헤더만 결과를 말한다. */
+/** 판정 완료 · 양측 패배. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenBothLosePreview() {
@@ -463,7 +445,7 @@ private fun ChallengeDetailScreenBothLosePreview() {
                     myStatus = VerificationStatus.FAILED,
                     opponentStatus = VerificationStatus.FAILED,
                 ),
-                canVerify = false,
+                status = "COMPLETED",
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -472,7 +454,7 @@ private fun ChallengeDetailScreenBothLosePreview() {
     }
 }
 
-/** 서명을 읽지 못한 칸 — "서명 대기 중" 이 아니라 실패를 밝힌다(서명은 한 사람이다). */
+/** 서명을 읽지 못한 칸 — "서명 대기 중" 이 아니라 실패 문구가 나온다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenUnreadableSignaturePreview() {
@@ -480,7 +462,7 @@ private fun ChallengeDetailScreenUnreadableSignaturePreview() {
         ChallengeDetailScreen(
             uiState = previewData(
                 opponentSignature = null,
-                opponentSignatureHint = "서명을 불러오지 못했어요",
+                opponentSignedAt = PREVIEW_SIGNED_AT,
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -489,7 +471,7 @@ private fun ChallengeDetailScreenUnreadableSignaturePreview() {
     }
 }
 
-/** 긴 미션 + 큰 폰트 — 첫 화면 안에 CTA 가 남는지 확인하는 자리다. */
+/** 긴 미션 + 큰 폰트 — 첫 화면 안에 CTA 가 남는지 확인한다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenLongMissionLargeFontPreview() {
@@ -506,10 +488,7 @@ private fun ChallengeDetailScreenLongMissionLargeFontPreview() {
     }
 }
 
-/**
- * IN_PROGRESS · 내 미인증 — 이번 변경의 핵심 장면. 내 카드의 인증 CTA 와 본문 맨 아래 기권 진입점이
- * 함께 있다. 기권이 주 액션 옆이 아니라 스크롤 끝에 있다는 것이 여기서 보인다.
- */
+/** IN_PROGRESS · 내 미인증 — 인증 CTA 와 본문 맨 아래 기권 진입점이 함께 있다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenForfeitEntryPreview() {
@@ -523,7 +502,7 @@ private fun ChallengeDetailScreenForfeitEntryPreview() {
     }
 }
 
-/** 기권 요청 중 — 진입점이 잠긴다. 전체 화면 로딩으로 덮지 않아 읽던 계약서가 그대로 남는다. */
+/** 기권 요청 중 — 진입점만 잠긴다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenForfeitingPreview() {
@@ -537,14 +516,7 @@ private fun ChallengeDetailScreenForfeitingPreview() {
     }
 }
 
-/**
- * 판정 완료 · 내가 기권 — 헤드라인 "패배" 아래에 "내가 기권했어요" 가 한 단계 낮은 위계로 붙고,
- * 하단 진입점은 사라진다.
- *
- * 기권 진입점과 "다시 찍기" 가 함께 나오지 않는다는 것을 눈으로 확인하는 자리이기도 하다 — 여기서는
- * 둘 다 없고, 위 [ChallengeDetailScreenForfeitEntryPreview] 에는 기권만, "다시 찍기" 프리뷰에는
- * 재촬영만 있다.
- */
+/** 판정 완료 · 내가 기권 — "패배" 아래 "내가 기권했어요", 기권 진입점은 사라진다. */
 @Preview
 @Composable
 private fun ChallengeDetailScreenForfeitedByMePreview() {
@@ -553,12 +525,12 @@ private fun ChallengeDetailScreenForfeitedByMePreview() {
             uiState = previewData(
                 headlineText = "패배",
                 headlineTone = HeadlineTone.LOSE,
-                forfeitNoticeText = "내가 기권했어요",
+                forfeitedBy = ChallengeSide.ME,
                 verifications = previewVerifications(
                     opponentStatus = VerificationStatus.VERIFIED,
                     opponentPhotoUrl = "https://example.com/theirs.jpg",
                 ),
-                canVerify = false,
+                status = "COMPLETED",
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -567,12 +539,7 @@ private fun ChallengeDetailScreenForfeitedByMePreview() {
     }
 }
 
-/**
- * 판정 완료 · 상대가 기권 — 헤드라인 "승리" 아래에 "우건님이 기권했어요". 내가 인증했는지와 무관하게
- * 이긴 장면이라 내 카드는 인증 전 그대로다.
- *
- * 바로 위 프리뷰와 짝으로, 기권이 걸린 화면에는 "다시 찍기" 가 나올 자리가 없다는 것을 보여준다.
- */
+/** 판정 완료 · 상대가 기권 — "승리" 아래 "우건님이 기권했어요". */
 @Preview
 @Composable
 private fun ChallengeDetailScreenForfeitedByOpponentPreview() {
@@ -581,8 +548,8 @@ private fun ChallengeDetailScreenForfeitedByOpponentPreview() {
             uiState = previewData(
                 headlineText = "승리",
                 headlineTone = HeadlineTone.WIN,
-                forfeitNoticeText = "우건님이 기권했어요",
-                canVerify = false,
+                forfeitedBy = ChallengeSide.OPPONENT,
+                status = "COMPLETED",
             ),
             onVerifyClick = {},
             onForfeitClick = {},
@@ -597,7 +564,7 @@ private fun PreviewContainer(
     content: @Composable () -> Unit,
 ) {
     ChallengeTheme {
-        // KMP @Preview 에는 안드로이드 전용 어노테이션의 fontScale 파라미터가 없어 밀도를 직접 바꾼다.
+        // KMP @Preview 에는 fontScale 파라미터가 없어 밀도를 직접 바꾼다.
         CompositionLocalProvider(
             LocalDensity provides Density(
                 density = LocalDensity.current.density,
@@ -624,70 +591,64 @@ private fun previewSignature() = Signature(
     ),
 )
 
-private fun previewSignatures(
-    opponentSignature: Signature? = previewSignature(),
-    opponentSignatureHint: String = "서명 대기 중",
-    isFinalized: Boolean = true,
-) = SignatureSection(
-    mySignature = previewSignature(),
-    mySignatureHint = "서명 대기 중",
-    opponentSignature = opponentSignature,
-    opponentSignatureHint = opponentSignatureHint,
-    isFinalized = isFinalized,
-)
-
 private fun previewVerifications(
     myStatus: VerificationStatus = VerificationStatus.PENDING,
     myPhotoUrl: String? = null,
-    myPhotoDeleted: Boolean = false,
-    myVerifiedAt: LocalDateTime? = PREVIEW_VERIFIED_AT,
     myAiReason: String? = null,
     opponentStatus: VerificationStatus = VerificationStatus.PENDING,
     opponentPhotoUrl: String? = null,
-    opponentPhotoDeleted: Boolean = false,
-    opponentVerifiedAt: LocalDateTime? = PREVIEW_VERIFIED_AT,
     opponentAiReason: String? = null,
-) = VerificationSection(
-    myStatus = myStatus,
-    myPhotoUrl = myPhotoUrl,
-    myPhotoDeleted = myPhotoDeleted,
-    myVerifiedAt = myVerifiedAt,
-    myAiReason = myAiReason,
-    opponentStatus = opponentStatus,
-    opponentPhotoUrl = opponentPhotoUrl,
-    opponentPhotoDeleted = opponentPhotoDeleted,
-    opponentVerifiedAt = opponentVerifiedAt,
-    opponentAiReason = opponentAiReason,
+) = ChallengeVerifications(
+    challengeId = 1L,
+    myVerification = VerificationResult(
+        status = myStatus,
+        photoUrl = myPhotoUrl,
+        verifiedAt = PREVIEW_VERIFIED_AT,
+        photoDeleted = false,
+        aiReason = myAiReason,
+    ),
+    opponentVerification = VerificationResult(
+        status = opponentStatus,
+        photoUrl = opponentPhotoUrl,
+        verifiedAt = PREVIEW_VERIFIED_AT,
+        photoDeleted = false,
+        aiReason = opponentAiReason,
+    ),
 )
 
 private fun previewData(
     myMission: String? = "책 30페이지 읽기",
     opponentMission: String? = "오늘 운동 1시간 하기",
     opponentSignature: Signature? = previewSignature(),
-    opponentSignatureHint: String = "서명 대기 중",
-    isFinalized: Boolean = true,
-    signatures: SignatureSection? = previewSignatures(
+    opponentSignedAt: LocalDateTime? = PREVIEW_SIGNED_AT,
+    contract: Contract? = Contract(
+        content = "영혼의 맹세",
+        isFinalized = true,
+        mySignature = previewSignature(),
+        mySignedAt = PREVIEW_SIGNED_AT,
         opponentSignature = opponentSignature,
-        opponentSignatureHint = opponentSignatureHint,
-        isFinalized = isFinalized,
+        opponentSignedAt = opponentSignedAt,
     ),
+    status: String = "IN_PROGRESS",
+    forfeitedBy: ChallengeSide? = null,
     headlineText: String = "남은 시간: 5시간 32분",
     headlineTone: HeadlineTone = HeadlineTone.URGENT,
-    verifications: VerificationSection? = previewVerifications(),
-    canVerify: Boolean = true,
-    forfeitNoticeText: String? = null,
+    verifications: ChallengeVerifications? = previewVerifications(),
     isForfeiting: Boolean = false,
 ) = ChallengeDetailUiState.Data(
-    myMission = myMission,
-    opponentNickname = "우건",
-    opponentMission = opponentMission,
-    betContent = "커피 사기",
-    headlineText = headlineText,
-    headlineTone = headlineTone,
-    deadlineAbsoluteText = "7월 28일 (월) 24:00",
-    signatures = signatures,
+    detail = ChallengeDetail(
+        challengeId = 1L,
+        status = status,
+        myResult = null,
+        forfeitedBy = forfeitedBy,
+        challengeDate = LocalDate(2026, 7, 28),
+        deadline = LocalDateTime(2026, 7, 29, 0, 0, 0),
+        betContent = "커피 사기",
+        me = ContractUserInfo(nickname = "나", profileImageUrl = null, mission = myMission),
+        opponent = ContractUserInfo(nickname = "우건", profileImageUrl = null, mission = opponentMission),
+        contract = contract,
+    ),
     verifications = verifications,
-    canVerify = canVerify,
-    forfeitNoticeText = forfeitNoticeText,
+    headline = HeadlineDisplay(text = headlineText, tone = headlineTone),
     isForfeiting = isForfeiting,
 )

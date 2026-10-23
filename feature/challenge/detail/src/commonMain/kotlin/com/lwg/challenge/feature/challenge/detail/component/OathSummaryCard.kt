@@ -24,24 +24,25 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.HorizontalDivider
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.challenge.Contract
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
-import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 계약 조건 + 서명을 한 장으로 압축한 계약서 카드.
  *
- * @param signatures 계약서가 없는 챌린지(soul-oath 이전 생성)면 `null` — 없는 맹세를 "서명 대기 중"
- *   으로 그리면 안 되므로 divider 째로 서명 블록을 통째로 생략한다.
- * @param deadlineText 절대 마감 시각. 포맷은 ViewModel 이 확정한다.
+ * @param contract 계약서가 없는 챌린지(soul-oath 이전 생성)면 `null` 이고 서명 블록을 통째로 뺀다.
  */
 @Composable
 internal fun OathSummaryCard(
     betContent: String,
     deadlineText: String,
-    signatures: SignatureSection?,
+    contract: Contract?,
+    mySignatureHint: String,
+    opponentSignatureHint: String,
     myLabel: String,
     opponentLabel: String,
     modifier: Modifier = Modifier,
@@ -86,17 +87,14 @@ internal fun OathSummaryCard(
                     valueColor = ChallengeTheme.colorScheme.primary,
                 )
 
-                // Lovable 원본(challenge-detail.tsx)의 내부 박스는 '내기' 한 필드뿐이라 이 행은 디자인에
-                // 없는 의도적 이탈이다(pm-lead 판정으로 존치). VS 헤더의 상대 표기("남은 시간: 3시간")
-                // 만으로는 마감이 오늘 자정인지 내일인지 복원할 수 없는데, 그건 계약 조건이라 계약서가
-                // 맡아야 한다. "디자인에 없는 행" 이라는 이유로 지우지 말 것.
+                // 디자인에 없지만 의도적으로 둔 행이다. 상대 표기만으로는 마감 날짜를 알 수 없다.
                 OathField(
                     label = "마감",
                     value = deadlineText,
                     valueColor = ChallengeTheme.colorScheme.onBackground,
                 )
 
-                if (signatures != null) {
+                if (contract != null) {
                     HorizontalDivider()
 
                     Column {
@@ -113,14 +111,14 @@ internal fun OathSummaryCard(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             SignatureColumn(
-                                signature = signatures.mySignature,
-                                emptyHint = signatures.mySignatureHint,
+                                signature = contract.mySignature,
+                                emptyHint = mySignatureHint,
                                 label = myLabel,
                                 modifier = Modifier.weight(1f),
                             )
                             SignatureColumn(
-                                signature = signatures.opponentSignature,
-                                emptyHint = signatures.opponentSignatureHint,
+                                signature = contract.opponentSignature,
+                                emptyHint = opponentSignatureHint,
                                 label = opponentLabel,
                                 modifier = Modifier.weight(1f),
                             )
@@ -167,7 +165,9 @@ private fun OathSummaryCardBothSignedPreview() {
             OathSummaryCard(
                 betContent = "커피 사기",
                 deadlineText = "7월 28일 (월) 24:00",
-                signatures = oathPreviewSignatures(),
+                contract = oathPreviewContract(),
+                mySignatureHint = "서명 대기 중",
+                opponentSignatureHint = "서명 대기 중",
                 myLabel = "나",
                 opponentLabel = "우건",
             )
@@ -187,7 +187,9 @@ private fun OathSummaryCardOpponentNotSignedPreview() {
             OathSummaryCard(
                 betContent = "커피 사기",
                 deadlineText = "7월 28일 (월) 24:00",
-                signatures = oathPreviewSignatures(opponentSignature = null),
+                contract = oathPreviewContract(opponentSignature = null),
+                mySignatureHint = "서명 대기 중",
+                opponentSignatureHint = "서명 대기 중",
                 myLabel = "나",
                 opponentLabel = "우건",
             )
@@ -208,7 +210,9 @@ private fun OathSummaryCardNoContractPreview() {
             OathSummaryCard(
                 betContent = "커피 사기",
                 deadlineText = "7월 28일 (월) 24:00",
-                signatures = null,
+                contract = null,
+                mySignatureHint = "서명 대기 중",
+                opponentSignatureHint = "서명 대기 중",
                 myLabel = "나",
                 opponentLabel = "우건",
             )
@@ -216,14 +220,17 @@ private fun OathSummaryCardNoContractPreview() {
     }
 }
 
-private fun oathPreviewSignatures(
+private val OATH_PREVIEW_SIGNED_AT = LocalDateTime(2026, 7, 27, 21, 0, 0)
+
+private fun oathPreviewContract(
     opponentSignature: Signature? = oathPreviewSignature(),
-) = SignatureSection(
-    mySignature = oathPreviewSignature(),
-    mySignatureHint = "서명 대기 중",
-    opponentSignature = opponentSignature,
-    opponentSignatureHint = "서명 대기 중",
+) = Contract(
+    content = "영혼의 맹세",
     isFinalized = opponentSignature != null,
+    mySignature = oathPreviewSignature(),
+    mySignedAt = OATH_PREVIEW_SIGNED_AT,
+    opponentSignature = opponentSignature,
+    opponentSignedAt = OATH_PREVIEW_SIGNED_AT.takeIf { opponentSignature != null },
 )
 
 private fun oathPreviewSignature() = Signature(

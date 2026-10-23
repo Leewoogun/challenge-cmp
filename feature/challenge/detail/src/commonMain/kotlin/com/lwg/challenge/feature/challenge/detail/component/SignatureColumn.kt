@@ -23,12 +23,9 @@ import com.lwg.challenge.ui.components.signature.SignatureSlot
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 서명 칸 1개 + 그 아래 소유자 라벨.
+ * 서명 칸 1개 + 그 아래 소유자 라벨. 라벨이 서명 획과 겹치지 않게 칸 밖에 둔다.
  *
- * 라벨을 칸 **밖**에 두는 이유: 안에 두면 서명 획과 텍스트가 겹쳐 둘 다 읽기 어려워진다.
- *
- * @param emptyHint [signature] 가 `null` 일 때 칸 안에 뜨는 문구. 미서명인지 디코드 실패인지는
- *   ViewModel 이 이미 판정해 문구로 내려보낸다.
+ * @param emptyHint [signature] 가 `null` 일 때 칸 안에 뜨는 문구.
  */
 @Composable
 internal fun SignatureColumn(

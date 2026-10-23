@@ -33,16 +33,7 @@ import com.lwg.challenge.ui.components.challengeOutcomeVisualOf
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 상세 최상단 대결 헤더. 양측 아바타를 "VS" 로 마주 세우고 그 아래 헤드라인 한 줄을 붙인다.
- *
- * 헤드라인 문구·강조를 파라미터로 받는 이유: 이 한 자리의 주인이 "남은 시간: 5시간 32분"(마감 전) →
- * "판정 대기 중"(마감 후) → "승리"(판정 후) 로 바뀌고, 그 판단은 Composable 밖에서 이미 끝나 있어
- * 여기서는 [headlineTone] 을 색·아이콘으로 옮기는 일만 한다.
- *
- * 상호작용이 없다 — 아바타는 표시 전용이라 탭 콜백을 뚫지 않는다.
- *
- * @param forfeitText 기권으로 끝났을 때 헤드라인 아래에 붙는 안내 한 줄. 기권이 아니면 `null` 이고
- *   그 자리가 통째로 빠진다.
+ * @param forfeitText 기권으로 끝났을 때 헤드라인 아래에 붙는 안내 한 줄.
  */
 @Composable
 internal fun VsHeaderCard(
@@ -93,9 +84,6 @@ internal fun VsHeaderCard(
                 )
             }
 
-            // 결과가 아니라 결과가 **어떻게 나왔는지**에 붙는 주석이라 헤드라인의 톤 색(visual.accent)을
-            // 쓰지 않는다 — 같은 색을 주면 결과 문구와 경쟁하고, 승패를 말하는 자리가 두 줄로 늘어난
-            // 것처럼 읽힌다. 크기도 한 단계 낮춘다.
             if (forfeitText != null) {
                 VerticalSpacer(4.dp)
                 Text(
@@ -115,14 +103,6 @@ private data class HeadlineVisual(
     val icon: ImageVector,
 )
 
-/**
- * 헤드라인 톤을 색·아이콘으로 옮긴다. 색만 따로 고르면 "승리" 에 시계 아이콘이 남는 조합이 생겨
- * 둘을 한 자리에서 같이 집는다.
- *
- * 승/패/무 세 톤은 홈 카드와 같은 승패무를 말하므로 [challengeOutcomeVisualOf] 에 위임한다 —
- * 상세만 매핑을 따로 들고 있으면 같은 결과가 두 화면에서 다른 색이 된다. 나머지 두 톤은 결과가
- * 아니라 **마감 전·판정 전** 이라는 상세 고유의 사정이라 여기 남는다.
- */
 @Composable
 private fun headlineVisualOf(tone: HeadlineTone): HeadlineVisual = when (tone) {
     HeadlineTone.URGENT -> HeadlineVisual(
@@ -137,9 +117,6 @@ private fun headlineVisualOf(tone: HeadlineTone): HeadlineVisual = when (tone) {
 
     HeadlineTone.WIN -> outcomeVisual(ChallengeOutcome.WIN)
 
-    // 이 톤 하나가 LOSE 와 BOTH_LOSE 를 함께 받는다. 둘은 색·아이콘이 같고 **문구만** 갈리는데
-    // 그 문구는 state 가 이미 확정해 [headlineText] 로 넘겨주므로, 여기서 대표로 LOSE 를 넣어도
-    // 화면에 새는 차이가 없다. label 을 버리는 것이 이 위임이 성립하는 조건이다.
     HeadlineTone.LOSE -> outcomeVisual(ChallengeOutcome.LOSE)
 
     HeadlineTone.DRAW -> outcomeVisual(ChallengeOutcome.DRAW)

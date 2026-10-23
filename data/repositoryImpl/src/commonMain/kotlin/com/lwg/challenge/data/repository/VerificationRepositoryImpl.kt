@@ -4,6 +4,7 @@ import com.lwg.challenge.data.datasource.remote.VerificationRemoteDataSource
 import com.lwg.challenge.domain.model.verification.ChallengeVerifications
 import com.lwg.challenge.domain.model.verification.VerificationSubmitOutcome
 import com.lwg.challenge.domain.repository.VerificationRepository
+import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Single
 
 @Single(binds = [VerificationRepository::class])
@@ -16,11 +17,8 @@ class VerificationRepositoryImpl(
         jpegBytes: ByteArray,
     ): VerificationSubmitOutcome = verificationRemoteDataSource.submitVerification(challengeId, jpegBytes)
 
-    override suspend fun getVerifications(
+    override fun getVerifications(
         challengeId: Long,
-        onSuccess: (ChallengeVerifications) -> Unit,
         onError: (String) -> Unit,
-    ) {
-        verificationRemoteDataSource.getVerifications(challengeId, onSuccess, onError)
-    }
+    ): Flow<ChallengeVerifications> = verificationRemoteDataSource.getVerifications(challengeId, onError)
 }

@@ -54,17 +54,16 @@ class FakeChallengeRepository : ChallengeRepository {
         }
     }
 
-    override suspend fun getChallengeDetail(
+    override fun getChallengeDetail(
         challengeId: Long,
-        onSuccess: (ChallengeDetail) -> Unit,
         onError: (String) -> Unit,
-    ) {
+    ): Flow<ChallengeDetail> = flow {
         lastDetailId = challengeId
         val current = detail
         val currentError = detailError
         when {
             currentError != null -> onError(currentError)
-            current != null -> onSuccess(current)
+            current != null -> emit(current)
         }
     }
 

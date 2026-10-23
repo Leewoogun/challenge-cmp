@@ -12,6 +12,7 @@ import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.domain.model.verification.ChallengeVerifications
 import com.lwg.challenge.domain.model.verification.VerificationResult
+import com.lwg.challenge.domain.usecase.GetChallengeDetailDataUseCase
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailModalEffect
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiEffect
 import com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState
@@ -24,9 +25,7 @@ import com.lwg.challenge.feature.challenge.detail.contract.MY_LABEL
 import com.lwg.challenge.feature.challenge.detail.contract.MyMissionSlot
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_NOT_SIGNED_HINT
 import com.lwg.challenge.feature.challenge.detail.contract.SIGNATURE_UNREADABLE_HINT
-import com.lwg.challenge.feature.challenge.detail.contract.SignatureSection
 import com.lwg.challenge.feature.challenge.detail.contract.VERIFICATION_REJECTED_PREFIX
-import com.lwg.challenge.feature.challenge.detail.contract.VerificationSection
 import com.lwg.challenge.ui.components.RESULT_BOTH_LOSE_TEXT
 import com.lwg.challenge.ui.components.RESULT_DRAW_TEXT
 import com.lwg.challenge.ui.components.RESULT_LOSE_TEXT
@@ -36,6 +35,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -119,8 +119,11 @@ class ChallengeDetailViewModelTest {
     private fun newViewModel(): ChallengeDetailViewModel =
         ChallengeDetailViewModel(
             challengeId = CHALLENGE_ID,
+            getChallengeDetailDataUseCase = GetChallengeDetailDataUseCase(
+                challengeRepository = fakeChallengeRepository,
+                verificationRepository = fakeVerificationRepository,
+            ),
             challengeRepository = fakeChallengeRepository,
-            verificationRepository = fakeVerificationRepository,
         ).also { viewModelStore.put(VIEW_MODEL_KEY, it) }
 
     private fun TestScope.subscribeUiState(viewModel: ChallengeDetailViewModel) {
@@ -132,10 +135,7 @@ class ChallengeDetailViewModelTest {
     private fun ChallengeDetailViewModel.data(): ChallengeDetailUiState.Data =
         assertIs<ChallengeDetailUiState.Data>(uiState.value)
 
-    private fun ChallengeDetailViewModel.signatures(): SignatureSection = assertNotNull(data().signatures)
-
-    private fun ChallengeDetailViewModel.verifications(): VerificationSection =
-        assertNotNull(data().verifications)
+    private fun ChallengeDetailViewModel.contract(): Contract = assertNotNull(data().detail.contract)
 
     private fun sampleDetail(
         status: String = "IN_PROGRESS",
@@ -271,9 +271,9 @@ class ChallengeDetailViewModelTest {
 
         assertEquals(1, fakeChallengeRepository.detailCallCount)
         val state = viewModel.data()
-        assertEquals("커피 사기", state.betContent)
+        assertEquals("커피 사기", state.detail.betContent)
         assertEquals(MY_LABEL, state.myLabel)
-        assertEquals(OPPONENT_NICKNAME, state.opponentLabel)
+        assertEquals(OPPONENT_NICKNAME, state.detail.opponent.nickname)
     }
 
     @Test
@@ -288,7 +288,26 @@ class ChallengeDetailViewModelTest {
         viewModel.retry()
 
         assertEquals(2, fakeChallengeRepository.detailCallCount)
-        assertEquals(OPPONENT_NICKNAME, viewModel.data().opponentNickname)
+        assertEquals(OPPONENT_NICKNAME, viewModel.data().detail.opponent.nickname)
+    }
+
+    @Test
+    fun `Error 에서 retry 하면 응답 전까지 Loading 이다`() = runTest {
+        fakeChallengeRepository.detailError = "네트워크 오류가 발생하였습니다."
+        val viewModel = createViewModel()
+        assertIs<ChallengeDetailUiState.Error>(viewModel.uiState.value)
+
+        fakeChallengeRepository.detailError = null
+        fakeChallengeRepository.detailDelayMillis = 1_000
+        viewModel.retry()
+        runCurrent()
+
+        assertIs<ChallengeDetailUiState.Loading>(viewModel.uiState.value)
+
+        advanceTimeBy(1_000)
+        runCurrent()
+
+        assertEquals(OPPONENT_NICKNAME, viewModel.data().detail.opponent.nickname)
     }
 
     @Test
@@ -299,10 +318,10 @@ class ChallengeDetailViewModelTest {
             isFinalized = false,
         )
 
-        val signatures = createViewModel().signatures()
+        val viewModel = createViewModel()
 
-        assertNull(signatures.opponentSignature)
-        assertEquals(SIGNATURE_NOT_SIGNED_HINT, signatures.opponentSignatureHint)
+        assertNull(viewModel.contract().opponentSignature)
+        assertEquals(SIGNATURE_NOT_SIGNED_HINT, viewModel.data().opponentSignatureHint)
     }
 
     @Test
@@ -312,26 +331,26 @@ class ChallengeDetailViewModelTest {
             opponentSignedAt = PAST_DEADLINE,
         )
 
-        val signatures = createViewModel().signatures()
+        val viewModel = createViewModel()
 
-        assertNull(signatures.opponentSignature)
-        assertEquals(SIGNATURE_UNREADABLE_HINT, signatures.opponentSignatureHint)
+        assertNull(viewModel.contract().opponentSignature)
+        assertEquals(SIGNATURE_UNREADABLE_HINT, viewModel.data().opponentSignatureHint)
     }
 
     @Test
     fun `양측 서명이 완료되면 두 서명이 모두 있고 계약이 완결로 온다`() = runTest {
-        val signatures = createViewModel().signatures()
+        val contract = createViewModel().contract()
 
-        assertNotNull(signatures.mySignature)
-        assertNotNull(signatures.opponentSignature)
-        assertTrue(signatures.isFinalized)
+        assertNotNull(contract.mySignature)
+        assertNotNull(contract.opponentSignature)
+        assertTrue(contract.isFinalized)
     }
 
     @Test
     fun `headlineText 는 매핑 시점 시계 기준으로 만들어진다`() = runTest {
         val state = createViewModel().data()
 
-        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headlineText)
+        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headline.text)
     }
 
     @Test
@@ -341,10 +360,10 @@ class ChallengeDetailViewModelTest {
         val state = createViewModel().data()
 
         assertTrue(
-            state.headlineText.startsWith(DEADLINE_REMAINING_PREFIX),
-            "접두어가 빠졌다: ${state.headlineText}",
+            state.headline.text.startsWith(DEADLINE_REMAINING_PREFIX),
+            "접두어가 빠졌다: ${state.headline.text}",
         )
-        assertEquals(HeadlineTone.URGENT, state.headlineTone)
+        assertEquals(HeadlineTone.URGENT, state.headline.tone)
 
         viewModelStore.clear()
     }
@@ -353,8 +372,8 @@ class ChallengeDetailViewModelTest {
     fun `마감 후면 판정 대기 중이고 톤이 NEUTRAL 이다`() = runTest {
         val state = createViewModel().data()
 
-        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headlineText)
-        assertEquals(HeadlineTone.NEUTRAL, state.headlineTone)
+        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headline.text)
+        assertEquals(HeadlineTone.NEUTRAL, state.headline.tone)
     }
 
     @Test
@@ -363,8 +382,8 @@ class ChallengeDetailViewModelTest {
 
         val state = createViewModel().data()
 
-        assertEquals(RESULT_WIN_TEXT, state.headlineText)
-        assertEquals(HeadlineTone.WIN, state.headlineTone)
+        assertEquals(RESULT_WIN_TEXT, state.headline.text)
+        assertEquals(HeadlineTone.WIN, state.headline.tone)
     }
 
     @Test
@@ -373,8 +392,8 @@ class ChallengeDetailViewModelTest {
 
         val state = createViewModel().data()
 
-        assertEquals(RESULT_LOSE_TEXT, state.headlineText)
-        assertEquals(HeadlineTone.LOSE, state.headlineTone)
+        assertEquals(RESULT_LOSE_TEXT, state.headline.text)
+        assertEquals(HeadlineTone.LOSE, state.headline.tone)
     }
 
     @Test
@@ -383,8 +402,8 @@ class ChallengeDetailViewModelTest {
 
         val state = createViewModel().data()
 
-        assertEquals(RESULT_DRAW_TEXT, state.headlineText)
-        assertEquals(HeadlineTone.DRAW, state.headlineTone)
+        assertEquals(RESULT_DRAW_TEXT, state.headline.text)
+        assertEquals(HeadlineTone.DRAW, state.headline.tone)
     }
 
     @Test
@@ -393,8 +412,8 @@ class ChallengeDetailViewModelTest {
 
         val state = createViewModel().data()
 
-        assertEquals(RESULT_BOTH_LOSE_TEXT, state.headlineText)
-        assertEquals(HeadlineTone.LOSE, state.headlineTone)
+        assertEquals(RESULT_BOTH_LOSE_TEXT, state.headline.text)
+        assertEquals(HeadlineTone.LOSE, state.headline.tone)
     }
 
     @Test
@@ -403,8 +422,8 @@ class ChallengeDetailViewModelTest {
 
         val state = createViewModel().data()
 
-        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headlineText)
-        assertEquals(HeadlineTone.NEUTRAL, state.headlineTone)
+        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headline.text)
+        assertEquals(HeadlineTone.NEUTRAL, state.headline.tone)
     }
 
     @Test
@@ -417,8 +436,8 @@ class ChallengeDetailViewModelTest {
 
         val state = createViewModel().data()
 
-        assertEquals(RESULT_WIN_TEXT, state.headlineText)
-        assertEquals(HeadlineTone.WIN, state.headlineTone)
+        assertEquals(RESULT_WIN_TEXT, state.headline.text)
+        assertEquals(HeadlineTone.WIN, state.headline.tone)
 
         viewModelStore.clear()
     }
@@ -447,24 +466,25 @@ class ChallengeDetailViewModelTest {
         val state = createViewModel().data()
 
         assertNull(
-            state.signatures,
+            state.detail.contract,
             "없는 맹세를 '서명 대기 중' 으로 그리지 않도록 묶음 자체가 없어야 한다",
         )
-        assertEquals(MY_MISSION, state.myMission)
-        assertEquals(OPPONENT_MISSION, state.opponentMission)
-        assertEquals(OPPONENT_NICKNAME, state.opponentNickname)
-        assertEquals("커피 사기", state.betContent)
-        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headlineText)
+        assertEquals(MY_MISSION, state.detail.me.mission)
+        assertEquals(OPPONENT_MISSION, state.detail.opponent.mission)
+        assertEquals(OPPONENT_NICKNAME, state.detail.opponent.nickname)
+        assertEquals("커피 사기", state.detail.betContent)
+        assertEquals(DEADLINE_AWAITING_JUDGEMENT_TEXT, state.headline.text)
     }
 
     @Test
     fun `계약서가 있으면 서명 묶음이 채워진다`() = runTest {
-        val signatures = createViewModel().signatures()
+        val viewModel = createViewModel()
+        val contract = viewModel.contract()
 
-        assertEquals(SAMPLE_MY_SIGNATURE, signatures.mySignature)
-        assertEquals(SAMPLE_OPPONENT_SIGNATURE, signatures.opponentSignature)
-        assertEquals(SIGNATURE_NOT_SIGNED_HINT, signatures.mySignatureHint)
-        assertTrue(signatures.isFinalized)
+        assertEquals(SAMPLE_MY_SIGNATURE, contract.mySignature)
+        assertEquals(SAMPLE_OPPONENT_SIGNATURE, contract.opponentSignature)
+        assertEquals(SIGNATURE_NOT_SIGNED_HINT, viewModel.data().mySignatureHint)
+        assertTrue(contract.isFinalized)
     }
 
     @Test
@@ -566,9 +586,9 @@ class ChallengeDetailViewModelTest {
 
         val state = createViewModel().data()
 
-        assertEquals(VerificationStatus.FAILED, state.myVerificationStatus)
+        assertEquals(VerificationStatus.FAILED, state.verifications?.myVerification?.status)
         assertEquals(MyMissionSlot.MY_PHOTO, state.myMissionSlot)
-        assertEquals(MY_PHOTO_URL, state.myPhotoUrl, "반려돼도 낸 사진은 남는다")
+        assertEquals(MY_PHOTO_URL, state.verifications?.myVerification?.photoUrl, "반려돼도 낸 사진은 남는다")
         assertFalse(state.canVerify, "판정은 마감 시점에 내려지므로 재촬영 창이 없다")
     }
 
@@ -582,8 +602,8 @@ class ChallengeDetailViewModelTest {
         val state = createViewModel().data()
 
         assertEquals(MyMissionSlot.NONE, state.myMissionSlot)
-        assertNull(state.myPhotoUrl)
-        assertNull(state.verifications?.myVerifiedAt, "낸 적이 없으니 확정 시각도 없다")
+        assertNull(state.verifications?.myVerification?.photoUrl)
+        assertNull(state.verifications?.myVerification?.verifiedAt, "낸 적이 없으니 확정 시각도 없다")
     }
 
     @Test
@@ -600,8 +620,8 @@ class ChallengeDetailViewModelTest {
 
         val state = createViewModel().data()
 
-        assertEquals(AI_REASON, state.myAiReason)
-        assertEquals(OPPONENT_AI_REASON, state.opponentAiReason)
+        assertEquals(AI_REASON, state.verifications?.myVerification?.aiReason)
+        assertEquals(OPPONENT_AI_REASON, state.verifications?.opponentVerification?.aiReason)
     }
 
     @Test
@@ -613,8 +633,8 @@ class ChallengeDetailViewModelTest {
 
         val state = createViewModel().data()
 
-        assertNull(state.myAiReason)
-        assertNull(state.opponentAiReason)
+        assertNull(state.verifications?.myVerification?.aiReason)
+        assertNull(state.verifications?.opponentVerification?.aiReason)
         assertNull(state.myAiReasonText, "그릴 사유가 없으면 접두어만 남은 문구를 만들지 않는다")
         assertNull(state.opponentAiReasonText)
     }
@@ -645,8 +665,8 @@ class ChallengeDetailViewModelTest {
 
         assertNull(state.verifications)
         assertTrue(state.canVerify)
-        assertEquals(MY_MISSION, state.myMission, "계약서는 그대로 보여야 한다")
-        assertEquals(OPPONENT_NICKNAME, state.opponentNickname)
+        assertEquals(MY_MISSION, state.detail.me.mission, "계약서는 그대로 보여야 한다")
+        assertEquals(OPPONENT_NICKNAME, state.detail.opponent.nickname)
     }
 
     @Test
@@ -658,12 +678,12 @@ class ChallengeDetailViewModelTest {
             opponentPhotoUrl = OPPONENT_PHOTO_URL,
         )
 
-        val verifications = createViewModel().verifications()
+        val state = createViewModel().data()
 
-        assertEquals(MY_PHOTO_URL, verifications.myPhotoUrl)
-        assertEquals(VerificationStatus.VERIFIED, verifications.myStatus)
-        assertEquals(OPPONENT_PHOTO_URL, verifications.opponentPhotoUrl)
-        assertEquals(VerificationStatus.VERIFIED, verifications.opponentStatus)
+        assertEquals(MY_PHOTO_URL, state.verifications?.myVerification?.photoUrl)
+        assertEquals(VerificationStatus.VERIFIED, state.verifications?.myVerification?.status)
+        assertEquals(OPPONENT_PHOTO_URL, state.verifications?.opponentVerification?.photoUrl)
+        assertEquals(VerificationStatus.VERIFIED, state.verifications?.opponentVerification?.status)
     }
 
     @Test
@@ -676,12 +696,12 @@ class ChallengeDetailViewModelTest {
             opponentPhotoDeleted = true,
         )
 
-        val verifications = createViewModel().verifications()
+        val state = createViewModel().data()
 
-        assertTrue(verifications.opponentPhotoDeleted)
-        assertNull(verifications.opponentPhotoUrl)
-        assertEquals(VerificationStatus.VERIFIED, verifications.opponentStatus)
-        assertFalse(verifications.myPhotoDeleted)
+        assertTrue(state.opponentPhotoDeleted)
+        assertNull(state.verifications?.opponentVerification?.photoUrl)
+        assertEquals(VerificationStatus.VERIFIED, state.verifications?.opponentVerification?.status)
+        assertFalse(state.myPhotoDeleted)
     }
 
     @Test
@@ -692,10 +712,10 @@ class ChallengeDetailViewModelTest {
             opponentPhotoDeleted = false,
         )
 
-        val verifications = createViewModel().verifications()
+        val state = createViewModel().data()
 
-        assertFalse(verifications.opponentPhotoDeleted, "URL 유실은 탈퇴와 다른 신호로 남아야 한다")
-        assertNull(verifications.opponentPhotoUrl)
+        assertFalse(state.opponentPhotoDeleted, "URL 유실은 탈퇴와 다른 신호로 남아야 한다")
+        assertNull(state.verifications?.opponentVerification?.photoUrl)
     }
 
     @Test
@@ -711,12 +731,12 @@ class ChallengeDetailViewModelTest {
 
     @Test
     fun `아직 아무도 인증하지 않았으면 두 칸이 모두 PENDING 으로 채워진다`() = runTest {
-        val verifications = createViewModel().verifications()
+        val state = createViewModel().data()
 
-        assertEquals(VerificationStatus.PENDING, verifications.myStatus)
-        assertEquals(VerificationStatus.PENDING, verifications.opponentStatus)
-        assertNull(verifications.myPhotoUrl)
-        assertNull(verifications.opponentPhotoUrl)
+        assertEquals(VerificationStatus.PENDING, state.verifications?.myVerification?.status)
+        assertEquals(VerificationStatus.PENDING, state.verifications?.opponentVerification?.status)
+        assertNull(state.verifications?.myVerification?.photoUrl)
+        assertNull(state.verifications?.opponentVerification?.photoUrl)
     }
 
     @Test
@@ -737,7 +757,7 @@ class ChallengeDetailViewModelTest {
         viewModel.retry()
         val replaced = viewModel.data()
 
-        assertEquals(MY_PHOTO_URL, replaced.myPhotoUrl, "교체돼도 사진 경로는 그대로다")
+        assertEquals(MY_PHOTO_URL, replaced.verifications?.myVerification?.photoUrl, "교체돼도 사진 경로는 그대로다")
         assertNotEquals(before, replaced.myPhotoCacheKey, "경로가 같아도 키는 갈려야 한다")
     }
 
@@ -959,7 +979,7 @@ class ChallengeDetailViewModelTest {
 
         val forfeiting = viewModel.data()
         assertTrue(forfeiting.isForfeiting)
-        assertEquals(MY_MISSION, forfeiting.myMission, "계약서는 그대로 보여야 한다")
+        assertEquals(MY_MISSION, forfeiting.detail.me.mission, "계약서는 그대로 보여야 한다")
 
         advanceUntilIdle()
         assertFalse(viewModel.data().isForfeiting)

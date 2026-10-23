@@ -30,18 +30,11 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 private const val EMPTY_MISSION_TEXT = "—"
 
 /**
- * 한쪽 진영의 미션 카드. 나/상대 구분은 [label] 문자열과 [footer] 에 무엇을 넣느냐뿐이다.
+ * 한쪽 진영의 미션 카드. 나/상대는 [label] 과 [footer] 로만 구분한다.
  *
- * 나/상대를 별도 컴포넌트로 쪼개지 않는 이유: 두 카드는 나란히 놓이는 같은 껍데기라, 갈라 두면
- * 라벨 타이포·뱃지 위치·간격이 한쪽만 바뀌며 어긋난다.
- *
- * @param mission 아직 맹세하지 않았으면 `null`. 행을 빼지 않고 자리표시자를 두는 이유는, 맹세가
- *   들어오는 순간 카드 높이가 변해 아래 블록이 밀리는 걸 막기 위해서다.
- * @param status 인증 현황을 못 받았으면 `null` — 뱃지를 통째로 뺀다. 뱃지에는 대기중/인증완료/실패
- *   세 값밖에 없어 아무거나 고르면 확인하지 못한 사실을 단정하게 된다("대기중" 은 이미 인증한
- *   사람을 미인증으로 못 박는다). 라벨만 남기면 아무 주장도 하지 않는다.
+ * @param mission 아직 맹세하지 않았으면 `null`. 카드 높이가 튀지 않게 자리표시자를 둔다.
+ * @param status 인증 현황을 못 받았으면 `null` 이고 뱃지를 뺀다. 아무 값이나 고르면 모르는 사실을 단정한다.
  * @param footerSpacing [footer] 위 여백. CTA(16dp)와 사진(12dp)이 달라 호출부가 정한다.
- *   [footer] 가 `null` 이면 여백도 붙지 않는다.
  */
 @Composable
 internal fun MissionCard(
@@ -187,16 +180,7 @@ private fun MissionCardMineWithPhotoAndRetakePreview() {
     }
 }
 
-/**
- * 나 / AI 반려 — 실패 뱃지가 붙지만 내가 올린 사진은 그대로 남고, 그 아래에 반려 사유가 붙는다.
- * 카드 한 장으로 완성된 반려 장면이다.
- *
- * 재촬영 CTA 가 없는 게 핵심이다. 반려는 자정 판정에서 확정되고 그 시점이 곧 마감이라, 이 카드를
- * 보는 순간 챌린지는 이미 닫혀 있어 다시 찍을 창이 존재하지 않는다.
- *
- * 뱃지(error)와 사유(onSurfaceVariant)가 색으로 경쟁하지 않는지도 여기서 확인한다 — 사유는 판정이
- * 아니라 판정에 붙는 설명이라 위계가 한 단계 아래다.
- */
+/** 나 / AI 반려 — 실패 뱃지 + 내 사진 + 반려 사유. 마감 뒤라 재촬영 CTA 는 없다. */
 @Preview
 @Composable
 private fun MissionCardMineFailedPreview() {
@@ -212,8 +196,7 @@ private fun MissionCardMineFailedPreview() {
                 status = VerificationStatus.FAILED,
                 footerSpacing = 12.dp,
                 footer = {
-                    // isLoading 으로 때우지 않고 URL 을 채우는 이유: 로딩 문구는 분기가 어디서
-                    // 끝났든 똑같이 나와서, 실패 문구가 사진 자리를 가로채도 프리뷰가 같아 보인다.
+                    // 실패 문구가 사진 자리를 가로채지 않는지 보려고 isLoading 대신 URL 을 채운다.
                     VerificationPhoto(
                         status = VerificationStatus.FAILED,
                         photoUrl = "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",

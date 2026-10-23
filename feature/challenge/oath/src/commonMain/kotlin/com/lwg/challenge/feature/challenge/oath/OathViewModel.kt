@@ -122,9 +122,6 @@ class OathViewModel(
         viewModelScope.launch {
             challengeRepository.getChallengeDetail(
                 challengeId = challengeId,
-                onSuccess = { detail ->
-                    _uiState.update { state -> detail.toData(state as? OathUiState.Data) }
-                },
                 onError = { message ->
                     if (_uiState.value is OathUiState.Data) {
                         showMessage(message)
@@ -132,7 +129,9 @@ class OathViewModel(
                         _uiState.update { OathUiState.Error(message) }
                     }
                 },
-            )
+            ).collect { detail ->
+                _uiState.update { state -> detail.toData(state as? OathUiState.Data) }
+            }
         }
     }
 

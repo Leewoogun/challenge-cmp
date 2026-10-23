@@ -38,10 +38,6 @@ const val RESULT_BOTH_LOSE_TEXT = "양측 패배"
 
 /**
  * 판정 결과(승리/패배/무승부/양측 패배)를 아이콘 + 라벨 캡슐로 표시한다.
- *
- * 인증 상태(대기중/인증완료/실패)를 그리는 [VerificationStatusPill] 과 모양만 같고 축이 다르다 —
- * 한쪽은 "미션을 인증했는가", 이쪽은 "챌린지가 어떻게 끝났는가" 다. 한 카드에 둘이 동시에 나오므로
- * 통합하지 말 것.
  */
 @Composable
 fun ChallengeOutcomePill(
@@ -75,25 +71,12 @@ fun ChallengeOutcomePill(
     }
 }
 
-/** 승패무 한 건의 색·문구·아이콘을 한 묶음으로 확정한 값. */
 data class ChallengeOutcomeVisual(
     val accent: Color,
     val label: String,
     val icon: ImageVector,
 )
 
-/**
- * 판정 결과를 이 앱의 승패무 표현으로 옮기는 **단일 출처**.
- *
- * 승=primary / 패=error / 무=onBackground 는 홈 전적 카드(StatsBar) 가 이미 정해 둔 색 언어이고,
- * 실패에 [Icons.Filled.Cancel] 을 쓰는 것도 [VerificationStatusPill] 과 같다. 홈 카드와 상세 헤더가
- * 각자 매핑을 들고 있으면 같은 전적이 두 화면에서 다른 색이 되므로 여기 한 곳에만 둔다 —
- * 상세가 모듈 밖에서 호출해야 해서 `internal` 이 아닌 공개 API 다.
- *
- * [ChallengeOutcome.LOSE] 와 [ChallengeOutcome.BOTH_LOSE] 는 **색·아이콘이 같고 문구만 갈린다.**
- * 문구를 이미 확정해 들고 오는 호출부(상세 헤더)가 이 둘을 하나의 톤으로 합쳐 쓰는 근거이므로,
- * 색이나 아이콘을 갈라야 할 일이 생기면 그 호출부도 같이 봐야 한다.
- */
 @Composable
 fun challengeOutcomeVisualOf(outcome: ChallengeOutcome): ChallengeOutcomeVisual =
     when (outcome) {

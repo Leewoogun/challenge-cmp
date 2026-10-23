@@ -3,7 +3,6 @@ package com.lwg.challenge.remote.datasource
 import com.lwg.challenge.domain.model.challenge.ChallengeArchive
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
 import com.lwg.challenge.domain.model.challenge.DeadlineType
-import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
@@ -407,13 +406,12 @@ class ChallengeRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `getChallengeDetail 성공 - 도메인으로 매핑돼 onSuccess 로 전달`() = runTest {
+    fun `getChallengeDetail 성공 - 도메인으로 매핑돼 emit`() = runTest {
         val api = FakeChallengeApi(detailResult = ApiResult.Success(ChallengeDetailResponse(detailData)))
         val dataSource = ChallengeRemoteDataSourceImpl(api)
 
-        val details = mutableListOf<ChallengeDetail>()
         val errors = mutableListOf<String>()
-        dataSource.getChallengeDetail(7L, onSuccess = { details.add(it) }, onError = { errors.add(it) })
+        val details = dataSource.getChallengeDetail(7L, onError = { errors.add(it) }).toList()
 
         assertEquals(7L, api.capturedDetailId)
         assertEquals(emptyList(), errors)
@@ -425,32 +423,30 @@ class ChallengeRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `getChallengeDetail - deadline 이 null 이면 onError 호출하고 onSuccess 미호출`() = runTest {
+    fun `getChallengeDetail - deadline 이 null 이면 onError 호출하고 emit 없음`() = runTest {
         val api = FakeChallengeApi(
             detailResult = ApiResult.Success(ChallengeDetailResponse(detailData.copy(deadline = null))),
         )
         val dataSource = ChallengeRemoteDataSourceImpl(api)
 
-        var successCalled = false
         val errors = mutableListOf<String>()
-        dataSource.getChallengeDetail(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+        val details = dataSource.getChallengeDetail(7L, onError = { errors.add(it) }).toList()
 
-        assertTrue(!successCalled)
+        assertEquals(emptyList(), details)
         assertEquals(listOf("챌린지 정보를 불러오지 못했어요"), errors)
     }
 
     @Test
-    fun `getChallengeDetail 실패 - onError 호출, onSuccess 미호출`() = runTest {
+    fun `getChallengeDetail 실패 - onError 호출, emit 없음`() = runTest {
         val api = FakeChallengeApi(
             detailResult = ApiResult.Failure.CustomError(code = 700, message = "챌린지를 찾을 수 없어요"),
         )
         val dataSource = ChallengeRemoteDataSourceImpl(api)
 
-        var successCalled = false
         val errors = mutableListOf<String>()
-        dataSource.getChallengeDetail(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+        val details = dataSource.getChallengeDetail(7L, onError = { errors.add(it) }).toList()
 
-        assertTrue(!successCalled)
+        assertEquals(emptyList(), details)
         assertEquals(listOf("챌린지를 찾을 수 없어요"), errors)
     }
 

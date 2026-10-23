@@ -1,7 +1,6 @@
 package com.lwg.challenge.remote.datasource
 
 import com.lwg.challenge.domain.model.VerificationStatus
-import com.lwg.challenge.domain.model.verification.ChallengeVerifications
 import com.lwg.challenge.domain.model.verification.VerificationSubmitOutcome
 import com.lwg.challenge.remote.api.VerificationApi
 import com.lwg.challenge.remote.api.createVerificationApi
@@ -25,6 +24,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.appendIfNameAbsent
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json
@@ -183,14 +183,13 @@ class VerificationRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `getVerifications 성공 - 양측 현황이 도메인으로 매핑돼 onSuccess 로 전달`() = runTest {
+    fun `getVerifications 성공 - 양측 현황이 도메인으로 매핑돼 emit`() = runTest {
         val api = FakeVerificationApi(
             verificationsResult = ApiResult.Success(ChallengeVerificationsResponse(verificationsData)),
         )
 
-        val results = mutableListOf<ChallengeVerifications>()
         val errors = mutableListOf<String>()
-        dataSource(api).getVerifications(7L, onSuccess = { results.add(it) }, onError = { errors.add(it) })
+        val results = dataSource(api).getVerifications(7L, onError = { errors.add(it) }).toList()
 
         assertEquals(7L, api.capturedVerificationsId)
         assertEquals(emptyList(), errors)
@@ -201,16 +200,15 @@ class VerificationRemoteDataSourceImplTest {
     }
 
     @Test
-    fun `getVerifications 실패 - onError 호출하고 onSuccess 미호출`() = runTest {
+    fun `getVerifications 실패 - onError 호출하고 emit 없음`() = runTest {
         val api = FakeVerificationApi(
             verificationsResult = ApiResult.Failure.CustomError(code = 700, message = "내 챌린지가 아니에요"),
         )
 
-        var successCalled = false
         val errors = mutableListOf<String>()
-        dataSource(api).getVerifications(7L, onSuccess = { successCalled = true }, onError = { errors.add(it) })
+        val results = dataSource(api).getVerifications(7L, onError = { errors.add(it) }).toList()
 
-        assertTrue(!successCalled)
+        assertEquals(emptyList(), results)
         assertEquals(listOf("내 챌린지가 아니에요"), errors)
     }
 }

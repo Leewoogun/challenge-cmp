@@ -9,6 +9,7 @@ import com.lwg.challenge.domain.repository.ChallengeRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.YearMonth
 
 /**
@@ -52,18 +53,17 @@ class FakeChallengeRepository : ChallengeRepository {
         onError: (String) -> Unit,
     ) = Unit
 
-    override suspend fun getChallengeDetail(
+    override fun getChallengeDetail(
         challengeId: Long,
-        onSuccess: (ChallengeDetail) -> Unit,
         onError: (String) -> Unit,
-    ) {
+    ): Flow<ChallengeDetail> = flow {
         detailCallCount++
         if (detailDelayMillis > 0) delay(detailDelayMillis)
         val error = detailError
         val current = detail
         when {
             error != null -> onError(error)
-            current != null -> onSuccess(current)
+            current != null -> emit(current)
             else -> onError("상세 픽스처가 설정되지 않았습니다.")
         }
     }

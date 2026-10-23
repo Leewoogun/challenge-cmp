@@ -12,19 +12,7 @@ import com.lwg.challenge.feature.challenge.detail.contract.VERIFICATION_REJECTED
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * AI 가 인증을 인정하지 않은 사유 한 줄. 인증 사진 아래에 붙는다.
- *
- * 접두어까지 붙은 완성 문구를 받는다 — 조립은
- * [com.lwg.challenge.feature.challenge.detail.contract.ChallengeDetailUiState.Data.myAiReasonText]
- * 가 끝낸다. 내 카드와 상대 카드가 같은 문장을 그려야 하는데 여기서 조립하면 호출부마다 갈릴 수 있다.
- *
- * `error` 색을 쓰지 않는다: 같은 카드의
- * [com.lwg.challenge.ui.components.VerificationStatusPill] 이 이미 그 색으로 "실패" 를 말하고 있어,
- * 사유까지 같은 색이면 한 카드 안에서 둘이 경쟁한다. 사유는 판정이 아니라 판정에 붙는 설명이라
- * 위계가 한 단계 아래다 — `VsHeaderCard` 의 기권 안내 한 줄이 헤드라인의 톤 색을 버린 것과 같은 판단.
- *
- * `maxLines` 로 자르지 않는다: 이 문구는 사용자가 왜 졌는지 알 수 있는 유일한 설명이고 이의제기
- * 절차가 없다. 길면 줄바꿈되게 둔다.
+ * AI 가 인증을 인정하지 않은 사유 한 줄.
  */
 @Composable
 internal fun RejectionReasonText(

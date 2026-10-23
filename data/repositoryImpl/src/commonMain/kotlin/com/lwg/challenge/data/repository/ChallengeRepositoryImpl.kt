@@ -33,13 +33,10 @@ class ChallengeRepositoryImpl(
         challengeRemoteDataSource.createChallenge(input, onSuccess, onError)
     }
 
-    override suspend fun getChallengeDetail(
+    override fun getChallengeDetail(
         challengeId: Long,
-        onSuccess: (ChallengeDetail) -> Unit,
         onError: (String) -> Unit,
-    ) {
-        challengeRemoteDataSource.getChallengeDetail(challengeId, onSuccess, onError)
-    }
+    ): Flow<ChallengeDetail> = challengeRemoteDataSource.getChallengeDetail(challengeId, onError)
 
     override suspend fun acceptChallenge(
         challengeId: Long,

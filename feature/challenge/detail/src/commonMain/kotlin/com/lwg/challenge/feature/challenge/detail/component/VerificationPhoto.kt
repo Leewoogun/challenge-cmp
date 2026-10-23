@@ -40,20 +40,13 @@ private const val STATUS_UNKNOWN_TEXT = "인증 현황을 불러오지 못했어
 private const val PHOTO_DELETED_TEXT = "탈퇴한 사용자의 사진은 삭제됐어요"
 
 /**
- * 인증 사진 영역.
+ * 인증 사진 영역. 상태가 바뀌어도 아래 카드가 튀지 않게 높이를 160dp 로 고정한다.
  *
- * 높이를 160dp 로 고정하는 이유: 미인증 → 로딩 → 성공/실패가 한 화면에서 서로 갈아치우는 자리라
- * 상태마다 높이가 다르면 폴링·재조회 때마다 아래 카드들이 위아래로 튄다.
- *
- * @param status 인증 현황 조회에 실패했으면 `null`. 이때 '미인증' 으로 그리면 이미 인증한 사람의
- *   사진을 없는 것처럼 보여주게 되므로, 사진이 아니라 조회 실패를 드러낸다.
+ * @param status 인증 현황 조회에 실패했으면 `null`. '미인증' 이 아니라 조회 실패를 드러낸다.
  * @param isLoading 인증 현황 자체를 아직 못 받은 구간. 이미지 로딩(Coil)과는 별개다.
- * @param cacheKey [photoUrl] 을 이미지 로더 캐시에서 식별할 키. 사진을 교체해도 [photoUrl] 이
- *   그대로라 URL 만으로는 캐시에서 옛 사진이 그대로 돌아온다. 기본값을 두지 않는 이유는, 새 호출부가
- *   빠뜨렸을 때 예외도 로그도 없이 화면에만 드러나는 실패가 되기 때문이다.
- * @param photoDeleted 탈퇴로 사진이 영구 삭제된 칸. 다시 받을 수 있는 대상이 없어 재시도를 열지 않는다.
- * @param onRetry [status] 가 `null` 일 때만 쓰인다. 사진 URL 재요청([RemotePhoto] 내부)과 달리
- *   현황 재조회는 이 컴포넌트가 스스로 할 수 없어 호출부에서 받는다. 넘기지 않으면 문구만 남는다.
+ * @param cacheKey 교체해도 URL 이 같아 옛 사진이 돌아오므로 필수로 받는다.
+ * @param photoDeleted 탈퇴로 사진이 영구 삭제된 칸. 다시 받을 대상이 없어 재시도를 열지 않는다.
+ * @param onRetry [status] 가 `null` 일 때 현황 재조회용. 넘기지 않으면 문구만 남는다.
  */
 @Composable
 internal fun VerificationPhoto(
@@ -81,54 +74,29 @@ internal fun VerificationPhoto(
                 PhotoRetryMessage(text = STATUS_UNKNOWN_TEXT, onRetry = onRetry)
             }
             status == VerificationStatus.PENDING -> PhotoMessage(NOT_VERIFIED_TEXT)
-            // 삭제는 되돌아오지 않는 정상 종결이라 로드 실패의 어휘("불러오지 못했어요" · 재시도)를
-            // 쓰면 안 된다. 더 중요한 건 아래 URL 분기가 진짜 데이터 이상을 잡는 감지기라는 점이다 —
-            // 두 신호를 한 문구로 합치면 URL 유실 버그가 탈퇴자 뒤에 영영 숨는다.
-            //
-            // FAILED 보다 위에 두는 이유: 탈퇴는 status 와 무관한 사실이고, 서버의 photoDeleted
-            // 판정식이 '제출은 했는데 사진 키가 없고 소유자가 탈퇴' 라서 반려 후 탈퇴 조합에서 참이
-            // 된다. 그 칸에서 할 말은 "인증하지 못했어요" 가 아니라 사진이 지워졌다는 사실이다.
             photoDeleted -> PhotoMessage(PHOTO_DELETED_TEXT)
-            // 사진이 없는 FAILED 만 미제출로 마감한 경우다. 사진이 있는 FAILED 는 AI 가 반려한
-            // 것이라 사용자가 실제로 올린 사진이 남아 있고, 그건 아래로 떨어져 그대로 그려진다.
-            // 조건을 붙여도 기존 데이터의 동작은 바뀌지 않는다 — 여태 FAILED 는 마감까지 미제출뿐이라
-            // photoUrl 이 100% null 이었고, 그 경로는 지금도 이 분기에서 끝난다.
             status == VerificationStatus.FAILED && photoUrl == null ->
                 PhotoMessage(VERIFICATION_FAILED_TEXT)
-            // 인증은 됐는데 URL 이 없는 건 정상 경로가 아니다. 빈 칸으로 두면 원인 없는 공백이 되므로
-            // 로드 실패와 같은 문구로 드러낸다(재시도할 대상 URL 이 없어 버튼은 붙이지 않는다).
             photoUrl == null -> PhotoMessage(LOAD_FAILED_TEXT)
-            // 여기까지 온 것을 사진으로 본다. status == VERIFIED 를 긍정 조건으로 세우지 않는 이유는
-            // 이 체인이 '무엇이 없는지' 를 차례로 걷어내는 소거형이기 때문이다 — VERIFIED 를 문턱으로
-            // 세우는 순간 AI 가 반려한 FAILED 가 다시 사진을 잃는다.
             else -> RemotePhoto(url = photoUrl, cacheKey = cacheKey)
         }
     }
 }
 
-/**
- * 사진 URL 조인이 어긋나 `//` 가 낀 주소는 서버에서 404 로 돌아오는데, 이건 "상대가 아직 인증 안 함"
- * 의 정상 404 와 응답만 봐선 구분되지 않는다. 실패를 조용히 빈 칸으로 삼키면 그 사고가 QA 를 그대로
- * 통과하므로, 로드 실패는 반드시 화면에 문구로 남기고 재시도까지 열어 둔다.
- */
+/** 로드 실패를 빈 칸으로 삼키면 URL 조인 사고가 QA 를 통과하므로 문구와 재시도를 남긴다. */
 @Composable
 private fun RemotePhoto(url: String, cacheKey: String?) {
     val context = LocalPlatformContext.current
 
-    // model 이 새 인스턴스여도 Coil 은 data·캐시 키 등 일부만 비교해 재요청 여부를 정하므로, remember
-    // 없이도 리컴포지션만으로 다시 로드되지는 않는다. 그래도 감싸는 이유는 그 비교 대상이 라이브러리
-    // 내부 사정이라서다 — 재요청 조건은 여기서 remember 키로 직접 못 박는다.
     val request = remember(context, url, cacheKey) {
         ImageRequest.Builder(context)
             .data(url)
-            // 메모리·디스크가 URL 을 각자 키로 들고 있어 한쪽만 갈면 다른 층에서 옛 사진이 돌아온다.
             .memoryCacheKey(cacheKey)
             .diskCacheKey(cacheKey)
             .build()
     }
 
-    // 같은 URL 을 다시 요청하려면 AsyncImagePainter 가 새로 만들어져야 해서 key 로 노드를 갈아 끼운다.
-    // 사진이 교체되면(캐시 키 변화) 재시도를 세던 대상 이미지 자체가 달라지므로 tick 도 함께 리셋한다.
+    // 같은 URL 재요청은 painter 를 새로 만들어야 해서 key 로 노드를 갈아 끼운다.
     var retryTick by remember(url, cacheKey) { mutableIntStateOf(0) }
 
     key(retryTick) {
@@ -137,9 +105,17 @@ private fun RemotePhoto(url: String, cacheKey: String?) {
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
-            loading = { PhotoMessage(LOADING_TEXT) },
-            error = { PhotoRetryMessage(text = LOAD_FAILED_TEXT, onRetry = { retryTick++ }) },
+            loading = { CenteredSlot { PhotoMessage(LOADING_TEXT) } },
+            error = { CenteredSlot { PhotoRetryMessage(text = LOAD_FAILED_TEXT, onRetry = { retryTick++ }) } },
         )
+    }
+}
+
+/** SubcomposeAsyncImage 는 슬롯에 최소 크기를 강제(propagateMinConstraints)해 내용이 위로 붙으므로 한 번 감싼다. */
+@Composable
+private fun CenteredSlot(content: @Composable () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        content()
     }
 }
 
@@ -247,10 +223,7 @@ private fun VerificationPhotoNotVerifiedPreview() {
     }
 }
 
-/**
- * 마감까지 미제출 — 낼 사진이 없는 `FAILED` 다. 아래 [VerificationPhotoFailedWithPhotoPreview] 와
- * 나란히 두는 이유는 같은 상태값이 전혀 다른 두 화면을 만들기 때문이다.
- */
+/** 마감까지 미제출 — 사진 없는 `FAILED`. */
 @Preview
 @Composable
 private fun VerificationPhotoFailedPreview() {
@@ -265,13 +238,7 @@ private fun VerificationPhotoFailedPreview() {
     }
 }
 
-/**
- * AI 가 반려한 인증 — 상태는 `FAILED` 인데 사용자가 올린 사진이 남아 있다. 위
- * [VerificationPhotoFailedPreview] 와 달리 실패 문구가 아니라 사진이 나와야 한다.
- *
- * 프리뷰는 네트워크를 못 타 Coil 의 로딩 슬롯까지만 확인된다 — 그래도 실패 문구가 사진 자리를
- * 가로채지 않는다는 건 여기서 드러난다.
- */
+/** AI 반려 — `FAILED` 인데 사진이 남아 실패 문구가 아니라 사진이 나와야 한다. */
 @Preview
 @Composable
 private fun VerificationPhotoFailedWithPhotoPreview() {
@@ -324,7 +291,7 @@ private fun VerificationPhotoStatusUnknownPreview() {
     }
 }
 
-/** Coil 의 에러 슬롯은 프리뷰에서 재현할 수 없어 슬롯 내용만 같은 160dp 틀에 얹어 확인한다. */
+/** Coil 에러 슬롯은 프리뷰에서 재현할 수 없어 같은 제약(propagateMinConstraints)의 160dp 틀에 얹는다. */
 @Preview
 @Composable
 private fun VerificationPhotoLoadErrorPreview() {
@@ -340,9 +307,9 @@ private fun VerificationPhotoLoadErrorPreview() {
                     .height(160.dp)
                     .clip(PhotoShape)
                     .background(ChallengeTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center,
+                propagateMinConstraints = true,
             ) {
-                PhotoRetryMessage(text = LOAD_FAILED_TEXT, onRetry = {})
+                CenteredSlot { PhotoRetryMessage(text = LOAD_FAILED_TEXT, onRetry = {}) }
             }
         }
     }

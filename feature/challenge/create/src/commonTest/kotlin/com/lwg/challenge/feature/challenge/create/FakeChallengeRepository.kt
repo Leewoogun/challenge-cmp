@@ -47,11 +47,10 @@ class FakeChallengeRepository : ChallengeRepository {
         createError.let { if (it == null) onSuccess(createdChallengeId) else onError(it) }
     }
 
-    override suspend fun getChallengeDetail(
+    override fun getChallengeDetail(
         challengeId: Long,
-        onSuccess: (ChallengeDetail) -> Unit,
         onError: (String) -> Unit,
-    ) = Unit
+    ): Flow<ChallengeDetail> = emptyFlow()
 
     override suspend fun acceptChallenge(
         challengeId: Long,

@@ -6,6 +6,8 @@ import com.lwg.challenge.domain.model.verification.VerificationSubmitOutcome
 import com.lwg.challenge.domain.model.verification.VerificationSubmitResult
 import com.lwg.challenge.domain.repository.VerificationRepository
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.LocalDateTime
 
 /** 테스트용 [VerificationRepository] 페이크. */
@@ -42,11 +44,10 @@ class FakeVerificationRepository : VerificationRepository {
         return submitOutcome
     }
 
-    override suspend fun getVerifications(
+    override fun getVerifications(
         challengeId: Long,
-        onSuccess: (ChallengeVerifications) -> Unit,
         onError: (String) -> Unit,
-    ) {
+    ): Flow<ChallengeVerifications> = flow {
         getVerificationsCallCount++
     }
 }

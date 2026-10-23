@@ -71,16 +71,15 @@ class ChallengeRemoteDataSourceImpl(
             .suspendOnFailureWithErrorHandling(onError)
     }
 
-    override suspend fun getChallengeDetail(
+    override fun getChallengeDetail(
         challengeId: Long,
-        onSuccess: (ChallengeDetail) -> Unit,
         onError: (String) -> Unit,
-    ) {
+    ): Flow<ChallengeDetail> = flow {
         challengeApi.getChallengeDetail(challengeId)
             .suspendOnSuccess {
                 // deadline 이 없으면 매퍼가 null 을 준다. 계약서를 그릴 수 없으니 성공으로 위장하지 않는다.
                 val detail = response.toChallengeDetail()
-                if (detail == null) onError("챌린지 정보를 불러오지 못했어요") else onSuccess(detail)
+                if (detail == null) onError("챌린지 정보를 불러오지 못했어요") else this@flow.emit(detail)
             }
             .suspendOnFailureWithErrorHandling(onError)
     }

@@ -37,14 +37,10 @@ interface ChallengeRepository {
         onError: (String) -> Unit,
     )
 
-    /**
-     * 화면 진입 시 1회 + 재시도만 있어 관찰 대상이 아니다. Flow 가 아니라 suspend + 콜백으로 둔다.
-     */
-    suspend fun getChallengeDetail(
+    fun getChallengeDetail(
         challengeId: Long,
-        onSuccess: (ChallengeDetail) -> Unit,
         onError: (String) -> Unit,
-    )
+    ): Flow<ChallengeDetail>
 
     suspend fun acceptChallenge(
         challengeId: Long,

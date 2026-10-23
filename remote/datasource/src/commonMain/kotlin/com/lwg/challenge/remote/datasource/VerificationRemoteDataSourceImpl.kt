@@ -15,6 +15,8 @@ import io.ktor.client.request.forms.formData
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import org.koin.core.annotation.Single
 
 @Single(binds = [VerificationRemoteDataSource::class])
@@ -56,13 +58,12 @@ class VerificationRemoteDataSourceImpl(
         }
     }
 
-    override suspend fun getVerifications(
+    override fun getVerifications(
         challengeId: Long,
-        onSuccess: (ChallengeVerifications) -> Unit,
         onError: (String) -> Unit,
-    ) {
+    ): Flow<ChallengeVerifications> = flow {
         verificationApi.getVerifications(challengeId)
-            .suspendOnSuccess { onSuccess(response.toChallengeVerifications(BuildKonfig.BASE_URL)) }
+            .suspendOnSuccess { this@flow.emit(response.toChallengeVerifications(BuildKonfig.BASE_URL)) }
             .suspendOnFailureWithErrorHandling(onError)
     }
 }

@@ -2,6 +2,7 @@ package com.lwg.challenge.domain.repository
 
 import com.lwg.challenge.domain.model.verification.ChallengeVerifications
 import com.lwg.challenge.domain.model.verification.VerificationSubmitOutcome
+import kotlinx.coroutines.flow.Flow
 
 /**
  * 챌린지 인증(사진 제출/조회) Repository.
@@ -18,12 +19,8 @@ interface VerificationRepository {
      */
     suspend fun submitVerification(challengeId: Long, jpegBytes: ByteArray): VerificationSubmitOutcome
 
-    /**
-     * 화면 진입 시 1회 조회만 있어 관찰 대상이 아니다. Flow 가 아니라 suspend + 콜백으로 둔다.
-     */
-    suspend fun getVerifications(
+    fun getVerifications(
         challengeId: Long,
-        onSuccess: (ChallengeVerifications) -> Unit,
         onError: (String) -> Unit,
-    )
+    ): Flow<ChallengeVerifications>
 }

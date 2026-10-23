@@ -3,7 +3,12 @@ package com.lwg.challenge.feature.challenge.detail.contract
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.lwg.challenge.domain.model.VerificationStatus
-import com.lwg.challenge.domain.model.signature.Signature
+import com.lwg.challenge.domain.model.challenge.ChallengeDetail
+import com.lwg.challenge.domain.model.challenge.ChallengeSide
+import com.lwg.challenge.domain.model.challenge.SignatureSlotState
+import com.lwg.challenge.domain.model.verification.ChallengeVerifications
+import com.lwg.challenge.domain.model.verification.VerificationResult
+import com.lwg.challenge.utils.datetime.deadlineAbsoluteText
 import kotlinx.datetime.LocalDateTime
 
 internal const val MY_LABEL = "나"
@@ -43,29 +48,15 @@ sealed interface ChallengeDetailUiState {
     data class Error(val message: String) : ChallengeDetailUiState
 
     /**
-     * @property myMission 아직 맹세하지 않았으면 `null`.
-     * @property opponentMission 상대가 아직 맹세하지 않았으면 `null` 이고 행이 빠진다.
-     * @property headlineText 남은 시간 → "판정 대기 중" → 판정 결과 순으로 바뀌며, ViewModel 티커가 갱신한다.
-     * @property headlineTone [headlineText] 와 어긋나지 않도록 [headlineDisplay] 가 함께 만든다.
-     * @property canVerify 챌린지가 진행 중인지만 본다. 사진 교체가 허용돼 내 인증 상태는 보지 않는다.
-     * @property forfeitNoticeText 기권으로 끝난 챌린지에만 있다.
+     * @property verifications 인증 현황 조회에 실패하면 null. 이때 하단 슬롯은 [canVerify] 만 따른다.
+     * @property headline 시간에 따라 바뀌어 ViewModel 티커가 갱신한다.
      * @property isForfeiting 진입점만 잠근다. 전체 로딩으로 덮으면 보던 계약서가 사라진다.
      */
     @Immutable
     data class Data(
-        val myMission: String?,
-        val opponentNickname: String,
-        val opponentMission: String?,
-        val betContent: String,
-        val headlineText: String,
-        val headlineTone: HeadlineTone,
-        val deadlineAbsoluteText: String,
-        /** 계약서가 없는 챌린지(soul-oath 이전 생성)면 null. */
-        val signatures: SignatureSection?,
-        /** 인증 현황 조회에 실패하면 null. 이때 하단 슬롯은 [canVerify] 만 따른다. */
-        val verifications: VerificationSection?,
-        val canVerify: Boolean,
-        val forfeitNoticeText: String?,
+        val detail: ChallengeDetail,
+        val verifications: ChallengeVerifications?,
+        val headline: HeadlineDisplay,
         val isForfeiting: Boolean,
     ) : ChallengeDetailUiState {
 
@@ -73,37 +64,47 @@ sealed interface ChallengeDetailUiState {
 
         val myMissionLabel: String get() = MY_MISSION_LABEL
 
-        val opponentLabel: String get() = opponentNickname
+        val opponentMissionLabel: String get() = "${detail.opponent.nickname}의 미션"
 
-        val opponentMissionLabel: String get() = "${opponentNickname}의 미션"
+        val deadlineAbsoluteText: String get() = deadlineAbsoluteText(detail.challengeDate, detail.deadline)
 
-        val myVerificationStatus: VerificationStatus? get() = verifications?.myStatus
+        /** 사진 교체가 허용돼 내 인증 상태는 보지 않고 챌린지가 진행 중인지만 본다. */
+        val canVerify: Boolean get() = detail.status == STATUS_IN_PROGRESS
 
-        val myPhotoUrl: String? get() = verifications?.myPhotoUrl
+        val forfeitNoticeText: String?
+            get() = when (detail.forfeitedBy) {
+                null -> null
+                ChallengeSide.ME -> FORFEIT_BY_ME_TEXT
+                ChallengeSide.OPPONENT -> "${detail.opponent.nickname}$FORFEIT_BY_OTHER_SUFFIX"
+            }
+
+        val mySignatureHint: String get() = signatureHint(detail.contract?.mySignatureState)
+
+        val opponentSignatureHint: String get() = signatureHint(detail.contract?.opponentSignatureState)
+
+        private val myVerification: VerificationResult? get() = verifications?.myVerification
+
+        private val opponentVerification: VerificationResult? get() = verifications?.opponentVerification
+
+        /** 이미 인증했으면 인증 화면을 사진 교체로 연다. */
+        val isMyVerified: Boolean get() = myVerification?.status == VerificationStatus.VERIFIED
 
         /** 현황을 모르면 삭제라고 단정하지 않는다. */
-        val myPhotoDeleted: Boolean get() = verifications?.myPhotoDeleted == true
+        val myPhotoDeleted: Boolean get() = myVerification?.photoDeleted == true
 
-        val opponentVerificationStatus: VerificationStatus? get() = verifications?.opponentStatus
+        val opponentPhotoDeleted: Boolean get() = opponentVerification?.photoDeleted == true
 
-        val opponentPhotoUrl: String? get() = verifications?.opponentPhotoUrl
-
-        val opponentPhotoDeleted: Boolean get() = verifications?.opponentPhotoDeleted == true
-
-        val myAiReason: String? get() = verifications?.myAiReason
-
-        val opponentAiReason: String? get() = verifications?.opponentAiReason
-
-        val myAiReasonText: String? get() = myAiReason?.let { "$VERIFICATION_REJECTED_PREFIX$it" }
+        val myAiReasonText: String? get() = myVerification?.aiReason?.let { "$VERIFICATION_REJECTED_PREFIX$it" }
 
         val opponentAiReasonText: String?
-            get() = opponentAiReason?.let { "$VERIFICATION_REJECTED_PREFIX$it" }
+            get() = opponentVerification?.aiReason?.let { "$VERIFICATION_REJECTED_PREFIX$it" }
 
         /** 사진을 교체해도 URL 이 같아 Coil 캐시가 옛 사진을 그리므로 제출 시각으로 키를 가른다. */
-        val myPhotoCacheKey: String? get() = photoCacheKey(myPhotoUrl, verifications?.myVerifiedAt)
+        val myPhotoCacheKey: String?
+            get() = photoCacheKey(myVerification?.photoUrl, myVerification?.verifiedAt)
 
         val opponentPhotoCacheKey: String?
-            get() = photoCacheKey(opponentPhotoUrl, verifications?.opponentVerifiedAt)
+            get() = photoCacheKey(opponentVerification?.photoUrl, opponentVerification?.verifiedAt)
 
         /**
          * `FAILED` 를 [canVerify] 보다 먼저 본다 — 진행 중이어도 실패한 인증엔 시킬 것이 없다.
@@ -111,11 +112,11 @@ sealed interface ChallengeDetailUiState {
          */
         val myMissionSlot: MyMissionSlot
             get() = when {
-                myVerificationStatus == VerificationStatus.VERIFIED ->
+                isMyVerified ->
                     if (canVerify) MyMissionSlot.MY_PHOTO_WITH_RETAKE else MyMissionSlot.MY_PHOTO
 
-                myVerificationStatus == VerificationStatus.FAILED ->
-                    if (myPhotoUrl != null) MyMissionSlot.MY_PHOTO else MyMissionSlot.NONE
+                myVerification?.status == VerificationStatus.FAILED ->
+                    if (myVerification?.photoUrl != null) MyMissionSlot.MY_PHOTO else MyMissionSlot.NONE
 
                 canVerify -> MyMissionSlot.VERIFY_CTA
                 else -> MyMissionSlot.NONE
@@ -125,6 +126,10 @@ sealed interface ChallengeDetailUiState {
         val canForfeit: Boolean get() = myMissionSlot == MyMissionSlot.VERIFY_CTA
     }
 }
+
+/** UNREADABLE 은 이미 서명한 칸이라 '서명 대기 중' 으로 쓰면 안 된다. */
+private fun signatureHint(state: SignatureSlotState?): String =
+    if (state == SignatureSlotState.UNREADABLE) SIGNATURE_UNREADABLE_HINT else SIGNATURE_NOT_SIGNED_HINT
 
 /** URL 에 쿼리를 붙이지 않고 캐시 키만 제출 시각으로 가른다. */
 private fun photoCacheKey(photoUrl: String?, verifiedAt: LocalDateTime?): String? {
@@ -147,39 +152,3 @@ enum class MyMissionSlot {
     /** 할 것도 보여줄 것도 없다. */
     NONE,
 }
-
-/**
- * 서명 2-up 한 묶음. 계약서가 있을 때만 존재한다.
- *
- * @property mySignatureHint [mySignature] 가 `null` 일 때 미서명/디코드 실패 문구.
- */
-@Immutable
-data class SignatureSection(
-    val mySignature: Signature?,
-    val mySignatureHint: String,
-    val opponentSignature: Signature?,
-    val opponentSignatureHint: String,
-    val isFinalized: Boolean,
-)
-
-/**
- * 양측 인증 현황 한 묶음.
- *
- * @property myPhotoUrl 제출한 적이 없으면 null. AI 가 반려한 칸에도 사진은 남아 있다.
- * @property myVerifiedAt 화면에 그리지 않고 사진 캐시 키에만 쓴다.
- * @property opponentPhotoDeleted 탈퇴로 사진이 영구 삭제됨.
- * @property myAiReason non-null 이면 AI 판별로 반려된 것이다.
- */
-@Immutable
-data class VerificationSection(
-    val myStatus: VerificationStatus,
-    val myPhotoUrl: String?,
-    val myPhotoDeleted: Boolean,
-    val myVerifiedAt: LocalDateTime?,
-    val myAiReason: String?,
-    val opponentStatus: VerificationStatus,
-    val opponentPhotoUrl: String?,
-    val opponentPhotoDeleted: Boolean,
-    val opponentVerifiedAt: LocalDateTime?,
-    val opponentAiReason: String?,
-)

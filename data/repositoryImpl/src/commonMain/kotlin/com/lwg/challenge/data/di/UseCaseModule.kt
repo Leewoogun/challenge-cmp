@@ -7,9 +7,11 @@ import com.lwg.challenge.domain.repository.LoginRepository
 import com.lwg.challenge.domain.repository.NotificationRepository
 import com.lwg.challenge.domain.repository.RecordRepository
 import com.lwg.challenge.domain.repository.UserInfoRepository
+import com.lwg.challenge.domain.repository.VerificationRepository
 import com.lwg.challenge.domain.repository.WithdrawRepository
 import com.lwg.challenge.domain.usecase.CreateChallengeUseCase
 import com.lwg.challenge.domain.usecase.GetChallengeArchiveUseCase
+import com.lwg.challenge.domain.usecase.GetChallengeDetailDataUseCase
 import com.lwg.challenge.domain.usecase.GetFriendsDataUseCase
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.domain.usecase.GetMyPageDataUseCase
@@ -79,6 +81,12 @@ class UseCaseModule {
     fun provideGetChallengeArchiveUseCase(
         challengeRepository: ChallengeRepository,
     ): GetChallengeArchiveUseCase = GetChallengeArchiveUseCase(challengeRepository)
+
+    @Factory
+    fun provideGetChallengeDetailDataUseCase(
+        challengeRepository: ChallengeRepository,
+        verificationRepository: VerificationRepository,
+    ): GetChallengeDetailDataUseCase = GetChallengeDetailDataUseCase(challengeRepository, verificationRepository)
 
     @Factory
     fun provideCreateChallengeUseCase(
