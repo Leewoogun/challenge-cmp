@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.challenge.oath.component
+package com.lwg.challenge.feature.challenge.oath.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.challenge.ChallengeDetail
+import com.lwg.challenge.domain.model.challenge.Contract
+import com.lwg.challenge.domain.model.challenge.ContractUserInfo
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
@@ -32,23 +35,17 @@ import com.lwg.challenge.ui.components.LabeledInputField
 import com.lwg.challenge.ui.components.LoadingIconButton
 import com.lwg.challenge.ui.components.signature.SignatureField
 import com.lwg.challenge.ui.components.signature.SignatureSlot
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 계약서 확인 → 미션 입력 → 서명까지를 한 스크롤 흐름으로 두고, 제출 버튼만 하단에 고정한다.
- *
- * **미션 입력과 서명란은 반드시 같은 스크롤 안에 있어야 한다.** 서명란만 고정 슬롯으로 빼면
- * 미션 입력이 스크롤 위로 숨어, 서명까지 마치고도 버튼이 왜 비활성인지 모르는 상태가 된다.
- *
- * 대신 캔버스 위 드래그가 부모 스크롤로 새는 것을 막아야 한다. [SignatureField] 는 포인터를
- * 매 이벤트 consume 하지만, 획을 긋는 동안에는 스크롤 자체를 잠가 이중으로 막는다
- * (`onDrawingChange` → `verticalScroll(enabled = ...)`).
- *
- * `imePadding()` 은 걸지 않는다 — [ChallengeScaffold] 의 contentWindowInsets(safeDrawing)가
- * 이미 IME 를 포함해 본문 높이를 줄여주므로, 여기서 또 걸면 키보드 높이만큼 두 번 밀린다.
+ * 계약서 확인 → 미션 입력 → 서명을 한 스크롤에 두고 제출 버튼만 하단에 고정한다.
+ * 서명란만 고정하면 미션 입력이 숨어 버튼이 왜 비활성인지 알 수 없다.
+ * [ChallengeScaffold] 가 이미 IME 를 반영하므로 `imePadding()` 은 걸지 않는다.
  */
 @Composable
-internal fun OathForm(
+internal fun OathFormScreen(
     uiState: OathUiState.Data,
     onMyMissionChange: (String) -> Unit,
     onSignatureChange: (Signature) -> Unit,
@@ -56,14 +53,14 @@ internal fun OathForm(
     modifier: Modifier = Modifier,
 ) {
     var isSigning by remember { mutableStateOf(false) }
-    val challengerSignature = uiState.challengerSignature
-    val challengerSignatureFooter: (@Composable ColumnScope.() -> Unit)? =
-        if (challengerSignature == null) {
+    val opponentSignature = uiState.detail.contract?.opponentSignature
+    val opponentSignatureFooter: (@Composable ColumnScope.() -> Unit)? =
+        if (opponentSignature == null) {
             null
         } else {
             {
                 Text(
-                    text = uiState.challengerSignatureLabel,
+                    text = uiState.opponentSignatureLabel,
                     style = ChallengeTheme.typography.medium12,
                     color = ChallengeTheme.colorScheme.onSurfaceVariant,
                 )
@@ -72,7 +69,7 @@ internal fun OathForm(
 
                 // 상세 화면의 서명 칸과 같은 껍데기를 쓴다 — 왕복해도 같은 서명이 같아 보여야 한다.
                 SignatureSlot(
-                    signature = challengerSignature,
+                    signature = opponentSignature,
                     modifier = Modifier.fillMaxWidth(0.5f),
                 )
             }
@@ -103,15 +100,15 @@ internal fun OathForm(
 
             VerticalSpacer(24.dp)
 
-            // myMission 은 아래 입력값을 실시간으로 되비춘다 — 내가 서명할 문서가 눈앞에서 완성되게 한다.
+            // 입력 중인 미션을 실시간으로 되비춰 서명할 문서가 눈앞에서 완성되게 한다.
             ContractCard(
-                opponentNickname = uiState.challengerNickname,
+                opponentNickname = uiState.detail.opponent.nickname,
                 myMission = uiState.myMission,
-                penalty = uiState.betContent,
+                penalty = uiState.detail.betContent,
                 deadlineText = uiState.deadlineText,
-                opponentMission = uiState.challengerMission,
-                opponentMissionLabel = uiState.challengerMissionLabel,
-                footer = challengerSignatureFooter,
+                opponentMission = uiState.detail.opponent.mission.orEmpty(),
+                opponentMissionLabel = uiState.opponentMissionLabel,
+                footer = opponentSignatureFooter,
             )
 
             VerticalSpacer(16.dp)
@@ -163,10 +160,10 @@ internal fun OathForm(
 
 @Preview
 @Composable
-private fun OathFormEmptyPreview() {
+private fun OathFormScreenEmptyPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            OathForm(
+            OathFormScreen(
                 uiState = previewOathData(),
                 onMyMissionChange = {},
                 onSignatureChange = {},
@@ -178,10 +175,10 @@ private fun OathFormEmptyPreview() {
 
 @Preview
 @Composable
-private fun OathFormFilledPreview() {
+private fun OathFormScreenFilledPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            OathForm(
+            OathFormScreen(
                 uiState = previewOathData(
                     myMission = "책 30페이지 읽기",
                     signature = previewSignature(),
@@ -196,10 +193,10 @@ private fun OathFormFilledPreview() {
 
 @Preview
 @Composable
-private fun OathFormSubmittingPreview() {
+private fun OathFormScreenSubmittingPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            OathForm(
+            OathFormScreen(
                 uiState = previewOathData(
                     myMission = "책 30페이지 읽기",
                     signature = previewSignature(),
@@ -215,11 +212,11 @@ private fun OathFormSubmittingPreview() {
 
 @Preview
 @Composable
-private fun OathFormNoChallengerSignaturePreview() {
+private fun OathFormScreenNoOpponentSignaturePreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            OathForm(
-                uiState = previewOathData(challengerSignature = null),
+            OathFormScreen(
+                uiState = previewOathData(opponentSignature = null),
                 onMyMissionChange = {},
                 onSignatureChange = {},
                 onSubmit = {},
@@ -241,18 +238,34 @@ private fun previewSignature() = Signature(
     ),
 )
 
+private val PREVIEW_NOW = LocalDateTime(2026, 7, 28, 18, 28, 0)
+
 private fun previewOathData(
     myMission: String = "",
     signature: Signature = Signature.Empty,
-    challengerSignature: Signature? = previewSignature(),
+    opponentSignature: Signature? = previewSignature(),
     isSubmitting: Boolean = false,
 ) = OathUiState.Data(
-    challengeId = 1L,
-    challengerNickname = "우건",
-    challengerMission = "오늘 운동 1시간 하기",
-    challengerSignature = challengerSignature,
-    betContent = "커피 사기",
-    deadlineText = "5시간 32분",
+    detail = ChallengeDetail(
+        challengeId = 1L,
+        status = "PENDING",
+        myResult = null,
+        forfeitedBy = null,
+        challengeDate = LocalDate(2026, 7, 28),
+        deadline = LocalDateTime(2026, 7, 29, 0, 0, 0),
+        betContent = "커피 사기",
+        me = ContractUserInfo(nickname = "나", profileImageUrl = null, mission = null),
+        opponent = ContractUserInfo(nickname = "우건", profileImageUrl = null, mission = "오늘 운동 1시간 하기"),
+        contract = Contract(
+            content = "영혼의 맹세",
+            isFinalized = false,
+            mySignature = null,
+            mySignedAt = null,
+            opponentSignature = opponentSignature,
+            opponentSignedAt = PREVIEW_NOW.takeIf { opponentSignature != null },
+        ),
+    ),
+    now = PREVIEW_NOW,
     myMission = myMission,
     signature = signature,
     isSubmitting = isSubmitting,

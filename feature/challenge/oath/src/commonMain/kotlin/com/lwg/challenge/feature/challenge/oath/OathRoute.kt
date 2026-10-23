@@ -9,12 +9,12 @@ import com.lwg.challenge.designsystem.components.ChallengeTopBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.feature.challenge.oath.component.ExitConfirmDialog
-import com.lwg.challenge.feature.challenge.oath.component.OathError
-import com.lwg.challenge.feature.challenge.oath.component.OathForm
-import com.lwg.challenge.feature.challenge.oath.component.OathLoading
 import com.lwg.challenge.feature.challenge.oath.contract.OathModalEffect
 import com.lwg.challenge.feature.challenge.oath.contract.OathUiEffect
 import com.lwg.challenge.feature.challenge.oath.contract.OathUiState
+import com.lwg.challenge.feature.challenge.oath.screen.OathErrorScreen
+import com.lwg.challenge.feature.challenge.oath.screen.OathFormScreen
+import com.lwg.challenge.feature.challenge.oath.screen.OathLoadingScreen
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.ui.components.PlatformBackHandler
@@ -81,14 +81,14 @@ private fun OathContent(
         },
     ) {
         when (uiState) {
-            OathUiState.Loading -> OathLoading()
+            OathUiState.Loading -> OathLoadingScreen()
 
-            is OathUiState.Error -> OathError(
+            is OathUiState.Error -> OathErrorScreen(
                 message = uiState.message,
                 onRetry = onRetry,
             )
 
-            is OathUiState.Data -> OathForm(
+            is OathUiState.Data -> OathFormScreen(
                 uiState = uiState,
                 onMyMissionChange = onMyMissionChange,
                 onSignatureChange = onSignatureChange,

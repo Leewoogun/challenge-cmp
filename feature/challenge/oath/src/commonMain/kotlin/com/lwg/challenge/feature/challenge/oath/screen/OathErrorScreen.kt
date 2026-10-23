@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.challenge.oath.component
+package com.lwg.challenge.feature.challenge.oath.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +22,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 계약서를 아직 한 번도 못 받아온 상태. 보여줄 계약이 없으므로 화면 전체를 차지한다. */
 @Composable
-internal fun OathError(
+internal fun OathErrorScreen(
     message: String,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
@@ -62,10 +62,10 @@ internal fun OathError(
 
 @Preview
 @Composable
-private fun OathErrorPreview() {
+private fun OathErrorScreenPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            OathError(
+            OathErrorScreen(
                 message = "네트워크 오류가 발생하였습니다.",
                 onRetry = {},
             )

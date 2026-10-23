@@ -12,6 +12,8 @@ import com.lwg.challenge.feature.challenge.oath.contract.OathUiEffect
 import com.lwg.challenge.feature.challenge.oath.contract.OathUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -24,7 +26,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -47,11 +48,13 @@ class OathViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): OathViewModel =
+    private fun TestScope.createViewModel(): OathViewModel =
         OathViewModel(
             challengeId = CHALLENGE_ID,
             challengeRepository = fakeChallengeRepository,
-        )
+        ).also { viewModel ->
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect { } }
+        }
 
     private fun OathViewModel.data(): OathUiState.Data =
         assertIs<OathUiState.Data>(uiState.value)
@@ -63,7 +66,7 @@ class OathViewModelTest {
     )
 
     private fun sampleDetail(
-        challengerSignature: Signature? = Signature(
+        opponentSignature: Signature? = Signature(
             strokes = listOf(SignatureStroke(listOf(SignaturePoint(1, 2), SignaturePoint(3, 4)))),
         ),
     ) = ChallengeDetail(
@@ -90,25 +93,21 @@ class OathViewModelTest {
             isFinalized = false,
             mySignature = null,
             mySignedAt = null,
-            opponentSignature = challengerSignature,
-            opponentSignedAt = challengerSignature?.let { LocalDateTime.parse("2026-01-01T00:00:00") },
+            opponentSignature = opponentSignature,
+            opponentSignedAt = opponentSignature?.let { LocalDateTime.parse("2026-01-01T00:00:00") },
         ),
     )
 
     @Test
-    fun `init 시 상세를 조회하고 계약서 필드를 그대로 매핑한다`() = runTest {
+    fun `구독 시 상세를 조회해 그대로 담는다`() = runTest {
         val viewModel = createViewModel()
 
         assertEquals(1, fakeChallengeRepository.detailCallCount)
         val state = viewModel.data()
-        assertEquals(CHALLENGE_ID, state.challengeId)
-        assertEquals("우건", state.challengerNickname)
-        assertEquals("오늘 운동 1시간 하기", state.challengerMission)
-        assertEquals("커피 사기", state.betContent)
+        assertEquals(sampleDetail(), state.detail)
         assertEquals("마감", state.deadlineText)
-        assertEquals("우건의 미션", state.challengerMissionLabel)
-        assertEquals("우건의 서명", state.challengerSignatureLabel)
-        assertEquals(assertNotNull(sampleDetail().contract).opponentSignature, state.challengerSignature)
+        assertEquals("우건의 미션", state.opponentMissionLabel)
+        assertEquals("우건의 서명", state.opponentSignatureLabel)
         assertEquals("", state.myMission)
         assertTrue(state.signature.isEmpty)
         assertFalse(state.isSubmitting)
@@ -135,7 +134,7 @@ class OathViewModelTest {
         viewModel.retry()
 
         assertEquals(2, fakeChallengeRepository.detailCallCount)
-        assertEquals("우건", viewModel.data().challengerNickname)
+        assertEquals("우건", viewModel.data().detail.opponent.nickname)
     }
 
     @Test
@@ -335,13 +334,13 @@ class OathViewModelTest {
     }
 
     @Test
-    fun `챌린저가 서명하지 않았어도 Data 로 정상 전이한다`() = runTest {
-        fakeChallengeRepository.detail = sampleDetail(challengerSignature = null)
+    fun `상대가 서명하지 않았어도 Data 로 정상 전이한다`() = runTest {
+        fakeChallengeRepository.detail = sampleDetail(opponentSignature = null)
 
         val viewModel = createViewModel()
 
         val state = viewModel.data()
-        assertNull(state.challengerSignature)
-        assertEquals("우건", state.challengerNickname)
+        assertNull(state.detail.contract?.opponentSignature)
+        assertEquals("우건", state.detail.opponent.nickname)
     }
 }

@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.challenge.oath.component
+package com.lwg.challenge.feature.challenge.oath.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,7 +12,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 계약서 응답 대기 화면. */
 @Composable
-internal fun OathLoading(
+internal fun OathLoadingScreen(
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -25,10 +25,10 @@ internal fun OathLoading(
 
 @Preview
 @Composable
-private fun OathLoadingPreview() {
+private fun OathLoadingScreenPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            OathLoading()
+            OathLoadingScreen()
         }
     }
 }
