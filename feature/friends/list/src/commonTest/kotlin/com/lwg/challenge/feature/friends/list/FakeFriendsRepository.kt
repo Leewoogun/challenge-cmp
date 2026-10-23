@@ -54,11 +54,11 @@ class FakeFriendsRepository : FriendsRepository {
 
     override suspend fun sendRequest(
         receiverId: Long,
-        onSuccess: () -> Unit,
+        onSuccess: (requestId: Long) -> Unit,
         onError: (String) -> Unit,
     ) {
         sendRequestCalls += receiverId
-        sendRequestError.let { if (it == null) onSuccess() else onError(it) }
+        sendRequestError.let { if (it == null) onSuccess(receiverId) else onError(it) }
     }
 
     override suspend fun acceptRequest(

@@ -5,6 +5,8 @@ import com.lwg.challenge.domain.model.friend.Relation
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.feature.friends.search.contract.FriendsSearchUiEffect
 import com.lwg.challenge.feature.friends.search.contract.FriendsSearchUiState
+import kotlin.test.assertFalse
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -119,7 +121,7 @@ class FriendsSearchViewModelTest {
     }
 
     @Test
-    fun `sendRequest 호출 시 낙관적 REQUEST_SENT 갱신 + repository sendRequest`() = runTest {
+    fun `sendRequest 성공 시 그 행이 REQUEST_SENT 와 받은 requestId 로 바뀐다`() = runTest {
         fakeRepository.searchResultsFlow.value =
             listOf(sample(100, relation = Relation.NONE))
 
@@ -133,11 +135,12 @@ class FriendsSearchViewModelTest {
 
         val after = viewModel.uiState.value as FriendsSearchUiState.Result
         assertEquals(Relation.REQUEST_SENT, after.items.first().relation)
+        assertEquals(fakeRepository.sentRequestId, after.items.first().pendingRequestId)
         assertEquals(listOf(100L), fakeRepository.sendRequestCalls)
     }
 
     @Test
-    fun `acceptRequest 호출 시 낙관적 FRIEND 갱신 + repository acceptRequest`() = runTest {
+    fun `acceptRequest 성공 시 그 행이 FRIEND 로 바뀐다`() = runTest {
         fakeRepository.searchResultsFlow.value = listOf(
             sample(200, relation = Relation.REQUEST_RECEIVED, pendingRequestId = 555L),
         )
@@ -156,7 +159,7 @@ class FriendsSearchViewModelTest {
     }
 
     @Test
-    fun `cancelRequest 호출 시 낙관적 NONE 갱신 + repository cancelRequest`() = runTest {
+    fun `cancelRequest 성공 시 그 행이 NONE 으로 바뀐다`() = runTest {
         fakeRepository.searchResultsFlow.value = listOf(
             sample(300, relation = Relation.REQUEST_SENT, pendingRequestId = 777L),
         )
@@ -175,7 +178,30 @@ class FriendsSearchViewModelTest {
     }
 
     @Test
-    fun `REJECTED 에서 sendRequest 호출 시 낙관적 REQUEST_SENT 갱신`() = runTest {
+    fun `clickAction 은 relation 에 따라 요청이나 수락으로 갈리고 보냄과 친구는 아무것도 하지 않는다`() = runTest {
+        fakeRepository.searchResultsFlow.value = listOf(
+            sample(1, relation = Relation.NONE),
+            sample(2, relation = Relation.REJECTED),
+            sample(3, relation = Relation.REQUEST_RECEIVED, pendingRequestId = 900L),
+            sample(4, relation = Relation.REQUEST_SENT, pendingRequestId = 901L),
+            sample(5, relation = Relation.FRIEND),
+        )
+
+        val viewModel = createViewModel()
+        viewModel.search("ab")
+        advanceUntilIdle()
+
+        val result = viewModel.uiState.value as FriendsSearchUiState.Result
+        result.items.forEach(viewModel::clickAction)
+        advanceUntilIdle()
+
+        assertEquals(listOf(1L, 2L), fakeRepository.sendRequestCalls)
+        assertEquals(listOf(900L), fakeRepository.acceptRequestCalls)
+        assertEquals(emptyList(), fakeRepository.cancelRequestCalls)
+    }
+
+    @Test
+    fun `REJECTED 에서 sendRequest 성공 시 REQUEST_SENT 로 바뀐다`() = runTest {
         fakeRepository.searchResultsFlow.value =
             listOf(sample(400, relation = Relation.REJECTED))
 
@@ -193,7 +219,7 @@ class FriendsSearchViewModelTest {
     }
 
     @Test
-    fun `sendRequest 실패 시 ShowMessage 발행 후 NONE 으로 롤백`() = runTest {
+    fun `sendRequest 실패 시 ShowMessage 를 내고 NONE 을 유지한다`() = runTest {
         fakeRepository.searchResultsFlow.value =
             listOf(sample(500, relation = Relation.NONE))
         fakeRepository.sendRequestError = "차단된 사용자입니다"
@@ -242,16 +268,11 @@ class FriendsSearchViewModelTest {
     // ViewModel 관점에서 401 은 일반 성공 경로와 동일하므로 별도 테스트는 성공 케이스로 커버된다.
 
     @Test
-    fun `한 row 의 sendRequest 실패 롤백은 동시 다른 row 의 낙관 갱신을 보존한다`() = runTest {
+    fun `한 행의 실패는 다른 행의 성공 결과에 영향을 주지 않는다`() = runTest {
         fakeRepository.searchResultsFlow.value = listOf(
             sample(700, relation = Relation.NONE),
             sample(701, relation = Relation.NONE),
         )
-
-        // mutation 별 결과를 직접 제어할 수 없으므로, 두 row 모두 동일 결과를 사용
-        // 시나리오: A 실패 시 B 의 낙관(REQUEST_SENT) 이 보존되어야 한다.
-        // → A 만 실패하도록 별도 시퀀스 제어가 필요하지만 FakeRepo 단순화 위해
-        //   "B 먼저 호출(성공) → A 호출(실패)" 순서로 sendRequestResult 를 바꿈.
 
         val viewModel = createViewModel()
         viewModel.search("ab")
@@ -268,11 +289,56 @@ class FriendsSearchViewModelTest {
         viewModel.sendRequest(a)
         advanceUntilIdle()
 
-        // A 는 NONE 으로 롤백, B 는 REQUEST_SENT 낙관 유지되어야 함
         val after = viewModel.uiState.value as FriendsSearchUiState.Result
         val afterA = after.items.first { it.userId == 700L }
         val afterB = after.items.first { it.userId == 701L }
         assertEquals(Relation.NONE, afterA.relation)
         assertEquals(Relation.REQUEST_SENT, afterB.relation)
+    }
+
+    @Test
+    fun `요청이 나가 있는 동안 그 행은 잠기고 중복 요청이 나가지 않는다`() = runTest {
+        fakeRepository.searchResultsFlow.value = listOf(sample(800, relation = Relation.NONE))
+        val gate = CompletableDeferred<Unit>()
+        fakeRepository.mutationGate = gate
+
+        val viewModel = createViewModel()
+        viewModel.search("ab")
+        advanceUntilIdle()
+        val item = (viewModel.uiState.value as FriendsSearchUiState.Result).items.first()
+
+        viewModel.sendRequest(item)
+        viewModel.sendRequest(item)
+        advanceUntilIdle()
+
+        val pending = viewModel.uiState.value as FriendsSearchUiState.Result
+        assertFalse(pending.isActionEnabled(item))
+        assertEquals(Relation.NONE, pending.items.first().relation)
+        assertEquals(listOf(800L), fakeRepository.sendRequestCalls)
+
+        gate.complete(Unit)
+        advanceUntilIdle()
+
+        val done = viewModel.uiState.value as FriendsSearchUiState.Result
+        assertTrue(done.isActionEnabled(item))
+        assertEquals(Relation.REQUEST_SENT, done.items.first().relation)
+    }
+
+    @Test
+    fun `요청을 보낸 직후 취소하면 응답으로 받은 requestId 로 취소한다`() = runTest {
+        fakeRepository.searchResultsFlow.value = listOf(sample(900, relation = Relation.NONE))
+        fakeRepository.sentRequestId = 4242L
+
+        val viewModel = createViewModel()
+        viewModel.search("ab")
+        advanceUntilIdle()
+
+        viewModel.sendRequest((viewModel.uiState.value as FriendsSearchUiState.Result).items.first())
+        advanceUntilIdle()
+        viewModel.cancelRequest((viewModel.uiState.value as FriendsSearchUiState.Result).items.first())
+        advanceUntilIdle()
+
+        assertEquals(listOf(4242L), fakeRepository.cancelRequestCalls)
+        assertEquals(Relation.NONE, (viewModel.uiState.value as FriendsSearchUiState.Result).items.first().relation)
     }
 }

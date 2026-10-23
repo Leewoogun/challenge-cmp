@@ -6,11 +6,14 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.domain.model.friend.Relation
+import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.feature.friends.search.component.FriendsSearchTopBar
-import com.lwg.challenge.feature.friends.search.contract.FriendSearchItemState
 import com.lwg.challenge.feature.friends.search.contract.FriendsSearchUiEffect
 import com.lwg.challenge.feature.friends.search.contract.FriendsSearchUiState
+import com.lwg.challenge.feature.friends.search.screen.FriendsSearchEmptyScreen
+import com.lwg.challenge.feature.friends.search.screen.FriendsSearchIdleScreen
+import com.lwg.challenge.feature.friends.search.screen.FriendsSearchLoadingScreen
+import com.lwg.challenge.feature.friends.search.screen.FriendsSearchScreen
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import org.koin.compose.viewmodel.koinViewModel
@@ -37,13 +40,7 @@ fun FriendsSearchRoute(
         uiState = uiState,
         onQueryChange = viewModel::search,
         onBack = { navigator.popBackStack() },
-        onClickAction = { item ->
-            when (item.relation) {
-                Relation.NONE, Relation.REJECTED -> viewModel.sendRequest(item)
-                Relation.REQUEST_RECEIVED -> viewModel.acceptRequest(item)
-                else -> {}
-            }
-        },
+        onClickAction = viewModel::clickAction,
         onClickCancel = viewModel::cancelRequest,
     )
 }
@@ -54,8 +51,8 @@ private fun FriendsSearchContent(
     uiState: FriendsSearchUiState,
     onQueryChange: (String) -> Unit,
     onBack: () -> Unit,
-    onClickAction: (FriendSearchItemState) -> Unit,
-    onClickCancel: (FriendSearchItemState) -> Unit,
+    onClickAction: (UserSearchResult) -> Unit,
+    onClickCancel: (UserSearchResult) -> Unit,
 ) {
     ChallengeScaffold(
         statusBarColor = ChallengeTheme.colorScheme.surface,
@@ -68,13 +65,11 @@ private fun FriendsSearchContent(
         },
     ) {
         when (uiState) {
-            FriendsSearchUiState.Idle ->
-                FriendsSearchHintScreen("닉네임을 2자 이상 입력해주세요")
+            FriendsSearchUiState.Idle -> FriendsSearchIdleScreen()
 
             FriendsSearchUiState.Searching -> FriendsSearchLoadingScreen()
 
-            FriendsSearchUiState.Empty ->
-                FriendsSearchHintScreen("검색 결과가 없어요. 닉네임을 더 정확히 입력해보세요.")
+            FriendsSearchUiState.Empty -> FriendsSearchEmptyScreen()
 
             is FriendsSearchUiState.Result -> FriendsSearchScreen(
                 uiState = uiState,

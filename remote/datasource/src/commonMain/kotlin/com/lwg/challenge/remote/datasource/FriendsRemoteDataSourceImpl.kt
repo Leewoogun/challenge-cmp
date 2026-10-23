@@ -47,11 +47,11 @@ class FriendsRemoteDataSourceImpl(
 
     override suspend fun sendRequest(
         receiverId: Long,
-        onSuccess: () -> Unit,
+        onSuccess: (requestId: Long) -> Unit,
         onError: (String) -> Unit,
     ) {
         friendsApi.sendRequest(SendFriendRequestBody(receiverId))
-            .suspendOnSuccess { onSuccess() }
+            .suspendOnSuccess { onSuccess(response.data.requestId) }
             .suspendOnFailureWithErrorHandling(onError)
     }
 

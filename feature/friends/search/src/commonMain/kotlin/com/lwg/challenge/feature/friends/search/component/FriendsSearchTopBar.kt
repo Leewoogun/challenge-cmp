@@ -34,10 +34,8 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 검색 화면 전용 상단바. design.md §B.6/§C — ← 뒤로가기 + 닉네임 입력.
- *
- * 입력 박스는 [BasicTextField] + decorationBox 로 secondary 배경 / R12 / leading Search /
- * trailing clear(X) 를 직접 구성한다(Material3 TextField 의 고정 높이·indicator 회피).
+ * 검색 화면 전용 상단바 — 뒤로가기 + 닉네임 입력.
+ * Material3 TextField 의 고정 높이·indicator 를 피하려고 [BasicTextField] 로 입력 박스를 직접 구성한다.
  */
 @Composable
 internal fun FriendsSearchTopBar(

@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.lwg.challenge.domain.model.friend.Relation
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.domain.repository.FriendsRepository
-import com.lwg.challenge.feature.friends.search.contract.FriendSearchItemState
 import com.lwg.challenge.feature.friends.search.contract.FriendsSearchUiEffect
 import com.lwg.challenge.feature.friends.search.contract.FriendsSearchUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -28,15 +28,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
-/**
- * 친구 검색 화면 ViewModel.
- *
- * - `query` StateFlow → debounce 300ms → trim → min 2자 가드 → `searchUsers` flatMapLatest.
- * - 결과는 [_searchResults] StateFlow 로 저장 (낙관적 갱신 가능하도록).
- * - [uiState] 는 검색 단계([searchPhase]) + [_searchResults] 를 combine 해서 4-state 로 매핑.
- *
- * spec: docs/features/friends/spec-friend-add.md §6.5
- */
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @KoinViewModel
 class FriendsSearchViewModel(
@@ -46,8 +37,10 @@ class FriendsSearchViewModel(
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
 
-    /** 검색 결과 (raw) — 낙관적 갱신은 이 StateFlow 를 직접 업데이트. */
+    // 요청 성공 시 그 행만 바꾸려고 검색 결과를 파이프라인 밖에 둔다.
     private val _searchResults = MutableStateFlow<List<UserSearchResult>>(emptyList())
+
+    private val _requestingUserIds = MutableStateFlow<Set<Long>>(emptySet())
 
     private val searchPhase: StateFlow<SearchPhase> =
         _query
@@ -77,14 +70,14 @@ class FriendsSearchViewModel(
             )
 
     val uiState: StateFlow<FriendsSearchUiState> =
-        combine(searchPhase, _searchResults) { phase, results ->
+        combine(searchPhase, _searchResults, _requestingUserIds) { phase, results, requestingUserIds ->
             when (phase) {
                 SearchPhase.Idle -> FriendsSearchUiState.Idle
                 SearchPhase.Searching -> FriendsSearchUiState.Searching
                 SearchPhase.Done -> if (results.isEmpty()) {
                     FriendsSearchUiState.Empty
                 } else {
-                    FriendsSearchUiState.Result(results.map(::FriendSearchItemState))
+                    FriendsSearchUiState.Result(items = results, requestingUserIds = requestingUserIds)
                 }
             }
         }.stateIn(
@@ -94,96 +87,67 @@ class FriendsSearchViewModel(
         )
 
     private val _uiEffect = MutableSharedFlow<FriendsSearchUiEffect>()
-    val uiEffect: SharedFlow<FriendsSearchUiEffect> = _uiEffect
+    val uiEffect: SharedFlow<FriendsSearchUiEffect> = _uiEffect.asSharedFlow()
 
-    /** 입력 변경 — debounce 가 자동 처리. */
     fun search(text: String) {
         _query.update { text }
     }
 
-    /** Relation.NONE / REJECTED 클릭 → 친구 요청 보내기. */
-    fun sendRequest(item: FriendSearchItemState) {
-        mutateRelation(
-            item = item,
-            optimisticRelation = Relation.REQUEST_SENT,
-            optimisticPendingRequestId = null,
-        ) { onSuccess, onError ->
-            friendsRepository.sendRequest(item.userId, onSuccess, onError)
+    fun clickAction(item: UserSearchResult) {
+        when (item.relation) {
+            Relation.NONE, Relation.REJECTED -> sendRequest(item)
+            Relation.REQUEST_RECEIVED -> acceptRequest(item)
+            Relation.REQUEST_SENT, Relation.FRIEND -> Unit
         }
     }
 
-    /** Relation.REQUEST_RECEIVED 클릭 → 수락. */
-    fun acceptRequest(item: FriendSearchItemState) {
-        val requestId = item.pendingRequestId ?: return
-        mutateRelation(
-            item = item,
-            optimisticRelation = Relation.FRIEND,
-            optimisticPendingRequestId = null,
-        ) { onSuccess, onError ->
-            friendsRepository.acceptRequest(requestId, onSuccess, onError)
-        }
-    }
-
-    /** Relation.REQUEST_SENT 의 "취소" 버튼 클릭. */
-    fun cancelRequest(item: FriendSearchItemState) {
-        val requestId = item.pendingRequestId ?: return
-        mutateRelation(
-            item = item,
-            optimisticRelation = Relation.NONE,
-            optimisticPendingRequestId = null,
-        ) { onSuccess, onError ->
-            friendsRepository.cancelRequest(requestId, onSuccess, onError)
-        }
-    }
-
-    /**
-     * 단일 row 의 relation 을 낙관적으로 변경하고, 실패 시 **1행 단위 역연산** 으로 롤백한다.
-     *
-     * 전체 리스트 스냅샷을 통째 복원하면 동시 다른 row 의 mutation 까지 덮어쓰는
-     * race 가 발생하므로, 반드시 대상 row 의 이전 relation/pendingRequestId 만
-     * 되돌린다.
-     */
-    private fun mutateRelation(
-        item: FriendSearchItemState,
-        optimisticRelation: Relation,
-        optimisticPendingRequestId: Long?,
-        action: suspend (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit,
-    ) {
-        val before = _searchResults.value.firstOrNull { it.userId == item.userId } ?: return
-
-        _searchResults.update { list ->
-            list.map {
-                if (it.userId == before.userId) {
-                    it.copy(
-                        relation = optimisticRelation,
-                        pendingRequestId = optimisticPendingRequestId,
-                    )
-                } else {
-                    it
-                }
-            }
-        }
-
-        viewModelScope.launch {
-            action(
-                {},
-                { message ->
-                    _searchResults.update { list ->
-                        list.map {
-                            if (it.userId == before.userId) {
-                                it.copy(
-                                    relation = before.relation,
-                                    pendingRequestId = before.pendingRequestId,
-                                )
-                            } else {
-                                it
-                            }
-                        }
-                    }
-                    showMessage(message)
+    fun sendRequest(item: UserSearchResult) {
+        mutateRow(item) {
+            friendsRepository.sendRequest(
+                receiverId = item.userId,
+                onSuccess = { requestId ->
+                    updateRow(item.userId) { it.copy(relation = Relation.REQUEST_SENT, pendingRequestId = requestId) }
                 },
+                onError = ::showMessage,
             )
         }
+    }
+
+    fun acceptRequest(item: UserSearchResult) {
+        val requestId = item.pendingRequestId ?: return
+        mutateRow(item) {
+            friendsRepository.acceptRequest(
+                requestId = requestId,
+                onSuccess = { updateRow(item.userId) { it.copy(relation = Relation.FRIEND, pendingRequestId = null) } },
+                onError = ::showMessage,
+            )
+        }
+    }
+
+    fun cancelRequest(item: UserSearchResult) {
+        val requestId = item.pendingRequestId ?: return
+        mutateRow(item) {
+            friendsRepository.cancelRequest(
+                requestId = requestId,
+                onSuccess = { updateRow(item.userId) { it.copy(relation = Relation.NONE, pendingRequestId = null) } },
+                onError = ::showMessage,
+            )
+        }
+    }
+
+    /** 응답이 올 때까지 그 행만 잠근다. 같은 행의 중복 요청도 여기서 막힌다. */
+    private fun mutateRow(item: UserSearchResult, request: suspend () -> Unit) {
+        if (item.userId in _requestingUserIds.value) return
+        _requestingUserIds.update { it + item.userId }
+
+        viewModelScope.launch {
+            request()
+            _requestingUserIds.update { it - item.userId }
+        }
+    }
+
+    private fun updateRow(userId: Long, transform: (UserSearchResult) -> UserSearchResult) {
+        _searchResults.update { list -> list.map { if (it.userId == userId) transform(it) else it } }
     }
 
     private fun showMessage(message: String) {

@@ -36,15 +36,17 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 /**
  * 검색 결과 1행 — 프로필 + 닉네임 + relation 5종 액션.
  *
- * @param onClickCancel `relation == REQUEST_SENT` 일 때만 non-null (요청 취소).
+ * @param enabled 요청이 나가 있는 동안 false — 액션과 취소를 모두 잠근다.
+ * @param onClickCancel 요청 취소. 취소 버튼은 [Relation.REQUEST_SENT] 일 때만 그린다.
  */
 @Composable
 internal fun FriendSearchItem(
     profileImageUrl: String?,
     nickname: String,
     relation: Relation,
+    enabled: Boolean,
     onClickAction: () -> Unit,
-    onClickCancel: (() -> Unit)?,
+    onClickCancel: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -71,6 +73,7 @@ internal fun FriendSearchItem(
 
             RelationAction(
                 relation = relation,
+                enabled = enabled,
                 onClickAction = onClickAction,
                 onClickCancel = onClickCancel,
             )
@@ -81,14 +84,16 @@ internal fun FriendSearchItem(
 @Composable
 private fun RelationAction(
     relation: Relation,
+    enabled: Boolean,
     onClickAction: () -> Unit,
-    onClickCancel: (() -> Unit)?,
+    onClickCancel: () -> Unit,
 ) {
     when (relation) {
         Relation.NONE -> IconTextButton(
             text = "친구 요청",
             icon = Icons.Filled.PersonAdd,
             onClick = onClickAction,
+            enabled = enabled,
             style = IconTextButtonStyle.Filled,
             textStyle = ChallengeTheme.typography.bold14,
             shape = RoundedCornerShape(12.dp),
@@ -105,7 +110,7 @@ private fun RelationAction(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { onClickCancel?.invoke() },
+                    .clickable(enabled = enabled, onClick = onClickCancel),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -121,6 +126,7 @@ private fun RelationAction(
             text = "수락",
             icon = Icons.Filled.Check,
             onClick = onClickAction,
+            enabled = enabled,
             style = IconTextButtonStyle.Filled,
             textStyle = ChallengeTheme.typography.bold14,
             shape = RoundedCornerShape(12.dp),
@@ -138,6 +144,7 @@ private fun RelationAction(
             text = "다시 요청",
             icon = Icons.Filled.Refresh,
             onClick = onClickAction,
+            enabled = enabled,
             style = IconTextButtonStyle.Filled,
             containerColor = ChallengeTheme.colorScheme.secondary,
             contentColor = ChallengeTheme.colorScheme.onSurface,
@@ -149,11 +156,7 @@ private fun RelationAction(
     }
 }
 
-/**
- * 정적(비클릭) relation 뱃지. design.md §B.5 — `REQUEST_SENT`/`FRIEND` 의 disabled 시각.
- *
- * Disabled Button 의 자동 alpha(0.38) 를 회피하기 위해 클릭 없는 [Surface] 로 구현한다.
- */
+/** 정적 relation 뱃지. Disabled Button 의 자동 alpha(0.38) 를 피하려고 클릭 없는 [Surface] 로 그린다. */
 @Composable
 private fun RelationBadge(
     text: String,
@@ -192,8 +195,9 @@ private fun FriendSearchItemNonePreview() {
             profileImageUrl = null,
             nickname = "우건",
             relation = Relation.NONE,
+            enabled = true,
             onClickAction = {},
-            onClickCancel = null,
+            onClickCancel = {},
         )
     }
 }
@@ -206,6 +210,7 @@ private fun FriendSearchItemRequestSentPreview() {
             profileImageUrl = null,
             nickname = "도전왕",
             relation = Relation.REQUEST_SENT,
+            enabled = true,
             onClickAction = {},
             onClickCancel = {},
         )
@@ -220,8 +225,9 @@ private fun FriendSearchItemRequestReceivedPreview() {
             profileImageUrl = null,
             nickname = "도전자",
             relation = Relation.REQUEST_RECEIVED,
+            enabled = true,
             onClickAction = {},
-            onClickCancel = null,
+            onClickCancel = {},
         )
     }
 }
@@ -234,8 +240,9 @@ private fun FriendSearchItemFriendPreview() {
             profileImageUrl = null,
             nickname = "절친",
             relation = Relation.FRIEND,
+            enabled = true,
             onClickAction = {},
-            onClickCancel = null,
+            onClickCancel = {},
         )
     }
 }
@@ -248,8 +255,25 @@ private fun FriendSearchItemRejectedPreview() {
             profileImageUrl = null,
             nickname = "다시도전",
             relation = Relation.REJECTED,
+            enabled = true,
             onClickAction = {},
-            onClickCancel = null,
+            onClickCancel = {},
+        )
+    }
+}
+
+/** 요청이 나가 있는 행 — 버튼이 잠긴다. */
+@Preview
+@Composable
+private fun FriendSearchItemRequestingPreview() {
+    PreviewContainer {
+        FriendSearchItem(
+            profileImageUrl = null,
+            nickname = "우건",
+            relation = Relation.NONE,
+            enabled = false,
+            onClickAction = {},
+            onClickCancel = {},
         )
     }
 }

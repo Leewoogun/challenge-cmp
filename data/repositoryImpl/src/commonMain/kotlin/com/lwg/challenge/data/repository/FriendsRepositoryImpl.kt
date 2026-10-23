@@ -28,7 +28,7 @@ class FriendsRepositoryImpl(
 
     override suspend fun sendRequest(
         receiverId: Long,
-        onSuccess: () -> Unit,
+        onSuccess: (requestId: Long) -> Unit,
         onError: (String) -> Unit,
     ) {
         friendsRemoteDataSource.sendRequest(receiverId, onSuccess, onError)

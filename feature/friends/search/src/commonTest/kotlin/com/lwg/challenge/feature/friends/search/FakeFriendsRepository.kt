@@ -4,6 +4,7 @@ import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.domain.repository.FriendsRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +31,12 @@ class FakeFriendsRepository : FriendsRepository {
     var rejectRequestError: String? = null
     var cancelRequestError: String? = null
 
+    /** sendRequest 성공 시 넘겨 줄 requestId. */
+    var sentRequestId: Long = 9000L
+
+    /** non-null 이면 mutation 이 이 gate 가 열릴 때까지 응답하지 않는다 — 요청 중 상태를 관찰할 때 쓴다. */
+    var mutationGate: CompletableDeferred<Unit>? = null
+
     val sendRequestCalls = mutableListOf<Long>()
     val acceptRequestCalls = mutableListOf<Long>()
     val rejectRequestCalls = mutableListOf<Long>()
@@ -54,11 +61,12 @@ class FakeFriendsRepository : FriendsRepository {
 
     override suspend fun sendRequest(
         receiverId: Long,
-        onSuccess: () -> Unit,
+        onSuccess: (requestId: Long) -> Unit,
         onError: (String) -> Unit,
     ) {
         sendRequestCalls += receiverId
-        sendRequestError.let { if (it == null) onSuccess() else onError(it) }
+        mutationGate?.await()
+        sendRequestError.let { if (it == null) onSuccess(sentRequestId) else onError(it) }
     }
 
     override suspend fun acceptRequest(
@@ -67,6 +75,7 @@ class FakeFriendsRepository : FriendsRepository {
         onError: (String) -> Unit,
     ) {
         acceptRequestCalls += requestId
+        mutationGate?.await()
         acceptRequestError.let { if (it == null) onSuccess() else onError(it) }
     }
 
@@ -85,6 +94,7 @@ class FakeFriendsRepository : FriendsRepository {
         onError: (String) -> Unit,
     ) {
         cancelRequestCalls += requestId
+        mutationGate?.await()
         cancelRequestError.let { if (it == null) onSuccess() else onError(it) }
     }
 }

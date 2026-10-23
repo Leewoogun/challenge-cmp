@@ -22,7 +22,7 @@ interface FriendsRemoteDataSource {
 
     suspend fun sendRequest(
         receiverId: Long,
-        onSuccess: () -> Unit,
+        onSuccess: (requestId: Long) -> Unit,
         onError: (String) -> Unit,
     )
 
