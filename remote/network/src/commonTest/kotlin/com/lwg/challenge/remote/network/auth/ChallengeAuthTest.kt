@@ -106,6 +106,17 @@ class ChallengeAuthTest {
         assertNull(recorded.single().authorization)
     }
 
+    // 이미지 로더가 같은 클라이언트를 쓰므로 외부 CDN 요청에 우리 토큰이 실리면 유출이다.
+    @Test
+    fun `외부 호스트 요청에는 토큰이 선제 부착되지 않는다`() = runTest {
+        val recorded = mutableListOf<RecordedRequest>()
+        val client = testClient(FakeTokenProvider(), recorded = recorded) { respondJson("{}") }
+
+        client.get("https://k.kakaocdn.net/dn/abc/img_640x640.jpg")
+
+        assertNull(recorded.single().authorization)
+    }
+
     @Test
     fun `access 토큰이 비어 있으면 어떤 요청에도 헤더가 붙지 않는다`() = runTest {
         val recorded = mutableListOf<RecordedRequest>()

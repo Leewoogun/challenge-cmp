@@ -28,7 +28,7 @@ import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.feature.challenge.detail.contract.HeadlineTone
-import com.lwg.challenge.ui.components.ProfilePlaceholder
+import com.lwg.challenge.ui.components.ProfileImage
 import com.lwg.challenge.ui.components.challengeOutcomeVisualOf
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -38,7 +38,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 internal fun VsHeaderCard(
     myNickname: String,
+    myProfileImageUrl: String?,
     opponentNickname: String,
+    opponentProfileImageUrl: String?,
     headlineText: String,
     headlineTone: HeadlineTone,
     modifier: Modifier = Modifier,
@@ -57,11 +59,11 @@ internal fun VsHeaderCard(
                 horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                PartyColumn(nickname = myNickname)
+                PartyColumn(nickname = myNickname, profileImageUrl = myProfileImageUrl)
 
                 VsColumn()
 
-                PartyColumn(nickname = opponentNickname)
+                PartyColumn(nickname = opponentNickname, profileImageUrl = opponentProfileImageUrl)
             }
 
             VerticalSpacer(16.dp)
@@ -127,12 +129,13 @@ private fun outcomeVisual(outcome: ChallengeOutcome): HeadlineVisual =
     with(challengeOutcomeVisualOf(outcome)) { HeadlineVisual(accent = accent, icon = icon) }
 
 @Composable
-private fun PartyColumn(nickname: String) {
+private fun PartyColumn(nickname: String, profileImageUrl: String?) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        ProfilePlaceholder(
+        ProfileImage(
+            imageUrl = profileImageUrl,
             nickname = nickname,
             size = 64.dp,
             shape = RoundedCornerShape(20.dp),
@@ -175,7 +178,9 @@ private fun VsHeaderCardBeforeDeadlinePreview() {
     VsHeaderCardPreviewContainer {
         VsHeaderCard(
             myNickname = "나",
+            myProfileImageUrl = null,
             opponentNickname = "우건",
+            opponentProfileImageUrl = null,
             headlineText = "남은 시간: 5시간 32분",
             headlineTone = HeadlineTone.URGENT,
         )
@@ -188,7 +193,9 @@ private fun VsHeaderCardAfterDeadlinePreview() {
     VsHeaderCardPreviewContainer {
         VsHeaderCard(
             myNickname = "나",
+            myProfileImageUrl = null,
             opponentNickname = "우건",
+            opponentProfileImageUrl = null,
             headlineText = "판정 대기 중",
             headlineTone = HeadlineTone.NEUTRAL,
         )
@@ -201,7 +208,9 @@ private fun VsHeaderCardWinPreview() {
     VsHeaderCardPreviewContainer {
         VsHeaderCard(
             myNickname = "나",
+            myProfileImageUrl = null,
             opponentNickname = "우건",
+            opponentProfileImageUrl = null,
             headlineText = "승리",
             headlineTone = HeadlineTone.WIN,
         )
@@ -214,7 +223,9 @@ private fun VsHeaderCardLosePreview() {
     VsHeaderCardPreviewContainer {
         VsHeaderCard(
             myNickname = "나",
+            myProfileImageUrl = null,
             opponentNickname = "우건",
+            opponentProfileImageUrl = null,
             headlineText = "패배",
             headlineTone = HeadlineTone.LOSE,
         )
@@ -227,7 +238,9 @@ private fun VsHeaderCardDrawPreview() {
     VsHeaderCardPreviewContainer {
         VsHeaderCard(
             myNickname = "나",
+            myProfileImageUrl = null,
             opponentNickname = "우건",
+            opponentProfileImageUrl = null,
             headlineText = "무승부",
             headlineTone = HeadlineTone.DRAW,
         )
@@ -241,7 +254,9 @@ private fun VsHeaderCardForfeitedPreview() {
     VsHeaderCardPreviewContainer {
         VsHeaderCard(
             myNickname = "나",
+            myProfileImageUrl = null,
             opponentNickname = "우건",
+            opponentProfileImageUrl = null,
             headlineText = "승리",
             headlineTone = HeadlineTone.WIN,
             forfeitText = "우건님이 기권했어요",

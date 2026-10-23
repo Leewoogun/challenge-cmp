@@ -23,7 +23,7 @@ import com.lwg.challenge.feature.ranking.PREVIEW_LONG_NICKNAME
 import com.lwg.challenge.feature.ranking.PreviewLoserRankingEntries
 import com.lwg.challenge.feature.ranking.contract.LoserRankingItemState
 import com.lwg.challenge.feature.ranking.contract.RankEmphasis
-import com.lwg.challenge.ui.components.ProfilePlaceholder
+import com.lwg.challenge.ui.components.ProfileImage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -71,7 +71,8 @@ internal fun LoserRankRow(
                 modifier = Modifier.width(28.dp),
             )
 
-            ProfilePlaceholder(
+            ProfileImage(
+                imageUrl = item.profileImageUrl,
                 nickname = item.displayName,
                 size = 40.dp,
                 shape = RoundedCornerShape(16.dp),

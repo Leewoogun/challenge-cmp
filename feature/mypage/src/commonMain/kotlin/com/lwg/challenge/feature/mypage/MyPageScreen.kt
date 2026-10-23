@@ -50,6 +50,7 @@ internal fun MyPageScreen(
     ) {
         ProfileCard(
             nickname = uiState.nickname,
+            profileImageUrl = uiState.userInfo?.profileImageUrl,
             summary = uiState.recordSummary,
             record = uiState.record,
             muted = uiState.isRecordMuted,

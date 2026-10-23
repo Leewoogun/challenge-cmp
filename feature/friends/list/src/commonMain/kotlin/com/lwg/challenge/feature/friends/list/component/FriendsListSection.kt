@@ -12,16 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Friend
-import com.lwg.challenge.feature.friends.list.contract.FriendItemState
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 친구 목록 섹션. design.md §A.2 — 헤더 "친구 N명" + [FriendListItem] 리스트.
- */
+/** 친구 목록 섹션 — 헤더 "친구 N명" + [FriendListItem] 리스트. */
 @Composable
 internal fun FriendsListSection(
-    friends: List<FriendItemState>,
+    friends: List<Friend>,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -46,7 +43,6 @@ internal fun FriendsListSection(
 @Preview
 @Composable
 private fun FriendsListSectionPreview() {
-    val now = LocalDateTime.parse("2026-06-27T12:00:00")
     ChallengeTheme {
         Box(
             modifier = Modifier
@@ -55,8 +51,8 @@ private fun FriendsListSectionPreview() {
         ) {
             FriendsListSection(
                 friends = listOf(
-                    FriendItemState(Friend(userId = 1, nickname = "우건", profileImageUrl = null, since = LocalDateTime.parse("2026-06-24T12:00:00")), now),
-                    FriendItemState(Friend(userId = 2, nickname = "도전자", profileImageUrl = null, since = LocalDateTime.parse("2026-06-17T12:00:00")), now),
+                    Friend(userId = 1, nickname = "우건", profileImageUrl = null, since = LocalDateTime.parse("2026-06-24T12:00:00")),
+                    Friend(userId = 2, nickname = "도전자", profileImageUrl = null, since = LocalDateTime.parse("2026-06-17T12:00:00")),
                 ),
             )
         }

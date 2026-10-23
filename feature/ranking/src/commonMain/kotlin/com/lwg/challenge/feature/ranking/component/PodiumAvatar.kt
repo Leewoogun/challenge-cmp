@@ -7,30 +7,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.ui.components.ProfilePlaceholder
+import com.lwg.challenge.ui.components.ProfileImage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val AvatarShape = RoundedCornerShape(16.dp)
 
-/**
- * 포디움 아바타.
- *
- * [brush] 가 null 이면 공용 [ProfilePlaceholder] 를 그대로 쓴다. Brush 배경(1위 fire)일 때만
- * 직접 그리는데, [ProfilePlaceholder] 의 배경 파라미터가 `Color` 라 Brush 를 넘길 수 없기 때문이다.
- * 호출부가 4개 feature 라 공용 컴포넌트에 `Brush?` 를 추가하지 않고 여기서 분기한다. (design.md §4.2)
- */
+/** 포디움 아바타. [brush](1위 fire) 가 있으면 그 위에 투명 배경으로 [ProfileImage] 를 얹는다. */
 @Composable
 internal fun PodiumAvatar(
+    imageUrl: String?,
     nickname: String,
     size: Dp,
     textStyle: TextStyle,
@@ -38,7 +33,8 @@ internal fun PodiumAvatar(
     brush: Brush? = null,
 ) {
     if (brush == null) {
-        ProfilePlaceholder(
+        ProfileImage(
+            imageUrl = imageUrl,
             nickname = nickname,
             modifier = modifier,
             size = size,
@@ -53,13 +49,15 @@ internal fun PodiumAvatar(
             .size(size)
             .clip(AvatarShape)
             .background(brush),
-        contentAlignment = Alignment.Center,
     ) {
-        Text(
-            // 이니셜 규칙은 ProfilePlaceholder 와 동일해야 한다 — 갈리면 1위만 다르게 보인다.
-            text = nickname.trim().firstOrNull()?.uppercase() ?: "",
-            style = textStyle,
-            color = ChallengeTheme.colorScheme.onPrimary,
+        ProfileImage(
+            imageUrl = imageUrl,
+            nickname = nickname,
+            size = size,
+            shape = AvatarShape,
+            backgroundColor = Color.Transparent,
+            textStyle = textStyle,
+            textColor = ChallengeTheme.colorScheme.onPrimary,
         )
     }
 }
@@ -76,11 +74,13 @@ private fun PodiumAvatarPreview() {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             PodiumAvatar(
+                imageUrl = null,
                 nickname = "우건",
                 size = 56.dp,
                 textStyle = ChallengeTheme.typography.medium20,
             )
             PodiumAvatar(
+                imageUrl = null,
                 nickname = "준혁",
                 size = 64.dp,
                 textStyle = ChallengeTheme.typography.medium24,
@@ -100,6 +100,7 @@ private fun PodiumAvatarBlankNicknamePreview() {
                 .padding(24.dp),
         ) {
             PodiumAvatar(
+                imageUrl = null,
                 nickname = "   ",
                 size = 64.dp,
                 textStyle = ChallengeTheme.typography.medium24,

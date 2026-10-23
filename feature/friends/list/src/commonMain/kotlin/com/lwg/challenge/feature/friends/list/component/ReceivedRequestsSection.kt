@@ -14,18 +14,15 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserBrief
-import com.lwg.challenge.feature.friends.list.contract.FriendRequestItemState
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 받은 요청 섹션. design.md §A.2 — 헤더 "받은 요청 N건"("N건" primary) + [FriendRequestCard] 리스트.
- */
+/** 받은 요청 섹션 — 헤더 "받은 요청 N건" + [FriendRequestCard] 리스트. */
 @Composable
 internal fun ReceivedRequestsSection(
-    requests: List<FriendRequestItemState>,
-    onAccept: (FriendRequestItemState) -> Unit,
-    onReject: (FriendRequestItemState) -> Unit,
+    requests: List<FriendRequest>,
+    onAccept: (FriendRequest) -> Unit,
+    onReject: (FriendRequest) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -47,8 +44,8 @@ internal fun ReceivedRequestsSection(
 
         requests.forEach { request ->
             FriendRequestCard(
-                profileImageUrl = request.profileImageUrl,
-                nickname = request.nickname,
+                profileImageUrl = request.fromUser.profileImageUrl,
+                nickname = request.fromUser.nickname,
                 onAccept = { onAccept(request) },
                 onReject = { onReject(request) },
             )
@@ -59,7 +56,6 @@ internal fun ReceivedRequestsSection(
 @Preview
 @Composable
 private fun ReceivedRequestsSectionPreview() {
-    val now = LocalDateTime.parse("2026-06-27T12:00:00")
     ChallengeTheme {
         Box(
             modifier = Modifier
@@ -68,21 +64,15 @@ private fun ReceivedRequestsSectionPreview() {
         ) {
             ReceivedRequestsSection(
                 requests = listOf(
-                    FriendRequestItemState(
-                        FriendRequest(
-                            requestId = 1,
-                            fromUser = UserBrief(userId = 1, nickname = "도전왕", profileImageUrl = null),
-                            requestedAt = LocalDateTime.parse("2026-06-26T12:00:00"),
-                        ),
-                        now,
+                    FriendRequest(
+                        requestId = 1,
+                        fromUser = UserBrief(userId = 1, nickname = "도전왕", profileImageUrl = null),
+                        requestedAt = LocalDateTime.parse("2026-06-26T12:00:00"),
                     ),
-                    FriendRequestItemState(
-                        FriendRequest(
-                            requestId = 2,
-                            fromUser = UserBrief(userId = 2, nickname = "우건", profileImageUrl = null),
-                            requestedAt = LocalDateTime.parse("2026-06-25T12:00:00"),
-                        ),
-                        now,
+                    FriendRequest(
+                        requestId = 2,
+                        fromUser = UserBrief(userId = 2, nickname = "우건", profileImageUrl = null),
+                        requestedAt = LocalDateTime.parse("2026-06-25T12:00:00"),
                     ),
                 ),
                 onAccept = {},

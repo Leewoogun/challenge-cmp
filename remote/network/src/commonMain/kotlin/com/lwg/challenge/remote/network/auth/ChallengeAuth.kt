@@ -13,6 +13,7 @@ import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.Url
 import io.ktor.http.contentType
 
 private const val CODE_SUCCESS = 200
@@ -38,6 +39,8 @@ fun HttpClientConfig<*>.installChallengeAuth(
     authEventBus: AuthEventBus,
     baseUrl: String,
 ) {
+    val apiHost = Url(baseUrl).host
+
     install(Auth) {
         bearer {
             loadTokens {
@@ -82,8 +85,10 @@ fun HttpClientConfig<*>.installChallengeAuth(
                 }
             }
 
+            // 같은 클라이언트로 외부 이미지(카카오 프로필 등)도 받으므로 우리 서버 호스트에만 토큰을 붙인다.
             sendWithoutRequest { request ->
-                request.url.pathSegments.filter { it.isNotEmpty() }.joinToString("/") !in UNAUTHENTICATED_PATHS
+                request.url.host == apiHost &&
+                    request.url.pathSegments.filter { it.isNotEmpty() }.joinToString("/") !in UNAUTHENTICATED_PATHS
             }
         }
     }

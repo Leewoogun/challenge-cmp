@@ -78,7 +78,9 @@ internal fun ChallengeDetailScreen(
     ) {
         VsHeaderCard(
             myNickname = uiState.myLabel,
+            myProfileImageUrl = uiState.detail.me.profileImageUrl,
             opponentNickname = uiState.detail.opponent.nickname,
+            opponentProfileImageUrl = uiState.detail.opponent.profileImageUrl,
             headlineText = uiState.headline.text,
             headlineTone = uiState.headline.tone,
             forfeitText = uiState.forfeitNoticeText,

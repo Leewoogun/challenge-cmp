@@ -22,11 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.ui.components.ProfilePlaceholder
+import com.lwg.challenge.ui.components.ProfileImage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * @param profileImageUrl 원격 프로필 URL. 현재는 렌더에 사용하지 않는다(이미지 로더 도입 시 후속).
  * @param selected 선택 여부. 선택 시 2.dp primary border 로 강조한다.
  */
 @Composable
@@ -54,7 +53,7 @@ internal fun FriendPickItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            ProfilePlaceholder(nickname = nickname)
+            ProfileImage(imageUrl = profileImageUrl, nickname = nickname)
 
             Text(
                 text = nickname,

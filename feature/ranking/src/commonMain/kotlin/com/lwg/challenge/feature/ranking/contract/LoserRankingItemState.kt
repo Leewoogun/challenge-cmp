@@ -25,6 +25,7 @@ data class LoserRankingItemState(
 ) {
 
     val userId: Long get() = model.userId
+    val profileImageUrl: String? get() = model.profileImageUrl
     val rankText: String get() = model.rank.toString()
     val isMe: Boolean get() = model.isMe
 

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -15,15 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil3.compose.SubcomposeAsyncImage
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/** 프로필 이미지 자리. 이미지 로더 부재로 닉네임 첫 글자 이니셜만 렌더한다. */
+/** 프로필 이미지. URL 이 없거나 로딩 중·실패면 닉네임 이니셜을 보여준다. */
 @Composable
-fun ProfilePlaceholder(
+fun ProfileImage(
+    imageUrl: String?,
     nickname: String,
     modifier: Modifier = Modifier,
     size: Dp = 48.dp,
@@ -39,6 +43,25 @@ fun ProfilePlaceholder(
             .background(backgroundColor),
         contentAlignment = Alignment.Center,
     ) {
+        if (imageUrl == null) {
+            NicknameInitial(nickname = nickname, textStyle = textStyle, textColor = textColor)
+        } else {
+            SubcomposeAsyncImage(
+                model = imageUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                loading = { NicknameInitial(nickname = nickname, textStyle = textStyle, textColor = textColor) },
+                error = { NicknameInitial(nickname = nickname, textStyle = textStyle, textColor = textColor) },
+            )
+        }
+    }
+}
+
+/** SubcomposeAsyncImage 슬롯은 최소 크기를 강제(propagateMinConstraints)하므로 Box 로 감싸 가운데 둔다. */
+@Composable
+private fun NicknameInitial(nickname: String, textStyle: TextStyle, textColor: Color) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(
             text = nickname.trim().firstOrNull()?.uppercase() ?: "",
             style = textStyle,
@@ -49,21 +72,21 @@ fun ProfilePlaceholder(
 
 @Preview
 @Composable
-private fun ProfilePlaceholderPreview() {
+private fun ProfileImagePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(24.dp),
         ) {
-            ProfilePlaceholder(nickname = "우건")
+            ProfileImage(imageUrl = null, nickname = "우건")
         }
     }
 }
 
 @Preview
 @Composable
-private fun ProfilePlaceholderVariantsPreview() {
+private fun ProfileImageVariantsPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
@@ -72,23 +95,38 @@ private fun ProfilePlaceholderVariantsPreview() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            ProfilePlaceholder(nickname = "도윤")
-            ProfilePlaceholder(nickname = "도전자", size = 44.dp)
-            ProfilePlaceholder(nickname = "절친", size = 32.dp, shape = CircleShape)
+            ProfileImage(imageUrl = null, nickname = "도윤")
+            ProfileImage(imageUrl = null, nickname = "도전자", size = 44.dp)
+            ProfileImage(imageUrl = null, nickname = "절친", size = 32.dp, shape = CircleShape)
         }
     }
 }
 
 @Preview
 @Composable
-private fun ProfilePlaceholderBlankNicknamePreview() {
+private fun ProfileImageBlankNicknamePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(24.dp),
         ) {
-            ProfilePlaceholder(nickname = "   ")
+            ProfileImage(imageUrl = null, nickname = "   ")
+        }
+    }
+}
+
+/** URL 이 있으면 로딩·실패 슬롯도 이니셜이다. 프리뷰는 네트워크를 못 타 로딩 슬롯까지만 보인다. */
+@Preview
+@Composable
+private fun ProfileImageWithUrlPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background)
+                .padding(24.dp),
+        ) {
+            ProfileImage(imageUrl = "https://k.kakaocdn.net/dn/sample/img_640x640.jpg", nickname = "우건")
         }
     }
 }

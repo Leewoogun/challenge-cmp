@@ -16,18 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.ui.components.ProfilePlaceholder
+import com.lwg.challenge.ui.components.ProfileImage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 친구 목록 항목 카드. design.md §A.4/§C.406 — 친구 1명을 가로 1줄로 표시.
- *
- * 이미지 로딩 라이브러리 부재로 [profileImageUrl] 은 시그니처에만 받고 실제 로드는 하지 않는다.
- * 프로필 자리는 닉네임 첫 글자 이니셜 placeholder(secondary 배경)로 렌더한다.
- *
- * @param profileImageUrl 원격 프로필 URL. 현재는 렌더에 사용하지 않는다(이미지 로더 도입 시 후속).
- * @param nickname 친구 닉네임(`bold14` + `onBackground`, 1줄 truncate).
- */
+/** 친구 목록 항목 카드. 친구 1명을 가로 1줄로 표시. */
 @Composable
 internal fun FriendListItem(
     profileImageUrl: String?,
@@ -45,7 +37,7 @@ internal fun FriendListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            ProfilePlaceholder(nickname = nickname)
+            ProfileImage(imageUrl = profileImageUrl, nickname = nickname)
 
             Text(
                 text = nickname,

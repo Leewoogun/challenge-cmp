@@ -91,17 +91,6 @@ class FriendsViewModelTest {
     }
 
     @Test
-    fun `showMessage 호출 시 ShowMessage effect 가 발행된다`() = runTest {
-        val viewModel = createViewModel()
-
-        viewModel.uiEffect.test {
-            viewModel.showMessage("준비 중입니다")
-            assertEquals(FriendsUiEffect.ShowMessage("준비 중입니다"), awaitItem())
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
     fun `init 시 받은 요청과 친구 목록을 둘 다 로드한다`() = runTest {
         fakeRepository.receivedRequestsFlow.value = listOf(sampleRequest(10))
         fakeRepository.friendsFlow.value = listOf(sampleFriend(100), sampleFriend(101))
@@ -113,16 +102,6 @@ class FriendsViewModelTest {
         assertEquals(10L, state.receivedRequests.first().requestId)
         assertEquals(2, state.friends.size)
         assertEquals(listOf(100L, 101L), state.friends.map { it.userId })
-    }
-
-    @Test
-    fun `since 가 null 이면 sinceText 는 - 로 표기된다`() = runTest {
-        fakeRepository.friendsFlow.value = listOf(sampleFriend(100).copy(since = null))
-
-        val viewModel = createViewModel()
-        subscribeUiState(viewModel)
-        val state = assertIs<FriendsUiState.Data>(viewModel.uiState.value)
-        assertEquals("-", state.friends.first().sinceText)
     }
 
     @Test

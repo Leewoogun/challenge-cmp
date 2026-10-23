@@ -18,6 +18,8 @@ kotlin {
             // SignatureCanvas / SignatureView 가 도메인 모델 Signature 를 직접 받는다.
             // Clean Arch 방향(UI → Domain)에 맞고 :domain:model 은 순수 Kotlin 이라 순환이 없다.
             implementation(projects.domain.model)
+            // ProfileImage 가 원격 프로필을 그린다. Fetcher 는 composeApp 이 싱글턴 ImageLoader 에 심었다.
+            implementation(libs.coil)
         }
         androidMain.dependencies {
             // PlatformBackHandler 의 android actual 이 BackHandler 를 쓴다.

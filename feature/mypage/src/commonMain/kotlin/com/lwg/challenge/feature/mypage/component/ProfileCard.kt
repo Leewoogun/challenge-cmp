@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.UserRecord
-import com.lwg.challenge.ui.components.ProfilePlaceholder
+import com.lwg.challenge.ui.components.ProfileImage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -36,6 +36,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 internal fun ProfileCard(
     nickname: String,
+    profileImageUrl: String?,
     summary: String,
     record: UserRecord?,
     muted: Boolean,
@@ -54,7 +55,8 @@ internal fun ProfileCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            ProfilePlaceholder(
+            ProfileImage(
+                imageUrl = profileImageUrl,
                 nickname = nickname,
                 size = 64.dp,
                 shape = RoundedCornerShape(20.dp),
@@ -123,6 +125,7 @@ private fun ProfileCardEmptyRecordPreview() {
         ) {
             ProfileCard(
                 nickname = "이우건",
+                profileImageUrl = null,
                 summary = "아직 기록이 없어요",
                 record = UserRecord.Empty,
                 muted = true,
@@ -142,6 +145,7 @@ private fun ProfileCardRecordFailedPreview() {
         ) {
             ProfileCard(
                 nickname = "이우건",
+                profileImageUrl = null,
                 summary = "전적을 불러오지 못했어요",
                 record = null,
                 muted = false,
@@ -161,6 +165,7 @@ private fun ProfileCardAllDrawPreview() {
         ) {
             ProfileCard(
                 nickname = "이우건",
+                profileImageUrl = null,
                 summary = "총 3챌린지 · 승률 0%",
                 record = UserRecord(win = 0, lose = 0, draw = 3, currentStreak = 0),
                 muted = false,
@@ -180,6 +185,7 @@ private fun ProfileCardPreview() {
         ) {
             ProfileCard(
                 nickname = "이우건",
+                profileImageUrl = null,
                 summary = "총 12챌린지 · 승률 58%",
                 record = UserRecord(win = 7, lose = 3, draw = 2, currentStreak = 3),
                 muted = false,
@@ -199,6 +205,7 @@ private fun ProfileCardLongNicknamePreview() {
         ) {
             ProfileCard(
                 nickname = "오늘도지지않는불꽃같은도전자이우건입니다",
+                profileImageUrl = null,
                 summary = "총 12챌린지 · 승률 58%",
                 record = UserRecord(win = 7, lose = 3, draw = 2, currentStreak = 3),
                 muted = false,

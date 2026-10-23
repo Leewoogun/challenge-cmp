@@ -19,7 +19,7 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 친구 추가/초대 2-up 액션 행. design.md §A.2/§A.4 — primary [친구 추가] + outline [친구 초대].
+ * 친구 추가/초대 2-up 액션 행. primary [친구 추가] + outline [친구 초대].
  */
 @Composable
 internal fun FriendsActionRow(

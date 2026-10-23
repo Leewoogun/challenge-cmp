@@ -35,8 +35,11 @@ feature/{name}/
 ├── build.gradle.kts
 └── src/commonMain/kotlin/com/lwg/cooking/feature/{name}/
     ├── {Name}Route.kt           # Route (state collect, event 전달) + Content (상태 분기)
-    ├── {Name}Screen.kt          # 실제 UI + Preview
     ├── {Name}ViewModel.kt       # 상태 관리
+    ├── screen/                  # UiState 분기별 화면 (1파일 = 1화면)
+    │   ├── {Name}Screen.kt      # Data 화면 + Preview
+    │   ├── {Name}LoadingScreen.kt
+    │   └── {Name}EmptyScreen.kt # (Empty/Error 등 분기가 있을 때)
     ├── contract/
     │   ├── {Name}State.kt       # UiState sealed interface
     │   └── {Name}Effect.kt      # UiEffect + ModalEffect
@@ -247,7 +250,14 @@ private fun {Name}Content(
 
 ### 6단계: Screen 구현
 
-**위치**: `.../{Name}Screen.kt`
+**위치**: `.../screen/{Name}Screen.kt` (패키지 `...feature.{name}.screen`)
+
+#### UiState 분기별 화면 파일 분리 (필수)
+
+- UiState 분기(Loading / Empty / Error / Data …)마다 화면을 **`screen/` 폴더에 1파일 = 1화면**으로 둔다
+- 이름은 `{Name}{State}Screen` — Data 화면만 `{Name}Screen` (예: `FriendsScreen`, `FriendsLoadingScreen`, `FriendsEmptyScreen`)
+- 한 파일에 여러 화면을 두지 않는다. 각 파일에는 **그 화면의 Preview 만** 둔다
+- 다이얼로그·하위 UI 는 `screen/` 이 아니라 `component/` 에 둔다
 
 Screen은 **실제 UI**를 그리는 곳입니다. `State.Data` 타입만 파라미터로 받으며, Preview를 작성할 수 있습니다.
 
@@ -290,7 +300,8 @@ internal fun {Name}Screen(
    - Preview 는 반드시 `ChallengeTheme { }` 로 래핑하고 배경색을 줘서 다크 톤에서 가시성 확보
 
 4. **Screen 에도 `@Preview` 를 작성한다**
-   - 주요 UiState 분기별 (예: Idle / Loading / Error)
+   - 각 `screen/{Name}{State}Screen.kt` 는 자기 화면의 Preview 만 가진다
+   - Data 화면 안에서 갈리는 장면(예: 목록만 / 요청+목록)은 `{Name}Screen.kt` 에 장면별 Preview 를 둔다
 
 #### 예시
 
@@ -385,7 +396,8 @@ MyContent(
 
 ### Route / Content / Screen
 - [ ] Route → Content → Screen 3단계 구조인지
-- [ ] Route는 `{Name}Route.kt` 파일, Screen은 `{Name}Screen.kt` 별도 파일인지
+- [ ] Route는 `{Name}Route.kt` 파일, Screen은 `screen/{Name}Screen.kt` 별도 파일인지
+- [ ] Loading / Empty / Error 화면이 `screen/{Name}{State}Screen.kt` 로 각각 분리되어 있는지 (한 파일에 여러 화면 금지)
 - [ ] Route에서 `collectAsStateWithLifecycle`으로 상태 수집하는지
 - [ ] Route에서 Koin ViewModel은 `koinViewModel()`으로 주입하는지
 - [ ] Content에서 State에 따라 Loading/Data 분기하는지
@@ -396,7 +408,7 @@ MyContent(
 - [ ] sub-Composable 은 `component/{Name}.kt` 별도 파일로 분리되어 있는지 (1파일=1컴포넌트)
 - [ ] 각 컴포넌트 파일 하단에 `private @Composable {Name}Preview()` 가 있는지
 - [ ] 상태 분기가 있는 컴포넌트는 분기별 Preview 가 모두 있는지
-- [ ] Screen.kt 에도 주요 UiState 분기별 Preview 가 있는지
+- [ ] 각 screen 파일에 자기 화면의 Preview 만 있는지
 
 ### Koin 모듈
 - [ ] `@Module @ComponentScan` 모듈이 정의되어 있는지

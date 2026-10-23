@@ -76,6 +76,7 @@ internal fun PodiumColumn(
         }
 
         PodiumAvatar(
+            imageUrl = item.profileImageUrl,
             nickname = item.displayName,
             size = avatarSize,
             textStyle = avatarTextStyle,

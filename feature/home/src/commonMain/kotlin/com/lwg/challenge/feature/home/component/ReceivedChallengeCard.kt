@@ -29,7 +29,7 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
 import com.lwg.challenge.ui.components.ChallengePenaltyArea
-import com.lwg.challenge.ui.components.ProfilePlaceholder
+import com.lwg.challenge.ui.components.ProfileImage
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -59,6 +59,7 @@ internal fun ReceivedChallengeCard(
         Column(modifier = Modifier.padding(12.dp)) {
             HeaderRow(
                 opponentNickname = challenge.opponent.nickname,
+                opponentProfileImageUrl = challenge.opponent.profileImageUrl,
                 deadlineText = deadlineText,
                 isUrgent = isUrgent,
             )
@@ -99,6 +100,7 @@ internal fun ReceivedChallengeCard(
 @Composable
 private fun HeaderRow(
     opponentNickname: String,
+    opponentProfileImageUrl: String?,
     deadlineText: String,
     isUrgent: Boolean,
 ) {
@@ -113,7 +115,7 @@ private fun HeaderRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ProfilePlaceholder(nickname = opponentNickname)
+        ProfileImage(imageUrl = opponentProfileImageUrl, nickname = opponentNickname)
 
         Column(
             modifier = Modifier.weight(1f),

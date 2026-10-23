@@ -21,13 +21,14 @@ Kotlin Multiplatform (KMP) + Compose Multiplatform 기반 애플리케이션. �
 | Compose UI 코드 작성하는 모든 상황 | `design-system` | **자동 적용** - 디자인 시스템 색상/타이포/컴포넌트 규칙 참조 |
 | "버그 수정", "에러", "크래시", "오류 수정", "문제 해결" | `/bugfix` | 이슈 분석 → 원인 탐색 → 영향 범위 파악 → 수정 → 빌드 검증 |
 | "기존 기능 수정", "필드 추가/삭제", "API 변경 반영", "화면 수정" | `/modify-feature` | 영향 레이어 분석 → 변경 계획 → 레이어별 수정 → 경계면 검증 |
+| "XX 모듈 정리/리팩토링", "컨벤션에 맞게 고쳐줘", "State/ViewModel 컨벤션 점검" | `/refactor-feature` | 기존 feature 모듈 점검 리포트 → 결정 → 레이어별 정리 (동작 유지) |
 | "코드 정리", "리팩토링", "중복 제거", "코드 개선" | `simplify` | 변경 코드의 재사용성·품질·효율성 리뷰 후 수정 |
 | "QA", "통합 검증", "경계면 검사" | Agent(`qa-integration`) | 레이어 간 경계면 교차 비교 (DTO↔Mapper↔Domain, Koin 등록 등) |
 | "코드 리뷰", "ViewModel 리뷰", "Flow 리뷰" | Agent(`review-viewmodel`) | ViewModel Flow 파이프라인 중복 API 호출·예외처리 누락 리뷰 |
 
 ### Skill 선택 우선순위
 
-1. `/full-feature` → 2. `/modify-feature` → 3. `/bugfix` → 4. 레이어별 Skill (`/domain`, `/data-remote`, `/data-local`, `/feature`) → 5. `/viewmodel` → 6. `/navigation` → 7. `/figma-ui` → 8. 테스트 Skill
+1. `/full-feature` → 2. `/modify-feature` → 3. `/refactor-feature` → 4. `/bugfix` → 5. 레이어별 Skill (`/domain`, `/data-remote`, `/data-local`, `/feature`) → 6. `/viewmodel` → 7. `/navigation` → 8. `/figma-ui` → 9. 테스트 Skill
 
 ## 프로젝트 아키텍처
 
@@ -162,6 +163,12 @@ data class ChallengeItemState(private val model: Challenge) {
 `get()` 주의: 매 호출마다 계산되며 캐시되지 않는다.
 - 값 타입(String/Boolean/Int) 반환은 사실상 무료 — 그냥 쓴다
 - **새 참조 객체(List/Map/람다)를 반환하면 금지** — 매번 다른 인스턴스라 하위 Composable 의 skipping 이 깨진다. 생성자 `val` 로 고정하거나 ViewModel 매핑 시점에 확정할 것
+
+### 화면 파일 구조
+- UiState 분기(Loading / Empty / Error / Data)마다 화면을 `screen/` 폴더에 **1파일 = 1화면**으로 둔다
+  - 이름: `{Name}{State}Screen` (Data 는 `{Name}Screen`) — 예: `screen/FriendsScreen.kt`, `screen/FriendsLoadingScreen.kt`, `screen/FriendsEmptyScreen.kt`
+  - 각 파일에는 그 화면의 Preview 만 둔다. 한 파일에 여러 화면을 몰아넣지 않는다
+- 다이얼로그·하위 UI 는 `component/` 에 둔다
 
 ### Compose Preview 규칙 (필수)
 - 새 `@Composable` UI를 작성/수정하면 **반드시 같은 파일 하단에 `@Preview` 를 함께 작성한다** (Screen / Component / designsystem 공용 컴포넌트 모두 해당)

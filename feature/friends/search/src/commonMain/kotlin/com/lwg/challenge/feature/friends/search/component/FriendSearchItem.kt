@@ -30,12 +30,11 @@ import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Relation
+import com.lwg.challenge.ui.components.ProfileImage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 검색 결과 1행. design.md §B.3/§B.5/§C — 프로필 + 닉네임 + relation 5종 액션.
- *
- * 이미지 로더 부재로 [profileImageUrl] 은 시그니처에만 받고 닉네임 이니셜 placeholder 로 렌더한다.
+ * 검색 결과 1행 — 프로필 + 닉네임 + relation 5종 액션.
  *
  * @param onClickCancel `relation == REQUEST_SENT` 일 때만 non-null (요청 취소).
  */
@@ -59,7 +58,7 @@ internal fun FriendSearchItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            SearchProfilePlaceholder(nickname = nickname)
+            ProfileImage(imageUrl = profileImageUrl, nickname = nickname, size = 44.dp)
 
             Text(
                 text = nickname,
@@ -76,26 +75,6 @@ internal fun FriendSearchItem(
                 onClickCancel = onClickCancel,
             )
         }
-    }
-}
-
-@Composable
-private fun SearchProfilePlaceholder(
-    nickname: String,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .size(44.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(ChallengeTheme.colorScheme.secondary),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = nickname.trim().firstOrNull()?.uppercase() ?: "",
-            style = ChallengeTheme.typography.medium20,
-            color = ChallengeTheme.colorScheme.onSurface,
-        )
     }
 }
 

@@ -7,9 +7,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.ChallengeTopBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.feature.friends.list.contract.FriendRequestItemState
+import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiEffect
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiState
+import com.lwg.challenge.feature.friends.list.screen.FriendsEmptyScreen
+import com.lwg.challenge.feature.friends.list.screen.FriendsLoadingScreen
+import com.lwg.challenge.feature.friends.list.screen.FriendsScreen
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.navigation.Route
@@ -45,8 +48,8 @@ private fun FriendsContent(
     uiState: FriendsUiState,
     onClickAddFriend: () -> Unit,
     onClickInvite: () -> Unit,
-    onAcceptRequest: (FriendRequestItemState) -> Unit,
-    onRejectRequest: (FriendRequestItemState) -> Unit,
+    onAcceptRequest: (FriendRequest) -> Unit,
+    onRejectRequest: (FriendRequest) -> Unit,
 ) {
     ChallengeScaffold(
         statusBarColor = ChallengeTheme.colorScheme.surface,
