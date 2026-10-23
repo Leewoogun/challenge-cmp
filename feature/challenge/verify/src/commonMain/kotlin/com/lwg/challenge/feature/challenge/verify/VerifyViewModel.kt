@@ -90,7 +90,6 @@ class VerifyViewModel(
                 when (val outcome = verificationRepository.submitVerification(challengeId, confirm.photo.jpegBytes)) {
                     is VerificationSubmitOutcome.Success -> _uiState.update { VerifyUiState.Done }
 
-                    // 형식·용량·권한 거부는 같은 사진에서 그대로 반복된다 — 열어 둘 길은 재촬영뿐이다.
                     is VerificationSubmitOutcome.Rejected ->
                         failSubmit(SubmitFailure(outcome.message, isRetryable = false))
 
@@ -135,8 +134,7 @@ class VerifyViewModel(
         when (permissionManager.request(AppPermission.CAMERA)) {
             PermissionStatus.GRANTED -> launchCamera()
 
-            // 방금 시스템 프롬프트에서 거절한 사람에게 곧바로 설정 안내를 얹지 않는다 —
-            // 버튼을 다시 누르면 재요청된다.
+            // 방금 거절한 사람에게 곧바로 설정 안내를 얹지 않는다. 다시 누르면 재요청된다.
             PermissionStatus.DENIED -> Unit
 
             PermissionStatus.DENIED_ALWAYS -> showPermissionSettingsGuide()

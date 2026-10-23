@@ -216,7 +216,7 @@ class VerifyViewModelTest {
         viewModel.submit()
 
         val failed = viewModel.confirm()
-        assertEquals("사진 용량이 커서 올릴 수 없어요", failed.failureMessage)
+        assertEquals("사진 용량이 커서 올릴 수 없어요", failed.failure?.message)
         assertFalse(assertNotNull(failed.failure).isRetryable)
         assertFalse(failed.canSubmit)
         assertTrue(failed.canRetake)
@@ -233,7 +233,7 @@ class VerifyViewModelTest {
         viewModel.submit()
 
         val failed = viewModel.confirm()
-        assertEquals("JPEG 사진만 올릴 수 있어요", failed.failureMessage)
+        assertEquals("JPEG 사진만 올릴 수 있어요", failed.failure?.message)
         assertFalse(assertNotNull(failed.failure).isRetryable)
     }
 
@@ -251,7 +251,7 @@ class VerifyViewModelTest {
 
         assertEquals(0, fakeVerificationRepository.getVerificationsCallCount)
         val failed = viewModel.confirm()
-        assertEquals("네트워크 오류가 발생했어요", failed.failureMessage)
+        assertEquals("네트워크 오류가 발생했어요", failed.failure?.message)
         assertTrue(assertNotNull(failed.failure).isRetryable)
         assertTrue(failed.canSubmit)
         assertTrue(failed.canRetake)

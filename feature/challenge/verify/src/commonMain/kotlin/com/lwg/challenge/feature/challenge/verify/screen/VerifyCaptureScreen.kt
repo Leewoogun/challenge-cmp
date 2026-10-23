@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.challenge.verify.component
+package com.lwg.challenge.feature.challenge.verify.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,21 +22,10 @@ import com.lwg.challenge.designsystem.components.button.NormalButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-private const val FIRST_SUBMIT_MESSAGE = "오늘의 미션 인증이 상대에게 전달돼요."
-private const val REPLACED_MESSAGE = "사진이 교체됐어요. 상대는 최신 사진을 보게 돼요."
-
-/**
- * 제출 확정 완료 화면.
- *
- * 두 완료 문구([FIRST_SUBMIT_MESSAGE], [REPLACED_MESSAGE]) 는 🟡 초안 — 문구 확정 대상이다.
- *
- * @param isReplace 교체 제출이면 알림이 나가지 않으므로 "상대에게 전달돼요" 를 쓸 수 없다.
- *   상대가 최신 사진을 보게 된다는, 실제로 일어나는 일로 바꿔 말한다.
- */
+/** 촬영 전 안내. 갤러리 진입점은 없다 — 실시간 촬영만 허용한다. */
 @Composable
-internal fun VerifyDoneSection(
-    isReplace: Boolean,
-    onDoneClick: () -> Unit,
+internal fun VerifyCaptureScreen(
+    onCaptureClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -47,16 +36,16 @@ internal fun VerifyDoneSection(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(
-            imageVector = Icons.Filled.CheckCircle,
+            imageVector = Icons.Filled.PhotoCamera,
             contentDescription = null,
             modifier = Modifier.size(64.dp),
-            tint = ChallengeTheme.colorScheme.success,
+            tint = ChallengeTheme.colorScheme.primary,
         )
 
         VerticalSpacer(20.dp)
 
         Text(
-            text = "인증이 완료됐어요 🔥",
+            text = "오늘의 미션을 인증해요",
             style = ChallengeTheme.typography.bold20,
             color = ChallengeTheme.colorScheme.onBackground,
         )
@@ -64,7 +53,7 @@ internal fun VerifyDoneSection(
         VerticalSpacer(8.dp)
 
         Text(
-            text = if (isReplace) REPLACED_MESSAGE else FIRST_SUBMIT_MESSAGE,
+            text = "인증 사진은 실시간 촬영으로만 올릴 수 있어요.\n촬영한 사진을 확인한 뒤 제출을 확정해요.",
             style = ChallengeTheme.typography.medium14,
             color = ChallengeTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -73,8 +62,8 @@ internal fun VerifyDoneSection(
         VerticalSpacer(28.dp)
 
         NormalButton(
-            text = "확인",
-            onClick = onDoneClick,
+            text = "촬영하기",
+            onClick = onCaptureClick,
             modifier = Modifier.fillMaxWidth(),
             containerColor = ChallengeTheme.colorScheme.primary,
             contentColor = ChallengeTheme.colorScheme.onPrimary,
@@ -85,26 +74,10 @@ internal fun VerifyDoneSection(
 
 @Preview
 @Composable
-private fun VerifyDoneSectionPreview() {
+private fun VerifyCaptureScreenPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            VerifyDoneSection(
-                isReplace = false,
-                onDoneClick = {},
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun VerifyDoneSectionReplacePreview() {
-    ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            VerifyDoneSection(
-                isReplace = true,
-                onDoneClick = {},
-            )
+            VerifyCaptureScreen(onCaptureClick = {})
         }
     }
 }

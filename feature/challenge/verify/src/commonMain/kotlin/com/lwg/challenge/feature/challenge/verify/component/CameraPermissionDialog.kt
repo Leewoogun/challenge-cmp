@@ -8,10 +8,7 @@ import androidx.compose.ui.Modifier
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * CAMERA 가 DENIED_ALWAYS 일 때의 설정 이동 안내.
- * 촬영이 막히면 인증 자체가 불가능한 화면이라, 부가 기능(알림)과 달리 안내 다이얼로그를 쓴다.
- */
+/** CAMERA 가 DENIED_ALWAYS 일 때의 설정 이동 안내. 촬영이 막히면 인증이 불가능해 다이얼로그로 알린다. */
 @Composable
 internal fun CameraPermissionDialog(
     onOpenSettings: () -> Unit,

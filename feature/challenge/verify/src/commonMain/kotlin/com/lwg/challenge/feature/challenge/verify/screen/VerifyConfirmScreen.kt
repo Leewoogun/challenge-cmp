@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.challenge.verify.component
+package com.lwg.challenge.feature.challenge.verify.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,13 +20,14 @@ import com.lwg.challenge.camera.CapturedPhoto
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.NormalButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.feature.challenge.verify.component.CapturedPhotoImage
 import com.lwg.challenge.feature.challenge.verify.contract.SubmitFailure
 import com.lwg.challenge.feature.challenge.verify.contract.VerifyUiState
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 미리보기 + 제출 확인. 제출은 되돌릴 수 없어 이 단계에서 재촬영 기회를 보장한다. */
 @Composable
-internal fun VerifyConfirmSection(
+internal fun VerifyConfirmScreen(
     uiState: VerifyUiState.Confirm,
     onRetakeClick: () -> Unit,
     onSubmitClick: () -> Unit,
@@ -72,11 +73,11 @@ internal fun VerifyConfirmSection(
             }
         }
 
-        if (uiState.hasFailure) {
+        uiState.failure?.let { failure ->
             VerticalSpacer(12.dp)
 
             Text(
-                text = uiState.failureMessage,
+                text = failure.message,
                 style = ChallengeTheme.typography.medium14,
                 color = ChallengeTheme.colorScheme.error,
                 textAlign = TextAlign.Center,
@@ -121,10 +122,10 @@ private fun previewConfirm(
 
 @Preview
 @Composable
-private fun VerifyConfirmSectionPreview() {
+private fun VerifyConfirmScreenPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            VerifyConfirmSection(
+            VerifyConfirmScreen(
                 uiState = previewConfirm(),
                 onRetakeClick = {},
                 onSubmitClick = {},
@@ -135,10 +136,10 @@ private fun VerifyConfirmSectionPreview() {
 
 @Preview
 @Composable
-private fun VerifyConfirmSectionSubmittingPreview() {
+private fun VerifyConfirmScreenSubmittingPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            VerifyConfirmSection(
+            VerifyConfirmScreen(
                 uiState = previewConfirm(isSubmitting = true),
                 onRetakeClick = {},
                 onSubmitClick = {},
@@ -149,10 +150,10 @@ private fun VerifyConfirmSectionSubmittingPreview() {
 
 @Preview
 @Composable
-private fun VerifyConfirmSectionFailurePreview() {
+private fun VerifyConfirmScreenFailurePreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            VerifyConfirmSection(
+            VerifyConfirmScreen(
                 uiState = previewConfirm(
                     failure = SubmitFailure(
                         message = "업로드 가능 시간이 지났어요. 다시 시도해주세요",
@@ -168,10 +169,10 @@ private fun VerifyConfirmSectionFailurePreview() {
 
 @Preview
 @Composable
-private fun VerifyConfirmSectionNotRetryablePreview() {
+private fun VerifyConfirmScreenNotRetryablePreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            VerifyConfirmSection(
+            VerifyConfirmScreen(
                 uiState = previewConfirm(
                     failure = SubmitFailure(
                         message = "사진 용량이 커서 올릴 수 없어요. 다시 촬영해주세요",

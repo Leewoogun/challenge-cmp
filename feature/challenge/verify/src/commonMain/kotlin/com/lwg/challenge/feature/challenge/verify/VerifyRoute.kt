@@ -11,12 +11,12 @@ import com.lwg.challenge.designsystem.components.ChallengeTopBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.challenge.verify.component.CameraPermissionDialog
 import com.lwg.challenge.feature.challenge.verify.component.ExitConfirmDialog
-import com.lwg.challenge.feature.challenge.verify.component.VerifyCaptureSection
-import com.lwg.challenge.feature.challenge.verify.component.VerifyConfirmSection
-import com.lwg.challenge.feature.challenge.verify.component.VerifyDoneSection
 import com.lwg.challenge.feature.challenge.verify.contract.VerifyModalEffect
 import com.lwg.challenge.feature.challenge.verify.contract.VerifyUiEffect
 import com.lwg.challenge.feature.challenge.verify.contract.VerifyUiState
+import com.lwg.challenge.feature.challenge.verify.screen.VerifyCaptureScreen
+import com.lwg.challenge.feature.challenge.verify.screen.VerifyConfirmScreen
+import com.lwg.challenge.feature.challenge.verify.screen.VerifyDoneScreen
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.ui.components.PlatformBackHandler
@@ -93,17 +93,17 @@ private fun VerifyContent(
         },
     ) {
         when (uiState) {
-            VerifyUiState.Capture -> VerifyCaptureSection(
+            VerifyUiState.Capture -> VerifyCaptureScreen(
                 onCaptureClick = onCaptureClick,
             )
 
-            is VerifyUiState.Confirm -> VerifyConfirmSection(
+            is VerifyUiState.Confirm -> VerifyConfirmScreen(
                 uiState = uiState,
                 onRetakeClick = onRetakeClick,
                 onSubmitClick = onSubmitClick,
             )
 
-            VerifyUiState.Done -> VerifyDoneSection(
+            VerifyUiState.Done -> VerifyDoneScreen(
                 isReplace = isReplace,
                 onDoneClick = onDoneClick,
             )
