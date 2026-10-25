@@ -30,7 +30,7 @@ enum class BottomNavItem(
         label = "랭킹",
     ),
     MYPAGE(
-        route = Route.MyPage,
+        route = Route.MyPage.Main,
         icon = Icons.Filled.Person,
         label = "MY",
     ),
@@ -40,15 +40,15 @@ enum class BottomNavItem(
         /**
          * [route] 가 속한 바텀 탭. 탭에 해당하지 않으면 null 이며, 바텀바 노출 여부 판단에도 쓴다.
          *
-         * `Route.Friends` 가 아닌 `Route.Friends.List` 로 좁힌 이유 —
-         * 탭 화면에서 push 로 진입하는 하위 화면(Friends.Search 등)은 탭 소속이 아니므로
+         * `Route.Friends` / `Route.MyPage` 가 아닌 `.List` / `.Main` 으로 좁힌 이유 —
+         * 탭 화면에서 push 로 진입하는 하위 화면(Friends.Search, MyPage.Archive)은 탭 소속이 아니므로
          * 바텀바를 숨겨야 한다.
          */
         fun find(route: NavKey?): BottomNavItem? = when (route) {
             is Route.Home -> HOME
             is Route.Friends.List -> FRIENDS
             is Route.Ranking -> RANKING
-            is Route.MyPage -> MYPAGE
+            is Route.MyPage.Main -> MYPAGE
             else -> null
         }
     }

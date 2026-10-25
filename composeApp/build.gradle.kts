@@ -92,7 +92,8 @@ kotlin {
             implementation(projects.feature.challenge.detail)
             implementation(projects.feature.challenge.verify)
             implementation(projects.feature.ranking)
-            implementation(projects.feature.mypage)
+            implementation(projects.feature.mypage.mypage)
+            implementation(projects.feature.mypage.archive)
             implementation(projects.feature.notification)
         }
 

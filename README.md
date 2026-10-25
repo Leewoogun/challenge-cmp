@@ -66,7 +66,7 @@ Clean Architecture 기반 멀티 모듈. 의존성은 항상 `Feature/Data → D
 :feature:friends:*   친구 목록, 친구 검색
 :feature:challenge:* 챌린지 생성, 상세, 맹세
 :feature:ranking     랭킹
-:feature:mypage      마이페이지
+:feature:mypage:*    마이페이지, 계약서 보관함
 ```
 
 데이터 흐름:

@@ -38,8 +38,8 @@ import com.lwg.challenge.feature.home.HomeRoute
 import com.lwg.challenge.feature.login.LoginRoute
 import com.lwg.challenge.feature.main.component.BottomNavItem
 import com.lwg.challenge.feature.main.component.ChallengeBottomBar
-import com.lwg.challenge.feature.mypage.ArchiveRoute
-import com.lwg.challenge.feature.mypage.MyPageRoute
+import com.lwg.challenge.feature.mypage.archive.ArchiveRoute
+import com.lwg.challenge.feature.mypage.mypage.MyPageRoute
 import com.lwg.challenge.feature.notification.NotificationRoute
 import com.lwg.challenge.feature.ranking.RankingRoute
 import com.lwg.challenge.feature.splash.SplashRoute
@@ -213,8 +213,8 @@ private fun MainScreen(
                 entry<Route.Friends.List>(clazzContentKey = { it.uniqueContentKey() }) { FriendsRoute() }
                 entry<Route.Friends.Search>(clazzContentKey = { it.uniqueContentKey() }) { FriendsSearchRoute() }
                 entry<Route.Ranking>(clazzContentKey = { it.uniqueContentKey() }) { RankingRoute() }
-                entry<Route.MyPage>(clazzContentKey = { it.uniqueContentKey() }) { MyPageRoute() }
-                entry<Route.Archive>(clazzContentKey = { it.uniqueContentKey() }) { ArchiveRoute() }
+                entry<Route.MyPage.Main>(clazzContentKey = { it.uniqueContentKey() }) { MyPageRoute() }
+                entry<Route.MyPage.Archive>(clazzContentKey = { it.uniqueContentKey() }) { ArchiveRoute() }
                 entry<Route.Challenge.Detail>(clazzContentKey = { it.uniqueContentKey() }) { route ->
                     ChallengeDetailRoute(challengeId = route.challengeId)
                 }

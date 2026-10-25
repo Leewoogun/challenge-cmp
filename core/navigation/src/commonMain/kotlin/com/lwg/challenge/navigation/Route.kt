@@ -8,7 +8,7 @@ import kotlinx.serialization.modules.subclass
 
 /**
  * 화면 route 정의. feature 모듈 구조를 미러링한다 —
- * 단일 모듈 feature 는 평탄한 data object, 하위 모듈로 나뉜 feature(friends, challenge)만
+ * 단일 모듈 feature 는 평탄한 data object, 하위 모듈로 나뉜 feature(friends, challenge, mypage)만
  * 중첩 sealed interface 로 둔다.
  */
 sealed interface Route : NavKey {
@@ -26,15 +26,16 @@ sealed interface Route : NavKey {
     data object Ranking : Route
 
     @Serializable
-    data object MyPage : Route
+    sealed interface MyPage : Route {
 
-    /**
-     * 계약서 보관함 — 종료된 챌린지 목록. 마이페이지 메뉴에서 push 로 들어가는 하위 화면이다.
-     *
-     * `:feature:mypage` 는 단일 모듈이라 위 규칙대로 중첩하지 않고 평탄한 data object 로 둔다.
-     */
-    @Serializable
-    data object Archive : Route
+        // 모듈명(mypage)과 맞춰 `MyPage` 로 지으면 바깥 interface 를 가려 상속할 수 없어 Main 으로 둔다.
+        @Serializable
+        data object Main : MyPage
+
+        /** 계약서 보관함 — 종료된 챌린지 목록. 마이페이지 메뉴에서 push 로 들어가는 하위 화면이다. */
+        @Serializable
+        data object Archive : MyPage
+    }
 
     /** 알림 목록. home-feed 헤더 Bell 에서 push 로 들어가는 하위 화면이다. */
     @Serializable
@@ -85,8 +86,8 @@ val routeSerializersModule = SerializersModule {
         subclass(Route.Login::class)
         subclass(Route.Home::class)
         subclass(Route.Ranking::class)
-        subclass(Route.MyPage::class)
-        subclass(Route.Archive::class)
+        subclass(Route.MyPage.Main::class)
+        subclass(Route.MyPage.Archive::class)
         subclass(Route.Notifications::class)
         subclass(Route.Friends.List::class)
         subclass(Route.Friends.Search::class)

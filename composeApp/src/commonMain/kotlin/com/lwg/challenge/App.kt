@@ -16,7 +16,8 @@ import com.lwg.challenge.feature.home.di.HomeModule
 import com.lwg.challenge.feature.login.di.LoginModule
 import com.lwg.challenge.feature.login.di.platformLoginModule
 import com.lwg.challenge.feature.main.di.MainModule
-import com.lwg.challenge.feature.mypage.di.MyPageModule
+import com.lwg.challenge.feature.mypage.archive.di.ArchiveModule
+import com.lwg.challenge.feature.mypage.mypage.di.MyPageModule
 import com.lwg.challenge.feature.notification.di.NotificationModule
 import com.lwg.challenge.feature.ranking.di.RankingModule
 import com.lwg.challenge.feature.splash.di.SplashModule
@@ -47,6 +48,7 @@ internal fun challengeAppDeclaration(
         FriendsSearchModule().module,
         RankingModule().module,
         MyPageModule().module,
+        ArchiveModule().module,
         NotificationModule().module,
         ChallengeCreateModule().module,
         OathModule().module,
