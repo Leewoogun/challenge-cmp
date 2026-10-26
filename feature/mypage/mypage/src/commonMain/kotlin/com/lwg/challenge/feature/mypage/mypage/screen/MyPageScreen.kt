@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.mypage.mypage
+package com.lwg.challenge.feature.mypage.mypage.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -11,7 +11,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,11 +27,7 @@ import com.lwg.challenge.feature.mypage.mypage.component.WithdrawText
 import com.lwg.challenge.feature.mypage.mypage.contract.MyPageUiState
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 마이페이지 탭 본문. design.md §1.0.
- *
- * 바텀바는 `MainScreen` 이 그리므로 여기서 그리지 않는다 — 그리면 바가 두 개가 되고 인셋이 이중 적용된다.
- */
+/** 마이페이지 탭 본문. 바텀바는 `MainScreen` 이 그리므로 여기서 그리지 않는다(이중 인셋). */
 @Composable
 internal fun MyPageScreen(
     uiState: MyPageUiState.Data,
@@ -49,7 +44,7 @@ internal fun MyPageScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         ProfileCard(
-            nickname = uiState.nickname,
+            nickname = uiState.userInfo?.nickname.orEmpty(),
             profileImageUrl = uiState.userInfo?.profileImageUrl,
             summary = uiState.recordSummary,
             record = uiState.record,
@@ -78,32 +73,11 @@ internal fun MyPageScreen(
 
         VerticalSpacer(24.dp)
 
-        // 탈퇴 중에는 이 항목만 잠근다. 전체 화면 로딩으로 덮으면 성공한 데이터와 로그아웃까지
-        // 못 쓰게 된다 (§1.7).
+        // 전체 로딩으로 덮으면 로그아웃까지 막히므로 탈퇴 중에는 이 항목만 잠근다.
         WithdrawText(
             onClick = onWithdrawClick,
             enabled = !uiState.isWithdrawing,
         )
-    }
-}
-
-@Composable
-internal fun MyPageLoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
-    }
-}
-
-@Preview
-@Composable
-private fun MyPageLoadingScreenPreview() {
-    ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            MyPageLoadingScreen()
-        }
     }
 }
 

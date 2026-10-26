@@ -24,9 +24,6 @@ class WithdrawUseCase(
         )
         if (!withdrawn) return
 
-        // 로컬 정리는 로그아웃과 완전히 같아야 해서 재사용한다. WITHDRAWN 은 LogoutUseCase 의
-        // `reason == USER` 분기에 걸리지 않으므로 서버 logout 이 나가지 않는다 —
-        // 계정이 이미 사라져 끊을 세션이 없다.
         logoutUseCase(LogoutReason.WITHDRAWN)
         onSuccess()
     }

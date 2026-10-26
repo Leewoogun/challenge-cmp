@@ -27,9 +27,7 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 마이페이지 메뉴 1행. design.md §1.4.4.
- *
- * 지금은 "계약서 보관함" 하나뿐이지만 통계 feature 가 이 위로 들어올 자리라 목록 전제로 파라미터화했다.
+ * 마이페이지 메뉴 1행
  */
 @Composable
 internal fun MyPageMenuCard(

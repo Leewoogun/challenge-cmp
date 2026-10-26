@@ -23,15 +23,10 @@ import com.lwg.challenge.ui.components.ProfileImage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 마이페이지 프로필 카드. design.md §1.2.
+ * 마이페이지 프로필 카드.
  *
- * - 아바타 radius 는 20dp — 랭킹 아바타(16dp)와 다르다 (§1.2.1)
- * - 승/패/무 색은 앱의 승패무 단일 출처(`challengeOutcomeVisualOf`)와 같은 축이다 (§1.2.4)
- *
- * @param record `null` 이면 전적 조회 실패다. 승/패/무 행을 아예 그리지 않고 [summary] 만 남긴다 —
- *   모르는 값을 0 으로 그리면 muted 여도 사실 주장이 되어 "이 0 은 진짜 0" 이라고 거짓말한다 (§1.7.3).
- * @param summary 캡션 문구. 분기 판정은 State 책임이다 (§1.2.5 · §1.7.3).
- * @param muted 전적이 없는 신규 사용자. 승/패/무 3개를 전부 muted 톤으로 내린다.
+ * @param record `null` 이면 전적 조회 실패다. 0 으로 그리면 사실처럼 보여 승/패/무 행을 빼고 [summary] 만 남긴다.
+ * @param muted 전적이 없는 신규 사용자. 승/패/무를 muted 톤으로 내린다.
  */
 @Composable
 internal fun ProfileCard(

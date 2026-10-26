@@ -80,7 +80,7 @@ class MyPageViewModelTest {
         assertIs<MyPageUiState.Data>(state)
         assertEquals(7, state.record?.win)
         assertEquals("이우건", state.userInfo?.nickname)
-        assertEquals("이우건", state.nickname)
+        assertEquals("이우건", state.userInfo?.nickname.orEmpty())
     }
 
     /**
@@ -99,7 +99,7 @@ class MyPageViewModelTest {
         assertIs<MyPageUiState.Data>(state)
         assertEquals(5, state.record?.win)
         assertNull(state.userInfo)
-        assertEquals("", state.nickname)
+        assertEquals("", state.userInfo?.nickname.orEmpty())
     }
 
     @Test
@@ -205,7 +205,7 @@ class MyPageViewModelTest {
 
         assertIs<MyPageUiState.Data>(state)
         assertNull(state.record)
-        assertEquals("이우건", state.nickname)
+        assertEquals("이우건", state.userInfo?.nickname.orEmpty())
     }
 
     // UserRecord.Empty 로 폴백하면 여기가 "아직 기록이 없어요" 가 된다 — 7승 3패인 사람에게 하는 거짓말이다.
