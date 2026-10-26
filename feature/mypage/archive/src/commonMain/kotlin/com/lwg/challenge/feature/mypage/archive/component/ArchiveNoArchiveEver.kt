@@ -29,7 +29,6 @@ internal fun ArchiveNoArchiveEver(onCreateChallengeClick: () -> Unit) {
             ctaLabel = "챌린지 만들기",
             icon = Icons.Filled.Description,
             onClickCta = onCreateChallengeClick,
-            // 기본값이 PersonAdd 라 그냥 두면 친구 추가 아이콘이 붙는다.
             ctaIcon = Icons.Filled.SportsKabaddi,
         )
     }

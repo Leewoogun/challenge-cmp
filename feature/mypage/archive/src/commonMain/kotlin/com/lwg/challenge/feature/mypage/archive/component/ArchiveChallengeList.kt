@@ -11,11 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.challenge.ChallengeCardInfo
 import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.feature.mypage.archive.PreviewArchiveHistories
+import com.lwg.challenge.ui.components.card.ChallengeCard
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/** 좌우 gutter 는 카드가 스크롤 인디케이터와 겹치지 않게 항목마다 준다. 세로 8dp 는 바 divider 와의 간격이다. */
 @Composable
 internal fun ArchiveChallengeList(
     challenges: List<ChallengeHistory>,
@@ -26,8 +27,8 @@ internal fun ArchiveChallengeList(
         contentPadding = PaddingValues(vertical = 8.dp),
     ) {
         items(items = challenges, key = { it.challengeId }) { history ->
-            ArchiveChallengeCard(
-                history = history,
+            ChallengeCard(
+                cardInfo = ChallengeCardInfo(history),
                 onClick = { onChallengeClick(history.challengeId) },
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
             )

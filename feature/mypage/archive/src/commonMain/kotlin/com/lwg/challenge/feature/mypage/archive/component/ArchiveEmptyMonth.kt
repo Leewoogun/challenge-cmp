@@ -20,13 +20,6 @@ import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * 선택한 달에만 기록이 없을 때의 본문. 계정 전체 0건(CTA 화면)과 합치면 기록이 있는 사용자에게 거짓말이 된다.
- * 빈 달은 지나가는 자리라 `EmptyStateCard` 의 카드 크롬 없이 가볍게 그린다.
- *
- * @param subtitle 기록 구간 안이면 "화살표로 다른 달을…", 첫 기록보다 이전 달이면 "첫 기록은 Y년 M월이에요".
- *   위치·방향을 지정하는 문구("위 화살표", "이전 달로")는 스크린리더나 그 방향에 기록이 없을 때 거짓이 되어 쓰지 않는다.
- */
 @Composable
 internal fun ArchiveEmptyMonth(
     title: String,

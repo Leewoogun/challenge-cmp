@@ -32,11 +32,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 보관함의 월 이동 컨트롤.
- *
- * 경계에 닿은 화살표는 숨기지 않고 비활성으로 둔다(숨기면 라벨이 흔들린다). 비활성은 배경과 아이콘 두 축으로 말하고,
- * [IconButton] 의 `enabled` 로 꺼서 접근성 트리에서도 눌리지 않게 한다. 비활성 탭에는 아무 피드백도 주지 않는다.
- *
- * @param countText 그 달의 건수. 0건에도 줄을 그대로 그려 바 높이와 화살표 위치가 변하지 않게 한다.
  */
 @Composable
 internal fun ArchiveMonthNavBar(

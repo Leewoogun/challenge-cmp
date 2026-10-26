@@ -10,8 +10,10 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.feature.mypage.archive.PreviewArchiveHistories
 import com.lwg.challenge.feature.mypage.archive.PreviewLongTextArchiveHistories
-import com.lwg.challenge.feature.mypage.archive.component.ArchiveMonthBody
+import com.lwg.challenge.feature.mypage.archive.component.ArchiveChallengeList
+import com.lwg.challenge.feature.mypage.archive.component.ArchiveEmptyMonth
 import com.lwg.challenge.feature.mypage.archive.component.ArchiveMonthNavBar
+import com.lwg.challenge.feature.mypage.archive.component.ArchiveNoArchiveEver
 import com.lwg.challenge.feature.mypage.archive.contract.ArchiveUiState
 import kotlinx.datetime.YearMonth
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -35,12 +37,21 @@ internal fun ArchiveScreen(
             onNextClick = onNextMonthClick,
         )
 
+        // 0건은 계정 전체 0건(CTA)과 그 달만 0건(빈 달) 두 화면으로 갈린다.
         Box(modifier = Modifier.weight(1f)) {
-            ArchiveMonthBody(
-                uiState = uiState,
-                onChallengeClick = onChallengeClick,
-                onCreateChallengeClick = onCreateChallengeClick,
-            )
+            when {
+                !uiState.isEmpty -> ArchiveChallengeList(
+                    challenges = uiState.challenges,
+                    onChallengeClick = onChallengeClick,
+                )
+
+                uiState.showsNoRecordsEver -> ArchiveNoArchiveEver(onCreateChallengeClick = onCreateChallengeClick)
+
+                else -> ArchiveEmptyMonth(
+                    title = uiState.emptyMonthTitle,
+                    subtitle = uiState.emptyMonthSubtitle,
+                )
+            }
         }
     }
 }

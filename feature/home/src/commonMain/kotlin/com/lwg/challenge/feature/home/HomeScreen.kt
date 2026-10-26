@@ -23,14 +23,15 @@ import com.lwg.challenge.domain.model.MyChallengeInfo
 import com.lwg.challenge.domain.model.OpponentChallengeInfo
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.VerificationStatus
+import com.lwg.challenge.domain.model.challenge.ChallengeCardInfo
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
-import com.lwg.challenge.feature.home.component.ChallengeCard
 import com.lwg.challenge.feature.home.component.NoChallengeSection
 import com.lwg.challenge.feature.home.component.StatsBar
 import com.lwg.challenge.feature.home.component.receivedChallengesSection
 import com.lwg.challenge.feature.home.contract.HomeUiState
+import com.lwg.challenge.ui.components.card.ChallengeCard
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -103,7 +104,7 @@ private fun LazyListScope.challengesSection(
             key = { it.challengeId },
         ) { challenge ->
             ChallengeCard(
-                challenge = challenge,
+                cardInfo = ChallengeCardInfo(challenge),
                 deadlineTimeText = uiState.deadlineTextOf(challenge),
                 onClick = { onChallengeClick(challenge.challengeId) },
             )
@@ -130,7 +131,7 @@ private fun LazyListScope.completedChallengesSection(
         key = { it.challengeId },
     ) { challenge ->
         ChallengeCard(
-            challenge = challenge,
+            cardInfo = ChallengeCardInfo(challenge),
             onClick = { onChallengeClick(challenge.challengeId) },
         )
     }
