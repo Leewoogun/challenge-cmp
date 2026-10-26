@@ -46,10 +46,7 @@ class NotificationViewModelTest {
         Dispatchers.resetMain()
     }
 
-    /**
-     * 화면이 진입할 때마다 부르는 것을 그대로 흉내낸다 — ViewModel 에 `init` 이 없어 생성만으로는
-     * 아무것도 조회하지 않는다. uiState 가 평범한 MutableStateFlow 라 조회는 구독 없이 즉시 흐른다.
-     */
+    /** 화면이 진입마다 부르는 refresh 를 흉내낸다. VM 에 init 이 없어 생성만으로는 조회하지 않는다. */
     private fun createViewModel(): NotificationViewModel =
         NotificationViewModel(fakeNotification).apply { refresh() }
 
@@ -88,8 +85,8 @@ class NotificationViewModelTest {
         val viewModel = createViewModel()
 
         val state = dataState(viewModel)
-        assertEquals(3, state.items.size)
-        assertEquals(listOf(9L, 8L, 7L), state.items.map { it.notificationId })
+        assertEquals(3, state.notifications.size)
+        assertEquals(listOf(9L, 8L, 7L), state.notifications.map { it.notificationId })
     }
 
     @Test
@@ -101,23 +98,17 @@ class NotificationViewModelTest {
         assertIs<NotificationUiState.Empty>(viewModel.uiState.value)
     }
 
-    /**
-     * 0건과 실패는 서로 다른 사실이고 사용자가 취할 행동도 정반대다 — 전자는 나가면 되고 후자는
-     * 다시 시도해야 한다. 실패를 Empty 로 뭉개면 재시도 수단이 화면에서 사라진다.
-     */
+    /** 실패를 Empty 로 뭉개면 재시도 수단이 화면에서 사라진다. */
     @Test
-    fun `첫 조회가 실패하면 Empty 가 아니라 Failure 다`() = runTest {
+    fun `첫 조회가 실패하면 Empty 가 아니라 Error 다`() = runTest {
         fakeNotification.enqueueFailure("알림 조회 실패")
 
         val viewModel = createViewModel()
 
-        assertIs<NotificationUiState.Failure>(viewModel.uiState.value)
+        assertIs<NotificationUiState.Error>(viewModel.uiState.value)
     }
 
-    /**
-     * 서버가 준 nextCursor 를 그대로 되돌려 보내는지 본다. 마지막 항목의 id 와 nextCursor 를 일부러
-     * 다른 값으로 심어 두었으므로, 앱이 커서를 직접 계산하면 이 단언이 깨진다.
-     */
+    /** 마지막 항목 id 와 nextCursor 를 일부러 다르게 심어, 앱이 커서를 직접 계산하면 깨진다. */
     @Test
     fun `loadMore 는 서버가 준 nextCursor 를 그대로 다음 요청에 싣는다`() = runTest {
         fakeNotification.enqueuePage(notifications(listOf(9L, 8L, 7L)), nextCursor = 42L)
@@ -140,7 +131,7 @@ class NotificationViewModelTest {
         viewModel.loadMore()
 
         val state = dataState(viewModel)
-        assertEquals(listOf(9L, 8L, 7L, 6L), state.items.map { it.notificationId })
+        assertEquals(listOf(9L, 8L, 7L, 6L), state.notifications.map { it.notificationId })
         assertEquals(NotificationAppendState.Idle, state.append)
     }
 
@@ -174,7 +165,7 @@ class NotificationViewModelTest {
         runCurrent()
 
         assertEquals(2, fakeNotification.getNotificationsCallCount)
-        assertEquals(4, dataState(viewModel).items.size)
+        assertEquals(4, dataState(viewModel).notifications.size)
     }
 
     /** 스크롤 위치를 잃지 않고 그 자리에서 재시도하는 것이 이 화면의 복구 경로다. */
@@ -187,7 +178,7 @@ class NotificationViewModelTest {
         viewModel.loadMore()
 
         val state = dataState(viewModel)
-        assertEquals(listOf(9L, 8L), state.items.map { it.notificationId })
+        assertEquals(listOf(9L, 8L), state.notifications.map { it.notificationId })
         assertEquals(NotificationAppendState.Failed, state.append)
     }
 
@@ -244,13 +235,10 @@ class NotificationViewModelTest {
         val viewModel = createViewModel()
 
         val state = dataState(viewModel)
-        assertEquals(2, state.items.size)
+        assertEquals(2, state.notifications.size)
     }
 
-    /**
-     * 나란히 놓인 두 알림이 서로 다른 시계로 계산되면 안 된다. 기준 시각 자체는 화면 밖으로
-     * 새지 않으므로, 쪽을 건너 같은 createdAt 이 같은 문구로 나오는 것으로 관측한다.
-     */
+    /** 쪽을 건너도 같은 createdAt 이 같은 문구로 나오면 한 시계로 계산한 것이다. */
     @Test
     fun `추가로 받은 항목도 첫 쪽과 같은 기준 시각으로 경과 시간을 계산한다`() = runTest {
         val base = nowKst()
@@ -271,17 +259,14 @@ class NotificationViewModelTest {
         val viewModel = createViewModel()
         viewModel.loadMore()
 
-        val items = dataState(viewModel).items
-        assertEquals("5분 전", items[0].timeText)
-        assertEquals(items[0].timeText, items[1].timeText)
-        assertEquals("30분 전", items[2].timeText)
+        val data = dataState(viewModel)
+        val items = data.notifications
+        assertEquals("5분 전", data.timeTextOf(items[0]))
+        assertEquals(data.timeTextOf(items[0]), data.timeTextOf(items[1]))
+        assertEquals("30분 전", data.timeTextOf(items[2]))
     }
 
-    /**
-     * 🔴 design.md §3.6.3 의 함정을 막는 자리다. 1쪽 마지막(8L)과 2쪽 첫 항목(7L)이 **같은 날짜**인데,
-     * 그룹을 쪽 단위로 만드는 구현이면 여기서 `오늘` 헤더가 **두 번** 찍힌다. 헤더는 앱이 이어붙인
-     * **누적 목록 전체**에서 나와야 한다.
-     */
+    /** 1쪽 끝과 2쪽 첫 항목이 같은 날짜다. 쪽 단위로 묶으면 `오늘` 헤더가 두 번 찍힌다. */
     @Test
     fun `페이지 경계에 같은 날짜가 걸쳐도 헤더는 하나다`() = runTest {
         val base = nowKst()
@@ -309,8 +294,8 @@ class NotificationViewModelTest {
             listOf("오늘", "${older.date.monthNumber}월 ${older.date.day}일"),
             groups.map { it.label },
         )
-        assertEquals(listOf(9L, 8L, 7L), groups[0].items.map { it.notificationId })
-        assertEquals(listOf(6L), groups[1].items.map { it.notificationId })
+        assertEquals(listOf(9L, 8L, 7L), groups[0].notifications.map { it.notificationId })
+        assertEquals(listOf(6L), groups[1].notifications.map { it.notificationId })
     }
 
     /** 서버가 준 최신순이 정본이라 앱은 다시 세우지 않는다 — 연속 런만 묶는다. */
@@ -335,7 +320,7 @@ class NotificationViewModelTest {
         )
     }
 
-    /** 그룹이 달력 축을 맡으면 행이 24시간 산술을 겸할 이유가 없다. design.md §3.6.1. */
+    /** 그룹이 달력 축을 맡으면 행이 24시간 산술을 겸할 이유가 없다. */
     @Test
     fun `오늘 그룹은 상대 시각이고 지난 날짜 그룹은 시 분 표기다`() = runTest {
         val base = nowKst()
@@ -350,11 +335,12 @@ class NotificationViewModelTest {
 
         val viewModel = createViewModel()
 
-        val groups = dataState(viewModel).dateGroups
+        val data = dataState(viewModel)
+        val groups = data.dateGroups
         val expectedClock =
             "${older.hour.toString().padStart(2, '0')}:${older.minute.toString().padStart(2, '0')}"
-        assertEquals("5분 전", groups[0].items.first().timeText)
-        assertEquals(expectedClock, groups[1].items.first().timeText)
+        assertEquals("5분 전", data.timeTextOf(groups[0].notifications.first()))
+        assertEquals(expectedClock, data.timeTextOf(groups[1].notifications.first()))
     }
 
     /** 재시도는 처음부터 다시 받는 것이다 — 실패 직전의 커서를 들고 있으면 첫 쪽을 건너뛴다. */
@@ -364,12 +350,12 @@ class NotificationViewModelTest {
         fakeNotification.enqueuePage(notifications(listOf(9L, 8L)), nextCursor = null)
 
         val viewModel = createViewModel()
-        assertIs<NotificationUiState.Failure>(viewModel.uiState.value)
+        assertIs<NotificationUiState.Error>(viewModel.uiState.value)
 
         viewModel.retry()
 
         assertEquals(listOf<Long?>(null, null), fakeNotification.requestedCursors)
-        assertEquals(2, dataState(viewModel).items.size)
+        assertEquals(2, dataState(viewModel).notifications.size)
     }
 
     /** 실패한 것은 목록 조회 쪽이다. 진입 시점에 이미 돈 읽음 처리를 되풀이할 이유가 없다. */
@@ -384,10 +370,7 @@ class NotificationViewModelTest {
         assertEquals(1, fakeNotification.markAllAsReadCallCount)
     }
 
-    /**
-     * 🔴 이 화면은 상세로 갔다 와도 백스택에 남아 ViewModel 이 산다. 재진입에 다시 받지 않으면
-     * `referencePending` 과 기준 시각이 낡은 채 굳어, 이미 끝난 신청의 탭이 열려 있다.
-     */
+    /** VM 이 백스택에 살아 있어 재진입에 다시 받지 않으면 referencePending 과 기준 시각이 낡는다. */
     @Test
     fun `refresh 는 커서를 비우고 첫 쪽부터 다시 받는다`() = runTest {
         fakeNotification.enqueuePage(notifications(listOf(9L, 8L)), nextCursor = 42L)
@@ -397,7 +380,7 @@ class NotificationViewModelTest {
         viewModel.refresh()
 
         assertEquals(listOf<Long?>(null, null), fakeNotification.requestedCursors)
-        assertEquals(listOf(7L), dataState(viewModel).items.map { it.notificationId })
+        assertEquals(listOf(7L), dataState(viewModel).notifications.map { it.notificationId })
     }
 
     /** 자리를 비운 사이 도착한 알림까지 읽어야 *"목록을 열면 전부 읽음"* 규약이 성립한다. 멱등이다. */
@@ -413,11 +396,8 @@ class NotificationViewModelTest {
     }
 
     /**
-     * 🔴 design.md §6.3 이 다음 쪽 로딩에 금지한 것과 같은 실패를 막는 자리다 — 재진입 갱신이 화면을
-     * Loading 으로 덮으면 읽던 목록이 사라지고 스크롤 위치를 잃는다.
-     *
-     * 응답을 붙잡아 둔 채 관측하는 이유: 페이크가 즉시 응답하면 StateFlow 가 Loading 을 곧바로 새
-     * Data 로 덮어써 conflate 되고, 목록이 사라졌던 순간이 관측에서 통째로 지워진다.
+     * 재진입 갱신이 화면을 Loading 으로 덮으면 읽던 목록이 사라진다.
+     * 페이크가 즉시 응답하면 Loading 이 conflate 돼 관측되지 않아 응답을 붙잡아 둔다.
      */
     @Test
     fun `재진입 갱신 중에도 이미 있던 목록이 화면에 남는다`() = runTest {
@@ -433,18 +413,15 @@ class NotificationViewModelTest {
         // 조회가 아직 도는 중이다. 여기가 Loading 이면 화면에서 목록이 사라졌다는 뜻이다.
         val duringReload = viewModel.uiState.value
         assertIs<NotificationUiState.Data>(duringReload)
-        assertEquals(listOf(9L, 8L), duringReload.items.map { it.notificationId })
+        assertEquals(listOf(9L, 8L), duringReload.notifications.map { it.notificationId })
 
         pending.complete(Unit)
         runCurrent()
 
-        assertEquals(listOf(7L), dataState(viewModel).items.map { it.notificationId })
+        assertEquals(listOf(7L), dataState(viewModel).notifications.map { it.notificationId })
     }
 
-    /**
-     * 🔴 첫 조회 실패와 갈리는 지점이다. 화면 전체를 Failure 로 덮으면 이미 읽고 있던 알림까지
-     * 사라진다 — 남길 목록이 있으므로 스낵바가 맞다.
-     */
+    /** 남길 목록이 있으면 화면을 Error 로 덮지 않고 스낵바로만 알린다. */
     @Test
     fun `재진입 조회가 실패해도 목록은 남고 스낵바로만 알린다`() = runTest {
         fakeNotification.enqueuePage(notifications(listOf(9L, 8L)), nextCursor = null)
@@ -461,14 +438,10 @@ class NotificationViewModelTest {
         }
 
         val state = dataState(viewModel)
-        assertEquals(listOf(9L, 8L), state.items.map { it.notificationId })
+        assertEquals(listOf(9L, 8L), state.notifications.map { it.notificationId })
     }
 
-    /**
-     * 🔴 남긴 목록에는 이어붙일 커서도 함께 남아 있어야 한다. 갱신이 커서를 비운 채 실패하면 화면에
-     * 남은 목록이 끝까지 스크롤돼도 요청이 나가지 않고, §6.3 ② 상 끝 도달은 아무 표시도 하지 않아
-     * 사용자는 «끝났다» 와 «고장났다» 를 구분할 수 없다.
-     */
+    /** 커서를 비운 채 실패하면 남은 목록이 끝까지 스크롤돼도 다음 쪽 요청이 나가지 않는다. */
     @Test
     fun `재진입 조회가 실패해도 남은 목록은 다음 쪽을 계속 받는다`() = runTest {
         fakeNotification.enqueuePage(notifications(listOf(9L, 8L)), nextCursor = 42L)
@@ -482,7 +455,7 @@ class NotificationViewModelTest {
         // 커서가 null 인 채로 굳었다면 세 번째 요청 자체가 나가지 않는다.
         assertEquals(3, fakeNotification.getNotificationsCallCount)
         assertEquals(listOf(null, null, 42L), fakeNotification.requestedCursors)
-        assertEquals(listOf(9L, 8L, 7L, 6L), dataState(viewModel).items.map { it.notificationId })
+        assertEquals(listOf(9L, 8L, 7L, 6L), dataState(viewModel).notifications.map { it.notificationId })
     }
 
     /** 목록을 남겨 두는 것은 조회가 도는 동안뿐이다. 성공하면 낡은 목록이 통째로 새 쪽으로 바뀐다. */
@@ -495,7 +468,7 @@ class NotificationViewModelTest {
         viewModel.refresh()
 
         // 이어붙이는 것이 아니라 교체다 — 8L 은 새 쪽에 없으므로 화면에서도 사라져야 한다.
-        assertEquals(listOf(11L, 10L, 9L), dataState(viewModel).items.map { it.notificationId })
+        assertEquals(listOf(11L, 10L, 9L), dataState(viewModel).notifications.map { it.notificationId })
     }
 
     /** 그 사이 전부 지워진 경우다. 목록을 남길 근거가 없다 — 실제로 비었다. */
@@ -525,13 +498,10 @@ class NotificationViewModelTest {
         pending.complete(Unit)
         runCurrent()
 
-        assertEquals(listOf(9L), dataState(viewModel).items.map { it.notificationId })
+        assertEquals(listOf(9L), dataState(viewModel).notifications.map { it.notificationId })
     }
 
-    /**
-     * 가르는 축은 «재진입인가» 가 아니라 «보여줄 목록이 있는가» 다. Empty 화면에는 지킬 목록이 없어
-     * 재진입이어도 첫 진입과 같은 경로를 탄다.
-     */
+    /** 가르는 축은 재진입 여부가 아니라 보여줄 목록이 있는가다. */
     @Test
     fun `Empty 에서 갱신하면 지킬 목록이 없어 Loading 을 거친다`() = runTest {
         fakeNotification.enqueuePage(emptyList(), nextCursor = null)
@@ -549,6 +519,6 @@ class NotificationViewModelTest {
         pending.complete(Unit)
         runCurrent()
 
-        assertEquals(listOf(9L), dataState(viewModel).items.map { it.notificationId })
+        assertEquals(listOf(9L), dataState(viewModel).notifications.map { it.notificationId })
     }
 }

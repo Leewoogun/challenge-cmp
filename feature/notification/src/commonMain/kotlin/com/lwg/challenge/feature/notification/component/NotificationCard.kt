@@ -25,29 +25,20 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.notification.Notification
 import com.lwg.challenge.feature.notification.PreviewLongBodyNotification
+import com.lwg.challenge.feature.notification.PreviewNotificationNow
 import com.lwg.challenge.feature.notification.PreviewSettledRequestNotification
 import com.lwg.challenge.feature.notification.PreviewUnknownTypeNotification
-import com.lwg.challenge.feature.notification.contract.NotificationItemState
+import com.lwg.challenge.feature.notification.contract.NotificationUiState
 import com.lwg.challenge.feature.notification.notificationPreviewItem
 import com.lwg.challenge.push.PushEvent
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 알림 카드. design.md §3.
+ * 알림 카드. 아이콘·색은 [notificationTypeVisualOf] 가 정한 값을 받는다.
  *
- * **아이콘·색을 스스로 고르지 않는다** — 이미 결정된 값을 받는다. 카드가 타입을 보고 고르면 타입이
- * 늘 때마다 카드를 고치게 되고, 그 `when` 이 폴백을 빠뜨린다. 판정은 [notificationTypeVisualOf]
- * 한 곳에 있고 화면이 호출한다.
- *
- * @param onClick null 이면 `clickable` 을 아예 붙이지 않고 chevron 도 그리지 않는다 — 목적지를
- *   모르는데 누르게 하면 아무 일도 안 일어나거나 엉뚱한 데로 간다. 🔴 흐리게 처리하지는 않는다.
- *   톤을 낮추면 정상 수신된 알림이 **고장난 알림**처럼 보인다. 리플이 안 뜰 뿐이고, 모르는 타입은
- *   무채색 아이콘이라 이미 톤이 낮다.
- *
- *   chevron 은 그 반대편을 채운다 — *"누를 수 없다"* 를 표시하는 대신 **누를 수 있다는 것만**
- *   표시한다(design.md §3.5). 그래서 비탭 카드에는 **자리도 예약하지 않는다**: 텍스트 컬럼이 그만큼
- *   넓어질 뿐이고, 메시지가 좌측 정렬이라 눈이 따라가는 왼쪽 모서리는 어차피 같다.
+ * @param onClick null 이면 탭도 chevron 도 없다. 흐리게 하지는 않는다 — 정상 수신된 알림이 고장난 것처럼 보인다.
  */
 @Composable
 internal fun NotificationCard(
@@ -68,8 +59,7 @@ internal fun NotificationCard(
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
-            // 메시지가 2줄이 되면 아이콘 박스가 위에 붙는다. CenterVertically 로 두면 아이콘이
-            // 두 줄 사이 허공에 뜬다.
+            // CenterVertically 면 2줄 메시지에서 아이콘이 두 줄 사이에 뜬다.
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -89,8 +79,7 @@ internal fun NotificationCard(
             }
 
             Column(modifier = Modifier.weight(1f)) {
-                // 줄 수 상한을 두지 않는다 — 길이가 튀는 원인이 닉네임 하나라 자르면 하필 닉네임이
-                // 잘려 누가 한 일인지 모르는 알림이 된다.
+                // 길이가 튀는 원인이 닉네임이라 줄 수를 자르면 누가 한 일인지 모르게 된다.
                 Text(
                     text = body,
                     style = ChallengeTheme.typography.medium14,
@@ -110,8 +99,7 @@ internal fun NotificationCard(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
-                    // Row 기본 정렬이 Top 이라 그대로 두면 2줄 메시지에서 chevron 이 첫 줄에 붙는다.
-                    // 카드 전체를 가리키는 기호가 한 줄만 가리키는 것처럼 보인다.
+                    // Row 가 Top 정렬이라 그대로 두면 chevron 이 첫 줄만 가리켜 보인다.
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .size(16.dp),
@@ -122,11 +110,7 @@ internal fun NotificationCard(
     }
 }
 
-/**
- * 발송 5종 중 4종(2026-09-05 기준). 아이콘·색이 서로 갈리는지, 수락과 인증이 나란히 놓였을 때
- * 구분되는지 본다. 기권(`CHALLENGE_FORFEITED`)은 여기 없고 `NotificationScreenPreview` 의
- * `PreviewNotifications` 에만 들어 있다.
- */
+/** 아는 타입 4종의 아이콘·색이 서로 갈리는지 본다. */
 @Preview
 @Composable
 private fun NotificationCardTypesPreview() {
@@ -164,10 +148,7 @@ private fun NotificationCardTypesPreview() {
     }
 }
 
-/**
- * 모르는 타입. 무채색 아이콘 + 탭 비활성인데도 **메시지·시각은 그대로 읽힌다** — 폴백이 하는 일이
- * 그게 전부다.
- */
+/** 모르는 타입. 무채색 아이콘에 탭은 없지만 메시지·시각은 그대로 읽힌다. */
 @Preview
 @Composable
 private fun NotificationCardUnknownTypePreview() {
@@ -176,10 +157,7 @@ private fun NotificationCardUnknownTypePreview() {
     }
 }
 
-/**
- * 메시지 2줄. 아이콘이 첫 줄에 붙는지(`Alignment.Top`), **chevron 만 세로 중앙에 있는지** 확인하는
- * 자리다. chevron 이 Top 이면 아이콘과 같은 높이에 붙어 카드 전체가 아니라 첫 줄을 가리켜 보인다.
- */
+/** 메시지 2줄. 아이콘은 첫 줄에, chevron 은 세로 가운데에 붙는다. */
 @Preview
 @Composable
 private fun NotificationCardTwoLineBodyPreview() {
@@ -188,13 +166,7 @@ private fun NotificationCardTwoLineBodyPreview() {
     }
 }
 
-/**
- * 🔴 목적지 축의 대비. 첫 카드에만 chevron 이 있고 나머지는 **그 자리가 비지 않는다** — 텍스트가
- * 그만큼 넓게 쓸 뿐이다. 세 카드의 색·문구가 똑같은 것도 요지다(톤 다운 금지, design.md §3.5.3).
- *
- * 위 둘은 **같은 타입인데 갈린다** — 응답을 기다리는 신청만 갈 곳이 있다. 셋째는 타입 자체를 몰라
- * 갈린다. chevron 이 죽는 이유가 둘이고, 카드는 그 이유를 구분해 그리지 않는다.
- */
+/** 대기 중 신청에만 chevron 이 있다. 응답이 끝난 신청과 모르는 타입은 chevron 자리도 비우지 않는다. */
 @Preview
 @Composable
 private fun NotificationCardChevronPreview() {
@@ -206,14 +178,15 @@ private fun NotificationCardChevronPreview() {
 }
 
 @Composable
-private fun PreviewCard(item: NotificationItemState) {
-    val visual = notificationTypeVisualOf(item.type)
+private fun PreviewCard(notification: Notification) {
+    val data = NotificationUiState.Data(listOf(notification), PreviewNotificationNow)
+    val visual = notificationTypeVisualOf(notification.type)
     NotificationCard(
-        body = item.body,
-        timeText = item.timeText,
+        body = notification.body,
+        timeText = data.timeTextOf(notification),
         icon = visual.icon,
         accent = visual.accent,
-        onClick = if (item.isTappable) PreviewNoOpClick else null,
+        onClick = if (data.routeOf(notification) != null) PreviewNoOpClick else null,
     )
 }
 

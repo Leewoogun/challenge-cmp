@@ -22,32 +22,8 @@ data class NotificationTypeVisual(
 )
 
 /**
- * 알림 타입을 아이콘·색으로 옮기는 **단일 출처**. design.md §3.2.
- *
- * 색이 [ChallengeTheme] 에서 오므로 `@Composable` 함수가 값을 반환하고 **화면이 호출해 결과를
- * 카드에 넘긴다** — 카드가 스스로 고르면 타입이 늘 때마다 카드를 고치게 되고, 그 `when` 이 아래
- * 폴백을 빠뜨린다. `challengeOutcomeVisualOf` 와 같은 형태다.
- *
- * `CHALLENGE_ACCEPTED` 에 [Icons.Filled.CheckCircle] 을 쓰지 않는 이유: `OPPONENT_VERIFIED` 와 같은
- * 아이콘이 된다. 둘은 한 챌린지에서 수락 → 인증 순으로 연달아 도착해 목록에 나란히 놓이므로,
- * 아이콘이 같으면 구분이 시각 한 줄에만 남는다. 수락 시점에 계약서가 존재하므로(수락=서명)
- * 앱이 계약서에 쓰는 [Icons.Filled.Description] 을 쓴다.
- *
- * 🔴 폴백에 `warning`·`success` 같은 의미색을 주지 않는다 — 뜻을 모르는데 없는 뜻을 지어내는 것이다.
- * 앱이 모르는 값을 받는 경로는 실재한다 — 서버 `NotificationType` enum 9종 중 발송되는 것은
- * 5종이고(2026-09-05 기준), 남은 `RESULT`·`TAUNT`·`REMIND`·`FRIEND_REQUEST` 는 이미 enum 안이라
- * 서버의 강등(enum 밖 문자열 → `CHALLENGE_REQUEST`)을 거치지 않고 원문 그대로 round-trip 해 온다.
- * 그 타입의 발송이 열리는 날 구버전 앱을 막아 주는 것은 이 폴백 말고 없다. 그래도 **목록에서
- * 숨기지 않는다** — 숨기면 푸시로 본 알림이 목록에 없고 홈 뱃지 개수와 목록 길이가 어긋난다.
- * 읽을 수 있게 그리되 못 가는 곳으로 보내지 않는 것이 폴백의 전부다.
- *
- * ✅ **2026-09-05, 이 논증이 예고한 사건이 실제로 일어났다** — `challenge-forfeit` 이
- * `CHALLENGE_FORFEITED` 의 발송을 열었다. 선언만 돼 있고 문구가 `null` 이라 발송 0건이던 타입이
- * 문구 한 줄로 발송으로 전이했다. 폴백은 가정이 아니라 **한 번 겪은 경로**다. 위에 남은 4종의
- * 이름은 그대로 유효하다 — 그것이 지금의 미발송 그룹이고, 다음 전이도 거기서 나온다.
- *
- * 🔴 그 강등이 나중에 고쳐지더라도 이 폴백을 같이 걷어내지 마라. 강등은 이 폴백의 근거가 아니라
- * 폴백을 일부 구간에서 무력화하던 쪽이고, 고쳐지면 폴백이 닿는 범위가 오히려 넓어진다.
+ * 알림 타입 → 아이콘·색의 단일 출처. 카드가 고르면 타입이 늘 때마다 카드를 고치게 된다.
+ * 모르는 타입은 무채색 폴백으로 그리되 숨기지 않는다 — 숨기면 푸시로 본 알림이 목록에 없다.
  */
 @Composable
 internal fun notificationTypeVisualOf(type: String): NotificationTypeVisual = when (type) {
@@ -55,6 +31,7 @@ internal fun notificationTypeVisualOf(type: String): NotificationTypeVisual = wh
         icon = Icons.Filled.SportsKabaddi,
         accent = ChallengeTheme.colorScheme.primary,
     )
+    // CheckCircle 은 연달아 오는 상대 인증과 겹쳐 계약서 아이콘을 쓴다.
     PushEvent.TYPE_CHALLENGE_ACCEPTED -> NotificationTypeVisual(
         icon = Icons.Filled.Description,
         accent = ChallengeTheme.colorScheme.success,
@@ -67,16 +44,12 @@ internal fun notificationTypeVisualOf(type: String): NotificationTypeVisual = wh
         icon = Icons.Filled.CheckCircle,
         accent = ChallengeTheme.colorScheme.success,
     )
-    // Flag: 바로 위 네 가지(신청·수락·거절·상대 인증) 어느 것과도 겹치지 않으면서 백기(기권)를 직접
-    // 가리킨다. 아이콘이 겹치면 구분이 시각 한 줄에만 남는다는 위 경계와 같은 이유다.
-    // error: 받는 사람 기준으로는 이긴 사건이지만 이 알림의 제목이 `계약 파기.` 다. 그 네 가지 중
-    // 성격이 가장 가까운 `CHALLENGE_REJECTED`(관계가 성립하지 못한 채 끝난 사건)에 색을 맞춰 제목의
-    // 톤과 어긋나지 않게 했다.
-    // ⚠️ 디자인 정본(Lovable)에 기권 UI 가 0건이라 이 두 값은 디자이너 확인 대기 항목이다.
+    // 다른 네 아이콘과 겹치지 않는 백기. 제목 톤(`계약 파기.`)에 맞춰 거절과 같은 error 색. 디자이너 확인 대기.
     PushEvent.TYPE_CHALLENGE_FORFEITED -> NotificationTypeVisual(
         icon = Icons.Filled.Flag,
         accent = ChallengeTheme.colorScheme.error,
     )
+    // 뜻을 모르는 타입에 의미색을 주지 않는다.
     else -> NotificationTypeVisual(
         icon = Icons.Filled.Notifications,
         accent = ChallengeTheme.colorScheme.onSurfaceVariant,

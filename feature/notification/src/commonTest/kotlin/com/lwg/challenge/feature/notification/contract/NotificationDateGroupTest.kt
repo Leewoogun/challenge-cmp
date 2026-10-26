@@ -6,30 +6,22 @@ import kotlinx.datetime.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/**
- * 누적 목록에서 날짜 그룹을 파생시키는 규칙. design.md §3.6.
- *
- * `NotificationViewModelTest` 는 쪽이 이어붙는 경로를 보고, 여기서는 기준 시각을 고정해 **묶는 규칙
- * 자체**를 본다 — 그쪽은 `nowKst()` 를 쓰므로 달력 경계를 마음대로 세울 수 없다.
- */
+/** 기준 시각을 고정해 묶는 규칙 자체를 본다. VM 테스트는 nowKst() 를 써서 달력 경계를 세울 수 없다. */
 class NotificationDateGroupTest {
 
     private val now = LocalDateTime(2026, 9, 1, 15, 0, 0)
 
-    private fun item(notificationId: Long, createdAt: LocalDateTime) = NotificationItemState(
-        Notification(
-            notificationId = notificationId,
-            type = PushEvent.TYPE_CHALLENGE_REQUEST,
-            body = "민수님이 도전장을 보냈어요",
-            referenceId = 1005L,
-            referencePending = true,
-            createdAt = createdAt,
-        ),
-        now,
+    private fun item(notificationId: Long, createdAt: LocalDateTime) = Notification(
+        notificationId = notificationId,
+        type = PushEvent.TYPE_CHALLENGE_REQUEST,
+        body = "민수님이 도전장을 보냈어요",
+        referenceId = 1005L,
+        referencePending = true,
+        createdAt = createdAt,
     )
 
-    private fun dataOf(vararg items: NotificationItemState) =
-        NotificationUiState.Data(items.toList())
+    private fun dataOf(vararg items: Notification) =
+        NotificationUiState.Data(items.toList(), now)
 
     @Test
     fun `같은 날짜가 연속으로 놓이면 한 그룹이다`() {
@@ -40,7 +32,7 @@ class NotificationDateGroupTest {
         )
 
         assertEquals(listOf("오늘"), data.dateGroups.map { it.label })
-        assertEquals(listOf(9L, 8L, 7L), data.dateGroups[0].items.map { it.notificationId })
+        assertEquals(listOf(9L, 8L, 7L), data.dateGroups[0].notifications.map { it.notificationId })
     }
 
     @Test
@@ -55,7 +47,7 @@ class NotificationDateGroupTest {
         assertEquals(listOf("오늘", "어제", "8월 28일"), data.dateGroups.map { it.label })
         assertEquals(
             listOf(listOf(9L), listOf(8L, 7L), listOf(6L)),
-            data.dateGroups.map { group -> group.items.map { it.notificationId } },
+            data.dateGroups.map { group -> group.notifications.map { it.notificationId } },
         )
     }
 
@@ -69,8 +61,8 @@ class NotificationDateGroupTest {
         )
 
         assertEquals(
-            data.items.map { it.notificationId },
-            data.dateGroups.flatMap { group -> group.items.map { it.notificationId } },
+            data.notifications.map { it.notificationId },
+            data.dateGroups.flatMap { group -> group.notifications.map { it.notificationId } },
         )
     }
 
@@ -93,6 +85,6 @@ class NotificationDateGroupTest {
 
     @Test
     fun `항목이 없으면 그룹도 없다`() {
-        assertEquals(emptyList<NotificationDateGroup>(), NotificationUiState.Data(emptyList()).dateGroups)
+        assertEquals(emptyList<NotificationDateGroup>(), NotificationUiState.Data(emptyList(), now).dateGroups)
     }
 }

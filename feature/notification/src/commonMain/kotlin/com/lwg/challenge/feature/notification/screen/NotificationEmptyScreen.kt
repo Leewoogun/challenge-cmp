@@ -1,4 +1,4 @@
-package com.lwg.challenge.feature.notification.component
+package com.lwg.challenge.feature.notification.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,23 +21,11 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * 알림이 0건일 때의 본문. design.md §5.2.
- *
- * `EmptyStateCard` 를 검토했고 기각했다. CTA 가 필수 파라미터인데 **빈 알림함에 놓을 CTA 가 없다** —
- * "챌린지 만들기"·"친구 등록" 은 홈이 이미 갖고 있고, 이 사용자는 방금 그 홈에서 벨을 눌러 왔다.
- * 알림함에서 친구 목록으로 내보내는 것은 확인하러 온 사람을 밖으로 내보내는 것이다.
- * `EmptyStateCard` 에 nullable CTA 를 여는 선택도 하지 않는다 — 출시된 공용 컴포넌트를 두 번째
- * 사용처 하나 때문에 일반화하지 않는다(`ArchiveEmptyMonth` 가 첫 번째).
- *
- * 카드 크롬도 벗었다. `EmptyStateCard` 는 종착지의 어휘인데 **빈 알림함은 사건이 아니라 "아직
- * 아무 일도 안 일어났다" 는 담담한 사실**이다. 일러스트 문법(아이콘 박스·간격·타이포)만 그대로
- * 두어 새 방언이 아니라 같은 어휘의 가벼운 판임을 유지한다.
- *
- * 부제에 *"알림을 켜세요"* 같은 설정 유도를 넣지 않는다 — 알림 권한과 알림 목록은 다른 축이고,
- * row 는 권한 없이도 쌓인다.
+ * 알림 0건. 놓을 CTA 가 없어(이 사용자는 방금 홈에서 왔다) `EmptyStateCard` 대신 카드 크롬 없는 담담한 안내로 둔다.
+ * 알림 권한과 목록은 다른 축이라 "알림을 켜세요" 같은 유도를 넣지 않는다.
  */
 @Composable
-internal fun NotificationEmptyState(modifier: Modifier = Modifier) {
+internal fun NotificationEmptyScreen(modifier: Modifier = Modifier) {
     val primary = ChallengeTheme.colorScheme.primary
 
     Column(
@@ -54,9 +42,7 @@ internal fun NotificationEmptyState(modifier: Modifier = Modifier) {
                 .background(primary.copy(alpha = 0.10f)),
             contentAlignment = Alignment.Center,
         ) {
-            // outline 벨이라야 한다 — filled Notifications 는 모르는 타입 폴백이 쓰므로,
-            // 같은 아이콘이면 "알림" 과 "알림 없음" 이 같은 기호가 된다. NotificationsOff 는
-            // 끄지 않았는데 꺼진 것처럼 보여 기각했다.
+            // filled 벨은 모르는 타입 폴백이 써서 outline 으로 둔다. NotificationsOff 는 끈 것처럼 보인다.
             Icon(
                 imageVector = Icons.Filled.NotificationsNone,
                 contentDescription = null,
@@ -85,10 +71,10 @@ internal fun NotificationEmptyState(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-private fun NotificationEmptyStatePreview() {
+private fun NotificationEmptyScreenPreview() {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
-            NotificationEmptyState()
+            NotificationEmptyScreen()
         }
     }
 }
