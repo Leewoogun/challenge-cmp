@@ -43,6 +43,9 @@ inline fun <State, reified T : State> MutableStateFlow<State>.updateWithData(act
     }
 }
 
+/** 현재 값이 [T] 면 그 값, 아니면 null. 그 값을 여러 갈래에서 써야 해 [withData] 블록이 맞지 않을 때 쓴다. */
+inline fun <reified T> StateFlow<*>.valueAs(): T? = value as? T
+
 /** 현재 값이 null 이 아닐 때만 [action] 을 실행한다. */
 inline fun <T : Any> StateFlow<T?>.withValue(action: (T) -> Unit) {
     value?.let(action)

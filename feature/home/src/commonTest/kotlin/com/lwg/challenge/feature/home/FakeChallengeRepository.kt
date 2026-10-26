@@ -92,7 +92,7 @@ class FakeChallengeRepository : ChallengeRepository {
     }
 
     override fun getChallengeArchive(
-        month: YearMonth?,
+        month: YearMonth,
         onError: (String) -> Unit,
     ): Flow<ChallengeArchive> = emptyFlow()
 

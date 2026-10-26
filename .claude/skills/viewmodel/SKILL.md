@@ -165,6 +165,7 @@ StateFlow의 값을 타입으로 분기할 때는 `core/utils`의 FlowUtil 확�
 ```kotlin
 import com.lwg.challenge.utils.flow.withData
 import com.lwg.challenge.utils.flow.updateWithData
+import com.lwg.challenge.utils.flow.valueAs
 
 // ✅ withData — 특정 타입일 때만 로직 실행 (inline이므로 non-local return 가능)
 fun login() {
@@ -185,6 +186,9 @@ fun updateMessage() {
         data.copy(message = "Hello")
     }
 }
+
+// ✅ valueAs — 현재 값을 여러 갈래에서 써야 해 withData 블록이 맞지 않을 때 (T 가 아니면 null)
+val previous = uiState.valueAs<UiState.Data>()
 
 // ❌ 직접 타입 비교 금지
 if (_uiState.value is LoginUiState.Loading) return

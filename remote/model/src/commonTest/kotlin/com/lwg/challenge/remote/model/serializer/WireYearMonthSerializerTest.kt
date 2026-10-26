@@ -77,7 +77,6 @@ class WireYearMonthSerializerTest {
         )
     }
 
-    /** 응답의 month 에코를 다시 서버로 돌려보내는 흐름이라 왕복이 원문과 어긋나면 안 된다. */
     @Test
     fun `디코딩 후 다시 인코딩하면 원문과 같다`() {
         val decoded = json.decodeFromString(Holder.serializer(), """{"month":"2026-08"}""")

@@ -15,7 +15,7 @@ interface ChallengeRemoteDataSource {
     ): Flow<List<ReceivedChallenge>>
 
     fun getChallengeArchive(
-        month: YearMonth?,
+        month: YearMonth,
         onError: (String) -> Unit,
     ): Flow<ChallengeArchive>
 

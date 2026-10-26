@@ -39,25 +39,12 @@ class ChallengeRemoteDataSourceImpl(
     }
 
     override fun getChallengeArchive(
-        month: YearMonth?,
+        month: YearMonth,
         onError: (String) -> Unit,
     ): Flow<ChallengeArchive> = flow {
-        // YearMonth.toString() 이 곧 wire 포맷이다 — ISO `yyyy-MM` zero-padded 라 서버가 요구하는 형태와
-        // 같고, WireYearMonthSerializer.render 와도 같은 경로다(그 패딩은 직렬화기 테스트가 고정한다).
-        challengeApi.getChallengeHistories(month?.toString())
-            .suspendOnSuccess {
-                val mapped = response.toChallengeArchive()
-                // month 를 못 읽은 것과 항목 일부 드롭은 서로 다른 사건이다. 판별자는 onError 가 아니라
-                // "emit 이 뒤따르는가" 다 — 여기서는 emit 하지 않아 화면이 전체 실패로 받는다.
-                if (mapped == null) {
-                    onError("보관함을 불러오지 못했어요")
-                    return@suspendOnSuccess
-                }
-                // 날짜·결과를 못 읽은 항목은 매퍼가 걸렀다. 항목당 발화하면 스낵바가 연달아 떠서 1회만 알린다 (api-contract §3).
-                // 위와 달리 emit 이 뒤따라서, 목록과 스낵바가 함께 나온다.
-                if (mapped.droppedCount > 0) onError("일부 항목을 불러오지 못했어요")
-                this@flow.emit(mapped.archive)
-            }
+        // YearMonth.toString() 이 ISO `yyyy-MM` zero-padded 라 서버가 요구하는 wire 포맷과 같다.
+        challengeApi.getChallengeHistories(month.toString())
+            .suspendOnSuccess { this@flow.emit(response.toChallengeArchive()) }
             .suspendOnFailureWithErrorHandling(onError)
     }
 

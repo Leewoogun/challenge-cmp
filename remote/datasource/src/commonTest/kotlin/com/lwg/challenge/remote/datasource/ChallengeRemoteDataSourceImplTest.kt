@@ -24,6 +24,7 @@ import com.lwg.challenge.remote.model.challenge.ChallengeDetailResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeHistoryDto
 import com.lwg.challenge.remote.model.challenge.ChallengeHistoryListData
 import com.lwg.challenge.remote.model.challenge.ChallengeHistoryResponse
+import com.lwg.challenge.remote.model.challenge.ChallengeOutcomeDto
 import com.lwg.challenge.remote.model.challenge.ContractDto
 import com.lwg.challenge.remote.model.challenge.ContractUserInfoDto
 import com.lwg.challenge.remote.model.challenge.DeadlineTypeDto
@@ -123,7 +124,7 @@ class ChallengeRemoteDataSourceImplTest {
         myMission = "헬스장 가기",
         opponentMission = "금주",
         bet = "치킨 한 마리",
-        myResult = "WIN",
+        myResult = ChallengeOutcomeDto.WIN,
     )
 
     private fun receivedSuccess(vararg dto: ReceivedChallengeDto) = ApiResult.Success(
@@ -131,11 +132,10 @@ class ChallengeRemoteDataSourceImplTest {
     )
 
     private fun historySuccess(
-        month: YearMonth? = YearMonth(2026, 8),
         firstArchivedMonth: YearMonth? = YearMonth(2026, 3),
         histories: List<ChallengeHistoryDto> = listOf(historyDto),
     ) = ApiResult.Success(
-        ChallengeHistoryResponse(ChallengeHistoryListData(month, firstArchivedMonth, histories)),
+        ChallengeHistoryResponse(ChallengeHistoryListData(firstArchivedMonth, histories)),
     )
 
     @Test
@@ -218,7 +218,6 @@ class ChallengeRemoteDataSourceImplTest {
         val emitted = dataSource.getChallengeArchive(YearMonth(2026, 8), onError = { errors.add(it) }).toList()
 
         val archive = emitted.single()
-        assertEquals(YearMonth(2026, 8), archive.month)
         assertEquals(YearMonth(2026, 3), archive.firstArchivedMonth)
         assertEquals(listOf(42L), archive.histories.map { it.challengeId })
         assertEquals(ChallengeOutcome.WIN, archive.histories.single().myResult)
@@ -228,62 +227,12 @@ class ChallengeRemoteDataSourceImplTest {
     /** `YearMonth.toString()` 이 곧 wire 포맷이라는 것을 고정한다 — zero-padding 이 빠지면 서버가 700 으로 거부한다. */
     @Test
     fun `getChallengeArchive - month 는 zero-padded yyyy-MM 문자열로 API 에 전달된다`() = runTest {
-        val api = FakeChallengeApi(historiesResult = historySuccess(month = YearMonth(2026, 3)))
+        val api = FakeChallengeApi(historiesResult = historySuccess())
         val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         dataSource.getChallengeArchive(YearMonth(2026, 3), onError = {}).toList()
 
         assertEquals("2026-03", api.capturedHistoryMonth)
-    }
-
-    /** null 을 그대로 내려보내야 Ktorfit 이 쿼리 파라미터를 아예 붙이지 않고, 그게 "서버가 정한 이번 달" 이다. */
-    @Test
-    fun `getChallengeArchive - month 가 null 이면 API 에도 null 이 전달된다`() = runTest {
-        val api = FakeChallengeApi(historiesResult = historySuccess())
-        val dataSource = ChallengeRemoteDataSourceImpl(api)
-
-        dataSource.getChallengeArchive(month = null, onError = {}).toList()
-
-        assertEquals(1, api.getHistoriesCallCount)
-        assertNull(api.capturedHistoryMonth)
-    }
-
-    /**
-     * 🔴 `month` 를 못 읽은 것과 항목 일부 드롭을 가르는 판별자는 `onError` 가 아니라 **emit 이 뒤따르는가** 다.
-     *
-     * 여기서는 emit 이 0건이라 화면이 전체 실패로 받는다. 아래 드롭 케이스와 짝으로 봐야 한다.
-     */
-    @Test
-    fun `getChallengeArchive - month 를 못 읽으면 emit 없이 onError 만 발화한다`() = runTest {
-        val api = FakeChallengeApi(historiesResult = historySuccess(month = null))
-        val dataSource = ChallengeRemoteDataSourceImpl(api)
-
-        val errors = mutableListOf<String>()
-        val emitted = dataSource.getChallengeArchive(YearMonth(2026, 8), onError = { errors.add(it) }).toList()
-
-        assertEquals(emptyList<ChallengeArchive>(), emitted)
-        assertEquals(listOf("보관함을 불러오지 못했어요"), errors)
-    }
-
-    /** 위와 달리 onError 뒤에 emit 이 따라온다 — 목록과 스낵바가 함께 나오는 경로다. */
-    @Test
-    fun `getChallengeArchive - 항목 일부 드롭이면 onError 뒤에 emit 이 따라온다`() = runTest {
-        val api = FakeChallengeApi(
-            historiesResult = historySuccess(
-                histories = listOf(historyDto, historyDto.copy(challengeId = 41L, challengeDate = null)),
-            ),
-        )
-        val dataSource = ChallengeRemoteDataSourceImpl(api)
-
-        val errors = mutableListOf<String>()
-        val emitted = dataSource.getChallengeArchive(YearMonth(2026, 8), onError = { errors.add(it) }).toList()
-
-        assertEquals(listOf("일부 항목을 불러오지 못했어요"), errors)
-        val archive = emitted.single()
-        assertEquals(listOf(42L), archive.histories.map { it.challengeId })
-        // 달 정보는 항목 드롭과 무관하게 그대로다.
-        assertEquals(YearMonth(2026, 8), archive.month)
-        assertEquals(YearMonth(2026, 3), archive.firstArchivedMonth)
     }
 
     /** `null` 은 결측이 아니라 "종료한 챌린지가 하나도 없다" 는 뜻이라, 그대로 화면까지 전달돼야 한다. */
@@ -295,11 +244,10 @@ class ChallengeRemoteDataSourceImplTest {
         val dataSource = ChallengeRemoteDataSourceImpl(api)
 
         val errors = mutableListOf<String>()
-        val emitted = dataSource.getChallengeArchive(month = null, onError = { errors.add(it) }).toList()
+        val emitted = dataSource.getChallengeArchive(YearMonth(2026, 8), onError = { errors.add(it) }).toList()
 
         val archive = emitted.single()
         assertNull(archive.firstArchivedMonth)
-        assertEquals(YearMonth(2026, 8), archive.month)
         assertTrue(archive.histories.isEmpty())
         assertEquals(emptyList(), errors)
     }
@@ -565,10 +513,6 @@ private class FakeChallengeApi(
 
     var getReceivedCallCount = 0
         private set
-    var getHistoriesCallCount = 0
-        private set
-
-    /** null 로 호출된 것과 호출 자체가 없었던 것을 구분하려면 [getHistoriesCallCount] 와 함께 봐야 한다. */
     var capturedHistoryMonth: String? = null
         private set
     var capturedCreateBody: ChallengeCreateBody? = null
@@ -601,8 +545,7 @@ private class FakeChallengeApi(
         return detailResult
     }
 
-    override suspend fun getChallengeHistories(month: String?): ApiResult<ChallengeHistoryResponse> {
-        getHistoriesCallCount++
+    override suspend fun getChallengeHistories(month: String): ApiResult<ChallengeHistoryResponse> {
         capturedHistoryMonth = month
         return historiesResult
     }

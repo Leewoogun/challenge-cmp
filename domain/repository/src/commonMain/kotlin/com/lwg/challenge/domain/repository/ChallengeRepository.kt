@@ -19,11 +19,9 @@ interface ChallengeRepository {
 
     /**
      * 계약서 보관함 한 달치. 그 달의 종료된 챌린지가 `challengeDate` 내림차순으로 온다.
-     *
-     * [month] 가 null 이면 서버가 KST 기준 이번 달을 골라 준다.
      */
     fun getChallengeArchive(
-        month: YearMonth?,
+        month: YearMonth,
         onError: (String) -> Unit,
     ): Flow<ChallengeArchive>
 

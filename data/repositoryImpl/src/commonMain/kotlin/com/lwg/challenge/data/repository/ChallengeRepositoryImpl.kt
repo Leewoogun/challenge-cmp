@@ -21,7 +21,7 @@ class ChallengeRepositoryImpl(
     ): Flow<List<ReceivedChallenge>> = challengeRemoteDataSource.getReceivedChallenges(onError)
 
     override fun getChallengeArchive(
-        month: YearMonth?,
+        month: YearMonth,
         onError: (String) -> Unit,
     ): Flow<ChallengeArchive> = challengeRemoteDataSource.getChallengeArchive(month, onError)
 
