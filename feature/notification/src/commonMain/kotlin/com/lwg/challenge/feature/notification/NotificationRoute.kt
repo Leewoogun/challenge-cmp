@@ -1,5 +1,7 @@
 package com.lwg.challenge.feature.notification
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,6 +18,7 @@ import com.lwg.challenge.feature.notification.screen.NotificationErrorScreen
 import com.lwg.challenge.feature.notification.screen.NotificationLoadingScreen
 import com.lwg.challenge.feature.notification.screen.NotificationScreen
 import com.lwg.challenge.navigation.Route
+import com.lwg.challenge.ui.components.PaginationEffect
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -23,6 +26,7 @@ fun NotificationRoute(
     viewModel: NotificationViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val listState = rememberLazyListState()
     val mainAction = LocalMainAction.current
     val navigator = LocalNavigateAction.current
 
@@ -34,15 +38,17 @@ fun NotificationRoute(
         }
     }
 
-    // 상세에 갔다 오면 이 블록이 다시 돈다. VM 은 백스택에 살아 있어 스스로 갱신하지 못한다.
-    LaunchedEffect(Unit) { viewModel.refresh() }
-
     NotificationContent(
         uiState = uiState,
+        listState = listState,
         onBack = navigator::popBackStack,
         onNotificationClick = navigator::navigateTo,
         onRetryClick = viewModel::retry,
-        onLoadMore = viewModel::loadMore,
+    )
+
+    PaginationEffect(
+        listState = listState,
+        onLoadNextPage = viewModel::nextPage,
     )
 }
 
@@ -50,10 +56,10 @@ fun NotificationRoute(
 @Composable
 private fun NotificationContent(
     uiState: NotificationUiState,
+    listState: LazyListState,
     onBack: () -> Unit,
     onNotificationClick: (Route) -> Unit,
     onRetryClick: () -> Unit,
-    onLoadMore: () -> Unit,
 ) {
     ChallengeScaffold(
         statusBarColor = ChallengeTheme.colorScheme.surface,
@@ -65,8 +71,8 @@ private fun NotificationContent(
 
             is NotificationUiState.Data -> NotificationScreen(
                 uiState = uiState,
+                listState = listState,
                 onNotificationClick = onNotificationClick,
-                onLoadMore = onLoadMore,
             )
 
             NotificationUiState.Empty -> NotificationEmptyScreen()

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface NotificationRemoteDataSource {
 
     fun getNotifications(
-        cursor: Long?,
+        nextNotificationId: Long?,
         size: Int,
         onError: (String) -> Unit,
     ): Flow<NotificationPage>

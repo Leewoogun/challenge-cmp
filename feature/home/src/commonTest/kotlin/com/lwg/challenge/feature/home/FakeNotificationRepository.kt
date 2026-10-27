@@ -27,7 +27,7 @@ class FakeNotificationRepository : NotificationRepository {
     }
 
     override fun getNotifications(
-        cursor: Long?,
+        nextNotificationId: Long?,
         size: Int,
         onError: (String) -> Unit,
     ): Flow<NotificationPage> = emptyFlow()

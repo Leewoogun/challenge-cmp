@@ -12,11 +12,11 @@ import kotlinx.coroutines.flow.Flow
 interface NotificationRepository {
 
     /**
-     * @param cursor 직전 응답의 [NotificationPage.nextCursor] 를 그대로 넘긴다. null 이면 맨 앞부터
+     * @param nextNotificationId 직전 응답의 [NotificationPage.nextNotificationId] 를 그대로 넘긴다. null 이면 맨 앞부터
      * @param size 한 번에 받을 개수. `1..50` 밖은 서버가 거부한다
      */
     fun getNotifications(
-        cursor: Long?,
+        nextNotificationId: Long?,
         size: Int,
         onError: (String) -> Unit,
     ): Flow<NotificationPage>

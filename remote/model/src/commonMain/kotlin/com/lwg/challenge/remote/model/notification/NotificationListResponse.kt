@@ -5,21 +5,23 @@ import com.lwg.challenge.remote.model.serializer.WireLocalDateTimeSerializer
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
-/** GET /api/v1/notifications — 이 앱에서 유일하게 커서 페이지네이션을 쓰는 목록. */
+/** GET /api/v1/notifications — 이 앱에서 유일하게 키 기반 페이지네이션을 쓰는 목록. */
 @Serializable
 data class NotificationListResponse(
     val data: NotificationListData = NotificationListData(),
 ) : BaseResponse()
 
+/**
+ * @property nextNotificationId **다음 쪽 첫 항목**의 id(이번 쪽 마지막 항목 id 가 아니다). 다음 요청에 그대로 싣는다.
+ *   null 이어도 키는 항상 실린다(서버 Jackson 에 `@JsonInclude(NON_NULL)` 설정이 없다)
+ * @property isPageEnd 마지막 쪽인가. 서버 불변식 `isPageEnd == (nextNotificationId == null)`.
+ *   기본값이 `true` 인 이유: 키가 빠진 응답에서 `false` 면 null 키로 첫 쪽을 반복 요청한다
+ */
 @Serializable
 data class NotificationListData(
     val notifications: List<NotificationDto> = emptyList(),
-    /**
-     * 다음 쪽의 `cursor`. **`null` 이면 끝이다.**
-     *
-     * null 이어도 키는 항상 실린다(서버 Jackson 에 `@JsonInclude(NON_NULL)` 설정이 없다).
-     */
-    val nextCursor: Long? = null,
+    val nextNotificationId: Long? = null,
+    val isPageEnd: Boolean = true,
 )
 
 /**
@@ -47,7 +49,7 @@ data class NotificationDto(
      * 참조 대상이 아직 응답을 기다리는가. `true` 대기 / `false` 처리·만료·종료·삭제 /
      * `null` 이 타입에는 대기라는 개념이 없음.
      *
-     * `null` 이어도 키는 항상 실린다 — [nextCursor] 와 같은 이유다.
+     * `null` 이어도 키는 항상 실린다 — [NotificationListData.nextNotificationId] 와 같은 이유다.
      */
     val referencePending: Boolean? = null,
     /** `yyyy-MM-dd HH:mm:ss` (KST). 포맷이 어긋나면 null. */

@@ -6,20 +6,18 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.notification.PreviewNotificationNow
 import com.lwg.challenge.feature.notification.PreviewNotifications
-import com.lwg.challenge.feature.notification.component.NotificationAppendLoading
-import com.lwg.challenge.feature.notification.component.NotificationAppendRetry
 import com.lwg.challenge.feature.notification.component.NotificationCard
 import com.lwg.challenge.feature.notification.component.NotificationDateHeader
 import com.lwg.challenge.feature.notification.component.notificationTypeVisualOf
-import com.lwg.challenge.feature.notification.contract.NotificationAppendState
 import com.lwg.challenge.feature.notification.contract.NotificationUiState
 import com.lwg.challenge.navigation.Route
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -31,16 +29,15 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 internal fun NotificationScreen(
     uiState: NotificationUiState.Data,
+    listState: LazyListState,
     onNotificationClick: (Route) -> Unit,
-    onLoadMore: () -> Unit,
 ) {
-    val groups = uiState.dateGroups
-
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
+        state = listState,
         contentPadding = PaddingValues(vertical = 16.dp),
     ) {
-        groups.forEachIndexed { groupIndex, group ->
+        uiState.dateGroups.forEachIndexed { groupIndex, group ->
             item(key = group.headerKey) {
                 NotificationDateHeader(
                     label = group.label,
@@ -49,15 +46,10 @@ internal fun NotificationScreen(
                 )
             }
 
-            itemsIndexed(
+            items(
                 items = group.notifications,
-                key = { _, notification -> notification.notificationId },
-            ) { index, notification ->
-                // 마지막 항목이 조성되는 순간을 "바닥에 닿았다" 로 알린다. 더 받을지는 ViewModel 이 판단한다.
-                if (groupIndex == groups.lastIndex && index == group.notifications.lastIndex) {
-                    LaunchedEffect(notification.notificationId) { onLoadMore() }
-                }
-
+                key = { notification -> notification.notificationId },
+            ) { notification ->
                 val visual = notificationTypeVisualOf(notification.type)
                 val route = uiState.routeOf(notification)
 
@@ -71,13 +63,6 @@ internal fun NotificationScreen(
                 )
             }
         }
-
-        // 끝에 도달하면 아무것도 그리지 않는다 — "여기까지" 를 알리지 않는다.
-        when (uiState.append) {
-            NotificationAppendState.Idle -> Unit
-            NotificationAppendState.Loading -> item { NotificationAppendLoading() }
-            NotificationAppendState.Failed -> item { NotificationAppendRetry(onClick = onLoadMore) }
-        }
     }
 }
 
@@ -88,32 +73,14 @@ private fun NotificationScreenPreview() {
     NotificationScreenPreviewContainer(NotificationUiState.Data(PreviewNotifications, PreviewNotificationNow))
 }
 
-/** 다음 쪽 로딩. 목록은 그대로 두고 마지막에 인디케이터 한 줄만 붙는다. */
-@Preview
-@Composable
-private fun NotificationScreenAppendingPreview() {
-    NotificationScreenPreviewContainer(
-        NotificationUiState.Data(PreviewNotifications, PreviewNotificationNow, NotificationAppendState.Loading),
-    )
-}
-
-/** 다음 쪽 실패. 인디케이터 자리가 "다시 시도" 로 바뀐다. */
-@Preview
-@Composable
-private fun NotificationScreenAppendFailedPreview() {
-    NotificationScreenPreviewContainer(
-        NotificationUiState.Data(PreviewNotifications, PreviewNotificationNow, NotificationAppendState.Failed),
-    )
-}
-
 @Composable
 private fun NotificationScreenPreviewContainer(uiState: NotificationUiState.Data) {
     ChallengeTheme {
         Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
             NotificationScreen(
                 uiState = uiState,
+                listState = rememberLazyListState(),
                 onNotificationClick = {},
-                onLoadMore = {},
             )
         }
     }

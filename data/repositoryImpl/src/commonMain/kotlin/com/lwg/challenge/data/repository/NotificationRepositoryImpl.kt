@@ -12,11 +12,14 @@ class NotificationRepositoryImpl(
 ) : NotificationRepository {
 
     override fun getNotifications(
-        cursor: Long?,
+        nextNotificationId: Long?,
         size: Int,
         onError: (String) -> Unit,
-    ): Flow<NotificationPage> =
-        notificationRemoteDataSource.getNotifications(cursor = cursor, size = size, onError = onError)
+    ): Flow<NotificationPage> = notificationRemoteDataSource.getNotifications(
+        nextNotificationId = nextNotificationId,
+        size = size,
+        onError = onError,
+    )
 
     override fun getUnreadCount(onError: (String) -> Unit): Flow<Int> =
         notificationRemoteDataSource.getUnreadCount(onError)

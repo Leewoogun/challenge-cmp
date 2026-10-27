@@ -32,7 +32,7 @@ class NotificationListResponseTest {
           {"notificationId":20,"type":"CHALLENGE_REQUEST","body":"대기중 신청","referenceId":2001,"referencePending":true,"createdAt":"2026-09-01 20:00:00"},
           {"notificationId":7,"type":"CHALLENGE_REQUEST","body":"아직 없는 타입","referenceId":1005,"referencePending":false,"createdAt":"2026-09-01 15:00:00"},
           {"notificationId":6,"type":"FRIEND_REQUEST","body":"유저2님이 친구 요청","referenceId":null,"referencePending":null,"createdAt":"2026-09-01 14:00:00"}
-         ],"nextCursor":null},
+         ],"nextNotificationId":null,"isPageEnd":true},
          "error":false,"code":200,"message":""}
     """.trimIndent()
 
@@ -84,7 +84,54 @@ class NotificationListResponseTest {
         assertTrue(wire.contains("\"referencePending\":null"))
         assertNull(response.data.notifications[0].referencePending)
         assertNull(response.data.notifications[3].referenceId)
-        assertNull(response.data.nextCursor)
+        assertNull(response.data.nextNotificationId)
+    }
+
+    /** 다음 값은 이번 쪽 마지막 항목(7)이 아니라 다음 쪽 첫 항목(5)의 id 다. 계산 없이 원문 그대로 들어와야 한다. */
+    @Test
+    fun `중간 쪽은 nextNotificationId 값과 isPageEnd false 로 들어온다`() {
+        val data = decode(
+            """
+            {"data":{"notifications":[
+              {"notificationId":9,"type":"CHALLENGE_REQUEST","body":"a","referenceId":1,"referencePending":true,"createdAt":"2026-10-26 10:00:00"},
+              {"notificationId":7,"type":"CHALLENGE_REQUEST","body":"b","referenceId":2,"referencePending":true,"createdAt":"2026-10-26 09:00:00"}
+             ],"nextNotificationId":5,"isPageEnd":false},
+             "error":false,"code":200,"message":""}
+            """.trimIndent(),
+        ).data
+
+        assertEquals(5L, data.nextNotificationId)
+        assertFalse(data.isPageEnd)
+    }
+
+    @Test
+    fun `끝 쪽은 nextNotificationId null 과 isPageEnd true 로 들어온다`() {
+        val data = decode().data
+
+        assertTrue(wire.contains("\"nextNotificationId\":null"))
+        assertNull(data.nextNotificationId)
+        assertTrue(data.isPageEnd)
+    }
+
+    @Test
+    fun `0건 응답은 빈 목록과 isPageEnd true 다`() {
+        val data = decode(
+            """{"data":{"notifications":[],"nextNotificationId":null,"isPageEnd":true},"error":false,"code":200,"message":""}""",
+        ).data
+
+        assertTrue(data.notifications.isEmpty())
+        assertNull(data.nextNotificationId)
+        assertTrue(data.isPageEnd)
+    }
+
+    /** DTO 가 v2 키를 읽지 않는다는 것을 고정한다 — 읽어서 다음 요청에 실으면 서버가 조용히 무시해 첫 쪽이 반복된다. */
+    @Test
+    fun `v2 키만 있고 새 키가 없는 응답이면 nextNotificationId 는 null 이다`() {
+        val data = decode(
+            """{"data":{"notifications":[],"nextCursor":42},"error":false,"code":200,"message":""}""",
+        ).data
+
+        assertNull(data.nextNotificationId)
     }
 
     /**

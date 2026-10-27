@@ -16,18 +16,18 @@ import de.jensklingenberg.ktorfit.http.Query
 interface NotificationApi {
 
     /**
-     * GET /api/v1/notifications — 알림 목록. `id DESC`(= 최신순), 커서 페이지네이션.
+     * GET /api/v1/notifications — 알림 목록. `id DESC`(= 최신순), 키 기반 페이지네이션.
      *
-     * @param cursor 🔴 **직전 응답의 `nextCursor` 를 그대로 되돌려 보낸다.** null 이면 쿼리 파라미터가
-     *   붙지 않아 맨 앞부터 온다 — 첫 호출이 파라미터 없이 성립하는 것이 설계이고, 앱은 커서를
-     *   **만들지 않는다**. 존재하지 않는 id 를 보내도 에러가 아니다(`id < cursor` 조건이라 그냥
-     *   그보다 작은 것들이 온다).
+     * @param nextNotificationId 🔴 **직전 응답의 `nextNotificationId` 를 그대로 되돌려 보낸다.** null 이면 쿼리
+     *   파라미터가 붙지 않아 맨 앞부터 온다 — 첫 호출이 파라미터 없이 성립하는 것이 설계이고, 앱은 키를
+     *   **만들지 않는다**. 조건이 `id <= nextNotificationId`(포함 경계)라 마지막 항목 id 를 보내면 그 항목이
+     *   다음 쪽에 한 번 더 온다. 존재하지 않는 id 를 보내도 에러가 아니다.
      * @param size `1..50`. 🔴 서버가 범위 밖을 조용히 clamp 하지 않고 code 700 으로 거부한다 —
-     *   깎아 주면 앱이 요청한 개수를 받았다고 믿고 커서를 잘못 이어 붙인다.
+     *   깎아 주면 앱이 요청한 개수를 받았다고 믿고 쪽을 잘못 이어 붙인다.
      */
     @GET("api/v1/notifications")
     suspend fun getNotifications(
-        @Query("cursor") cursor: Long?,
+        @Query("nextNotificationId") nextNotificationId: Long?,
         @Query("size") size: Int,
     ): ApiResult<NotificationListResponse>
 

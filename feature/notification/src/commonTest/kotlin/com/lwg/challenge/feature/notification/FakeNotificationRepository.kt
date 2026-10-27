@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flow
 /**
  * 테스트용 [NotificationRepository] 페이크.
  *
- * 응답을 큐로 받는 이유: 커서 페이징은 **호출 순서마다 다른 쪽**이 와야 검증이 성립한다.
+ * 응답을 큐로 받는 이유: 키 페이징은 **호출 순서마다 다른 쪽**이 와야 검증이 성립한다.
  * 실패는 emit 없이 onError 만 부른다 — 실제 RemoteDataSource 와 같은 계약이라야
  * "실패는 값이 아니다" 를 전제로 짜인 ViewModel 분기가 그대로 검증된다.
  */
@@ -24,8 +24,8 @@ class FakeNotificationRepository : NotificationRepository {
 
     private val outcomes = ArrayDeque<Outcome>()
 
-    /** 요청에 실려 나간 cursor 인자. 서버가 준 nextCursor 를 그대로 되돌려 보내는지 여기서 본다. */
-    val requestedCursors = mutableListOf<Long?>()
+    /** 요청에 실려 나간 nextNotificationId 인자. 서버가 준 값을 그대로 되돌려 보내는지 여기서 본다. */
+    val requestedNextNotificationIds = mutableListOf<Long?>()
 
     var getNotificationsCallCount: Int = 0
         private set
@@ -41,8 +41,9 @@ class FakeNotificationRepository : NotificationRepository {
      */
     var pendingResponse: CompletableDeferred<Unit>? = null
 
-    fun enqueuePage(notifications: List<Notification>, nextCursor: Long?) {
-        outcomes += Outcome.Page(NotificationPage(notifications, nextCursor))
+    // isPageEnd 는 서버 불변식(isPageEnd == (nextNotificationId == null))대로 만든다.
+    fun enqueuePage(notifications: List<Notification>, nextNotificationId: Long?) {
+        outcomes += Outcome.Page(NotificationPage(notifications, nextNotificationId, isPageEnd = nextNotificationId == null))
     }
 
     fun enqueueFailure(message: String) {
@@ -50,15 +51,15 @@ class FakeNotificationRepository : NotificationRepository {
     }
 
     override fun getNotifications(
-        cursor: Long?,
+        nextNotificationId: Long?,
         size: Int,
         onError: (String) -> Unit,
     ): Flow<NotificationPage> = flow {
         getNotificationsCallCount += 1
-        requestedCursors += cursor
+        requestedNextNotificationIds += nextNotificationId
         pendingResponse?.await()
 
-        val outcome = outcomes.removeFirstOrNull() ?: Outcome.Page(NotificationPage(emptyList(), null))
+        val outcome = outcomes.removeFirstOrNull() ?: Outcome.Page(NotificationPage(emptyList(), null, isPageEnd = true))
         when (outcome) {
             is Outcome.Page -> emit(outcome.page)
             is Outcome.Failure -> onError(outcome.message)

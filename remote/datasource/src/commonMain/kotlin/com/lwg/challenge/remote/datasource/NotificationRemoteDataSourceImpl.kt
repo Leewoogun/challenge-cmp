@@ -17,11 +17,11 @@ class NotificationRemoteDataSourceImpl(
 ) : NotificationRemoteDataSource {
 
     override fun getNotifications(
-        cursor: Long?,
+        nextNotificationId: Long?,
         size: Int,
         onError: (String) -> Unit,
     ): Flow<NotificationPage> = flow {
-        notificationApi.getNotifications(cursor = cursor, size = size)
+        notificationApi.getNotifications(nextNotificationId = nextNotificationId, size = size)
             .suspendOnSuccess { this@flow.emit(response.toNotificationPage()) }
             .suspendOnFailureWithErrorHandling(onError)
     }

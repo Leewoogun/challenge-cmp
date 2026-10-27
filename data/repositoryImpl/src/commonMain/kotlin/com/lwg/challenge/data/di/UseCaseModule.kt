@@ -15,6 +15,7 @@ import com.lwg.challenge.domain.usecase.GetChallengeDetailDataUseCase
 import com.lwg.challenge.domain.usecase.GetFriendsDataUseCase
 import com.lwg.challenge.domain.usecase.GetHomeDataUseCase
 import com.lwg.challenge.domain.usecase.GetMyPageDataUseCase
+import com.lwg.challenge.domain.usecase.GetNotificationsUseCase
 import com.lwg.challenge.domain.usecase.GetStoredTokensUseCase
 import com.lwg.challenge.domain.usecase.LoginWithKakaoUseCase
 import com.lwg.challenge.domain.usecase.LoginWithTestAccountUseCase
@@ -87,6 +88,11 @@ class UseCaseModule {
         challengeRepository: ChallengeRepository,
         verificationRepository: VerificationRepository,
     ): GetChallengeDetailDataUseCase = GetChallengeDetailDataUseCase(challengeRepository, verificationRepository)
+
+    @Factory
+    fun provideGetNotificationsUseCase(
+        notificationRepository: NotificationRepository,
+    ): GetNotificationsUseCase = GetNotificationsUseCase(notificationRepository)
 
     @Factory
     fun provideCreateChallengeUseCase(

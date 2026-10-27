@@ -9,12 +9,13 @@ import com.lwg.challenge.remote.model.notification.UnreadCountResponse
 /**
  * 서버가 준 순서(`id DESC` = 최신순)를 그대로 보존한다 — 앱은 재정렬하지 않는다.
  *
- * [NotificationPage.nextCursor] 는 손대지 않고 통과시킨다. 항목이 걸러져도 커서는 서버가 정한
- * 그대로여야 다음 쪽이 어긋나지 않는다.
+ * [NotificationPage.nextNotificationId] 와 [NotificationPage.isPageEnd] 는 손대지 않고 통과시킨다. 항목이 걸러져도
+ * 두 값은 서버가 정한 그대로여야 다음 쪽이 어긋나지 않는다.
  */
 fun NotificationListResponse.toNotificationPage(): NotificationPage = NotificationPage(
     notifications = data.notifications.mapNotNull(NotificationDto::toNotificationOrNull),
-    nextCursor = data.nextCursor,
+    nextNotificationId = data.nextNotificationId,
+    isPageEnd = data.isPageEnd,
 )
 
 fun UnreadCountResponse.toUnreadCount(): Int = data.unreadCount

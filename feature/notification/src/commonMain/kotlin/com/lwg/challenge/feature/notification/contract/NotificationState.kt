@@ -18,15 +18,11 @@ sealed interface NotificationUiState {
     @Immutable
     data object Loading : NotificationUiState
 
-    /**
-     * @property now 첫 쪽을 받을 때 1회 잰 기준 시각. 쪽이 추가돼도 유지해 한 목록의 경과 시간을 한 시계로 계산한다.
-     * @property append 목록 마지막 슬롯(다음 쪽 로딩·실패) 상태.
-     */
+    /** @property now 결과를 받을 때 잰 기준 시각. 목록 전체가 이 한 시계로 경과 시간을 계산한다. */
     @Immutable
     data class Data(
         val notifications: List<Notification>,
         val now: LocalDateTime,
-        val append: NotificationAppendState = NotificationAppendState.Idle,
     ) : NotificationUiState {
 
         // 쪽이 아니라 누적 목록에서 묶어야 페이지 경계에 걸친 날짜에 헤더가 두 번 찍히지 않는다. 새 List 라 get() 대신 val.
@@ -81,21 +77,6 @@ private fun List<Notification>.groupByDateRun(today: LocalDate): List<Notificati
         current.add(notification)
     }
     flush()
-}
-
-/** 다음 쪽 조회는 마지막 한 슬롯만 쓴다. 전체 화면으로 올리면 읽던 목록과 스크롤 위치를 잃는다. */
-@Stable
-sealed interface NotificationAppendState {
-
-    /** 대기와 끝 도달을 겸한다. 둘 다 아무것도 그리지 않는다. */
-    @Immutable
-    data object Idle : NotificationAppendState
-
-    @Immutable
-    data object Loading : NotificationAppendState
-
-    @Immutable
-    data object Failed : NotificationAppendState
 }
 
 /**
