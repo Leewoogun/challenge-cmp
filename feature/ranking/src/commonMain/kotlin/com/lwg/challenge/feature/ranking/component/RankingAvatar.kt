@@ -22,9 +22,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val AvatarShape = RoundedCornerShape(16.dp)
 
-/** 포디움 아바타. [brush](1위 fire) 가 있으면 그 위에 투명 배경으로 [ProfileImage] 를 얹는다. */
+/** Top3 카드 아바타. [brush](1위 fire) 가 있으면 그 위에 투명 배경으로 [ProfileImage] 를 얹는다. */
 @Composable
-internal fun PodiumAvatar(
+internal fun RankingAvatar(
     imageUrl: String?,
     nickname: String,
     size: Dp,
@@ -64,7 +64,7 @@ internal fun PodiumAvatar(
 
 @Preview
 @Composable
-private fun PodiumAvatarPreview() {
+private fun RankingAvatarPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
@@ -73,13 +73,13 @@ private fun PodiumAvatarPreview() {
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            PodiumAvatar(
+            RankingAvatar(
                 imageUrl = null,
                 nickname = "우건",
                 size = 56.dp,
                 textStyle = ChallengeTheme.typography.medium20,
             )
-            PodiumAvatar(
+            RankingAvatar(
                 imageUrl = null,
                 nickname = "준혁",
                 size = 64.dp,
@@ -92,14 +92,14 @@ private fun PodiumAvatarPreview() {
 
 @Preview
 @Composable
-private fun PodiumAvatarBlankNicknamePreview() {
+private fun RankingAvatarBlankNicknamePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(24.dp),
         ) {
-            PodiumAvatar(
+            RankingAvatar(
                 imageUrl = null,
                 nickname = "   ",
                 size = 64.dp,

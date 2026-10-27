@@ -9,6 +9,9 @@ import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.ranking.component.RankingTopBar
 import com.lwg.challenge.feature.ranking.contract.RankingUiEffect
 import com.lwg.challenge.feature.ranking.contract.RankingUiState
+import com.lwg.challenge.feature.ranking.screen.RankingErrorScreen
+import com.lwg.challenge.feature.ranking.screen.RankingLoadingScreen
+import com.lwg.challenge.feature.ranking.screen.RankingScreen
 import com.lwg.challenge.navigation.LocalMainAction
 import com.lwg.challenge.navigation.LocalNavigateAction
 import com.lwg.challenge.navigation.Route
@@ -33,6 +36,7 @@ fun RankingRoute(
     RankingContent(
         uiState = uiState,
         onClickAddFriend = { navigator.navigateTo(Route.Friends.Search) },
+        onRetryClick = viewModel::retry,
     )
 }
 
@@ -40,6 +44,7 @@ fun RankingRoute(
 private fun RankingContent(
     uiState: RankingUiState,
     onClickAddFriend: () -> Unit,
+    onRetryClick: () -> Unit,
 ) {
     ChallengeScaffold(
         statusBarColor = ChallengeTheme.colorScheme.surface,
@@ -47,6 +52,8 @@ private fun RankingContent(
     ) {
         when (uiState) {
             RankingUiState.Loading -> RankingLoadingScreen()
+
+            RankingUiState.Error -> RankingErrorScreen(onRetryClick = onRetryClick)
 
             is RankingUiState.Data -> RankingScreen(
                 uiState = uiState,

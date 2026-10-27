@@ -2,6 +2,7 @@ package com.lwg.challenge.feature.ranking
 
 import com.lwg.challenge.domain.model.ranking.LoserRankingEntry
 import com.lwg.challenge.domain.repository.RankingRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -19,8 +20,12 @@ class FakeRankingRepository : RankingRepository {
     var callCount: Int = 0
         private set
 
+    /** non-null 이면 이 신호를 기다렸다 응답한다. 응답 전 화면을 관찰할 때 쓴다. */
+    var pendingResponse: CompletableDeferred<Unit>? = null
+
     override fun getLoserRanking(onError: (String) -> Unit): Flow<List<LoserRankingEntry>> = flow {
         callCount += 1
+        pendingResponse?.await()
         val currentError = error
         if (currentError != null) onError(currentError) else emit(entries)
     }

@@ -10,11 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * "이 탭은 승자 랭킹이 아니라 패자 랭킹" 임을 진입 즉시 못박는 부제.
- *
- * 상단바가 아니라 본문 최상단에 있는 이유는 [RankingTopBar] KDoc 참조.
- */
+/** 승자가 아니라 패자 랭킹임을 진입하자마자 알리는 부제. */
 @Composable
 internal fun RankingSubtitle(
     modifier: Modifier = Modifier,

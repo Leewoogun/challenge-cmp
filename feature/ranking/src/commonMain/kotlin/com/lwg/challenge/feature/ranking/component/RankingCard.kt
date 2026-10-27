@@ -18,21 +18,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.ranking.PreviewLoserRankingEntries
-import com.lwg.challenge.feature.ranking.contract.LoserRankingItemState
-import com.lwg.challenge.feature.ranking.contract.PodiumState
+import com.lwg.challenge.feature.ranking.contract.RankingUiState
+import com.lwg.challenge.feature.ranking.contract.RankingTopThree
 import com.lwg.challenge.feature.ranking.previewAsFirst
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
- * Top3 포디움 카드. 참가자 3명 이상일 때만 호출된다.
- *
- * 받침대 높이(96/64/48dp)가 다른 3열을 하단 정렬하면 단이 저절로 생긴다 — Lovable 의 `items-end` 가
- * 하는 일이 그대로 [Alignment.Bottom] 이다. 1위 열의 `-mt-4` 는 옮기지 않는다. 하단 정렬 상태에서는
- * 키 큰 열이 이미 위로 뻗으므로 옮기면 16dp 가 이중으로 붙는다. (design.md §1.2)
+ * Top3 카드. 받침대 높이가 다른 3열을 하단 정렬하면 단이 저절로 생긴다.
+ * 1위 열을 위로 올리는 여백은 따로 주지 않는다 — 하단 정렬에서 이미 위로 뻗어 이중으로 붙는다.
  */
 @Composable
-internal fun PodiumCard(
-    podium: PodiumState,
+internal fun RankingCard(
+    topThree: RankingTopThree,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -48,8 +45,8 @@ internal fun PodiumCard(
             horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.Bottom,
         ) {
-            PodiumColumn(
-                item = podium.second,
+            RankingColumn(
+                entry = topThree.second,
                 avatarSize = 56.dp,
                 avatarTextStyle = ChallengeTheme.typography.medium20,
                 nameStyle = ChallengeTheme.typography.bold12,
@@ -60,8 +57,8 @@ internal fun PodiumCard(
                 pedestalIconTint = ChallengeTheme.colorScheme.onSurfaceVariant,
             )
 
-            PodiumColumn(
-                item = podium.first,
+            RankingColumn(
+                entry = topThree.first,
                 avatarSize = 64.dp,
                 avatarTextStyle = ChallengeTheme.typography.medium24,
                 nameStyle = ChallengeTheme.typography.bold14,
@@ -69,8 +66,7 @@ internal fun PodiumCard(
                 pedestalHeight = 96.dp,
                 pedestalIcon = Icons.Filled.LocalFireDepartment,
                 pedestalIconSize = 24.dp,
-                // opacity-40 은 받침대 전체가 아니라 아이콘에만 건다 — 전체에 걸면 20% 배경이 8% 가
-                // 되어 다시 안 보인다. (design.md §1.2.4)
+                // 알파를 받침대 전체에 걸면 20% 배경이 8% 가 되어 안 보여 아이콘에만 건다.
                 pedestalIconTint = ChallengeTheme.colorScheme.primary.copy(alpha = 0.40f),
                 showCrown = true,
                 avatarBrush = ChallengeTheme.brushes.fire,
@@ -78,8 +74,8 @@ internal fun PodiumCard(
                 pedestalBrushAlpha = 0.20f,
             )
 
-            PodiumColumn(
-                item = podium.third,
+            RankingColumn(
+                entry = topThree.third,
                 avatarSize = 56.dp,
                 avatarTextStyle = ChallengeTheme.typography.medium20,
                 nameStyle = ChallengeTheme.typography.bold12,
@@ -93,31 +89,27 @@ internal fun PodiumCard(
     }
 }
 
-/** 실서버 5행의 앞 3행이 그대로 포디움 세 열이다. */
-private fun previewPodium(
+@Composable
+private fun PreviewRankingCard(
     firstStreak: Int = PreviewLoserRankingEntries.first().currentLossStreak,
     longFirstNickname: Boolean = false,
-): PodiumState {
-    val items = PreviewLoserRankingEntries.take(3)
-        .map { entry ->
-            if (entry.rank == 1) entry.previewAsFirst(firstStreak, longFirstNickname) else entry
-        }
-        .map(::LoserRankingItemState)
-
-    return PodiumState(first = items[0], second = items[1], third = items[2])
+) {
+    val entries = PreviewLoserRankingEntries.take(3).map { entry ->
+        if (entry.rank == 1) entry.previewAsFirst(firstStreak, longFirstNickname) else entry
+    }
+    RankingCard(topThree = requireNotNull(RankingUiState.Data(entries).topThree))
 }
 
-/** 실측 그대로 — 내가 1위라 이름·이니셜이 "나" 가 되고, 연패 0 이라 세 열의 캡션 형식이 완전히 같아진다. */
 @Preview
 @Composable
-private fun PodiumCardPreview() {
+private fun RankingCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(20.dp),
         ) {
-            PodiumCard(podium = previewPodium())
+            PreviewRankingCard()
         }
     }
 }
@@ -125,28 +117,28 @@ private fun PodiumCardPreview() {
 /** 연패 중인 1위 — 1위 캡션에만 🐷N연패 절이 붙어 나머지 두 열과 형식이 갈린다. */
 @Preview
 @Composable
-private fun PodiumCardFirstWithStreakPreview() {
+private fun RankingCardFirstWithStreakPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(20.dp),
         ) {
-            PodiumCard(podium = previewPodium(firstStreak = 7))
+            PreviewRankingCard(firstStreak = 7)
         }
     }
 }
 
 @Preview
 @Composable
-private fun PodiumCardLongNicknamePreview() {
+private fun RankingCardLongNicknamePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(20.dp),
         ) {
-            PodiumCard(podium = previewPodium(longFirstNickname = true))
+            PreviewRankingCard(longFirstNickname = true)
         }
     }
 }

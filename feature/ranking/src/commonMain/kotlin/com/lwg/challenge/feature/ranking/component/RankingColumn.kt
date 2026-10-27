@@ -29,24 +29,20 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.modifier.wiggle
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ranking.LoserRankingEntry
-import com.lwg.challenge.feature.ranking.contract.LoserRankingItemState
+import com.lwg.challenge.feature.ranking.contract.cardCaption
+import com.lwg.challenge.feature.ranking.contract.displayName
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val PedestalShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
 
 /**
- * 포디움 1열. **1·2·3위 공용 1종이다.**
+ * Top3 카드 1열. 1·2·3위 공용 1종이라 순위별 차이(왕관·아바타·받침대·캡션)는 전부 파라미터다.
  *
- * 순위별 차이는 ① 왕관 노출 ② 아바타 크기·배경 ③ 받침대 크기·배경 ④ 캡션 문구 넷뿐이고 전부
- * 파라미터다. 1위용을 따로 만들면 이름·캡션의 타이포와 간격이 조용히 갈린다. (design.md §4.3)
- *
- * @param pedestalBrush null 이면 받침대를 `surfaceVariant` 평면색으로 그린다.
- * @param pedestalBrushAlpha [pedestalBrush] 에만 적용되는 알파. 받침대 전체(아이콘 포함)에 알파를
- *   걸면 배경이 다시 안 보이므로 아이콘 알파는 [pedestalIconTint] 로 따로 준다.
+ * @param pedestalBrushAlpha [pedestalBrush] 에만 건다. 받침대 전체에 걸면 아이콘까지 흐려져 아이콘 알파는 [pedestalIconTint] 로 준다.
  */
 @Composable
-internal fun PodiumColumn(
-    item: LoserRankingItemState,
+internal fun RankingColumn(
+    entry: LoserRankingEntry,
     avatarSize: Dp,
     avatarTextStyle: TextStyle,
     nameStyle: TextStyle,
@@ -75,16 +71,16 @@ internal fun PodiumColumn(
             )
         }
 
-        PodiumAvatar(
-            imageUrl = item.profileImageUrl,
-            nickname = item.displayName,
+        RankingAvatar(
+            imageUrl = entry.profileImageUrl,
+            nickname = entry.displayName,
             size = avatarSize,
             textStyle = avatarTextStyle,
             brush = avatarBrush,
         )
 
         Text(
-            text = item.displayName,
+            text = entry.displayName,
             style = nameStyle,
             color = ChallengeTheme.colorScheme.onBackground,
             maxLines = 1,
@@ -96,7 +92,7 @@ internal fun PodiumColumn(
         )
 
         Text(
-            text = item.podiumCaptionText,
+            text = entry.cardCaption,
             style = ChallengeTheme.typography.medium10,
             color = ChallengeTheme.colorScheme.error,
             maxLines = 1,
@@ -138,36 +134,34 @@ internal fun PodiumColumn(
     }
 }
 
-private fun previewItem(
+private fun previewEntry(
     rank: Int,
     nickname: String,
     losses: Int,
     streak: Int,
-): LoserRankingItemState = LoserRankingItemState(
-    LoserRankingEntry(
-        rank = rank,
-        userId = rank.toLong(),
-        nickname = nickname,
-        profileImageUrl = null,
-        isMe = false,
-        losses = losses,
-        lossRate = 70 - rank,
-        currentLossStreak = streak,
-        totalChallenges = 30,
-    ),
+) = LoserRankingEntry(
+    rank = rank,
+    userId = rank.toLong(),
+    nickname = nickname,
+    profileImageUrl = null,
+    isMe = false,
+    losses = losses,
+    lossRate = 70 - rank,
+    currentLossStreak = streak,
+    totalChallenges = 30,
 )
 
 @Preview
 @Composable
-private fun PodiumColumnFirstPreview() {
+private fun RankingColumnFirstPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(24.dp),
         ) {
-            PodiumColumn(
-                item = previewItem(rank = 1, nickname = "준혁", losses = 25, streak = 7),
+            RankingColumn(
+                entry = previewEntry(rank = 1, nickname = "준혁", losses = 25, streak = 7),
                 avatarSize = 64.dp,
                 avatarTextStyle = ChallengeTheme.typography.medium24,
                 nameStyle = ChallengeTheme.typography.bold14,
@@ -187,7 +181,7 @@ private fun PodiumColumnFirstPreview() {
 
 @Preview
 @Composable
-private fun PodiumColumnRunnerUpsPreview() {
+private fun RankingColumnRunnerUpsPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
@@ -196,8 +190,8 @@ private fun PodiumColumnRunnerUpsPreview() {
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            PodiumColumn(
-                item = previewItem(rank = 2, nickname = "지우", losses = 18, streak = 4),
+            RankingColumn(
+                entry = previewEntry(rank = 2, nickname = "지우", losses = 18, streak = 4),
                 avatarSize = 56.dp,
                 avatarTextStyle = ChallengeTheme.typography.medium20,
                 nameStyle = ChallengeTheme.typography.bold12,
@@ -207,8 +201,8 @@ private fun PodiumColumnRunnerUpsPreview() {
                 pedestalIconSize = 20.dp,
                 pedestalIconTint = ChallengeTheme.colorScheme.onSurfaceVariant,
             )
-            PodiumColumn(
-                item = previewItem(rank = 3, nickname = "도윤", losses = 14, streak = 2),
+            RankingColumn(
+                entry = previewEntry(rank = 3, nickname = "도윤", losses = 14, streak = 2),
                 avatarSize = 56.dp,
                 avatarTextStyle = ChallengeTheme.typography.medium20,
                 nameStyle = ChallengeTheme.typography.bold12,
@@ -225,15 +219,15 @@ private fun PodiumColumnRunnerUpsPreview() {
 /** 연패 0 인 1위 — 캡션에서 🐷 절이 통째로 사라진다. */
 @Preview
 @Composable
-private fun PodiumColumnFirstWithoutStreakPreview() {
+private fun RankingColumnFirstWithoutStreakPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
                 .background(ChallengeTheme.colorScheme.background)
                 .padding(24.dp),
         ) {
-            PodiumColumn(
-                item = previewItem(rank = 1, nickname = "준혁", losses = 25, streak = 0),
+            RankingColumn(
+                entry = previewEntry(rank = 1, nickname = "준혁", losses = 25, streak = 0),
                 avatarSize = 64.dp,
                 avatarTextStyle = ChallengeTheme.typography.medium24,
                 nameStyle = ChallengeTheme.typography.bold14,

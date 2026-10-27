@@ -4,12 +4,15 @@ import app.cash.turbine.test
 import com.lwg.challenge.domain.model.ranking.LoserRankingEntry
 import com.lwg.challenge.feature.ranking.contract.RankingUiEffect
 import com.lwg.challenge.feature.ranking.contract.RankingUiState
+import com.lwg.challenge.feature.ranking.contract.displayName
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
@@ -40,9 +43,7 @@ class RankingViewModelTest {
 
     private fun createViewModel(): RankingViewModel = RankingViewModel(fakeRanking)
 
-    // uiState 가 WhileSubscribed 이므로 구독자가 있어야 파이프라인이 시작된다.
-    // 초기 로딩 실패의 ShowMessage 를 검증하는 테스트는 이 호출을 `uiEffect.test { }` 안에 둬야 한다 —
-    // uiEffect 가 replay 0 SharedFlow 라 collector 가 붙기 전에 emit 된 이펙트는 그대로 버려진다.
+    // uiState 가 WhileSubscribed 라 구독해야 조회한다. uiEffect 는 replay 0 이라 미리 test { } 로 붙여야 받는다.
     private fun TestScope.subscribeUiState(viewModel: RankingViewModel) {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect { }
@@ -96,42 +97,42 @@ class RankingViewModelTest {
     }
 
     @Test
-    fun `참가자가 3명 이상이면 포디움이 목록 앞 3개로 채워진다`() = runTest {
+    fun `참가자가 3명 이상이면 Top3 카드가 목록 앞 3개로 채워진다`() = runTest {
         fakeRanking.entries = entries(5)
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as RankingUiState.Data
+        val state = assertIs<RankingUiState.Data>(viewModel.uiState.value)
 
-        val podium = assertNotNull(state.podium)
-        assertEquals(state.entries[0], podium.first)
-        assertEquals(state.entries[1], podium.second)
-        assertEquals(state.entries[2], podium.third)
-        assertEquals(listOf("1", "2", "3"), listOf(podium.first, podium.second, podium.third).map { it.rankText })
+        val topThree = assertNotNull(state.topThree)
+        assertEquals(state.entries[0], topThree.first)
+        assertEquals(state.entries[1], topThree.second)
+        assertEquals(state.entries[2], topThree.third)
+        assertEquals(listOf("1", "2", "3"), listOf(topThree.first, topThree.second, topThree.third).map { it.rank.toString() })
     }
 
     /** 신규 사용자의 기본 상태다. 자리가 비면 빈 칸이 생겨 고장난 화면으로 보인다. */
     @Test
-    fun `참가자가 2명이면 포디움을 세우지 않는다`() = runTest {
+    fun `참가자가 2명이면 Top3 카드를 만들지 않는다`() = runTest {
         fakeRanking.entries = entries(2)
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as RankingUiState.Data
+        val state = assertIs<RankingUiState.Data>(viewModel.uiState.value)
 
-        assertNull(state.podium)
+        assertNull(state.topThree)
         assertEquals(2, state.entries.size)
     }
 
     @Test
-    fun `참가자가 1명이면 포디움이 없고 빈 상태를 띄운다`() = runTest {
+    fun `참가자가 1명이면 Top3 카드가 없고 빈 상태를 띄운다`() = runTest {
         fakeRanking.entries = entries(1)
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as RankingUiState.Data
+        val state = assertIs<RankingUiState.Data>(viewModel.uiState.value)
 
-        assertNull(state.podium)
+        assertNull(state.topThree)
         assertTrue(state.isEmptyStateVisible)
         assertTrue(state.isRankListVisible)
     }
@@ -142,9 +143,9 @@ class RankingViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as RankingUiState.Data
+        val state = assertIs<RankingUiState.Data>(viewModel.uiState.value)
 
-        assertNull(state.podium)
+        assertNull(state.topThree)
         assertTrue(state.isEmptyStateVisible)
         assertFalse(state.isRankListVisible)
     }
@@ -155,27 +156,27 @@ class RankingViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as RankingUiState.Data
+        val state = assertIs<RankingUiState.Data>(viewModel.uiState.value)
 
         assertFalse(state.isEmptyStateVisible)
-        assertNotNull(state.podium)
+        assertNotNull(state.topThree)
     }
 
     /**
-     * 명단은 1위부터 전원이 정본이다 — 포디움과 중복돼도 잘라내지 않는다.
+     * 명단은 1위부터 전원이 정본이다 — Top3 카드와 중복돼도 잘라내지 않는다.
      * `drop(3)` 으로 중복을 없애는 회귀를 여기서 막는다.
      */
     @Test
-    fun `명단이 1위부터 전원이라 포디움과 중복된다`() = runTest {
+    fun `명단이 1위부터 전원이라 Top3 카드와 중복된다`() = runTest {
         fakeRanking.entries = entries(6)
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as RankingUiState.Data
+        val state = assertIs<RankingUiState.Data>(viewModel.uiState.value)
 
         assertEquals(6, state.entries.size)
-        assertEquals(listOf("1", "2", "3", "4", "5", "6"), state.entries.map { it.rankText })
-        assertEquals(state.entries.first(), assertNotNull(state.podium).first)
+        assertEquals(listOf("1", "2", "3", "4", "5", "6"), state.entries.map { it.rank.toString() })
+        assertEquals(state.entries.first(), assertNotNull(state.topThree).first)
     }
 
     /**
@@ -193,10 +194,10 @@ class RankingViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as RankingUiState.Data
+        val state = assertIs<RankingUiState.Data>(viewModel.uiState.value)
 
         assertEquals(listOf(101L, 102L, 103L, 104L), state.entries.map { it.userId })
-        assertEquals(listOf("1", "2", "3", "4"), state.entries.map { it.rankText })
+        assertEquals(listOf("1", "2", "3", "4"), state.entries.map { it.rank.toString() })
     }
 
     @Test
@@ -209,26 +210,88 @@ class RankingViewModelTest {
 
         val viewModel = createViewModel()
         subscribeUiState(viewModel)
-        val state = viewModel.uiState.value as RankingUiState.Data
+        val state = assertIs<RankingUiState.Data>(viewModel.uiState.value)
 
         assertEquals(1, state.entries.count { it.isMe })
         assertEquals("나", state.entries.first { it.isMe }.displayName)
         assertEquals("준혁", state.entries.first().displayName)
     }
 
+    /** 첫 조회 실패는 화면이 직접 말해 스낵바를 겹치지 않는다. 스피너에 머물면 다시 시도할 수단이 없다. */
     @Test
-    fun `조회가 실패하면 ShowMessage 를 발행하고 Loading 을 유지한다`() = runTest {
+    fun `첫 조회가 실패하면 스낵바 없이 Error 다`() = runTest {
         fakeRanking.error = "랭킹 조회 실패"
 
         val viewModel = createViewModel()
 
         viewModel.uiEffect.test {
             subscribeUiState(viewModel)
-            val effect = awaitItem()
-            assertIs<RankingUiEffect.ShowMessage>(effect)
+            expectNoEvents()
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertIs<RankingUiState.Error>(viewModel.uiState.value)
+    }
+
+    @Test
+    fun `재시도하면 다시 조회해 Data 로 간다`() = runTest {
+        fakeRanking.error = "랭킹 조회 실패"
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        assertIs<RankingUiState.Error>(viewModel.uiState.value)
+
+        fakeRanking.error = null
+        fakeRanking.entries = entries(3)
+        viewModel.retry()
+        runCurrent()
+
+        assertEquals(2, fakeRanking.callCount)
+        assertIs<RankingUiState.Data>(viewModel.uiState.value)
+    }
+
+    /** 스피너가 없으면 Error 화면이 그대로 남아, 다시 실패했을 때 재시도가 됐는지조차 보이지 않는다. */
+    @Test
+    fun `재시도하면 응답이 올 때까지 Loading 이다`() = runTest {
+        fakeRanking.error = "랭킹 조회 실패"
+
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+        assertIs<RankingUiState.Error>(viewModel.uiState.value)
+
+        val pending = CompletableDeferred<Unit>()
+        fakeRanking.pendingResponse = pending
+        fakeRanking.error = null
+        fakeRanking.entries = entries(3)
+        viewModel.retry()
+        runCurrent()
+        assertIs<RankingUiState.Loading>(viewModel.uiState.value)
+
+        pending.complete(Unit)
+        runCurrent()
+        assertIs<RankingUiState.Data>(viewModel.uiState.value)
+    }
+
+    /** 탭을 다시 열 때 실패해도 보던 랭킹을 Error 로 덮지 않는다. */
+    @Test
+    fun `재구독 조회가 실패하면 랭킹은 남기고 스낵바로 알린다`() = runTest {
+        fakeRanking.entries = entries(3)
+
+        val viewModel = createViewModel()
+        val subscription = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { }
+        }
+        assertIs<RankingUiState.Data>(viewModel.uiState.value)
+
+        fakeRanking.error = "랭킹 조회 실패"
+        viewModel.uiEffect.test {
+            subscription.cancel()
+            runCurrent()
+            subscribeUiState(viewModel)
+
+            val effect = assertIs<RankingUiEffect.ShowMessage>(awaitItem())
             assertEquals("랭킹 조회 실패", effect.message)
             cancelAndIgnoreRemainingEvents()
         }
-        assertIs<RankingUiState.Loading>(viewModel.uiState.value)
+        assertEquals(3, assertIs<RankingUiState.Data>(viewModel.uiState.value).entries.size)
     }
 }
