@@ -31,7 +31,7 @@ private val UNAUTHENTICATED_PATHS = setOf(
 )
 
 /**
- * [baseUrl] 은 KtorfitModule 에서는 BuildKonfig.BASE_URL 이 넘어온다.
+ * [baseUrl] 은 KtorfitModule 에서는 Constants.BASE_URL 이 넘어온다.
  * 테스트가 MockEngine 주소를 넣을 수 있도록 파라미터로 뺐다.
  */
 fun HttpClientConfig<*>.installChallengeAuth(

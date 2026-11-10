@@ -150,25 +150,6 @@ private fun PhotoRetryMessage(text: String, onRetry: () -> Unit) {
     }
 }
 
-/** 인증 완료 + 사진 있음. 프리뷰는 네트워크를 못 타 Coil 의 로딩 슬롯까지만 확인된다. */
-@Preview
-@Composable
-private fun VerificationPhotoWithPhotoPreview() {
-    ChallengeTheme {
-        Box(
-            modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
-                .padding(20.dp),
-        ) {
-            VerificationPhoto(
-                status = VerificationStatus.VERIFIED,
-                photoUrl = "http://10.0.2.2:8080/api/v1/challenges/7/photos/opponent",
-                cacheKey = "http://10.0.2.2:8080/api/v1/challenges/7/photos/opponent|2026-01-01T09:30",
-            )
-        }
-    }
-}
-
 /** 탈퇴로 사진이 삭제됨 — 아래 [VerificationPhotoMissingUrlPreview] 와 문구가 달라야 한다. */
 @Preview
 @Composable
@@ -234,25 +215,6 @@ private fun VerificationPhotoFailedPreview() {
                 .padding(20.dp),
         ) {
             VerificationPhoto(status = VerificationStatus.FAILED, photoUrl = null, cacheKey = null)
-        }
-    }
-}
-
-/** AI 반려 — `FAILED` 인데 사진이 남아 실패 문구가 아니라 사진이 나와야 한다. */
-@Preview
-@Composable
-private fun VerificationPhotoFailedWithPhotoPreview() {
-    ChallengeTheme {
-        Box(
-            modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
-                .padding(20.dp),
-        ) {
-            VerificationPhoto(
-                status = VerificationStatus.FAILED,
-                photoUrl = "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-                cacheKey = "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger|2026-01-01T09:30",
-            )
         }
     }
 }

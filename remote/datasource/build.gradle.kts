@@ -20,6 +20,9 @@ kotlin {
             implementation(projects.remote.mapper)
             implementation(projects.remote.network)
 
+            // Constants.BASE_URL
+            implementation(projects.core.utils)
+
             // Koin
             implementation(libs.koin.core)
             implementation(libs.koin.annotations)

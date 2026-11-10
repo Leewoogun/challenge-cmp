@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  로컬 개발 편의를 위해 모든 호스트에 평문(HTTP) 통신을 허용한다.
-  호스트 PC 의 LAN IP 가 바뀔 때마다 화이트리스트를 갱신하는 비용을 없애기 위한 선택.
-
-  ⚠️ base-config 는 release 빌드에도 적용된다. 운영 서버는 HTTPS 를 쓰므로 실제 평문 통신은
-  없지만, 스토어 심사/보안 점검 대응이 필요해지면 debug 변형 전용 res 로 분리할 것.
+  운영 서버는 HTTPS 전용이라 평문(HTTP) 통신을 막는다. release 를 포함한 전 빌드의 기본값.
+  로컬 개발 서버(평문 HTTP, LAN IP)용 허용은 debug 변형이 같은 이름의 리소스로 이 파일을 덮어쓴다
+  (src/androidDebug/res/xml/network_security_config.xml).
 -->
 <network-security-config>
-    <base-config cleartextTrafficPermitted="true" />
+    <base-config cleartextTrafficPermitted="false" />
 </network-security-config>

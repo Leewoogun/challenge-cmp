@@ -196,11 +196,11 @@ private fun MissionCardMineFailedPreview() {
                 status = VerificationStatus.FAILED,
                 footerSpacing = 12.dp,
                 footer = {
-                    // 실패 문구가 사진 자리를 가로채지 않는지 보려고 isLoading 대신 URL 을 채운다.
                     VerificationPhoto(
                         status = VerificationStatus.FAILED,
-                        photoUrl = "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-                        cacheKey = "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger|2026-01-01T09:30",
+                        photoUrl = null,
+                        cacheKey = null,
+                        isLoading = true,
                     )
                     VerticalSpacer(8.dp)
                     RejectionReasonText(

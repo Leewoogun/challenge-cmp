@@ -1,12 +1,12 @@
 package com.lwg.challenge.remote.network.di
 
-import com.lwg.challenge.remote.network.BuildKonfig
 import com.lwg.challenge.remote.network.auth.AuthTokenCacheInvalidator
 import com.lwg.challenge.remote.network.auth.TokenProvider
 import com.lwg.challenge.remote.network.auth.installChallengeAuth
 import com.lwg.challenge.remote.network.util.ApiResultConverterFactory
 import com.lwg.challenge.remote.network.util.HttpNetworkLogger
 import com.lwg.challenge.utils.AuthEventBus
+import com.lwg.challenge.utils.Constants
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
@@ -49,7 +49,7 @@ class KtorfitModule {
                 headers.appendIfNameAbsent(HttpHeaders.ContentType, "application/json; charset=utf-8")
             }
 
-            installChallengeAuth(tokenProvider, authEventBus, BuildKonfig.BASE_URL)
+            installChallengeAuth(tokenProvider, authEventBus, Constants.BASE_URL)
 
             install(HttpNetworkLogger)
         }
@@ -63,7 +63,7 @@ class KtorfitModule {
     fun provideKtorfit(httpClient: HttpClient): Ktorfit {
         return Ktorfit.Builder()
             .httpClient(httpClient)
-            .baseUrl(BuildKonfig.BASE_URL)
+            .baseUrl(Constants.BASE_URL)
             .converterFactories(ApiResultConverterFactory())
             .build()
     }

@@ -149,10 +149,17 @@ iOS 는 `iosApp/iosApp.xcodeproj` 를 Xcode 로 열어 실행합니다.
 `local.properties` (VCS 미포함):
 
 ```properties
-challenge_api_base_url_android = "http://<server>:8080/"
-challenge_api_base_url_ios = "http://<server>:8080/"
 kakao_native_app_key = "..."
 kakao_invite_template_id = "..."
+```
+
+#### API 서버
+
+`core/utils` 의 `Constants.BASE_URL` 로 관리합니다. debug 빌드는 로컬 개발 서버, release 빌드는 운영 서버 `https://api.woo-challenge.shop/` 를 봅니다. 로컬 서버 주소는 `local.properties` 에 적고, 없으면 debug 빌드도 운영 서버를 봅니다. 평문 HTTP 는 Android debug 빌드에서만 허용됩니다.
+
+```properties
+challenge_api_base_url_android = "http://<server>:8080/"
+challenge_api_base_url_ios = "http://<server>:8080/"
 ```
 
 Android 푸시는 `composeApp/google-services.json` 이 필요합니다.

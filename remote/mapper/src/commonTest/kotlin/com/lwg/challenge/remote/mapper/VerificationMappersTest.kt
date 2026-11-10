@@ -13,8 +13,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/** 운영 BuildKonfig.BASE_URL 과 같은 형태 — trailing slash 가 있다. 이게 실제 조합 조건이다. */
-internal const val TEST_BASE_URL = "http://10.0.2.2:8080/"
+/** 운영 Constants.BASE_URL 과 같은 형태 — trailing slash 가 있다. 이게 실제 조합 조건이다. */
+internal const val TEST_BASE_URL = "https://api.woo-challenge.shop/"
 
 internal const val AI_REASON = "책상 위 커피잔 사진으로 미션 수행 증거로 보기 어렵습니다."
 
@@ -62,7 +62,7 @@ class VerificationMappersTest {
         ).toChallengeVerifications(TEST_BASE_URL)
 
         assertEquals(
-            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
+            "https://api.woo-challenge.shop/api/v1/challenges/7/photos/challenger",
             verifications.myVerification.photoUrl,
         )
         assertEquals(LocalDateTime(2026, 8, 14, 15, 32, 10), verifications.myVerification.verifiedAt)
@@ -125,7 +125,7 @@ class VerificationMappersTest {
         assertEquals(VerificationStatus.FAILED, verifications.myVerification.status)
         assertEquals(AI_REASON, verifications.myVerification.aiReason)
         assertEquals(
-            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
+            "https://api.woo-challenge.shop/api/v1/challenges/7/photos/challenger",
             verifications.myVerification.photoUrl,
             "반려됐다고 사진을 버리지 않는다",
         )
@@ -164,34 +164,34 @@ class VerificationMappersTest {
     @Test
     fun `baseUrl 끝 슬래시와 path 앞 슬래시가 겹쳐도 슬래시는 하나다`() {
         assertEquals(
-            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            joinPhotoUrl("http://10.0.2.2:8080/", "/api/v1/challenges/7/photos/challenger"),
+            "https://api.woo-challenge.shop/api/v1/challenges/7/photos/challenger",
+            joinPhotoUrl("https://api.woo-challenge.shop/", "/api/v1/challenges/7/photos/challenger"),
         )
     }
 
     @Test
     fun `baseUrl 이 슬래시 없이 끝나도 결과가 같다`() {
         assertEquals(
-            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            joinPhotoUrl("http://10.0.2.2:8080", "/api/v1/challenges/7/photos/challenger"),
+            "https://api.woo-challenge.shop/api/v1/challenges/7/photos/challenger",
+            joinPhotoUrl("https://api.woo-challenge.shop", "/api/v1/challenges/7/photos/challenger"),
         )
     }
 
     @Test
     fun `path 가 슬래시 없이 시작해도 결과가 같다`() {
         assertEquals(
-            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            joinPhotoUrl("http://10.0.2.2:8080/", "api/v1/challenges/7/photos/challenger"),
+            "https://api.woo-challenge.shop/api/v1/challenges/7/photos/challenger",
+            joinPhotoUrl("https://api.woo-challenge.shop/", "api/v1/challenges/7/photos/challenger"),
         )
         assertEquals(
-            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
-            joinPhotoUrl("http://10.0.2.2:8080", "api/v1/challenges/7/photos/challenger"),
+            "https://api.woo-challenge.shop/api/v1/challenges/7/photos/challenger",
+            joinPhotoUrl("https://api.woo-challenge.shop", "api/v1/challenges/7/photos/challenger"),
         )
     }
 
     @Test
     fun `조립된 URL 에는 스킴을 뺀 나머지에 연속 슬래시가 없다`() {
-        val bases = listOf("http://10.0.2.2:8080/", "http://10.0.2.2:8080")
+        val bases = listOf("https://api.woo-challenge.shop/", "https://api.woo-challenge.shop")
         val paths = listOf("/api/v1/challenges/7/photos/challenger", "api/v1/challenges/7/photos/challenger")
 
         for (base in bases) {
@@ -218,10 +218,10 @@ class VerificationMappersTest {
                 me = verifiedParty,
                 opponent = VerificationResultDto(status = "PENDING"),
             ),
-        ).toChallengeVerifications("http://10.0.2.2:8080")
+        ).toChallengeVerifications("https://api.woo-challenge.shop")
 
         assertEquals(
-            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
+            "https://api.woo-challenge.shop/api/v1/challenges/7/photos/challenger",
             verifications.myVerification.photoUrl,
         )
         assertNull(verifications.opponentVerification.photoUrl)

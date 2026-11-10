@@ -80,7 +80,7 @@ class VerificationWireFixtureTest {
 
         assertEquals(VerificationStatus.VERIFIED, verifications.myVerification.status)
         assertEquals(
-            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
+            "https://api.woo-challenge.shop/api/v1/challenges/7/photos/challenger",
             verifications.myVerification.photoUrl,
         )
         assertEquals(LocalDateTime(2026, 8, 14, 15, 32, 10), verifications.myVerification.verifiedAt)
@@ -134,7 +134,7 @@ class VerificationWireFixtureTest {
 
         assertEquals(VerificationStatus.FAILED, verifications.myVerification.status)
         assertEquals(
-            "http://10.0.2.2:8080/api/v1/challenges/7/photos/challenger",
+            "https://api.woo-challenge.shop/api/v1/challenges/7/photos/challenger",
             verifications.myVerification.photoUrl,
         )
         assertEquals(LocalDateTime(2026, 9, 22, 21, 14, 3), verifications.myVerification.verifiedAt)

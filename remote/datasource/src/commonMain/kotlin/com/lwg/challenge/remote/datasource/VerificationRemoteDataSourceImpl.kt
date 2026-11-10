@@ -6,10 +6,10 @@ import com.lwg.challenge.domain.model.verification.VerificationSubmitOutcome
 import com.lwg.challenge.remote.api.VerificationApi
 import com.lwg.challenge.remote.mapper.toChallengeVerifications
 import com.lwg.challenge.remote.mapper.toSubmitResult
-import com.lwg.challenge.remote.network.BuildKonfig
 import com.lwg.challenge.remote.network.util.ApiResult
 import com.lwg.challenge.remote.network.util.suspendOnFailureWithErrorHandling
 import com.lwg.challenge.remote.network.util.suspendOnSuccess
+import com.lwg.challenge.utils.Constants
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.http.ContentType
@@ -63,7 +63,7 @@ class VerificationRemoteDataSourceImpl(
         onError: (String) -> Unit,
     ): Flow<ChallengeVerifications> = flow {
         verificationApi.getVerifications(challengeId)
-            .suspendOnSuccess { this@flow.emit(response.toChallengeVerifications(BuildKonfig.BASE_URL)) }
+            .suspendOnSuccess { this@flow.emit(response.toChallengeVerifications(Constants.BASE_URL)) }
             .suspendOnFailureWithErrorHandling(onError)
     }
 }

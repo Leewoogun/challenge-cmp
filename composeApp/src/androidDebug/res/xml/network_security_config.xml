@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  debug 빌드 전용. local.properties 의 challenge_api_base_url_android(LAN IP 평문 HTTP 로컬 서버)에 붙기 위함.
+  호스트 LAN IP 가 바뀌므로 domain-config 화이트리스트 대신 base-config 로 연다.
+  release 에는 리소스 병합상 포함되지 않는다.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

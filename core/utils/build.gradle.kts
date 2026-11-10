@@ -1,7 +1,11 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.challengeKotlinMultiplatform)
     alias(libs.plugins.challengeComposeMultiplatform)
+    alias(libs.plugins.buildkonfig)
 }
 
 android {
@@ -9,6 +13,28 @@ android {
 
     buildFeatures {
         buildConfig = true
+    }
+}
+
+val localProperties = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use(::load)
+}
+
+// 키가 없으면 빈 값 → Constants 가 debug 빌드에서도 운영 서버를 쓴다.
+fun devBaseUrl(key: String): String = localProperties[key]?.toString()?.trim('"').orEmpty()
+
+buildkonfig {
+    packageName = "com.lwg.challenge.utils"
+
+    defaultConfigs {
+        buildConfigField(STRING, "DEV_BASE_URL", devBaseUrl("challenge_api_base_url_android"))
+    }
+    targetConfigs {
+        listOf("iosArm64", "iosSimulatorArm64", "iosX64").forEach { target ->
+            create(target) {
+                buildConfigField(STRING, "DEV_BASE_URL", devBaseUrl("challenge_api_base_url_ios"))
+            }
+        }
     }
 }
 

@@ -1,55 +1,13 @@
-import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.challengeKotlinMultiplatform)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.challengeKspKoin)
     alias(libs.plugins.ktorfit)
-    alias(libs.plugins.buildkonfig)
 }
 
 android {
     namespace = "com.lwg.challenge.remote.network"
-}
-
-val properties = Properties().apply {
-    load(rootProject.file("local.properties").inputStream())
-}
-
-buildkonfig {
-    packageName = "com.lwg.challenge.remote.network"
-
-    // 기본 생성물은 internal 이라 모듈 밖에서 안 보인다. photoUrl 절대 URL 조립을 위해
-    // :remote:datasource 가 BASE_URL 을 읽어야 해서 public 으로 노출한다.
-    exposeObjectWithName = "BuildKonfig"
-
-    // 기본값: Android 에뮬레이터용 URL. (ADR-0007)
-    // Android target 은 defaultConfigs 를 그대로 사용하고, iOS target 들은 targetConfigs 로 오버라이드.
-    defaultConfigs {
-        buildConfigField(
-            STRING,
-            "BASE_URL",
-            properties["challenge_api_base_url_android"]?.toString()?.trim('"')
-                ?: "http://10.0.2.2:8080/",
-        )
-    }
-
-    val iosBaseUrl = properties["challenge_api_base_url_ios"]?.toString()?.trim('"')
-        ?: "http://localhost:8080/"
-
-    targetConfigs {
-        create("iosArm64") {
-            buildConfigField(STRING, "BASE_URL", iosBaseUrl)
-        }
-        create("iosSimulatorArm64") {
-            buildConfigField(STRING, "BASE_URL", iosBaseUrl)
-        }
-        create("iosX64") {
-            buildConfigField(STRING, "BASE_URL", iosBaseUrl)
-        }
-    }
 }
 
 kotlin {
