@@ -16,7 +16,7 @@ on:
                 default: 'testers'
                 type: string
             release_notes:
-                description: '릴리스 노트'
+                description: '릴리스 노트 (비우면 fastlane/release_notes.txt 사용)'
                 required: false
                 type: string
 
@@ -70,7 +70,8 @@ jobs:
                   FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
                   FIREBASE_SERVICE_ACCOUNT_FILE: ${{ runner.temp }}/firebase_service_account.json
                   TESTER_GROUPS: ${{ inputs.groups || 'testers' }}
-                  RELEASE_NOTES: ${{ inputs.release_notes || github.event.head_commit.message }}
+                  RELEASE_NOTES: ${{ inputs.release_notes }}
+                  COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
                   VERSION_CODE: ${{ github.run_number }}
                   BRANCH_NAME: ${{ github.ref_name }}
               run: bundle exec fastlane distribute

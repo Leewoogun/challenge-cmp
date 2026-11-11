@@ -18,12 +18,18 @@ lane :distribute do
     }.compact
   )
 
-  branch_name = ENV["BRANCH_NAME"] || (git_branch rescue "unknown")
-  notes = ENV["RELEASE_NOTES"].to_s.strip
-  release_notes = <<~NOTES.strip
-    #{notes.empty? ? "Release build from CI/CD" : notes}
+  # 우선순위: 수동 실행 입력 > fastlane/release_notes.txt > 커밋 메시지
+  notes_file = File.join(Dir.pwd, "release_notes.txt")
+  file_notes = File.exist?(notes_file) ? File.read(notes_file).strip : ""
+  notes = [ENV["RELEASE_NOTES"], file_notes, ENV["COMMIT_MESSAGE"]]
+    .map { |n| n.to_s.strip }
+    .find { |n| !n.empty? } || "Release build from CI/CD"
 
-    브랜치: #{branch_name}
+  branch_name = ENV["BRANCH_NAME"] || (git_branch rescue "unknown")
+  release_notes = <<~NOTES.strip
+    #{notes}
+
+    브랜치: #{branch_name} · 빌드 ##{ENV['VERSION_CODE'] || '-'}
   NOTES
 
   firebase_app_distribution(
