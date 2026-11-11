@@ -6,6 +6,8 @@ lane :distribute do
 
   gradle(
     task: ":composeApp:assembleRelease",
+    # 실패 원인(What went wrong)만 남기고 태스크 진행·경고 로그는 숨긴다.
+    flags: "--quiet",
     print_command: false,
     properties: {
       "versionCode" => ENV["VERSION_CODE"],
