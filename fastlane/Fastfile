@@ -1,0 +1,37 @@
+desc "release APK 를 Firebase App Distribution 에 배포"
+lane :distribute do
+  %w[KEYSTORE_FILE KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD FIREBASE_APP_ID FIREBASE_SERVICE_ACCOUNT_FILE TESTER_GROUPS].each do |key|
+    UI.user_error!("❌ #{key} 환경 변수가 필요합니다.") if ENV[key].to_s.strip.empty?
+  end
+
+  gradle(
+    task: ":composeApp:assembleRelease",
+    print_command: false,
+    properties: {
+      "versionCode" => ENV["VERSION_CODE"],
+      "android.injected.signing.store.file" => ENV["KEYSTORE_FILE"],
+      "android.injected.signing.store.password" => ENV["KEYSTORE_PASSWORD"],
+      "android.injected.signing.key.alias" => ENV["KEY_ALIAS"],
+      "android.injected.signing.key.password" => ENV["KEY_PASSWORD"],
+    }.compact
+  )
+
+  branch_name = ENV["BRANCH_NAME"] || (git_branch rescue "unknown")
+  notes = ENV["RELEASE_NOTES"].to_s.strip
+  release_notes = <<~NOTES.strip
+    #{notes.empty? ? "Release build from CI/CD" : notes}
+
+    브랜치: #{branch_name}
+  NOTES
+
+  firebase_app_distribution(
+    app: ENV["FIREBASE_APP_ID"],
+    service_credentials_file: ENV["FIREBASE_SERVICE_ACCOUNT_FILE"],
+    android_artifact_type: "APK",
+    android_artifact_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH],
+    groups: ENV["TESTER_GROUPS"],
+    release_notes: release_notes,
+  )
+
+  UI.success("🚀 Firebase App Distribution 배포 완료 (#{ENV['TESTER_GROUPS']})")
+end

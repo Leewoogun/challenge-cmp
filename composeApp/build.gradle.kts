@@ -122,7 +122,8 @@ android {
         applicationId = "com.lwg.challenge"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
+        // CI 가 -PversionCode=<run_number> 로 올려야 App Distribution 에서 업데이트로 설치된다.
+        versionCode = providers.gradleProperty("versionCode").orNull?.toInt() ?: 1
         versionName = "1.0.0"
         manifestPlaceholders["kakaoNativeAppKey"] = kakaoNativeAppKey
     }

@@ -163,3 +163,19 @@ challenge_api_base_url_ios = "http://<server>:8080/"
 ```
 
 Android 푸시는 `composeApp/google-services.json` 이 필요합니다.
+
+### Android 배포 (Firebase App Distribution)
+
+`main` 에 push 하면(문서·iOS 만 바뀐 경우 제외) GitHub Actions **Android Firebase 배포** 워크플로가 돌고, 수동 실행(`workflow_dispatch`)도 가능합니다. fastlane `distribute` lane 이 서명된 release APK 를 빌드해 지정한 테스터 그룹에 올립니다. versionCode 는 워크플로 실행 번호(`github.run_number`)입니다.
+
+필요한 GitHub Secrets:
+
+| Secret | 값 |
+|---|---|
+| `KEYSTORE_BASE64` | `base64 -i challengeKey.jks` |
+| `KEYSTORE_PASSWORD` / `KEY_PASSWORD` | keystore / 키 비밀번호 |
+| `KEY_ALIAS` | `challengekey` |
+| `GOOGLE_SERVICES_JSON_BASE64` | `base64 -i composeApp/google-services.json` |
+| `FIREBASE_APP_ID` | Firebase 콘솔의 Android 앱 ID (`1:...:android:...`) |
+| `FIREBASE_SERVICE_ACCOUNT_BASE64` | App Distribution 권한이 있는 서비스 계정 JSON 의 base64 |
+| `KAKAO_NATIVE_APP_KEY` / `KAKAO_INVITE_TEMPLATE_ID` | local.properties 와 같은 값 |
