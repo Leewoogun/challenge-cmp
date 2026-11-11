@@ -136,6 +136,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            // 로컬 release 실행용. 배포 서명은 CI 가 android.injected.signing.* 로 덮어쓴다.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 }

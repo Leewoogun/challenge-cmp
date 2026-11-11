@@ -168,6 +168,8 @@ Android 푸시는 `composeApp/google-services.json` 이 필요합니다.
 
 `main` 에 push 하면(문서·iOS 만 바뀐 경우 제외) GitHub Actions **Android Firebase 배포** 워크플로가 돌고, 수동 실행(`workflow_dispatch`)도 가능합니다. fastlane `distribute` lane 이 서명된 release APK 를 빌드해 지정한 테스터 그룹에 올립니다. versionCode 는 워크플로 실행 번호(`github.run_number`)입니다.
 
+릴리스 노트는 수동 실행 입력 → `fastlane/release_notes.txt` → 커밋 메시지 순으로 쓰입니다. 배포 전에 `release_notes.txt` 를 갱신해 함께 커밋하세요.
+
 필요한 GitHub Secrets:
 
 | Secret | 값 |
