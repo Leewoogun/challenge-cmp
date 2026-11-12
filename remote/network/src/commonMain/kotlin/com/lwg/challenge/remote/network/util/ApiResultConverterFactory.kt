@@ -8,6 +8,7 @@ import de.jensklingenberg.ktorfit.converter.TypeData
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Ktorfit Converter Factory for ApiResult.
@@ -18,6 +19,7 @@ import io.ktor.client.statement.bodyAsText
  * 3. HTTP 2xx + `body.code == 200` → [ApiResult.Success].
  * 4. IOException → [ApiResult.Failure.NetworkError].
  * 5. 기타 예외 → [ApiResult.Failure.UnknownApiError].
+ * 6. 코루틴 취소는 실패가 아니므로 변환하지 않고 다시 던진다.
  *
  * `T : BaseResponse` 제약이 ApiResult 시그니처에 걸려있어, 응답 body 는 항상 [BaseResponse] 자손.
  * Repository 는 더 이상 `body.code` 를 직접 검사하지 않는다.
@@ -56,6 +58,8 @@ class ApiResultConverterFactory : Converter.Factory {
                                     body = response.bodyAsText(),
                                 )
                             }
+                        } catch (e: CancellationException) {
+                            throw e
                         } catch (e: Exception) {
                             ApiResult.Failure.UnknownApiError(e)
                         }
@@ -63,6 +67,7 @@ class ApiResultConverterFactory : Converter.Factory {
 
                     is KtorfitResult.Failure -> {
                         val throwable = result.throwable
+                        if (throwable is CancellationException) throw throwable
                         if (throwable is kotlinx.io.IOException) {
                             ApiResult.Failure.NetworkError(
                                 message = throwable.message ?: "네트워크 연결 실패",
