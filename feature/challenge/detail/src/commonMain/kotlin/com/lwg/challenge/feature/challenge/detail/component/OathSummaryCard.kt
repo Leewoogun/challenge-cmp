@@ -23,13 +23,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.HorizontalDivider
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.Contract
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 계약 조건 + 서명을 한 장으로 압축한 계약서 카드.
@@ -153,7 +153,7 @@ private fun OathField(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathSummaryCardBothSignedPreview() {
     ChallengeTheme {
@@ -175,7 +175,7 @@ private fun OathSummaryCardBothSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathSummaryCardOpponentNotSignedPreview() {
     ChallengeTheme {
@@ -198,7 +198,7 @@ private fun OathSummaryCardOpponentNotSignedPreview() {
 }
 
 /** 계약서 없음 — divider 와 서명 블록이 통째로 빠지고 내기·마감만 남는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun OathSummaryCardNoContractPreview() {
     ChallengeTheme {

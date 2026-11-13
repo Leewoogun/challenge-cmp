@@ -66,7 +66,7 @@ Figma에서 가져온 디자인 토큰을 프로젝트 디자인 시스템과 �
 - `private @Composable fun {Name}Preview()` 형태
 - `ChallengeTheme { }` 로 래핑 + `ChallengeTheme.colorScheme.background.screen` 배경
 - 상태 분기(Loading/Data/Empty 등)가 있으면 분기별 Preview 작성
-- import 는 `org.jetbrains.compose.ui.tooling.preview.Preview` (KMP)
+- 어노테이션은 `@ThemePreviews` (`com.lwg.challenge.designsystem.preview.ThemePreviews`) — 라이트 / 다크 동시 표시
 
 세부 규칙은 `design-system` 스킬의 "Preview 필수 규칙" 참조.
 

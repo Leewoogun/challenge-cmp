@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.Contract
@@ -37,7 +38,6 @@ import com.lwg.challenge.ui.components.signature.SignatureField
 import com.lwg.challenge.ui.components.signature.SignatureSlot
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 계약서 확인 → 미션 입력 → 서명을 한 스크롤에 두고 제출 버튼만 하단에 고정한다.
@@ -158,7 +158,7 @@ internal fun OathFormScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathFormScreenEmptyPreview() {
     ChallengeTheme {
@@ -173,7 +173,7 @@ private fun OathFormScreenEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathFormScreenFilledPreview() {
     ChallengeTheme {
@@ -191,7 +191,7 @@ private fun OathFormScreenFilledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathFormScreenSubmittingPreview() {
     ChallengeTheme {
@@ -210,7 +210,7 @@ private fun OathFormScreenSubmittingPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathFormScreenNoOpponentSignaturePreview() {
     ChallengeTheme {

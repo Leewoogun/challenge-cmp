@@ -15,9 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 친구 목록 항목 카드. 친구 1명을 가로 1줄로 표시. */
 @Composable
@@ -51,7 +51,7 @@ internal fun FriendListItem(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendListItemPreview() {
     ChallengeTheme {
@@ -68,7 +68,7 @@ private fun FriendListItemPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendListItemLongNicknamePreview() {
     ChallengeTheme {
@@ -85,7 +85,7 @@ private fun FriendListItemLongNicknamePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendListItemNoProfilePreview() {
     ChallengeTheme {

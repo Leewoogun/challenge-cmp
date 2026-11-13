@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeInputField
 import com.lwg.challenge.designsystem.components.InputFieldType
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 라벨 + 입력 필드 + 글자 수 카운터 한 세트. */
 @Composable
@@ -77,7 +77,7 @@ fun LabeledInputField(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LabeledInputFieldEmptyPreview() {
     ChallengeTheme {
@@ -98,7 +98,7 @@ private fun LabeledInputFieldEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LabeledInputFieldFilledPreview() {
     ChallengeTheme {
@@ -119,7 +119,7 @@ private fun LabeledInputFieldFilledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LabeledInputFieldAtMaxPreview() {
     ChallengeTheme {
@@ -139,7 +139,7 @@ private fun LabeledInputFieldAtMaxPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LabeledInputFieldNoCounterPreview() {
     ChallengeTheme {

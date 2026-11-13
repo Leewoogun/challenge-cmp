@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 계약서를 한 번도 못 받아온 상태. 보여줄 계약이 없으므로 화면 전체를 차지한다. */
 @Composable
@@ -60,7 +60,7 @@ internal fun ChallengeDetailErrorScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailErrorScreenPreview() {
     ChallengeTheme {

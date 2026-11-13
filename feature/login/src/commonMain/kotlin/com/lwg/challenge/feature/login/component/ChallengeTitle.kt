@@ -16,8 +16,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.modifier.wiggle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ChallengeTitle() {
@@ -53,7 +53,7 @@ internal fun ChallengeTitle() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeTitlePreview() {
     ChallengeTheme {

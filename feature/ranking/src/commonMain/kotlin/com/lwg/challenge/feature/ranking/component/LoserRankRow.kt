@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ranking.LoserRankingEntry
 import com.lwg.challenge.feature.ranking.PREVIEW_LONG_NICKNAME
@@ -24,7 +25,6 @@ import com.lwg.challenge.feature.ranking.contract.isTopThree
 import com.lwg.challenge.feature.ranking.contract.listCaption
 import com.lwg.challenge.feature.ranking.contract.streakBadge
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 수치의 명단 1행. */
 @Composable
@@ -119,7 +119,7 @@ private fun LoserRankRowPreviewBox(content: @Composable () -> Unit) {
 }
 
 /** 1·3위 rank 강조, 1위 내 행("나" + surfaceVariant), 2·4위 연패 뱃지. */
-@Preview
+@ThemePreviews
 @Composable
 private fun LoserRankRowRankColorsPreview() {
     LoserRankRowPreviewBox {
@@ -131,7 +131,7 @@ private fun LoserRankRowRankColorsPreview() {
 }
 
 /** 연패 0 — 뱃지가 통째로 사라진다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun LoserRankRowWithoutStreakPreview() {
     LoserRankRowPreviewBox {
@@ -140,7 +140,7 @@ private fun LoserRankRowWithoutStreakPreview() {
 }
 
 /** 기록 없음(챌린지 0회)과 전승 0패. 나머지가 같아도 캡션만 갈린다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun LoserRankRowNoRecordPreview() {
     LoserRankRowPreviewBox {
@@ -150,7 +150,7 @@ private fun LoserRankRowNoRecordPreview() {
 }
 
 /** 내 행이 top3 밖일 때 — 보더는 outline 인데 배경만 surfaceVariant 로 올라간다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun LoserRankRowMePreview() {
     LoserRankRowPreviewBox {
@@ -158,7 +158,7 @@ private fun LoserRankRowMePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoserRankRowLongNicknamePreview() {
     LoserRankRowPreviewBox {

@@ -130,8 +130,8 @@ style = ChallengeTheme.typography.bold20
 
 1. **1 Composable = 1 Preview (최소)**: 새로 만든 표시용 `@Composable` 마다 같은 파일 하단에 `private @Composable fun {Name}Preview()` 를 추가한다.
 2. **상태 분기는 분기별 Preview**: 인자에 따라 시각이 달라지면(`isLoading=true/false`, 선택/비선택, Empty/Data 등) 분기마다 별도 Preview 를 만든다.
-3. **테마 래핑 필수**: Preview 는 반드시 `ChallengeTheme { }` 로 감싸고, 배경 가시성을 위해 `ChallengeTheme.colorScheme.background.screen` 배경을 깐다. 색이 많이 쓰인 화면은 `ChallengeTheme(darkTheme = false) { }` 라이트 Preview 도 함께 둔다.
-4. **import**: `org.jetbrains.compose.ui.tooling.preview.Preview` (KMP) 사용. `androidx.compose.ui.tooling.preview.Preview` 아님.
+3. **테마 래핑 필수**: Preview 는 반드시 `ChallengeTheme { }` 로 감싸고(`darkTheme` 인자 없이), 배경 가시성을 위해 `ChallengeTheme.colorScheme.background.screen` 배경을 깐다.
+4. **어노테이션은 `@ThemePreviews`**: `import com.lwg.challenge.designsystem.preview.ThemePreviews` 하나로 라이트 / 다크 Preview 가 함께 그려진다 (`ChallengeTheme` 기본값이 Preview 의 `uiMode` 를 따른다). `@Preview` 를 직접 쓰지 않는다 — `org.jetbrains.compose.ui.tooling.preview.Preview` 는 deprecated 라 의존성에서 빠졌다.
 
 ```kotlin
 import androidx.compose.foundation.background
@@ -140,10 +140,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview
+@ThemePreviews
 @Composable
 private fun {Name}Preview() {
     ChallengeTheme {
@@ -162,7 +162,8 @@ private fun {Name}Preview() {
 
 `core/designsystem/theme/`를 먼저 탐색:
 - `Color.kt` — raw 토큰 (orange1, black2, gray3 ... 직접 import 금지)
-- `ChallengeColorScheme.kt` — 시멘틱 색상 데이터 클래스 + Default 인스턴스
+- `ChallengeColorScheme.kt` — 시멘틱 색상 데이터 클래스 + Dark / Light 인스턴스
+- `color/` — 색상 그룹 클래스 (Background / Text / Icon / Button / Line / InputField / Gradient)
 - `ChallengeBrushes.kt` — 그라데이션
 - `BrandColors.kt` — 외부 브랜드 (Kakao)
 - `Theme.kt` — `ChallengeTheme` 진입점, `ChallengeTheme.colorScheme` getter

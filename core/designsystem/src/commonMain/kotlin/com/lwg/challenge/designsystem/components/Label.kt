@@ -17,8 +17,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ChallengeLabel(
@@ -63,7 +63,7 @@ fun ChallengeLabel(
 }
 
 @Composable
-@Preview
+@ThemePreviews
 private fun ChallengeLabelPreview() {
     ChallengeTheme {
         Column(

@@ -20,8 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val EMPTY_VALUE_TEXT = "—"
 
@@ -138,7 +138,7 @@ private fun ContractRow(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ContractCardPreview() {
     ChallengeTheme {
@@ -157,7 +157,7 @@ private fun ContractCardPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ContractCardMissionEmptyPreview() {
     ChallengeTheme {
@@ -176,7 +176,7 @@ private fun ContractCardMissionEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ContractCardWithOpponentMissionPreview() {
     ChallengeTheme {
@@ -197,7 +197,7 @@ private fun ContractCardWithOpponentMissionPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ContractCardCustomMyMissionLabelPreview() {
     ChallengeTheme {
@@ -219,7 +219,7 @@ private fun ContractCardCustomMyMissionLabelPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ContractCardWithFooterPreview() {
     ChallengeTheme {

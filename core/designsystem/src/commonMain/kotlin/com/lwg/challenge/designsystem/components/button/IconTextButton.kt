@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 아이콘 + 텍스트 CTA 버튼.
@@ -109,7 +109,7 @@ private fun IconTextContent(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun IconTextButtonPreview() {
     ChallengeTheme {

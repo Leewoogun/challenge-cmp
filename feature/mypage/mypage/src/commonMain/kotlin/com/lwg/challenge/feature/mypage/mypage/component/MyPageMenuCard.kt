@@ -23,8 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 마이페이지 메뉴 1행
@@ -92,7 +92,7 @@ internal fun MyPageMenuCard(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageMenuCardPreview() {
     ChallengeTheme {

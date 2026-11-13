@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun FriendsSearchLoadingScreen() {
@@ -25,7 +25,7 @@ internal fun FriendsSearchLoadingScreen() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendsSearchLoadingScreenPreview() {
     ChallengeTheme {

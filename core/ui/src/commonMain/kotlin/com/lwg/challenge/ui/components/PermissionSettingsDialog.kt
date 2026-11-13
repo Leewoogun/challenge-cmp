@@ -9,8 +9,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 권한이 영구 거부(`DENIED_ALWAYS`)됐을 때만 띄우는 설정 안내 다이얼로그. */
 @Composable
@@ -60,7 +60,7 @@ fun PermissionSettingsDialog(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun PermissionSettingsDialogPreview() {
     ChallengeTheme {

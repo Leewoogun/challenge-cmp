@@ -7,8 +7,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun MyPageLoadingScreen() {
@@ -20,7 +20,7 @@ internal fun MyPageLoadingScreen() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageLoadingScreenPreview() {
     ChallengeTheme {

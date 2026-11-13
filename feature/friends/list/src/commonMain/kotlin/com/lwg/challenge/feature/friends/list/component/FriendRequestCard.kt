@@ -21,9 +21,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 친구 요청 카드. 받은 친구 요청 1건을 수락/거절 액션과 함께 표시. */
 @Composable
@@ -82,7 +82,7 @@ internal fun FriendRequestCard(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendRequestCardPreview() {
     ChallengeTheme {

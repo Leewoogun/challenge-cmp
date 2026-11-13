@@ -23,9 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.SelectedButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ThemeMode
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 화면 테마(다크 / 라이트) 선택 카드. */
 @Composable
@@ -98,9 +98,9 @@ internal fun ThemeSettingCard(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
-private fun ThemeSettingCardDarkPreview() {
+private fun ThemeSettingCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
@@ -108,20 +108,6 @@ private fun ThemeSettingCardDarkPreview() {
                 .padding(20.dp),
         ) {
             ThemeSettingCard(isDarkSelected = true, isLightSelected = false, onThemeModeSelected = {})
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun ThemeSettingCardLightPreview() {
-    ChallengeTheme(darkTheme = false) {
-        Box(
-            modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background.screen)
-                .padding(20.dp),
-        ) {
-            ThemeSettingCard(isDarkSelected = false, isLightSelected = true, onThemeModeSelected = {})
         }
     }
 }

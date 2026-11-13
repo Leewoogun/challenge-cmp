@@ -17,12 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.ui.components.ChallengeOutcomePill
 import com.lwg.challenge.ui.components.card.ChallengeCardScope
 import kotlinx.datetime.number
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 카드 첫 줄. 🔥 vs 닉네임 · 날짜 + 오른쪽에 결과 또는 남은 시간.
@@ -122,7 +122,7 @@ private fun CaptionText(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeCardHeaderPreview() {
     ChallengeTheme {

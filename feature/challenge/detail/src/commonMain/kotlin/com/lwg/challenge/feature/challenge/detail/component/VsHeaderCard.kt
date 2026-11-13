@@ -25,12 +25,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.feature.challenge.detail.contract.HeadlineTone
 import com.lwg.challenge.ui.components.ProfileImage
 import com.lwg.challenge.ui.components.challengeOutcomeVisualOf
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * @param forfeitText 기권으로 끝났을 때 헤드라인 아래에 붙는 안내 한 줄.
@@ -172,7 +172,7 @@ private fun VsColumn() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VsHeaderCardBeforeDeadlinePreview() {
     VsHeaderCardPreviewContainer {
@@ -187,7 +187,7 @@ private fun VsHeaderCardBeforeDeadlinePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VsHeaderCardAfterDeadlinePreview() {
     VsHeaderCardPreviewContainer {
@@ -202,7 +202,7 @@ private fun VsHeaderCardAfterDeadlinePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VsHeaderCardWinPreview() {
     VsHeaderCardPreviewContainer {
@@ -217,7 +217,7 @@ private fun VsHeaderCardWinPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VsHeaderCardLosePreview() {
     VsHeaderCardPreviewContainer {
@@ -232,7 +232,7 @@ private fun VsHeaderCardLosePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VsHeaderCardDrawPreview() {
     VsHeaderCardPreviewContainer {
@@ -248,7 +248,7 @@ private fun VsHeaderCardDrawPreview() {
 }
 
 /** 판정 완료 + 기권 안내 — 결과 한 줄 아래에 어떻게 끝났는지가 한 단계 낮은 위계로 붙는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VsHeaderCardForfeitedPreview() {
     VsHeaderCardPreviewContainer {

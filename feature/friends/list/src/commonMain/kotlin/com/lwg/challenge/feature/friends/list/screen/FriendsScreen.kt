@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.friend.FriendRequest
@@ -18,7 +19,6 @@ import com.lwg.challenge.feature.friends.list.component.FriendsListSection
 import com.lwg.challenge.feature.friends.list.component.ReceivedRequestsSection
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiState
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 친구 탭 화면 — ActionRow + 받은 요청 섹션 + 친구 목록 섹션. */
 @Composable
@@ -59,7 +59,7 @@ internal fun FriendsScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendsScreenFriendsOnlyPreview() {
     ChallengeTheme {
@@ -78,7 +78,7 @@ private fun FriendsScreenFriendsOnlyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendsScreenRequestsAndFriendsPreview() {
     ChallengeTheme {

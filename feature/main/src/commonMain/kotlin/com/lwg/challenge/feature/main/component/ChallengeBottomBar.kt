@@ -26,9 +26,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.navigation.Route
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ChallengeBottomBar(
@@ -107,7 +107,7 @@ private fun BottomNavTab(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeBottomBarPreview() {
     ChallengeTheme {
@@ -120,7 +120,7 @@ private fun ChallengeBottomBarPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun BottomNavTabSelectedPreview() {
     ChallengeTheme {
@@ -135,7 +135,7 @@ private fun BottomNavTabSelectedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun BottomNavTabUnselectedPreview() {
     ChallengeTheme {

@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 알림 0건. 놓을 CTA 가 없어(이 사용자는 방금 홈에서 왔다) `EmptyStateCard` 대신 카드 크롬 없는 담담한 안내로 둔다.
@@ -69,7 +69,7 @@ internal fun NotificationEmptyScreen(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun NotificationEmptyScreenPreview() {
     ChallengeTheme {

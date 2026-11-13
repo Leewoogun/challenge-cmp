@@ -14,8 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * `-maxAngle` ~ `+maxAngle` 사이를 무한 왕복하는 회전 애니메이션.
@@ -42,7 +42,7 @@ fun Modifier.wiggle(
     return rotate(rotation)
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun WigglePreview() {
     ChallengeTheme {

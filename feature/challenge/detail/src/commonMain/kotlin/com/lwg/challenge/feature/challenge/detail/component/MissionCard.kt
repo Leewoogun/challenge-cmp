@@ -21,11 +21,11 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.feature.challenge.detail.contract.VERIFICATION_REJECTED_PREFIX
 import com.lwg.challenge.ui.components.VerificationStatusPill
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val EMPTY_MISSION_TEXT = "—"
 
@@ -88,7 +88,7 @@ internal fun MissionCard(
 }
 
 /** 나 / IN_PROGRESS — 인증 CTA 가 슬롯에 들어간다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun MissionCardMineWithCtaPreview() {
     ChallengeTheme {
@@ -116,7 +116,7 @@ private fun MissionCardMineWithCtaPreview() {
 }
 
 /** 나 / 인증 완료 — CTA 자리에 내 인증 사진이 들어간다(슬롯 여백 12dp). */
-@Preview
+@ThemePreviews
 @Composable
 private fun MissionCardMineWithPhotoPreview() {
     ChallengeTheme {
@@ -144,7 +144,7 @@ private fun MissionCardMineWithPhotoPreview() {
 }
 
 /** 나 / 인증 완료 + 재촬영 가능 — 사진 아래에 보조 강조(Outlined)의 "다시 찍기" 가 하나 더 붙는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun MissionCardMineWithPhotoAndRetakePreview() {
     ChallengeTheme {
@@ -181,7 +181,7 @@ private fun MissionCardMineWithPhotoAndRetakePreview() {
 }
 
 /** 나 / AI 반려 — 실패 뱃지 + 내 사진 + 반려 사유. 마감 뒤라 재촬영 CTA 는 없다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun MissionCardMineFailedPreview() {
     ChallengeTheme {
@@ -214,7 +214,7 @@ private fun MissionCardMineFailedPreview() {
 }
 
 /** 상대 / 미인증 — 슬롯에 사진 영역이 들어가고 "아직 인증하지 않았어요" 를 그린다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun MissionCardOpponentPendingPreview() {
     ChallengeTheme {
@@ -241,7 +241,7 @@ private fun MissionCardOpponentPendingPreview() {
 }
 
 /** 인증 현황 모름 — 뱃지가 통째로 빠지고 슬롯의 사진 영역이 대체 문구로 내려간다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun MissionCardStatusUnknownPreview() {
     ChallengeTheme {
@@ -269,7 +269,7 @@ private fun MissionCardStatusUnknownPreview() {
 }
 
 /** 상대가 아직 맹세하지 않음 — 본문이 자리표시자로 남고 슬롯은 통째로 빠진다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun MissionCardMissionNotSetPreview() {
     ChallengeTheme {

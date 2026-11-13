@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ArchiveEmptyMonth(
@@ -70,7 +70,7 @@ internal fun ArchiveEmptyMonth(
 }
 
 /** A형 — 기록 구간 안의 빈 달. 이 방향으로 더 가면 기록이 있는 달이 나온다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveEmptyMonthPreview() {
     ArchiveEmptyMonthPreviewContainer {
@@ -82,7 +82,7 @@ private fun ArchiveEmptyMonthPreview() {
 }
 
 /** B형 — 첫 기록보다 이전 달. 더 가도 아무것도 없다는 사실을 부제가 대신 말한다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveEmptyMonthBeforeFirstRecordPreview() {
     ArchiveEmptyMonthPreviewContainer {

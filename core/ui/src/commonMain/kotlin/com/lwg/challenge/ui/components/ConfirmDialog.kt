@@ -9,8 +9,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 확인/취소 2버튼 다이얼로그. design.md §3.3.2.
@@ -82,7 +82,7 @@ fun ConfirmDialog(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ConfirmDialogDestructivePreview() {
     ChallengeTheme {
@@ -105,7 +105,7 @@ private fun ConfirmDialogDestructivePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ConfirmDialogPreview() {
     ChallengeTheme {

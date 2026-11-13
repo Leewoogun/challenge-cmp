@@ -7,8 +7,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 계약서 응답 대기 화면. */
 @Composable
@@ -23,7 +23,7 @@ internal fun ChallengeDetailLoadingScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailLoadingScreenPreview() {
     ChallengeTheme {

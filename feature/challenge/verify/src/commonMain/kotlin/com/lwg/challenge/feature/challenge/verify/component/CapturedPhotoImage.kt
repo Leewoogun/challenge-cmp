@@ -16,9 +16,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.camera.CapturedPhoto
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import org.jetbrains.compose.resources.decodeToImageBitmap
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 촬영한 인증 사진 미리보기. 디코드에 실패하면(Preview 픽스처 포함) 자리 표시 문구를 보여준다. */
 @Composable
@@ -53,7 +53,7 @@ internal fun CapturedPhotoImage(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun CapturedPhotoImagePreview() {
     ChallengeTheme {

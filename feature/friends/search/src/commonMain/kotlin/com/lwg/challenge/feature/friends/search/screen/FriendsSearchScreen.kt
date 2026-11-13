@@ -10,12 +10,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Relation
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.feature.friends.search.component.FriendSearchItem
 import com.lwg.challenge.feature.friends.search.contract.FriendsSearchUiState
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 친구 검색 결과 화면 — relation 별 액션 버튼을 가진 결과 리스트. */
 @Composable
@@ -42,7 +42,7 @@ internal fun FriendsSearchScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendsSearchScreenPreview() {
     ChallengeTheme {

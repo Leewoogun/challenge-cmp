@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeBaseTopBar
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun HomeTopBar(
@@ -90,7 +90,7 @@ internal fun HomeTopBar(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeTopBarUnreadPreview() {
     ChallengeTheme {
@@ -105,7 +105,7 @@ private fun HomeTopBarUnreadPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeTopBarReadPreview() {
     ChallengeTheme {
@@ -120,7 +120,7 @@ private fun HomeTopBarReadPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeTopBarDebugAccountPreview() {
     ChallengeTheme {

@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.feature.challenge.create.component.StepHeader
@@ -23,7 +24,6 @@ import com.lwg.challenge.feature.challenge.create.component.FriendPickItem
 import com.lwg.challenge.feature.challenge.create.component.FriendPickPlaceholderCard
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun FriendPickScreen(
@@ -83,7 +83,7 @@ internal fun FriendPickScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendPickScreenDataPreview() {
     ChallengeTheme {
@@ -101,7 +101,7 @@ private fun FriendPickScreenDataPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendPickScreenEmptyPreview() {
     ChallengeTheme {
@@ -116,7 +116,7 @@ private fun FriendPickScreenEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendPickScreenLoadFailedPreview() {
     ChallengeTheme {

@@ -1,5 +1,6 @@
 package com.lwg.challenge.primitive
 
+import com.lwg.challenge.libs
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
@@ -18,14 +19,13 @@ internal fun Project.composeMultiplatformDependencies() {
                     implementation(composeDependencies.material3)
                     implementation(composeDependencies.ui)
                     implementation(composeDependencies.components.resources)
-                    implementation(composeDependencies.components.uiToolingPreview)
+                    implementation(libs.findLibrary("compose-ui-tooling-preview").get())
                 }
             }
         }
     }
 
     dependencies {
-        "debugImplementation"(composeDependencies.uiTooling)
-        "debugImplementation"(composeDependencies.preview)
+        "debugImplementation"(libs.findLibrary("compose-ui-tooling").get())
     }
 }

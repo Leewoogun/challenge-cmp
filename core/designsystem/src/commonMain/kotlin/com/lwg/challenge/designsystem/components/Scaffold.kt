@@ -19,9 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.statusbar.SetStatusBarAppearance
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * StatusBar 색상과 TopBar 색상을 통합 관리하는 Scaffold.
@@ -90,7 +90,7 @@ fun ChallengeScaffold(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeScaffoldPreview() {
     ChallengeTheme {

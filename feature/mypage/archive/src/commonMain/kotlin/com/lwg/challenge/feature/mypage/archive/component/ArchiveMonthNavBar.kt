@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.HorizontalDivider
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 보관함의 월 이동 컨트롤.
@@ -143,7 +143,7 @@ private fun MonthArrowButton(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveMonthNavBarPreview() {
     ArchiveMonthNavBarPreviewContainer {
@@ -159,7 +159,7 @@ private fun ArchiveMonthNavBarPreview() {
 }
 
 /** 첫 진입 상태 — 이번 달이라 다음 이동이 막혀 있다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveMonthNavBarAtLatestPreview() {
     ArchiveMonthNavBarPreviewContainer {
@@ -175,7 +175,7 @@ private fun ArchiveMonthNavBarAtLatestPreview() {
 }
 
 /** `<` 가 막힌 모습. 보관함은 지금 이 상태를 만들지 않고, 컴포넌트의 표현 능력만 남긴다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveMonthNavBarAtEarliestPreview() {
     ArchiveMonthNavBarPreviewContainer {
@@ -191,7 +191,7 @@ private fun ArchiveMonthNavBarAtEarliestPreview() {
 }
 
 /** 양쪽이 모두 막힌 모습. 사용자가 고장으로 읽어 과거 하한을 없앴고, 다시 만들지 않으려고 남긴다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveMonthNavBarNoMovementPreview() {
     ArchiveMonthNavBarPreviewContainer {
@@ -207,7 +207,7 @@ private fun ArchiveMonthNavBarNoMovementPreview() {
 }
 
 /** 기록이 있는 달들 사이의 빈 달 — 0건에도 바 높이가 그대로라 화살표가 움직이지 않는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveMonthNavBarZeroCountPreview() {
     ArchiveMonthNavBarPreviewContainer {

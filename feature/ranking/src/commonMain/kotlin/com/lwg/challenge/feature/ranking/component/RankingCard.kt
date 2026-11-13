@@ -16,12 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.ranking.PreviewLoserRankingEntries
 import com.lwg.challenge.feature.ranking.contract.RankingUiState
 import com.lwg.challenge.feature.ranking.contract.RankingTopThree
 import com.lwg.challenge.feature.ranking.previewAsFirst
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * Top3 카드. 받침대 높이가 다른 3열을 하단 정렬하면 단이 저절로 생긴다.
@@ -100,7 +100,7 @@ private fun PreviewRankingCard(
     RankingCard(topThree = requireNotNull(RankingUiState.Data(entries).topThree))
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingCardPreview() {
     ChallengeTheme {
@@ -115,7 +115,7 @@ private fun RankingCardPreview() {
 }
 
 /** 연패 중인 1위 — 1위 캡션에만 🐷N연패 절이 붙어 나머지 두 열과 형식이 갈린다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingCardFirstWithStreakPreview() {
     ChallengeTheme {
@@ -129,7 +129,7 @@ private fun RankingCardFirstWithStreakPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingCardLongNicknamePreview() {
     ChallengeTheme {

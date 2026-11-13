@@ -16,10 +16,10 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.LabeledDivider
 import com.lwg.challenge.designsystem.components.button.NormalButton
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.login.contract.TestAccount
 import com.lwg.challenge.feature.login.contract.TestLoginUiState
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * debug 빌드 전용 테스트 계정 로그인 섹션. release 에서는 [TestLoginUiState.isVisible] 이
@@ -75,7 +75,7 @@ internal fun TestLoginSection(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun TestLoginSectionEnabledPreview() {
     ChallengeTheme {
@@ -93,7 +93,7 @@ private fun TestLoginSectionEnabledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun TestLoginSectionUnavailablePreview() {
     ChallengeTheme {
@@ -111,7 +111,7 @@ private fun TestLoginSectionUnavailablePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun TestLoginSectionHiddenPreview() {
     ChallengeTheme {

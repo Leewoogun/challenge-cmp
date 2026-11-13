@@ -24,8 +24,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun FriendPickPlaceholderCard(
@@ -93,7 +93,7 @@ internal fun FriendPickPlaceholderCard(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendPickPlaceholderCardEmptyPreview() {
     ChallengeTheme {
@@ -113,7 +113,7 @@ private fun FriendPickPlaceholderCardEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendPickPlaceholderCardErrorPreview() {
     ChallengeTheme {

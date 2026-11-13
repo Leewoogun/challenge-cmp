@@ -16,9 +16,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.SelectedButton
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.DeadlineType
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 마감 기준 선택 2-up 카드. design.md §4.2.
@@ -77,7 +77,7 @@ internal fun DeadlineSelector(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun DeadlineSelectorTodayPreview() {
     ChallengeTheme {
@@ -96,7 +96,7 @@ private fun DeadlineSelectorTodayPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun DeadlineSelectorTomorrowPreview() {
     ChallengeTheme {
@@ -115,7 +115,7 @@ private fun DeadlineSelectorTomorrowPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun DeadlineSelectorDisabledPreview() {
     ChallengeTheme {

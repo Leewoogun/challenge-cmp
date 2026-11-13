@@ -25,13 +25,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
 import com.lwg.challenge.ui.components.ChallengePenaltyArea
 import com.lwg.challenge.ui.components.ProfileImage
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 받은 도전장 카드.
@@ -186,7 +186,7 @@ private fun ActionRow(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ReceivedChallengeCardPreview() {
     ChallengeTheme {
@@ -206,7 +206,7 @@ private fun ReceivedChallengeCardPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ReceivedChallengeCardLongMissionPreview() {
     ChallengeTheme {
@@ -227,7 +227,7 @@ private fun ReceivedChallengeCardLongMissionPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ReceivedChallengeCardActionsDisabledPreview() {
     ChallengeTheme {

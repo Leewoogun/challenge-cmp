@@ -5,8 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 작성 중 이탈 확인. 미션·서명이 하나라도 있을 때만 띄운다 — clean 이면 묻지 않고 바로 나간다. */
 @Composable
@@ -54,7 +54,7 @@ internal fun ExitConfirmDialog(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ExitConfirmDialogPreview() {
     ChallengeTheme {

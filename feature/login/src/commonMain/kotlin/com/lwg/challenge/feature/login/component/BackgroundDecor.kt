@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun BoxScope.BackgroundDecor() {
@@ -39,7 +39,7 @@ internal fun BoxScope.BackgroundDecor() {
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun BackgroundDecorPreview() {
     ChallengeTheme {

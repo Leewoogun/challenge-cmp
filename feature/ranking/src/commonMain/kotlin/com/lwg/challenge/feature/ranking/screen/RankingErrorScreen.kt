@@ -11,9 +11,9 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.EmptyStateCard
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 첫 조회 실패. 스피너에 머물면 다시 시도할 수단이 없어 재시도 버튼을 둔다. */
 @Composable
@@ -35,7 +35,7 @@ internal fun RankingErrorScreen(onRetryClick: () -> Unit) {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingErrorScreenPreview() {
     ChallengeTheme {

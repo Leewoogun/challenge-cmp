@@ -10,10 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Friend
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 친구 목록 섹션 — 헤더 "친구 N명" + [FriendListItem] 리스트. */
 @Composable
@@ -40,7 +40,7 @@ internal fun FriendsListSection(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendsListSectionPreview() {
     ChallengeTheme {

@@ -21,9 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.ui.components.StatusPillBadge
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ChallengeSection() {
@@ -72,7 +72,7 @@ internal fun ChallengeSection() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeSectionPreview() {
     ChallengeTheme {

@@ -27,11 +27,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.modifier.wiggle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ranking.LoserRankingEntry
 import com.lwg.challenge.feature.ranking.contract.cardCaption
 import com.lwg.challenge.feature.ranking.contract.displayName
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val PedestalShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
 
@@ -151,7 +151,7 @@ private fun previewEntry(
     totalChallenges = 30,
 )
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingColumnFirstPreview() {
     ChallengeTheme {
@@ -179,7 +179,7 @@ private fun RankingColumnFirstPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingColumnRunnerUpsPreview() {
     ChallengeTheme {
@@ -217,7 +217,7 @@ private fun RankingColumnRunnerUpsPreview() {
 }
 
 /** 연패 0 인 1위 — 캡션에서 🐷 절이 통째로 사라진다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingColumnFirstWithoutStreakPreview() {
     ChallengeTheme {

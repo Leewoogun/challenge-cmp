@@ -15,12 +15,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.ui.components.signature.SignatureSlot
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 서명 칸 1개 + 그 아래 소유자 라벨. 라벨이 서명 획과 겹치지 않게 칸 밖에 둔다.
@@ -57,7 +57,7 @@ internal fun SignatureColumn(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureColumnSignedPreview() {
     ChallengeTheme {
@@ -75,7 +75,7 @@ private fun SignatureColumnSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureColumnNotSignedPreview() {
     ChallengeTheme {
@@ -93,7 +93,7 @@ private fun SignatureColumnNotSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureColumnUnreadablePreview() {
     ChallengeTheme {
@@ -112,7 +112,7 @@ private fun SignatureColumnUnreadablePreview() {
 }
 
 /** 실제 배치인 2-up. 좌우 칸의 높이가 서명 유무와 무관하게 같은지 확인한다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureColumnPairPreview() {
     ChallengeTheme {

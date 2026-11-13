@@ -17,10 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 마이페이지 프로필 카드.
@@ -109,7 +109,7 @@ private fun RecordCount(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileCardEmptyRecordPreview() {
     ChallengeTheme {
@@ -129,7 +129,7 @@ private fun ProfileCardEmptyRecordPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileCardRecordFailedPreview() {
     ChallengeTheme {
@@ -149,7 +149,7 @@ private fun ProfileCardRecordFailedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileCardAllDrawPreview() {
     ChallengeTheme {
@@ -169,7 +169,7 @@ private fun ProfileCardAllDrawPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileCardPreview() {
     ChallengeTheme {
@@ -189,7 +189,7 @@ private fun ProfileCardPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileCardLongNicknamePreview() {
     ChallengeTheme {

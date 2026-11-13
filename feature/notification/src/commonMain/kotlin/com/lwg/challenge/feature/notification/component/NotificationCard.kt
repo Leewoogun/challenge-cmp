@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.notification.Notification
 import com.lwg.challenge.feature.notification.PreviewLongBodyNotification
@@ -33,7 +34,6 @@ import com.lwg.challenge.feature.notification.PreviewUnknownTypeNotification
 import com.lwg.challenge.feature.notification.contract.NotificationUiState
 import com.lwg.challenge.feature.notification.notificationPreviewItem
 import com.lwg.challenge.push.PushEvent
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 알림 카드. 아이콘·색은 [notificationTypeVisualOf] 가 정한 값을 받는다.
@@ -111,7 +111,7 @@ internal fun NotificationCard(
 }
 
 /** 아는 타입 4종의 아이콘·색이 서로 갈리는지 본다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun NotificationCardTypesPreview() {
     NotificationCardPreviewContainer {
@@ -149,7 +149,7 @@ private fun NotificationCardTypesPreview() {
 }
 
 /** 모르는 타입. 무채색 아이콘에 탭은 없지만 메시지·시각은 그대로 읽힌다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun NotificationCardUnknownTypePreview() {
     NotificationCardPreviewContainer {
@@ -158,7 +158,7 @@ private fun NotificationCardUnknownTypePreview() {
 }
 
 /** 메시지 2줄. 아이콘은 첫 줄에, chevron 은 세로 가운데에 붙는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun NotificationCardTwoLineBodyPreview() {
     NotificationCardPreviewContainer {
@@ -167,7 +167,7 @@ private fun NotificationCardTwoLineBodyPreview() {
 }
 
 /** 대기 중 신청에만 chevron 이 있다. 응답이 끝난 신청과 모르는 타입은 chevron 자리도 비우지 않는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun NotificationCardChevronPreview() {
     NotificationCardPreviewContainer {

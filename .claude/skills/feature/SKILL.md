@@ -323,8 +323,8 @@ feature/login/src/commonMain/kotlin/.../login/
 package com.lwg.challenge.feature.{name}.component
 
 import androidx.compose.runtime.Composable
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun {ComponentName}(
@@ -333,7 +333,7 @@ internal fun {ComponentName}(
     // UI
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun {ComponentName}Preview() {
     ChallengeTheme {

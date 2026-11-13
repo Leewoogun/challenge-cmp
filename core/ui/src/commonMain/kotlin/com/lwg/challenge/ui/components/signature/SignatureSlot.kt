@@ -19,9 +19,9 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val SLOT_CORNER_RADIUS = 12.dp
 
@@ -87,7 +87,7 @@ internal fun Modifier.signatureDashedBorder(color: Color): Modifier = drawBehind
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureSlotSignedPreview() {
     ChallengeTheme {
@@ -104,7 +104,7 @@ private fun SignatureSlotSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureSlotEmptyPreview() {
     ChallengeTheme {
@@ -121,7 +121,7 @@ private fun SignatureSlotEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureSlotHalfWidthPreview() {
     ChallengeTheme {

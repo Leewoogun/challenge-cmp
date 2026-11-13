@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 점 + 텍스트로 구성된 캡슐 형태의 상태/카테고리 뱃지. */
 @Composable
@@ -54,7 +54,7 @@ fun StatusPillBadge(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun StatusPillBadgePreview() {
     ChallengeTheme {

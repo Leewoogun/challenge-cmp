@@ -19,8 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.NormalButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 촬영 전 안내. 갤러리 진입점은 없다 — 실시간 촬영만 허용한다. */
 @Composable
@@ -72,7 +72,7 @@ internal fun VerifyCaptureScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyCaptureScreenPreview() {
     ChallengeTheme {

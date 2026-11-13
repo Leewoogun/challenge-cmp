@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 아이콘 + 텍스트 CTA 에 in-flight 인디케이터를 더한 버튼. */
 @Composable
@@ -64,7 +64,7 @@ fun LoadingIconButton(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoadingIconButtonEnabledPreview() {
     ChallengeTheme {
@@ -84,7 +84,7 @@ private fun LoadingIconButtonEnabledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoadingIconButtonDisabledPreview() {
     ChallengeTheme {
@@ -104,7 +104,7 @@ private fun LoadingIconButtonDisabledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoadingIconButtonLoadingPreview() {
     ChallengeTheme {

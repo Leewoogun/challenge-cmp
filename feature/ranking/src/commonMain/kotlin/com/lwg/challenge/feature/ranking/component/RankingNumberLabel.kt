@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 명단 순위 숫자. 1·3위만 강조하고 2위는 4위 이하와 같다 — 보더(top3)와 축이 다른 건 디자인 그대로다. */
 @Composable
@@ -32,7 +32,7 @@ internal fun RankingNumberLabel(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingNumberLabelPreview() {
     ChallengeTheme {

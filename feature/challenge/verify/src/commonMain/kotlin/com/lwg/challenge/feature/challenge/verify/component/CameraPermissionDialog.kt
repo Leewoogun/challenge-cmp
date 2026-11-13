@@ -5,8 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** CAMERA 가 DENIED_ALWAYS 일 때의 설정 이동 안내. 촬영이 막히면 인증이 불가능해 다이얼로그로 알린다. */
 @Composable
@@ -54,7 +54,7 @@ internal fun CameraPermissionDialog(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun CameraPermissionDialogPreview() {
     ChallengeTheme {

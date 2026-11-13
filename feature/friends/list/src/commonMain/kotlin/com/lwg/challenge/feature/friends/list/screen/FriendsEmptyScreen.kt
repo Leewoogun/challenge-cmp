@@ -10,9 +10,9 @@ import androidx.compose.material.icons.filled.Group
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.EmptyStateCard
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 친구 탭 빈 상태 화면 — [EmptyStateCard] 단일 CTA 만 노출한다. */
 @Composable
@@ -36,7 +36,7 @@ internal fun FriendsEmptyScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendsEmptyScreenPreview() {
     ChallengeTheme {

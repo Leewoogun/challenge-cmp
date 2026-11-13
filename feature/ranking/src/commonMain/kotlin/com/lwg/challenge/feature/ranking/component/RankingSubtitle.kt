@@ -7,8 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 승자가 아니라 패자 랭킹임을 진입하자마자 알리는 부제. */
 @Composable
@@ -23,7 +23,7 @@ internal fun RankingSubtitle(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingSubtitlePreview() {
     ChallengeTheme {

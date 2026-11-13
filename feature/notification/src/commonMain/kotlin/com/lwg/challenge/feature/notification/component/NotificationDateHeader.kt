@@ -8,8 +8,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 날짜 그룹 헤더. 건수는 붙이지 않는다 — 지난 날짜의 알림 수는 아무 행동도 바꾸지 않는다.
@@ -33,7 +33,7 @@ internal fun NotificationDateHeader(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun NotificationDateHeaderPreview() {
     ChallengeTheme {

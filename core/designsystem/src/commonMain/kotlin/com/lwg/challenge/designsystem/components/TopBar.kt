@@ -23,8 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 object ChallengeTopBarDefaults {
     val Height = 56.dp
@@ -116,7 +116,7 @@ fun ChallengeTopBarBackButton(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeTopBarTitleOnlyPreview() {
     ChallengeTheme {
@@ -126,7 +126,7 @@ private fun ChallengeTopBarTitleOnlyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeTopBarWithBackPreview() {
     ChallengeTheme {
@@ -139,7 +139,7 @@ private fun ChallengeTopBarWithBackPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeTopBarWithActionsPreview() {
     ChallengeTheme {
@@ -162,7 +162,7 @@ private fun ChallengeTopBarWithActionsPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeTopBarSlotPreview() {
     ChallengeTheme {

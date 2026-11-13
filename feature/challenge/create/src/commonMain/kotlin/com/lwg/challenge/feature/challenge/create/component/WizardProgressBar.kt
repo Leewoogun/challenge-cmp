@@ -12,9 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 위저드 진행 표시. 단계 수만큼 칸을 그리고 도달한 칸을 primary 로 채운다.
@@ -53,7 +53,7 @@ internal fun WizardProgressBar(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun WizardProgressBarFriendPickPreview() {
     ChallengeTheme {
@@ -63,7 +63,7 @@ private fun WizardProgressBarFriendPickPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun WizardProgressBarMissionInputPreview() {
     ChallengeTheme {
@@ -73,7 +73,7 @@ private fun WizardProgressBarMissionInputPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun WizardProgressBarOathPreview() {
     ChallengeTheme {

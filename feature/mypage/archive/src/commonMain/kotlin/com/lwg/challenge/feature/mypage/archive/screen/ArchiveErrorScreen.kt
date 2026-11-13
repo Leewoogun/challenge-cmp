@@ -11,9 +11,9 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.EmptyStateCard
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 첫 로딩 실패 본문. 빈 상태와 문구만 다르면 0건인지 못 불러온 건지 갈리지 않아 아이콘까지 바꾼다. */
 @Composable
@@ -34,7 +34,7 @@ internal fun ArchiveErrorScreen(onRetryClick: () -> Unit) {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveErrorScreenPreview() {
     ChallengeTheme {

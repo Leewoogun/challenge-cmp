@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.LocalPlatformContext
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val PhotoShape = RoundedCornerShape(16.dp)
 
@@ -151,7 +151,7 @@ private fun PhotoRetryMessage(text: String, onRetry: () -> Unit) {
 }
 
 /** 탈퇴로 사진이 삭제됨 — 아래 [VerificationPhotoMissingUrlPreview] 와 문구가 달라야 한다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoDeletedPreview() {
     ChallengeTheme {
@@ -171,7 +171,7 @@ private fun VerificationPhotoDeletedPreview() {
 }
 
 /** 인증했는데 URL 이 없는 데이터 이상 — 삭제가 아니므로 기존 로드 실패 문구가 그대로 나와야 한다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoMissingUrlPreview() {
     ChallengeTheme {
@@ -190,7 +190,7 @@ private fun VerificationPhotoMissingUrlPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoNotVerifiedPreview() {
     ChallengeTheme {
@@ -205,7 +205,7 @@ private fun VerificationPhotoNotVerifiedPreview() {
 }
 
 /** 마감까지 미제출 — 사진 없는 `FAILED`. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoFailedPreview() {
     ChallengeTheme {
@@ -219,7 +219,7 @@ private fun VerificationPhotoFailedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoLoadingPreview() {
     ChallengeTheme {
@@ -239,7 +239,7 @@ private fun VerificationPhotoLoadingPreview() {
 }
 
 /** 인증 현황 조회 실패 — 사진 대신 현황을 못 받았다고 밝히고 전체 재조회를 연다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoStatusUnknownPreview() {
     ChallengeTheme {
@@ -254,7 +254,7 @@ private fun VerificationPhotoStatusUnknownPreview() {
 }
 
 /** Coil 에러 슬롯은 프리뷰에서 재현할 수 없어 같은 제약(propagateMinConstraints)의 160dp 틀에 얹는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoLoadErrorPreview() {
     ChallengeTheme {

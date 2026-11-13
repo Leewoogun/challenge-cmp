@@ -19,8 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.NormalButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val FIRST_SUBMIT_MESSAGE = "오늘의 미션 인증이 상대에게 전달돼요."
 private const val REPLACED_MESSAGE = "사진이 교체됐어요. 상대는 최신 사진을 보게 돼요."
@@ -80,7 +80,7 @@ internal fun VerifyDoneScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyDoneScreenPreview() {
     ChallengeTheme {
@@ -93,7 +93,7 @@ private fun VerifyDoneScreenPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyDoneScreenReplacePreview() {
     ChallengeTheme {

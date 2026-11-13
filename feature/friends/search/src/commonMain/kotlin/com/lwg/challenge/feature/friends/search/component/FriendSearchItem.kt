@@ -28,10 +28,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Relation
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 검색 결과 1행 — 프로필 + 닉네임 + relation 5종 액션.
@@ -187,7 +187,7 @@ private fun RelationBadge(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemNonePreview() {
     PreviewContainer {
@@ -202,7 +202,7 @@ private fun FriendSearchItemNonePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemRequestSentPreview() {
     PreviewContainer {
@@ -217,7 +217,7 @@ private fun FriendSearchItemRequestSentPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemRequestReceivedPreview() {
     PreviewContainer {
@@ -232,7 +232,7 @@ private fun FriendSearchItemRequestReceivedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemFriendPreview() {
     PreviewContainer {
@@ -247,7 +247,7 @@ private fun FriendSearchItemFriendPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemRejectedPreview() {
     PreviewContainer {
@@ -263,7 +263,7 @@ private fun FriendSearchItemRejectedPreview() {
 }
 
 /** 요청이 나가 있는 행 — 버튼이 잠긴다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemRequestingPreview() {
     PreviewContainer {

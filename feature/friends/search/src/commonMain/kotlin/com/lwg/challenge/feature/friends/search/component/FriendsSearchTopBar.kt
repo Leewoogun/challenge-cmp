@@ -30,8 +30,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 검색 화면 전용 상단바 — 뒤로가기 + 닉네임 입력.
@@ -126,7 +126,7 @@ internal fun FriendsSearchTopBar(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendsSearchTopBarPreview() {
     ChallengeTheme {

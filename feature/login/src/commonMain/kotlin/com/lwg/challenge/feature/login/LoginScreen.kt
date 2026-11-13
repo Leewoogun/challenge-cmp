@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.login.component.BackgroundDecor
 import com.lwg.challenge.feature.login.component.LoginButtonSection
@@ -23,7 +24,6 @@ import com.lwg.challenge.feature.login.component.TestLoginSection
 import com.lwg.challenge.feature.login.contract.LoginUiState
 import com.lwg.challenge.feature.login.contract.TestAccount
 import com.lwg.challenge.feature.login.contract.TestLoginUiState
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun LoginScreen(
@@ -79,7 +79,7 @@ internal fun LoginScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoginScreenIdlePreview() {
     ChallengeTheme {
@@ -92,7 +92,7 @@ private fun LoginScreenIdlePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoginScreenLoadingPreview() {
     ChallengeTheme {

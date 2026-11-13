@@ -13,8 +13,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun FooterAgreementText() {
@@ -47,7 +47,7 @@ internal fun FooterAgreementText() {
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FooterAgreementTextPreview() {
     ChallengeTheme {

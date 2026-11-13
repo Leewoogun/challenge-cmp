@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 위저드 각 단계 상단의 제목 + 서브 문구. design.md §1.2 / §1.3. */
 @Composable
@@ -36,7 +36,7 @@ internal fun StepHeader(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun StepHeaderPreview() {
     ChallengeTheme {

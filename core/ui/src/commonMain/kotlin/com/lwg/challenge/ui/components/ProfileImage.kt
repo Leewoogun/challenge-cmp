@@ -21,8 +21,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 프로필 이미지. URL 이 없거나 로딩 중·실패면 닉네임 이니셜을 보여준다. */
 @Composable
@@ -70,7 +70,7 @@ private fun NicknameInitial(nickname: String, textStyle: TextStyle, textColor: C
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileImagePreview() {
     ChallengeTheme {
@@ -84,7 +84,7 @@ private fun ProfileImagePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileImageVariantsPreview() {
     ChallengeTheme {
@@ -102,7 +102,7 @@ private fun ProfileImageVariantsPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileImageBlankNicknamePreview() {
     ChallengeTheme {
@@ -117,7 +117,7 @@ private fun ProfileImageBlankNicknamePreview() {
 }
 
 /** URL 이 있으면 로딩·실패 슬롯도 이니셜이다. 프리뷰는 네트워크를 못 타 로딩 슬롯까지만 보인다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileImageWithUrlPreview() {
     ChallengeTheme {

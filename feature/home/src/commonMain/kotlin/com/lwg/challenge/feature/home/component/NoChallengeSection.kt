@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 진행 중인 챌린지가 없을 때 홈에 띄우는 빈 상태 카드.
@@ -109,7 +109,7 @@ internal fun NoChallengeSection(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun NoChallengeSectionPreview() {
     ChallengeTheme {

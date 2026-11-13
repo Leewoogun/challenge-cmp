@@ -33,8 +33,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * [ChallengeInputField] 의 높이 동작.
@@ -187,7 +187,7 @@ fun InputFieldBox(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeInputFieldEmptyPreview() {
     ChallengeTheme {
@@ -205,7 +205,7 @@ private fun ChallengeInputFieldEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeInputFieldFilledPreview() {
     ChallengeTheme {
@@ -223,7 +223,7 @@ private fun ChallengeInputFieldFilledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeInputFieldFixedHeightPreview() {
     ChallengeTheme {
@@ -242,7 +242,7 @@ private fun ChallengeInputFieldFixedHeightPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun InputFieldBoxFocusedPreview() {
     ChallengeTheme {

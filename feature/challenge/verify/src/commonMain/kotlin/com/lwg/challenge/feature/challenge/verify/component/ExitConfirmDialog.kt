@@ -5,8 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 촬영한 사진이 있을 때의 이탈 확인 — 사진이 없으면 묻지 않고 바로 나간다. */
 @Composable
@@ -54,7 +54,7 @@ internal fun ExitConfirmDialog(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ExitConfirmDialogPreview() {
     ChallengeTheme {

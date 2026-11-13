@@ -21,9 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * @param selected 선택 여부. 선택 시 2.dp primary border 로 강조한다.
@@ -74,7 +74,7 @@ internal fun FriendPickItem(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendPickItemPreview() {
     ChallengeTheme {
@@ -93,7 +93,7 @@ private fun FriendPickItemPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendPickItemSelectedPreview() {
     ChallengeTheme {
@@ -112,7 +112,7 @@ private fun FriendPickItemSelectedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendPickItemLongNicknamePreview() {
     ChallengeTheme {

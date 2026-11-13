@@ -7,8 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 명단 섹션 제목. */
 @Composable
@@ -23,7 +23,7 @@ internal fun RankingSectionTitle(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingSectionTitlePreview() {
     ChallengeTheme {

@@ -28,8 +28,8 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 object SelectedButtonDefaults {
     val MinHeight = 60.dp
@@ -134,7 +134,7 @@ fun SelectedButton(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SelectedButtonSelectedPreview() {
     ChallengeTheme {
@@ -165,7 +165,7 @@ private fun SelectedButtonSelectedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SelectedButtonTextOnlyPreview() {
     ChallengeTheme {
@@ -192,7 +192,7 @@ private fun SelectedButtonTextOnlyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SelectedButtonDisabledPreview() {
     ChallengeTheme {

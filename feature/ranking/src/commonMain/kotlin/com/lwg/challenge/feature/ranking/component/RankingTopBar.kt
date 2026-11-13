@@ -10,8 +10,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import com.lwg.challenge.designsystem.components.ChallengeBaseTopBar
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 랭킹 탭 상단바. 부제를 같이 두면 폰트 1.3배에서 56dp 고정 높이가 잘려 부제는 본문([RankingSubtitle])에 둔다. */
 @Composable
@@ -30,7 +30,7 @@ internal fun RankingTopBar(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingTopBarPreview() {
     ChallengeTheme {
@@ -41,7 +41,7 @@ private fun RankingTopBarPreview() {
 }
 
 /** 56dp 고정 높이에서 제목 한 줄이 큰 폰트 스케일을 견디는지 확인용. */
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingTopBarLargeFontScalePreview() {
     ChallengeTheme {

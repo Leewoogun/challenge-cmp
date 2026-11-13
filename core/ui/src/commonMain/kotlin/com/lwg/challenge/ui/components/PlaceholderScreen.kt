@@ -11,8 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 후속 feature 개발 전 임시 화면용 공통 placeholder. */
 @Composable
@@ -42,7 +42,7 @@ fun PlaceholderScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun PlaceholderScreenPreview() {
     ChallengeTheme {

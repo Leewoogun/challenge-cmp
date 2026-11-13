@@ -20,9 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 내가 이긴 판정. 관점을 모르는 화면은 이 단어 앞에 승자 닉네임만 붙여 같은 어휘를 쓴다. */
 const val RESULT_WIN_TEXT = "승리"
@@ -102,7 +102,7 @@ fun challengeOutcomeVisualOf(outcome: ChallengeOutcome): ChallengeOutcomeVisual 
         )
     }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeOutcomePillWinPreview() {
     ChallengeOutcomePillPreviewContainer {
@@ -110,7 +110,7 @@ private fun ChallengeOutcomePillWinPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeOutcomePillLosePreview() {
     ChallengeOutcomePillPreviewContainer {
@@ -118,7 +118,7 @@ private fun ChallengeOutcomePillLosePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeOutcomePillDrawPreview() {
     ChallengeOutcomePillPreviewContainer {
@@ -126,7 +126,7 @@ private fun ChallengeOutcomePillDrawPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeOutcomePillBothLosePreview() {
     ChallengeOutcomePillPreviewContainer {

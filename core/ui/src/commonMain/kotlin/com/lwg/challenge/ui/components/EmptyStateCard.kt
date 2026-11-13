@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 아이콘 + 헤드라인 + 서브라인 + CTA 로 구성된 빈 상태 카드.
@@ -122,7 +122,7 @@ fun EmptyStateCard(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun EmptyStateCardPreview() {
     ChallengeTheme {
@@ -142,7 +142,7 @@ private fun EmptyStateCardPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun EmptyStateCardWithInvitePreview() {
     ChallengeTheme {

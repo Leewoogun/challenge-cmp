@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun NormalButton(
@@ -52,7 +52,7 @@ fun NormalButton(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun NormalButtonPreview() {
     ChallengeTheme {

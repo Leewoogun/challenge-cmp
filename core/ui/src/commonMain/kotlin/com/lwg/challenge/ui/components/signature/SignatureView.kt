@@ -10,9 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 저장된 서명을 그려 보여주기만 하는 뷰(입력 없음). */
 @Composable
@@ -26,7 +26,7 @@ fun SignatureView(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureViewPreview() {
     ChallengeTheme {
@@ -43,7 +43,7 @@ private fun SignatureViewPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureViewHalfWidthPreview() {
     ChallengeTheme {
@@ -60,7 +60,7 @@ private fun SignatureViewHalfWidthPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureViewEmptyPreview() {
     ChallengeTheme {

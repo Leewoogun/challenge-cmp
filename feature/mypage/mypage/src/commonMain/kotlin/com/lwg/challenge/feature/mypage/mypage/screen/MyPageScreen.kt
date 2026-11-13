@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.IconTextButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ThemeMode
 import com.lwg.challenge.domain.model.UserRecord
@@ -27,7 +28,6 @@ import com.lwg.challenge.feature.mypage.mypage.component.ThemeSettingCard
 import com.lwg.challenge.feature.mypage.mypage.component.ProfileCard
 import com.lwg.challenge.feature.mypage.mypage.component.WithdrawText
 import com.lwg.challenge.feature.mypage.mypage.contract.MyPageUiState
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 마이페이지 탭 본문. 바텀바는 `MainScreen` 이 그리므로 여기서 그리지 않는다(이중 인셋). */
 @Composable
@@ -92,7 +92,7 @@ internal fun MyPageScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageScreenPreview() {
     ChallengeTheme {
@@ -116,7 +116,7 @@ private fun MyPageScreenPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageScreenEmptyRecordPreview() {
     ChallengeTheme {
@@ -140,7 +140,7 @@ private fun MyPageScreenEmptyRecordPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageScreenRecordFailedPreview() {
     ChallengeTheme {
@@ -164,7 +164,7 @@ private fun MyPageScreenRecordFailedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageScreenAllDrawPreview() {
     ChallengeTheme {
@@ -188,7 +188,7 @@ private fun MyPageScreenAllDrawPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageScreenLongNicknamePreview() {
     ChallengeTheme {
@@ -202,31 +202,6 @@ private fun MyPageScreenLongNicknamePreview() {
                         nickname = "오늘도지지않는불꽃같은도전자이우건입니다",
                         profileImageUrl = null,
                     ),
-                ),
-                onArchiveClick = {},
-                onLogoutClick = {},
-                onWithdrawClick = {},
-                onThemeModeSelected = {},
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun MyPageScreenLightPreview() {
-    ChallengeTheme(darkTheme = false) {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
-            MyPageScreen(
-                uiState = MyPageUiState.Data(
-                    record = UserRecord(win = 7, lose = 3, draw = 2, currentStreak = 3),
-                    userInfo = UserInfo(
-                        id = 1,
-                        kakaoId = 1,
-                        nickname = "이우건",
-                        profileImageUrl = null,
-                    ),
-                    themeMode = ThemeMode.LIGHT,
                 ),
                 onArchiveClick = {},
                 onLogoutClick = {},

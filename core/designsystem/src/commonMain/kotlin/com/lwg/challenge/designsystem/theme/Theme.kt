@@ -1,5 +1,6 @@
 package com.lwg.challenge.designsystem.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -9,13 +10,17 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.statusbar.SetNavigationBarAppearance
 
 val LocalDarkTheme = staticCompositionLocalOf { true }
 
+/**
+ * @param darkTheme 앱은 `MainRoute` 가 저장된 설정값을 넘긴다. 기본값은 Preview 의 `uiMode`([ThemePreviews]) 를 따르기 위한 것이다.
+ */
 @Composable
 fun ChallengeTheme(
-    darkTheme: Boolean = true,
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     val colorScheme = if (darkTheme) DarkChallengeColorScheme else LightChallengeColorScheme

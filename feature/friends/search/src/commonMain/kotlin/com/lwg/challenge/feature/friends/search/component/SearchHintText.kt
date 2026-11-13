@@ -11,8 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 검색 화면 상단에 뜨는 안내 문구 한 줄. */
 @Composable
@@ -33,7 +33,7 @@ internal fun SearchHintText(text: String) {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SearchHintTextPreview() {
     ChallengeTheme {

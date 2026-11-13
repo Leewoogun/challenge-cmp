@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.camera.CapturedPhoto
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.NormalButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.challenge.verify.component.CapturedPhotoImage
 import com.lwg.challenge.feature.challenge.verify.contract.SubmitFailure
 import com.lwg.challenge.feature.challenge.verify.contract.VerifyUiState
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 미리보기 + 제출 확인. 제출은 되돌릴 수 없어 이 단계에서 재촬영 기회를 보장한다. */
 @Composable
@@ -120,7 +120,7 @@ private fun previewConfirm(
     failure = failure,
 )
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyConfirmScreenPreview() {
     ChallengeTheme {
@@ -134,7 +134,7 @@ private fun VerifyConfirmScreenPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyConfirmScreenSubmittingPreview() {
     ChallengeTheme {
@@ -148,7 +148,7 @@ private fun VerifyConfirmScreenSubmittingPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyConfirmScreenFailurePreview() {
     ChallengeTheme {
@@ -167,7 +167,7 @@ private fun VerifyConfirmScreenFailurePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyConfirmScreenNotRetryablePreview() {
     ChallengeTheme {

@@ -13,8 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 디자인 시스템 표준 구분선.
@@ -68,7 +68,7 @@ fun VerticalDivider10(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun DividerPreview() {
     ChallengeTheme {

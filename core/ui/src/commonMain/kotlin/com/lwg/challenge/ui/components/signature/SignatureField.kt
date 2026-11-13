@@ -20,9 +20,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.HorizontalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 서명 입력란 한 세트 — 배경 · 빈 상태 안내 · 캔버스 · "다시 그리기". */
 @Composable
@@ -98,7 +98,7 @@ fun SignatureField(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureFieldEmptyPreview() {
     ChallengeTheme {
@@ -116,7 +116,7 @@ private fun SignatureFieldEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureFieldSignedPreview() {
     ChallengeTheme {
@@ -134,7 +134,7 @@ private fun SignatureFieldSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureFieldDisabledPreview() {
     ChallengeTheme {
@@ -153,7 +153,7 @@ private fun SignatureFieldDisabledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureFieldLongHintPreview() {
     ChallengeTheme {
