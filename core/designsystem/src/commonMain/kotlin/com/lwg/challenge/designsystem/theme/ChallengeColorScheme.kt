@@ -5,6 +5,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import com.lwg.challenge.designsystem.theme.color.BackgroundColor
 import com.lwg.challenge.designsystem.theme.color.ButtonColor
+import com.lwg.challenge.designsystem.theme.color.CalendarColor
 import com.lwg.challenge.designsystem.theme.color.GradientColor
 import com.lwg.challenge.designsystem.theme.color.IconColor
 import com.lwg.challenge.designsystem.theme.color.InputFieldColor
@@ -28,6 +29,7 @@ data class ChallengeColorScheme(
     val line: LineColor,
     val inputField: InputFieldColor,
     val gradient: GradientColor,
+    val calendar: CalendarColor,
 
     val point: Color,
     val error: Color,
@@ -80,6 +82,12 @@ internal val DarkChallengeColorScheme = ChallengeColorScheme(
         cardEnd = black5,
         glow = orange1.copy(alpha = 0.15f),
     ),
+    calendar = CalendarColor(
+        rangeBackground = orange1.copy(alpha = 0.18f),
+        sundayText = red2,
+        saturdayText = blue1,
+        disabledText = gray6,
+    ),
     point = orange1,
     error = red1,
     success = green1,
@@ -130,6 +138,12 @@ internal val LightChallengeColorScheme = ChallengeColorScheme(
         cardStart = white2,
         cardEnd = light5,
         glow = orange1.copy(alpha = 0.12f),
+    ),
+    calendar = CalendarColor(
+        rangeBackground = orange1.copy(alpha = 0.16f),
+        sundayText = red1,
+        saturdayText = blue2,
+        disabledText = light6,
     ),
     point = orange1,
     error = red1,

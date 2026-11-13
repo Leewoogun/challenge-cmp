@@ -10,11 +10,15 @@ internal val orange1 = Color(0xFFE97A3D)
 internal val orange2 = Color(0xFFD75C3A)
 
 internal val red1 = Color(0xFFD75C4A)
+internal val red2 = Color(0xFFEC7B6C)
 
 internal val yellow1 = Color(0xFFD7AF45)
 internal val yellow2 = Color(0xFFC2931F)
 
 internal val green1 = Color(0xFF3CAB7A)
+
+internal val blue1 = Color(0xFF7FA6F0)
+internal val blue2 = Color(0xFF3F6FD0)
 
 internal val black1 = Color(0xFF1A1B22)
 internal val black2 = Color(0xFF26272F)
@@ -26,6 +30,7 @@ internal val gray1 = Color(0xFF3D3E48)
 internal val gray3 = Color(0xFF43444E)
 internal val gray4 = Color(0xFF383942)
 internal val gray5 = Color(0xFF9596A0)
+internal val gray6 = Color(0xFF5C5D67)
 internal val gray7 = Color(0xFF6B6C76)
 
 internal val white1 = Color(0xFFF2F2F4)
@@ -36,3 +41,4 @@ internal val light2 = Color(0xFFECECF0)
 internal val light3 = Color(0xFFE4E4E9)
 internal val light4 = Color(0xFFDDDDE3)
 internal val light5 = Color(0xFFF7F7F9)
+internal val light6 = Color(0xFFB9BAC2)
