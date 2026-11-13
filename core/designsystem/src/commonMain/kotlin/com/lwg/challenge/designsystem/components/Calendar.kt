@@ -67,7 +67,7 @@ fun ChallengeCalendar(
     selection: CalendarSelection,
     onSelectionChange: (CalendarSelection) -> Unit,
     modifier: Modifier = Modifier,
-    config: CalendarConfig = CalendarConfig(), 잉궈
+    config: CalendarConfig = CalendarConfig(),
     today: LocalDate = remember { nowKst().date },
 ) {
     CalendarContent(
