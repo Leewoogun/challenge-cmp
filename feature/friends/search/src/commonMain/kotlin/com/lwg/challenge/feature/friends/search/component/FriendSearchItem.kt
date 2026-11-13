@@ -28,10 +28,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Relation
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 검색 결과 1행 — 프로필 + 닉네임 + relation 5종 액션.
@@ -52,8 +52,8 @@ internal fun FriendSearchItem(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -65,7 +65,7 @@ internal fun FriendSearchItem(
             Text(
                 text = nickname,
                 style = ChallengeTheme.typography.bold14,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -117,7 +117,7 @@ private fun RelationAction(
                     imageVector = Icons.Filled.Close,
                     contentDescription = "요청 취소",
                     modifier = Modifier.size(14.dp),
-                    tint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    tint = ChallengeTheme.colorScheme.icon.secondary,
                 )
             }
         }
@@ -146,8 +146,8 @@ private fun RelationAction(
             onClick = onClickAction,
             enabled = enabled,
             style = IconTextButtonStyle.Filled,
-            containerColor = ChallengeTheme.colorScheme.secondary,
-            contentColor = ChallengeTheme.colorScheme.onSurface,
+            containerColor = ChallengeTheme.colorScheme.background.field,
+            contentColor = ChallengeTheme.colorScheme.text.primary,
             textStyle = ChallengeTheme.typography.bold14,
             shape = RoundedCornerShape(12.dp),
             height = 36.dp,
@@ -165,9 +165,9 @@ private fun RelationBadge(
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = ChallengeTheme.colorScheme.secondary,
+        color = ChallengeTheme.colorScheme.background.field,
         border = if (withBorder) {
-            BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline)
+            BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border)
         } else {
             null
         },
@@ -181,13 +181,13 @@ private fun RelationBadge(
             Text(
                 text = text,
                 style = textStyle,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemNonePreview() {
     PreviewContainer {
@@ -202,7 +202,7 @@ private fun FriendSearchItemNonePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemRequestSentPreview() {
     PreviewContainer {
@@ -217,7 +217,7 @@ private fun FriendSearchItemRequestSentPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemRequestReceivedPreview() {
     PreviewContainer {
@@ -232,7 +232,7 @@ private fun FriendSearchItemRequestReceivedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemFriendPreview() {
     PreviewContainer {
@@ -247,7 +247,7 @@ private fun FriendSearchItemFriendPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemRejectedPreview() {
     PreviewContainer {
@@ -263,7 +263,7 @@ private fun FriendSearchItemRejectedPreview() {
 }
 
 /** 요청이 나가 있는 행 — 버튼이 잠긴다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendSearchItemRequestingPreview() {
     PreviewContainer {
@@ -283,7 +283,7 @@ private fun PreviewContainer(content: @Composable () -> Unit) {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             content()

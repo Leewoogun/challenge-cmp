@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
@@ -44,7 +45,6 @@ import com.lwg.challenge.feature.challenge.detail.contract.HeadlineTone
 import com.lwg.challenge.feature.challenge.detail.contract.MyMissionSlot
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val VERIFY_CTA_TEXT = "인증하기"
 private const val RETAKE_CTA_TEXT = "다시 찍기"
@@ -192,7 +192,7 @@ internal fun ChallengeDetailScreen(
 }
 
 /** IN_PROGRESS / 양측 미인증 — 내 카드에 인증 CTA, 상대 카드에 "아직 인증하지 않았어요". */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenPendingPreview() {
     PreviewContainer {
@@ -206,7 +206,7 @@ private fun ChallengeDetailScreenPendingPreview() {
 }
 
 /** IN_PROGRESS · 내가 인증 완료 — 내 사진 아래에 Outlined "다시 찍기" 가 붙는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenVerifiedWithRetakePreview() {
     PreviewContainer {
@@ -225,7 +225,7 @@ private fun ChallengeDetailScreenVerifiedWithRetakePreview() {
 }
 
 /** 마감 후 · 양측 인증 완료 — 두 카드 모두 사진만 있고 재촬영 버튼이 없다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenBothVerifiedPreview() {
     PreviewContainer {
@@ -247,7 +247,7 @@ private fun ChallengeDetailScreenBothVerifiedPreview() {
 }
 
 /** 인증 현황 조회 실패 — 뱃지가 빠지고 사진 영역은 조회 실패 문구, CTA 는 열려 있다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenVerificationUnknownPreview() {
     PreviewContainer {
@@ -261,7 +261,7 @@ private fun ChallengeDetailScreenVerificationUnknownPreview() {
 }
 
 /** 내 인증 실패 · 마감까지 미제출 — 진행 중이어도 하단 슬롯이 빠지고 실패 뱃지만 남는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenMyVerificationFailedPreview() {
     PreviewContainer {
@@ -277,7 +277,7 @@ private fun ChallengeDetailScreenMyVerificationFailedPreview() {
 }
 
 /** 내 인증 실패 · AI 반려 — 내 사진 아래 반려 사유가 붙고 재촬영 CTA 는 없다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenMyVerificationRejectedPreview() {
     PreviewContainer {
@@ -302,7 +302,7 @@ private fun ChallengeDetailScreenMyVerificationRejectedPreview() {
 }
 
 /** 상대 인증 AI 반려 — 상대 카드는 슬롯 분기 없이 붙어 자리가 달라 따로 확인한다. 긴 사유는 줄바꿈된다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenOpponentVerificationRejectedPreview() {
     PreviewContainer {
@@ -328,7 +328,7 @@ private fun ChallengeDetailScreenOpponentVerificationRejectedPreview() {
 }
 
 /** 계약서 없음 — 서명 블록만 빠진다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenNoContractPreview() {
     PreviewContainer {
@@ -342,7 +342,7 @@ private fun ChallengeDetailScreenNoContractPreview() {
 }
 
 /** 마감 후 — "판정 대기 중" NEUTRAL, 내 사진만 남는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenAfterDeadlinePreview() {
     PreviewContainer {
@@ -364,7 +364,7 @@ private fun ChallengeDetailScreenAfterDeadlinePreview() {
 }
 
 /** 판정 완료 · 승리. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenWinPreview() {
     PreviewContainer {
@@ -388,7 +388,7 @@ private fun ChallengeDetailScreenWinPreview() {
 }
 
 /** 판정 완료 · 패배 — 내가 미제출이라 하단 슬롯이 빠진다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenLosePreview() {
     PreviewContainer {
@@ -411,7 +411,7 @@ private fun ChallengeDetailScreenLosePreview() {
 }
 
 /** 판정 완료 · 무승부. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenDrawPreview() {
     PreviewContainer {
@@ -435,7 +435,7 @@ private fun ChallengeDetailScreenDrawPreview() {
 }
 
 /** 판정 완료 · 양측 패배. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenBothLosePreview() {
     PreviewContainer {
@@ -457,7 +457,7 @@ private fun ChallengeDetailScreenBothLosePreview() {
 }
 
 /** 서명을 읽지 못한 칸 — "서명 대기 중" 이 아니라 실패 문구가 나온다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenUnreadableSignaturePreview() {
     PreviewContainer {
@@ -474,7 +474,7 @@ private fun ChallengeDetailScreenUnreadableSignaturePreview() {
 }
 
 /** 긴 미션 + 큰 폰트 — 첫 화면 안에 CTA 가 남는지 확인한다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenLongMissionLargeFontPreview() {
     PreviewContainer(fontScale = 1.5f) {
@@ -491,7 +491,7 @@ private fun ChallengeDetailScreenLongMissionLargeFontPreview() {
 }
 
 /** IN_PROGRESS · 내 미인증 — 인증 CTA 와 본문 맨 아래 기권 진입점이 함께 있다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenForfeitEntryPreview() {
     PreviewContainer {
@@ -505,7 +505,7 @@ private fun ChallengeDetailScreenForfeitEntryPreview() {
 }
 
 /** 기권 요청 중 — 진입점만 잠긴다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenForfeitingPreview() {
     PreviewContainer {
@@ -519,7 +519,7 @@ private fun ChallengeDetailScreenForfeitingPreview() {
 }
 
 /** 판정 완료 · 내가 기권 — "패배" 아래 "내가 기권했어요", 기권 진입점은 사라진다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenForfeitedByMePreview() {
     PreviewContainer {
@@ -542,7 +542,7 @@ private fun ChallengeDetailScreenForfeitedByMePreview() {
 }
 
 /** 판정 완료 · 상대가 기권 — "승리" 아래 "우건님이 기권했어요". */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailScreenForfeitedByOpponentPreview() {
     PreviewContainer {
@@ -573,7 +573,7 @@ private fun PreviewContainer(
                 fontScale = fontScale,
             ),
         ) {
-            Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
                 content()
             }
         }

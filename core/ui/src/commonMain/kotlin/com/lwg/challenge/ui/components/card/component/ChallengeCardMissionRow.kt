@@ -11,11 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.ui.components.VerificationStatusPill
 import com.lwg.challenge.ui.components.card.ChallengeCardScope
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 미션 한 줄. 내 미션은 굵고 진하게, 상대 미션은 옅게 둬 누구 몫인지 바로 갈린다. */
 @Composable
@@ -38,12 +38,12 @@ fun ChallengeCardMissionRow(
             Text(
                 text = label,
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
             Text(
                 text = mission,
                 style = if (isMine) ChallengeTheme.typography.bold14 else ChallengeTheme.typography.medium14,
-                color = if (isMine) ChallengeTheme.colorScheme.onBackground else ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = if (isMine) ChallengeTheme.colorScheme.text.primary else ChallengeTheme.colorScheme.text.secondary,
             )
         }
 
@@ -75,13 +75,13 @@ internal fun ChallengeCardScope.ChallengeCardOpponentMissionRow(modifier: Modifi
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeCardMissionRowPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.surface)
+                .background(ChallengeTheme.colorScheme.background.card)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {

@@ -7,9 +7,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.challenge.detail.contract.VERIFICATION_REJECTED_PREFIX
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * AI 가 인증을 인정하지 않은 사유 한 줄.
@@ -23,11 +23,11 @@ internal fun RejectionReasonText(
         text = text,
         modifier = modifier,
         style = ChallengeTheme.typography.medium12,
-        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+        color = ChallengeTheme.colorScheme.text.secondary,
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RejectionReasonTextPreview() {
     RejectionReasonTextPreviewContainer {
@@ -38,7 +38,7 @@ private fun RejectionReasonTextPreview() {
 }
 
 /** 긴 사유 — 잘리지 않고 여러 줄로 흐르는지 확인하는 자리다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun RejectionReasonTextLongPreview() {
     RejectionReasonTextPreviewContainer {
@@ -54,7 +54,7 @@ private fun RejectionReasonTextPreviewContainer(content: @Composable () -> Unit)
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             content()

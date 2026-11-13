@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 진행 중인 챌린지가 없을 때 홈에 띄우는 빈 상태 카드.
@@ -40,13 +40,13 @@ internal fun NoChallengeSection(
     onClickCreateChallenge: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val primary = ChallengeTheme.colorScheme.primary
+    val primary = ChallengeTheme.colorScheme.point
 
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Column(
             modifier = Modifier
@@ -74,7 +74,7 @@ internal fun NoChallengeSection(
             Text(
                 text = "진행 중인 챌린지가 없어요",
                 style = ChallengeTheme.typography.bold16,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
 
             VerticalSpacer(4.dp)
@@ -82,7 +82,7 @@ internal fun NoChallengeSection(
             Text(
                 text = "친구에게 새 챌린지를 걸어보세요",
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
 
             VerticalSpacer(20.dp)
@@ -109,13 +109,13 @@ internal fun NoChallengeSection(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun NoChallengeSectionPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(16.dp),
         ) {
             NoChallengeSection(

@@ -12,9 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 위저드 진행 표시. 단계 수만큼 칸을 그리고 도달한 칸을 primary 로 채운다.
@@ -43,9 +43,9 @@ internal fun WizardProgressBar(
                     .clip(CircleShape)
                     .background(
                         if (reached) {
-                            ChallengeTheme.colorScheme.primary
+                            ChallengeTheme.colorScheme.point
                         } else {
-                            ChallengeTheme.colorScheme.secondary
+                            ChallengeTheme.colorScheme.background.field
                         },
                     ),
             )
@@ -53,31 +53,31 @@ internal fun WizardProgressBar(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun WizardProgressBarFriendPickPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             WizardProgressBar(step = ChallengeCreateStep.FRIEND_PICK)
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun WizardProgressBarMissionInputPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             WizardProgressBar(step = ChallengeCreateStep.MISSION_INPUT)
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun WizardProgressBarOathPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             WizardProgressBar(step = ChallengeCreateStep.OATH)
         }
     }

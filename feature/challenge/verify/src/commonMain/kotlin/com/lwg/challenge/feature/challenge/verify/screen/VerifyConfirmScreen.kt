@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.camera.CapturedPhoto
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.NormalButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.challenge.verify.component.CapturedPhotoImage
 import com.lwg.challenge.feature.challenge.verify.contract.SubmitFailure
 import com.lwg.challenge.feature.challenge.verify.contract.VerifyUiState
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 미리보기 + 제출 확인. 제출은 되돌릴 수 없어 이 단계에서 재촬영 기회를 보장한다. */
 @Composable
@@ -42,7 +42,7 @@ internal fun VerifyConfirmScreen(
         Text(
             text = "이 사진으로 인증할까요?",
             style = ChallengeTheme.typography.bold20,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
 
         VerticalSpacer(8.dp)
@@ -50,7 +50,7 @@ internal fun VerifyConfirmScreen(
         Text(
             text = "제출을 확정하면 사진을 바꿀 수 없어요.",
             style = ChallengeTheme.typography.medium14,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
 
         VerticalSpacer(20.dp)
@@ -69,7 +69,7 @@ internal fun VerifyConfirmScreen(
             )
 
             if (uiState.isSubmitting) {
-                CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
+                CircularProgressIndicator(color = ChallengeTheme.colorScheme.point)
             }
         }
 
@@ -103,8 +103,8 @@ internal fun VerifyConfirmScreen(
                 onClick = onSubmitClick,
                 modifier = Modifier.weight(1f),
                 enabled = uiState.canSubmit,
-                containerColor = ChallengeTheme.colorScheme.primary,
-                contentColor = ChallengeTheme.colorScheme.onPrimary,
+                containerColor = ChallengeTheme.colorScheme.button.background,
+                contentColor = ChallengeTheme.colorScheme.button.text,
                 textStyle = ChallengeTheme.typography.bold16,
             )
         }
@@ -120,11 +120,11 @@ private fun previewConfirm(
     failure = failure,
 )
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyConfirmScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyConfirmScreen(
                 uiState = previewConfirm(),
                 onRetakeClick = {},
@@ -134,11 +134,11 @@ private fun VerifyConfirmScreenPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyConfirmScreenSubmittingPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyConfirmScreen(
                 uiState = previewConfirm(isSubmitting = true),
                 onRetakeClick = {},
@@ -148,11 +148,11 @@ private fun VerifyConfirmScreenSubmittingPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyConfirmScreenFailurePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyConfirmScreen(
                 uiState = previewConfirm(
                     failure = SubmitFailure(
@@ -167,11 +167,11 @@ private fun VerifyConfirmScreenFailurePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyConfirmScreenNotRetryablePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyConfirmScreen(
                 uiState = previewConfirm(
                     failure = SubmitFailure(

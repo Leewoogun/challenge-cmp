@@ -19,9 +19,9 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val SLOT_CORNER_RADIUS = 12.dp
 
@@ -35,12 +35,12 @@ fun SignatureSlot(
     modifier: Modifier = Modifier,
     emptyHint: String = "서명 대기 중",
 ) {
-    val hintColor = ChallengeTheme.colorScheme.onSurfaceVariant
+    val hintColor = ChallengeTheme.colorScheme.text.secondary
 
     Box(
         modifier = modifier
             .clip(SIGNATURE_SLOT_SHAPE)
-            .background(ChallengeTheme.colorScheme.secondary)
+            .background(ChallengeTheme.colorScheme.background.field)
             // 획이 있으면 안내 테두리를 지운다 — 그은 획을 가리기 때문.
             .then(
                 if (signature == null) {
@@ -87,13 +87,13 @@ internal fun Modifier.signatureDashedBorder(color: Color): Modifier = drawBehind
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureSlotSignedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureSlot(
@@ -104,13 +104,13 @@ private fun SignatureSlotSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureSlotEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureSlot(
@@ -121,13 +121,13 @@ private fun SignatureSlotEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureSlotHalfWidthPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureSlot(

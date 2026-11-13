@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ranking.LoserRankingEntry
 import com.lwg.challenge.feature.ranking.PREVIEW_LONG_NICKNAME
@@ -24,7 +25,6 @@ import com.lwg.challenge.feature.ranking.contract.isTopThree
 import com.lwg.challenge.feature.ranking.contract.listCaption
 import com.lwg.challenge.feature.ranking.contract.streakBadge
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 수치의 명단 1행. */
 @Composable
@@ -38,16 +38,16 @@ internal fun LoserRankRow(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = if (entry.isMe) {
-            ChallengeTheme.colorScheme.surfaceVariant
+            ChallengeTheme.colorScheme.background.cardSub
         } else {
-            ChallengeTheme.colorScheme.surface
+            ChallengeTheme.colorScheme.background.card
         },
         border = BorderStroke(
             width = 1.dp,
             color = if (entry.isTopThree) {
                 ChallengeTheme.colorScheme.error.copy(alpha = 0.20f)
             } else {
-                ChallengeTheme.colorScheme.outline
+                ChallengeTheme.colorScheme.line.divider
             },
         ),
     ) {
@@ -70,14 +70,14 @@ internal fun LoserRankRow(
                 Text(
                     text = entry.displayName,
                     style = ChallengeTheme.typography.bold14,
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = entry.listCaption,
                     style = ChallengeTheme.typography.medium10,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = 2.dp),
@@ -109,7 +109,7 @@ private fun LoserRankRowPreviewBox(content: @Composable () -> Unit) {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -119,7 +119,7 @@ private fun LoserRankRowPreviewBox(content: @Composable () -> Unit) {
 }
 
 /** 1·3위 rank 강조, 1위 내 행("나" + surfaceVariant), 2·4위 연패 뱃지. */
-@Preview
+@ThemePreviews
 @Composable
 private fun LoserRankRowRankColorsPreview() {
     LoserRankRowPreviewBox {
@@ -131,7 +131,7 @@ private fun LoserRankRowRankColorsPreview() {
 }
 
 /** 연패 0 — 뱃지가 통째로 사라진다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun LoserRankRowWithoutStreakPreview() {
     LoserRankRowPreviewBox {
@@ -140,7 +140,7 @@ private fun LoserRankRowWithoutStreakPreview() {
 }
 
 /** 기록 없음(챌린지 0회)과 전승 0패. 나머지가 같아도 캡션만 갈린다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun LoserRankRowNoRecordPreview() {
     LoserRankRowPreviewBox {
@@ -150,7 +150,7 @@ private fun LoserRankRowNoRecordPreview() {
 }
 
 /** 내 행이 top3 밖일 때 — 보더는 outline 인데 배경만 surfaceVariant 로 올라간다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun LoserRankRowMePreview() {
     LoserRankRowPreviewBox {
@@ -158,7 +158,7 @@ private fun LoserRankRowMePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoserRankRowLongNicknamePreview() {
     LoserRankRowPreviewBox {

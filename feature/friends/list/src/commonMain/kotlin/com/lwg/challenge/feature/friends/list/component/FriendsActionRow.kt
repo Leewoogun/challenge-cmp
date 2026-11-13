@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 친구 추가/초대 2-up 액션 행. primary [친구 추가] + outline [친구 초대].
@@ -54,13 +54,13 @@ internal fun FriendsActionRow(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendsActionRowPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             FriendsActionRow(

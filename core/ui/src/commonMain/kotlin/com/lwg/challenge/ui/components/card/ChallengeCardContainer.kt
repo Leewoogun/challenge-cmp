@@ -12,12 +12,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeCardInfo
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.ui.components.card.component.ChallengeCardHeader
 import com.lwg.challenge.ui.components.card.component.ChallengeCardMyMissionRow
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ChallengeCardContainer(
@@ -33,8 +33,8 @@ fun ChallengeCardContainer(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -46,13 +46,13 @@ fun ChallengeCardContainer(
 }
 
 /** 행을 골라 조합할 수 있다 — 여기선 헤더와 내 미션만. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeCardContainerPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(16.dp),
         ) {
             ChallengeCardContainer(

@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeDetail
 import com.lwg.challenge.domain.model.challenge.Contract
@@ -37,7 +38,6 @@ import com.lwg.challenge.ui.components.signature.SignatureField
 import com.lwg.challenge.ui.components.signature.SignatureSlot
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 계약서 확인 → 미션 입력 → 서명을 한 스크롤에 두고 제출 버튼만 하단에 고정한다.
@@ -62,7 +62,7 @@ internal fun OathFormScreen(
                 Text(
                     text = uiState.opponentSignatureLabel,
                     style = ChallengeTheme.typography.medium12,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
 
                 VerticalSpacer(6.dp)
@@ -87,7 +87,7 @@ internal fun OathFormScreen(
             Text(
                 text = "영혼의 맹세 📜",
                 style = ChallengeTheme.typography.bold20,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
 
             VerticalSpacer(4.dp)
@@ -95,7 +95,7 @@ internal fun OathFormScreen(
             Text(
                 text = "서명하면 수정 불가! 진짜야?",
                 style = ChallengeTheme.typography.medium14,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
 
             VerticalSpacer(24.dp)
@@ -129,7 +129,7 @@ internal fun OathFormScreen(
             Text(
                 text = "서명란",
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
 
             VerticalSpacer(6.dp)
@@ -158,11 +158,11 @@ internal fun OathFormScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathFormScreenEmptyPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathFormScreen(
                 uiState = previewOathData(),
                 onMyMissionChange = {},
@@ -173,11 +173,11 @@ private fun OathFormScreenEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathFormScreenFilledPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathFormScreen(
                 uiState = previewOathData(
                     myMission = "책 30페이지 읽기",
@@ -191,11 +191,11 @@ private fun OathFormScreenFilledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathFormScreenSubmittingPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathFormScreen(
                 uiState = previewOathData(
                     myMission = "책 30페이지 읽기",
@@ -210,11 +210,11 @@ private fun OathFormScreenSubmittingPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathFormScreenNoOpponentSignaturePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathFormScreen(
                 uiState = previewOathData(opponentSignature = null),
                 onMyMissionChange = {},

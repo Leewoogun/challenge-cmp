@@ -17,10 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 마이페이지 프로필 카드.
@@ -37,13 +37,13 @@ internal fun ProfileCard(
     muted: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val mutedColor = ChallengeTheme.colorScheme.onSurfaceVariant
+    val mutedColor = ChallengeTheme.colorScheme.text.secondary
 
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Row(
             modifier = Modifier.padding(20.dp),
@@ -62,7 +62,7 @@ internal fun ProfileCard(
                 Text(
                     text = nickname,
                     style = ChallengeTheme.typography.bold18,
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -80,7 +80,7 @@ internal fun ProfileCard(
                     ) {
                         RecordCount(
                             text = "${record.win}승",
-                            color = if (muted) mutedColor else ChallengeTheme.colorScheme.primary,
+                            color = if (muted) mutedColor else ChallengeTheme.colorScheme.text.point,
                         )
                         RecordCount(
                             text = "${record.lose}패",
@@ -88,7 +88,7 @@ internal fun ProfileCard(
                         )
                         RecordCount(
                             text = "${record.draw}무",
-                            color = if (muted) mutedColor else ChallengeTheme.colorScheme.onBackground,
+                            color = if (muted) mutedColor else ChallengeTheme.colorScheme.text.primary,
                         )
                     }
                 }
@@ -109,13 +109,13 @@ private fun RecordCount(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileCardEmptyRecordPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ProfileCard(
@@ -129,13 +129,13 @@ private fun ProfileCardEmptyRecordPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileCardRecordFailedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ProfileCard(
@@ -149,13 +149,13 @@ private fun ProfileCardRecordFailedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileCardAllDrawPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ProfileCard(
@@ -169,13 +169,13 @@ private fun ProfileCardAllDrawPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ProfileCard(
@@ -189,13 +189,13 @@ private fun ProfileCardPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileCardLongNicknamePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ProfileCard(

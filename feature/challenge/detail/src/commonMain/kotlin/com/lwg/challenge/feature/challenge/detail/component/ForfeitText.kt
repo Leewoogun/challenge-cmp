@@ -8,9 +8,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.challenge.detail.contract.FORFEIT_ENTRY_TEXT
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ForfeitText(
@@ -31,13 +31,13 @@ internal fun ForfeitText(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ForfeitTextPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ForfeitText(onClick = {})
@@ -45,13 +45,13 @@ private fun ForfeitTextPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ForfeitTextDisabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ForfeitText(onClick = {}, enabled = false)

@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * @param overlay true 면 아래 화면 위에 반투명 배경으로 덮고 터치를 막는다 (제출 대기용).
@@ -25,7 +25,7 @@ internal fun ChallengeCreateLoading(
             .then(
                 if (overlay) {
                     Modifier
-                        .background(ChallengeTheme.colorScheme.background.copy(alpha = 0.6f))
+                        .background(ChallengeTheme.colorScheme.background.screen.copy(alpha = 0.6f))
                         .pointerInput(Unit) {
                             awaitPointerEventScope {
                                 while (true) {
@@ -39,15 +39,15 @@ internal fun ChallengeCreateLoading(
             ),
         contentAlignment = Alignment.Center,
     ) {
-        CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
+        CircularProgressIndicator(color = ChallengeTheme.colorScheme.point)
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeCreateLoadingOverlayPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ChallengeCreateLoading(overlay = true)
         }
     }

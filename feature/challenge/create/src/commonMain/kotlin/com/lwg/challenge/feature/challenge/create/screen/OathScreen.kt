@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.signature.Signature
@@ -27,7 +28,6 @@ import com.lwg.challenge.ui.components.ContractCard
 import com.lwg.challenge.ui.components.LoadingIconButton
 import com.lwg.challenge.ui.components.signature.SignatureField
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 계약서 확인 후 서명.
@@ -89,7 +89,7 @@ private fun OathForm(
             Text(
                 text = "서명란",
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
 
             VerticalSpacer(6.dp)
@@ -113,11 +113,11 @@ private fun OathForm(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathScreenEmptySignaturePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathScreen(
                 uiState = previewOathState(),
                 onSignatureChange = {},
@@ -127,11 +127,11 @@ private fun OathScreenEmptySignaturePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathScreenSignedPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathScreen(
                 uiState = previewOathState(signature = previewSignature()),
                 onSignatureChange = {},
@@ -141,11 +141,11 @@ private fun OathScreenSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun OathScreenSubmittingPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathScreen(
                 uiState = previewOathState(
                     signature = previewSignature(),

@@ -11,9 +11,9 @@ import androidx.compose.material.icons.filled.SportsKabaddi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.EmptyStateCard
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 종료한 챌린지가 계정 전체에 하나도 없는 상태. */
 @Composable
@@ -34,11 +34,11 @@ internal fun ArchiveNoArchiveEver(onCreateChallengeClick: () -> Unit) {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveNoArchiveEverPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ArchiveNoArchiveEver(onCreateChallengeClick = {})
         }
     }

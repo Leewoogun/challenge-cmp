@@ -30,8 +30,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 검색 화면 전용 상단바 — 뒤로가기 + 닉네임 입력.
@@ -49,7 +49,7 @@ internal fun FriendsSearchTopBar(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = ChallengeTheme.colorScheme.surface,
+        color = ChallengeTheme.colorScheme.background.card,
     ) {
         Row(
             modifier = Modifier
@@ -67,7 +67,7 @@ internal fun FriendsSearchTopBar(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "뒤로 가기",
                     modifier = Modifier.size(20.dp),
-                    tint = ChallengeTheme.colorScheme.onBackground,
+                    tint = ChallengeTheme.colorScheme.icon.primary,
                 )
             }
 
@@ -80,15 +80,15 @@ internal fun FriendsSearchTopBar(
                     .focusRequester(focusRequester),
                 singleLine = true,
                 textStyle = ChallengeTheme.typography.medium14.copy(
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                 ),
-                cursorBrush = SolidColor(ChallengeTheme.colorScheme.primary),
+                cursorBrush = SolidColor(ChallengeTheme.colorScheme.point),
                 decorationBox = { innerTextField ->
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(RoundedCornerShape(12.dp))
-                            .background(ChallengeTheme.colorScheme.secondary)
+                            .background(ChallengeTheme.colorScheme.background.field)
                             .padding(horizontal = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -97,14 +97,14 @@ internal fun FriendsSearchTopBar(
                             imageVector = Icons.Filled.Search,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
-                            tint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                            tint = ChallengeTheme.colorScheme.icon.secondary,
                         )
                         Box(modifier = Modifier.weight(1f)) {
                             if (query.isEmpty()) {
                                 Text(
                                     text = "닉네임 검색",
                                     style = ChallengeTheme.typography.medium14,
-                                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                                    color = ChallengeTheme.colorScheme.text.secondary,
                                 )
                             }
                             innerTextField()
@@ -116,7 +116,7 @@ internal fun FriendsSearchTopBar(
                                 modifier = Modifier
                                     .size(14.dp)
                                     .clickable { onQueryChange("") },
-                                tint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                                tint = ChallengeTheme.colorScheme.icon.secondary,
                             )
                         }
                     }
@@ -126,11 +126,11 @@ internal fun FriendsSearchTopBar(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendsSearchTopBarPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             FriendsSearchTopBar(
                 query = "우건",
                 onQueryChange = {},

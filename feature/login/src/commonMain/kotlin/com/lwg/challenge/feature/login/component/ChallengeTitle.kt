@@ -16,13 +16,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.modifier.wiggle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ChallengeTitle() {
     val fireBrush = ChallengeTheme.brushes.fire
-    val onBackground = ChallengeTheme.colorScheme.onBackground
+    val onBackground = ChallengeTheme.colorScheme.text.primary
 
     val titleStyle = ChallengeTheme.typography.bold48
 
@@ -53,13 +53,13 @@ internal fun ChallengeTitle() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeTitlePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ChallengeTitle()

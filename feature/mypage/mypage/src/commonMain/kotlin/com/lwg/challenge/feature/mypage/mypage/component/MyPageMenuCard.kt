@@ -23,8 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 마이페이지 메뉴 1행
@@ -43,8 +43,8 @@ internal fun MyPageMenuCard(
             .clip(RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -55,14 +55,14 @@ internal fun MyPageMenuCard(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(ChallengeTheme.colorScheme.secondary),
+                    .background(ChallengeTheme.colorScheme.background.field),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
-                    tint = ChallengeTheme.colorScheme.primary,
+                    tint = ChallengeTheme.colorScheme.icon.point,
                 )
             }
 
@@ -73,12 +73,12 @@ internal fun MyPageMenuCard(
                 Text(
                     text = label,
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                 )
                 Text(
                     text = description,
                     style = ChallengeTheme.typography.medium10,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
             }
 
@@ -86,19 +86,19 @@ internal fun MyPageMenuCard(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
-                tint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                tint = ChallengeTheme.colorScheme.icon.secondary,
             )
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageMenuCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             MyPageMenuCard(

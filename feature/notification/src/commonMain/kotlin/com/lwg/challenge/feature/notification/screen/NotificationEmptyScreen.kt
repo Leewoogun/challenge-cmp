@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 알림 0건. 놓을 CTA 가 없어(이 사용자는 방금 홈에서 왔다) `EmptyStateCard` 대신 카드 크롬 없는 담담한 안내로 둔다.
@@ -26,7 +26,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  */
 @Composable
 internal fun NotificationEmptyScreen(modifier: Modifier = Modifier) {
-    val primary = ChallengeTheme.colorScheme.primary
+    val primary = ChallengeTheme.colorScheme.point
 
     Column(
         modifier = modifier
@@ -56,7 +56,7 @@ internal fun NotificationEmptyScreen(modifier: Modifier = Modifier) {
         Text(
             text = "아직 알림이 없어요",
             style = ChallengeTheme.typography.bold16,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
 
         VerticalSpacer(4.dp)
@@ -64,16 +64,16 @@ internal fun NotificationEmptyScreen(modifier: Modifier = Modifier) {
         Text(
             text = "챌린지가 오가면 여기에 쌓여요",
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun NotificationEmptyScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             NotificationEmptyScreen()
         }
     }

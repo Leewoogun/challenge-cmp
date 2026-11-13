@@ -9,8 +9,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 권한이 영구 거부(`DENIED_ALWAYS`)됐을 때만 띄우는 설정 안내 다이얼로그. */
 @Composable
@@ -24,19 +24,19 @@ fun PermissionSettingsDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
-        containerColor = ChallengeTheme.colorScheme.background,
+        containerColor = ChallengeTheme.colorScheme.background.screen,
         title = {
             Text(
                 text = title,
                 style = ChallengeTheme.typography.bold18,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
         },
         text = {
             Text(
                 text = message,
                 style = ChallengeTheme.typography.medium14,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
         },
         confirmButton = {
@@ -44,7 +44,7 @@ fun PermissionSettingsDialog(
                 Text(
                     text = "설정 열기",
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.primary,
+                    color = ChallengeTheme.colorScheme.text.point,
                 )
             }
         },
@@ -53,20 +53,20 @@ fun PermissionSettingsDialog(
                 Text(
                     text = "나중에",
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
             }
         },
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun PermissionSettingsDialogPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             PermissionSettingsDialog(

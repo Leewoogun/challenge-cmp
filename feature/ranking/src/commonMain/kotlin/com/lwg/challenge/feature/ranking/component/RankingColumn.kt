@@ -27,11 +27,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.modifier.wiggle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ranking.LoserRankingEntry
 import com.lwg.challenge.feature.ranking.contract.cardCaption
 import com.lwg.challenge.feature.ranking.contract.displayName
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val PedestalShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
 
@@ -82,7 +82,7 @@ internal fun RankingColumn(
         Text(
             text = entry.displayName,
             style = nameStyle,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
@@ -117,7 +117,7 @@ internal fun RankingColumn(
                         )
                     } else {
                         Modifier.background(
-                            color = ChallengeTheme.colorScheme.surfaceVariant,
+                            color = ChallengeTheme.colorScheme.background.cardSub,
                             shape = PedestalShape,
                         )
                     },
@@ -151,13 +151,13 @@ private fun previewEntry(
     totalChallenges = 30,
 )
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingColumnFirstPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             RankingColumn(
@@ -169,7 +169,7 @@ private fun RankingColumnFirstPreview() {
                 pedestalHeight = 96.dp,
                 pedestalIcon = Icons.Filled.LocalFireDepartment,
                 pedestalIconSize = 24.dp,
-                pedestalIconTint = ChallengeTheme.colorScheme.primary.copy(alpha = 0.40f),
+                pedestalIconTint = ChallengeTheme.colorScheme.icon.point.copy(alpha = 0.40f),
                 showCrown = true,
                 avatarBrush = ChallengeTheme.brushes.fire,
                 pedestalBrush = ChallengeTheme.brushes.fire,
@@ -179,13 +179,13 @@ private fun RankingColumnFirstPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingColumnRunnerUpsPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -199,7 +199,7 @@ private fun RankingColumnRunnerUpsPreview() {
                 pedestalHeight = 64.dp,
                 pedestalIcon = Icons.Filled.MilitaryTech,
                 pedestalIconSize = 20.dp,
-                pedestalIconTint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                pedestalIconTint = ChallengeTheme.colorScheme.icon.secondary,
             )
             RankingColumn(
                 entry = previewEntry(rank = 3, nickname = "도윤", losses = 14, streak = 2),
@@ -210,20 +210,20 @@ private fun RankingColumnRunnerUpsPreview() {
                 pedestalHeight = 48.dp,
                 pedestalIcon = Icons.Filled.MilitaryTech,
                 pedestalIconSize = 18.dp,
-                pedestalIconTint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                pedestalIconTint = ChallengeTheme.colorScheme.icon.secondary,
             )
         }
     }
 }
 
 /** 연패 0 인 1위 — 캡션에서 🐷 절이 통째로 사라진다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingColumnFirstWithoutStreakPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             RankingColumn(
@@ -235,7 +235,7 @@ private fun RankingColumnFirstWithoutStreakPreview() {
                 pedestalHeight = 96.dp,
                 pedestalIcon = Icons.Filled.LocalFireDepartment,
                 pedestalIconSize = 24.dp,
-                pedestalIconTint = ChallengeTheme.colorScheme.primary.copy(alpha = 0.40f),
+                pedestalIconTint = ChallengeTheme.colorScheme.icon.point.copy(alpha = 0.40f),
                 showCrown = true,
                 avatarBrush = ChallengeTheme.brushes.fire,
                 pedestalBrush = ChallengeTheme.brushes.fire,

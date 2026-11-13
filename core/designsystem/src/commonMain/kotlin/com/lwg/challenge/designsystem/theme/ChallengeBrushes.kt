@@ -5,17 +5,18 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.lwg.challenge.designsystem.theme.color.GradientColor
 
 /**
  * 프로젝트 그라데이션 브러시.
  */
 @Immutable
 data class ChallengeBrushes(
-    /** gradientPrimaryStart → gradientPrimaryEnd (135deg). 메인 CTA / 히어로. */
+    /** fireStart → fireEnd (135deg). 메인 CTA / 히어로. */
     val fire: Brush,
-    /** gradientCardStart → gradientCardEnd (135deg). 카드 표면 미묘한 depth. */
+    /** cardStart → cardEnd (135deg). 카드 표면 미묘한 depth. */
     val card: Brush,
-    /** glowPrimary → transparent (radial). 화면 상단 후광. */
+    /** glow → transparent (radial). 화면 상단 후광. */
     val glow: Brush,
 )
 
@@ -31,17 +32,11 @@ private fun radialGlow(center: Color): Brush =
         colors = listOf(center, Color.Transparent),
     )
 
-internal fun buildChallengeBrushes(colorScheme: ChallengeColorScheme): ChallengeBrushes =
+internal fun buildChallengeBrushes(gradient: GradientColor): ChallengeBrushes =
     ChallengeBrushes(
-        fire = linearGradient135(
-            start = colorScheme.gradientPrimaryStart,
-            end = colorScheme.gradientPrimaryEnd,
-        ),
-        card = linearGradient135(
-            start = colorScheme.gradientCardStart,
-            end = colorScheme.gradientCardEnd,
-        ),
-        glow = radialGlow(center = colorScheme.glowPrimary),
+        fire = linearGradient135(start = gradient.fireStart, end = gradient.fireEnd),
+        card = linearGradient135(start = gradient.cardStart, end = gradient.cardEnd),
+        glow = radialGlow(center = gradient.glow),
     )
 
 val LocalChallengeBrushes = staticCompositionLocalOf<ChallengeBrushes> {

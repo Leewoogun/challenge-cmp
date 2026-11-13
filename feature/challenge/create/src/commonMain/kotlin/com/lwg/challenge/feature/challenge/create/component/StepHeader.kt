@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 위저드 각 단계 상단의 제목 + 서브 문구. design.md §1.2 / §1.3. */
 @Composable
@@ -23,7 +23,7 @@ internal fun StepHeader(
         Text(
             text = title,
             style = ChallengeTheme.typography.bold20,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
 
         VerticalSpacer(4.dp)
@@ -31,18 +31,18 @@ internal fun StepHeader(
         Text(
             text = subtitle,
             style = ChallengeTheme.typography.medium14,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun StepHeaderPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             StepHeader(

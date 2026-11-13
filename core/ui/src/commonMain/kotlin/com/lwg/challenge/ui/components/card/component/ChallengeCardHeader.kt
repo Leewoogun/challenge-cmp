@@ -17,12 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.ui.components.ChallengeOutcomePill
 import com.lwg.challenge.ui.components.card.ChallengeCardScope
 import kotlinx.datetime.number
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 카드 첫 줄. 🔥 vs 닉네임 · 날짜 + 오른쪽에 결과 또는 남은 시간.
@@ -51,7 +51,7 @@ fun ChallengeCardHeader(
                 imageVector = Icons.Filled.LocalFireDepartment,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
-                tint = ChallengeTheme.colorScheme.primary,
+                tint = ChallengeTheme.colorScheme.icon.point,
             )
             // 닉네임만 줄인다. 날짜와 결과는 카드의 핵심 정보라 밀려나면 안 된다.
             CaptionText(
@@ -116,19 +116,19 @@ private fun CaptionText(
         text = text,
         modifier = modifier,
         style = ChallengeTheme.typography.medium12,
-        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+        color = ChallengeTheme.colorScheme.text.secondary,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeCardHeaderPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.surface)
+                .background(ChallengeTheme.colorScheme.background.card)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {

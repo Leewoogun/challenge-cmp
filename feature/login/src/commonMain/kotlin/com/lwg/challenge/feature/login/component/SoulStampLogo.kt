@@ -23,8 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun SoulStampLogo(
@@ -61,8 +61,8 @@ internal fun SoulStampLogo(
         label = "sparkle2-alpha",
     )
 
-    val onPrimary = ChallengeTheme.colorScheme.onPrimary
-    val primary = ChallengeTheme.colorScheme.primary
+    val onPrimary = ChallengeTheme.colorScheme.text.onPoint
+    val primary = ChallengeTheme.colorScheme.point
     val fireBrush = ChallengeTheme.brushes.fire
 
     Box(modifier = modifier.size(140.dp)) {
@@ -116,13 +116,13 @@ internal fun SoulStampLogo(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SoulStampLogoPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(32.dp),
         ) {
             SoulStampLogo()

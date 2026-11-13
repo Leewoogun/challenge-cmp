@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.ActiveChallenge
 import com.lwg.challenge.domain.model.ActiveChallengeStatus
@@ -33,7 +34,6 @@ import com.lwg.challenge.feature.home.component.receivedChallengesSection
 import com.lwg.challenge.feature.home.contract.HomeUiState
 import com.lwg.challenge.ui.components.card.ChallengeCard
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun HomeScreen(
@@ -147,12 +147,12 @@ private fun SectionTitleRow(title: String, count: Int) {
         Text(
             text = title,
             style = ChallengeTheme.typography.bold18,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
         Text(
             text = "${count}개",
             style = ChallengeTheme.typography.medium10,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
             modifier = Modifier.padding(bottom = 4.dp),
         )
     }
@@ -257,11 +257,11 @@ private val previewReceivedChallenges = listOf(
     ),
 )
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeScreenDataPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
@@ -278,11 +278,11 @@ private fun HomeScreenDataPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeScreenNoRecordPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord.Empty,
@@ -299,11 +299,11 @@ private fun HomeScreenNoRecordPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeScreenNoActiveChallengePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 8, lose = 5, draw = 2, currentStreak = 0),
@@ -320,11 +320,11 @@ private fun HomeScreenNoActiveChallengePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeScreenWithCompletedChallengesPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
@@ -344,11 +344,11 @@ private fun HomeScreenWithCompletedChallengesPreview() {
 /**
  * 이번 변경의 핵심 장면 — 진행 중 0건이라 빈 상태 카드가 뜨고, 그 아래 최근 결과 구획이 함께 보인다.
  */
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeScreenNoActiveWithCompletedChallengesPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord.Empty,
@@ -365,11 +365,11 @@ private fun HomeScreenNoActiveWithCompletedChallengesPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeScreenWithReceivedChallengesPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
@@ -388,11 +388,11 @@ private fun HomeScreenWithReceivedChallengesPreview() {
 }
 
 /** 벨 뱃지가 켜진 장면 — 붉은 점이 벨 아이콘 어디에 찍히는지 눈으로 확인하는 자리다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeScreenUnreadNotificationPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),

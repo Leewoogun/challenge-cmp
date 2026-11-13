@@ -13,13 +13,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.feature.home.contract.HomeUiState
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 받은 도전장 섹션.
@@ -59,23 +59,23 @@ internal fun ReceivedChallengesHeader(
         Text(
             text = "받은 도전장 ",
             style = ChallengeTheme.typography.bold14,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
         Text(
             text = "${count}건",
             style = ChallengeTheme.typography.bold14,
-            color = ChallengeTheme.colorScheme.primary,
+            color = ChallengeTheme.colorScheme.text.point,
         )
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ReceivedChallengesHeaderPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ReceivedChallengesHeader(count = 2)
@@ -83,12 +83,12 @@ private fun ReceivedChallengesHeaderPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ReceivedChallengesSectionPreview() {
     ChallengeTheme {
         LazyColumn(
-            modifier = Modifier.background(ChallengeTheme.colorScheme.background),
+            modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen),
             contentPadding = PaddingValues(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {

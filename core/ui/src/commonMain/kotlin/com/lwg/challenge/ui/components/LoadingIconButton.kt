@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 아이콘 + 텍스트 CTA 에 in-flight 인디케이터를 더한 버튼. */
 @Composable
@@ -41,14 +41,14 @@ fun LoadingIconButton(
             enabled = false,
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
-                disabledContainerColor = ChallengeTheme.colorScheme.primary,
-                disabledContentColor = ChallengeTheme.colorScheme.onPrimary,
+                disabledContainerColor = ChallengeTheme.colorScheme.button.background,
+                disabledContentColor = ChallengeTheme.colorScheme.button.text,
             ),
             contentPadding = PaddingValues(horizontal = 12.dp),
         ) {
             CircularProgressIndicator(
                 modifier = Modifier.size(18.dp),
-                color = ChallengeTheme.colorScheme.onPrimary,
+                color = ChallengeTheme.colorScheme.text.onPoint,
                 strokeWidth = 2.dp,
             )
         }
@@ -64,13 +64,13 @@ fun LoadingIconButton(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoadingIconButtonEnabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LoadingIconButton(
@@ -84,13 +84,13 @@ private fun LoadingIconButtonEnabledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoadingIconButtonDisabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LoadingIconButton(
@@ -104,13 +104,13 @@ private fun LoadingIconButtonDisabledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoadingIconButtonLoadingPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LoadingIconButton(

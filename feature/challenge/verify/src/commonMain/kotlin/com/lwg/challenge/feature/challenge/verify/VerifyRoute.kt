@@ -84,7 +84,7 @@ private fun VerifyContent(
     onDoneClick: () -> Unit,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
+        statusBarColor = ChallengeTheme.colorScheme.background.card,
         topBar = {
             ChallengeTopBar(
                 title = "챌린지 인증",

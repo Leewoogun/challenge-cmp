@@ -29,7 +29,7 @@ data class NotificationTypeVisual(
 internal fun notificationTypeVisualOf(type: String): NotificationTypeVisual = when (type) {
     PushEvent.TYPE_CHALLENGE_REQUEST -> NotificationTypeVisual(
         icon = Icons.Filled.SportsKabaddi,
-        accent = ChallengeTheme.colorScheme.primary,
+        accent = ChallengeTheme.colorScheme.point,
     )
     // CheckCircle 은 연달아 오는 상대 인증과 겹쳐 계약서 아이콘을 쓴다.
     PushEvent.TYPE_CHALLENGE_ACCEPTED -> NotificationTypeVisual(
@@ -52,6 +52,6 @@ internal fun notificationTypeVisualOf(type: String): NotificationTypeVisual = wh
     // 뜻을 모르는 타입에 의미색을 주지 않는다.
     else -> NotificationTypeVisual(
         icon = Icons.Filled.Notifications,
-        accent = ChallengeTheme.colorScheme.onSurfaceVariant,
+        accent = ChallengeTheme.colorScheme.text.secondary,
     )
 }

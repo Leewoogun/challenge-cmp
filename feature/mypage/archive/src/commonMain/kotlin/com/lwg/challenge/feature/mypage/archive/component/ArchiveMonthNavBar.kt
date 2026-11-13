@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.HorizontalDivider
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 보관함의 월 이동 컨트롤.
@@ -49,7 +49,7 @@ internal fun ArchiveMonthNavBar(
                 .fillMaxWidth()
                 .heightIn(min = 64.dp)
                 // 상단바와 같은 surface 로 칠해 하나의 크롬 블록으로 읽히게 한다.
-                .background(ChallengeTheme.colorScheme.surface)
+                .background(ChallengeTheme.colorScheme.background.card)
                 // 8 + (48 - 24) / 2 = 20 — 아이콘 모서리가 카드 gutter(20dp)와 같은 세로선에 선다.
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -69,14 +69,14 @@ internal fun ArchiveMonthNavBar(
                 Text(
                     text = label,
                     style = ChallengeTheme.typography.bold16,
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                     textAlign = TextAlign.Center,
                 )
 
                 Text(
                     text = countText,
                     style = ChallengeTheme.typography.medium12,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -111,7 +111,7 @@ private fun MonthArrowButton(
             modifier = Modifier
                 .size(40.dp)
                 .background(
-                    color = if (enabled) ChallengeTheme.colorScheme.secondary else Color.Transparent,
+                    color = if (enabled) ChallengeTheme.colorScheme.background.field else Color.Transparent,
                     shape = RoundedCornerShape(12.dp),
                 ),
             contentAlignment = Alignment.Center,
@@ -122,7 +122,7 @@ private fun MonthArrowButton(
                     modifier = Modifier
                         .matchParentSize()
                         .background(
-                            color = ChallengeTheme.colorScheme.onBackground.copy(alpha = 0.12f),
+                            color = ChallengeTheme.colorScheme.text.primary.copy(alpha = 0.12f),
                             shape = RoundedCornerShape(12.dp),
                         ),
                 )
@@ -134,16 +134,16 @@ private fun MonthArrowButton(
                 modifier = Modifier.size(24.dp),
                 // 배경이 사라지는 만큼 아이콘을 0.25 로 더 내린다. 0.2 미만은 다크 테마에서 숨김이 된다(실기 확인 필요).
                 tint = if (enabled) {
-                    ChallengeTheme.colorScheme.onBackground
+                    ChallengeTheme.colorScheme.text.primary
                 } else {
-                    ChallengeTheme.colorScheme.onBackground.copy(alpha = 0.25f)
+                    ChallengeTheme.colorScheme.text.primary.copy(alpha = 0.25f)
                 },
             )
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveMonthNavBarPreview() {
     ArchiveMonthNavBarPreviewContainer {
@@ -159,7 +159,7 @@ private fun ArchiveMonthNavBarPreview() {
 }
 
 /** 첫 진입 상태 — 이번 달이라 다음 이동이 막혀 있다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveMonthNavBarAtLatestPreview() {
     ArchiveMonthNavBarPreviewContainer {
@@ -175,7 +175,7 @@ private fun ArchiveMonthNavBarAtLatestPreview() {
 }
 
 /** `<` 가 막힌 모습. 보관함은 지금 이 상태를 만들지 않고, 컴포넌트의 표현 능력만 남긴다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveMonthNavBarAtEarliestPreview() {
     ArchiveMonthNavBarPreviewContainer {
@@ -191,7 +191,7 @@ private fun ArchiveMonthNavBarAtEarliestPreview() {
 }
 
 /** 양쪽이 모두 막힌 모습. 사용자가 고장으로 읽어 과거 하한을 없앴고, 다시 만들지 않으려고 남긴다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveMonthNavBarNoMovementPreview() {
     ArchiveMonthNavBarPreviewContainer {
@@ -207,7 +207,7 @@ private fun ArchiveMonthNavBarNoMovementPreview() {
 }
 
 /** 기록이 있는 달들 사이의 빈 달 — 0건에도 바 높이가 그대로라 화살표가 움직이지 않는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveMonthNavBarZeroCountPreview() {
     ArchiveMonthNavBarPreviewContainer {
@@ -225,7 +225,7 @@ private fun ArchiveMonthNavBarZeroCountPreview() {
 @Composable
 private fun ArchiveMonthNavBarPreviewContainer(content: @Composable () -> Unit) {
     ChallengeTheme {
-        Column(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Column(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             content()
         }
     }

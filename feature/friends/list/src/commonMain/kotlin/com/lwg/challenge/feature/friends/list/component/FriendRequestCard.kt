@@ -21,9 +21,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 친구 요청 카드. 받은 친구 요청 1건을 수락/거절 액션과 함께 표시. */
 @Composable
@@ -37,8 +37,8 @@ internal fun FriendRequestCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -50,7 +50,7 @@ internal fun FriendRequestCard(
             Text(
                 text = nickname,
                 style = ChallengeTheme.typography.bold14,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -82,13 +82,13 @@ internal fun FriendRequestCard(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FriendRequestCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             FriendRequestCard(

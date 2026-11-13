@@ -36,7 +36,7 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
-            implementation(compose.preview)
+            implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             // KakaoSdk.init 호출용. (feature:login 의 v2-user 가 transitively 가져오지만
             // composeApp 의 ChallengeApplication 에서 직접 import 하므로 명시적으로 추가)
@@ -143,6 +143,6 @@ android {
 }
 
 dependencies {
-    debugImplementation(compose.uiTooling)
+    debugImplementation(libs.compose.ui.tooling)
 }
 

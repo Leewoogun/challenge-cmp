@@ -13,13 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun FooterAgreementText() {
-    val muted = ChallengeTheme.colorScheme.onSurfaceVariant
-    val emphasized = ChallengeTheme.colorScheme.onBackground
+    val muted = ChallengeTheme.colorScheme.text.secondary
+    val emphasized = ChallengeTheme.colorScheme.text.primary
 
     val text = buildAnnotatedString {
         withStyle(SpanStyle(color = muted)) {
@@ -47,13 +47,13 @@ internal fun FooterAgreementText() {
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun FooterAgreementTextPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             FooterAgreementText()

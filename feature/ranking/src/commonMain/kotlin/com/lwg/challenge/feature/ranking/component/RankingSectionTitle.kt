@@ -7,8 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 명단 섹션 제목. */
 @Composable
@@ -18,18 +18,18 @@ internal fun RankingSectionTitle(
     Text(
         text = "수치의 명단",
         style = ChallengeTheme.typography.bold14,
-        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+        color = ChallengeTheme.colorScheme.text.secondary,
         modifier = modifier,
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingSectionTitlePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             RankingSectionTitle()

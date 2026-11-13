@@ -19,15 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ChallengePenaltyArea(
     text: String,
     modifier: Modifier = Modifier,
 ) {
-    val primary = ChallengeTheme.colorScheme.primary
+    val primary = ChallengeTheme.colorScheme.point
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -56,13 +56,13 @@ fun ChallengePenaltyArea(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun BetStripPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ChallengePenaltyArea(text = "내기: 커피 사기 ☕")

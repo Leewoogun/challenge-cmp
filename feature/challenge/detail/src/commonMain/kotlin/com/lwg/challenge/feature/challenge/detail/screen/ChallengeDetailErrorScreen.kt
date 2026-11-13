@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.IconTextButton
 import com.lwg.challenge.designsystem.components.button.IconTextButtonStyle
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 계약서를 한 번도 못 받아온 상태. 보여줄 계약이 없으므로 화면 전체를 차지한다. */
 @Composable
@@ -37,7 +37,7 @@ internal fun ChallengeDetailErrorScreen(
         Text(
             text = "계약서를 불러오지 못했어요",
             style = ChallengeTheme.typography.bold16,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
 
         VerticalSpacer(8.dp)
@@ -45,7 +45,7 @@ internal fun ChallengeDetailErrorScreen(
         Text(
             text = message,
             style = ChallengeTheme.typography.medium14,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
             textAlign = TextAlign.Center,
         )
 
@@ -60,11 +60,11 @@ internal fun ChallengeDetailErrorScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeDetailErrorScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ChallengeDetailErrorScreen(
                 message = "네트워크 오류가 발생하였습니다.",
                 onRetry = {},

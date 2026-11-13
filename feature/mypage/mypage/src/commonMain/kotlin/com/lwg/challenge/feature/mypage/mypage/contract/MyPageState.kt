@@ -2,6 +2,7 @@ package com.lwg.challenge.feature.mypage.mypage.contract
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import com.lwg.challenge.domain.model.ThemeMode
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.user.UserInfo
 import kotlin.math.floor
@@ -18,7 +19,11 @@ sealed interface MyPageUiState {
         val record: UserRecord?,
         val userInfo: UserInfo? = null,
         val isWithdrawing: Boolean = false,
+        val themeMode: ThemeMode = ThemeMode.DARK,
     ) : MyPageUiState {
+
+        val isDarkThemeSelected: Boolean get() = themeMode == ThemeMode.DARK
+        val isLightThemeSelected: Boolean get() = themeMode == ThemeMode.LIGHT
 
         val isRecordMuted: Boolean get() = record?.isEmpty == true
 

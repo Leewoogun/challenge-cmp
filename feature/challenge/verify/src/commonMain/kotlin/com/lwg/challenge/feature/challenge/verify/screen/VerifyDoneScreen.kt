@@ -19,8 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.NormalButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val FIRST_SUBMIT_MESSAGE = "오늘의 미션 인증이 상대에게 전달돼요."
 private const val REPLACED_MESSAGE = "사진이 교체됐어요. 상대는 최신 사진을 보게 돼요."
@@ -55,7 +55,7 @@ internal fun VerifyDoneScreen(
         Text(
             text = "인증이 완료됐어요 🔥",
             style = ChallengeTheme.typography.bold20,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
 
         VerticalSpacer(8.dp)
@@ -63,7 +63,7 @@ internal fun VerifyDoneScreen(
         Text(
             text = if (isReplace) REPLACED_MESSAGE else FIRST_SUBMIT_MESSAGE,
             style = ChallengeTheme.typography.medium14,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
             textAlign = TextAlign.Center,
         )
 
@@ -73,18 +73,18 @@ internal fun VerifyDoneScreen(
             text = "확인",
             onClick = onDoneClick,
             modifier = Modifier.fillMaxWidth(),
-            containerColor = ChallengeTheme.colorScheme.primary,
-            contentColor = ChallengeTheme.colorScheme.onPrimary,
+            containerColor = ChallengeTheme.colorScheme.button.background,
+            contentColor = ChallengeTheme.colorScheme.button.text,
             textStyle = ChallengeTheme.typography.bold16,
         )
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyDoneScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyDoneScreen(
                 isReplace = false,
                 onDoneClick = {},
@@ -93,11 +93,11 @@ private fun VerifyDoneScreenPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerifyDoneScreenReplacePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyDoneScreen(
                 isReplace = true,
                 onDoneClick = {},

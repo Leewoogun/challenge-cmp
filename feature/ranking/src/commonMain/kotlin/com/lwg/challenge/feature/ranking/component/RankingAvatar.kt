@@ -16,9 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.ProfileImage
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val AvatarShape = RoundedCornerShape(16.dp)
 
@@ -57,18 +57,18 @@ internal fun RankingAvatar(
             shape = AvatarShape,
             backgroundColor = Color.Transparent,
             textStyle = textStyle,
-            textColor = ChallengeTheme.colorScheme.onPrimary,
+            textColor = ChallengeTheme.colorScheme.text.onPoint,
         )
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingAvatarPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -90,13 +90,13 @@ private fun RankingAvatarPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingAvatarBlankNicknamePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             RankingAvatar(

@@ -11,8 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 검색 화면 상단에 뜨는 안내 문구 한 줄. */
 @Composable
@@ -24,7 +24,7 @@ internal fun SearchHintText(text: String) {
         Text(
             text = text,
             style = ChallengeTheme.typography.medium14,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
@@ -33,11 +33,11 @@ internal fun SearchHintText(text: String) {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SearchHintTextPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             SearchHintText(text = "닉네임을 2자 이상 입력해주세요")
         }
     }

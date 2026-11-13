@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lwg.challenge.domain.model.LogoutReason
 import com.lwg.challenge.domain.usecase.LogoutUseCase
+import com.lwg.challenge.domain.model.ThemeMode
+import com.lwg.challenge.domain.usecase.ObserveThemeModeUseCase
 import com.lwg.challenge.feature.main.contract.MainUiEffect
 import com.lwg.challenge.permission.AppPermission
 import com.lwg.challenge.permission.PermissionManager
@@ -13,10 +15,13 @@ import com.lwg.challenge.utils.AuthEventBus
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -27,7 +32,13 @@ class MainViewModel(
     private val pushEventBus: PushEventBus,
     private val logoutUseCase: LogoutUseCase,
     private val permissionManager: PermissionManager,
+    observeThemeModeUseCase: ObserveThemeModeUseCase,
 ) : ViewModel() {
+
+    // 저장값을 읽기 전 첫 프레임도 기본 테마(다크)로 그린다.
+    val isDarkTheme: StateFlow<Boolean> = observeThemeModeUseCase()
+        .map { it == ThemeMode.DARK }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     private val _logoutRequested = MutableSharedFlow<LogoutReason>(extraBufferCapacity = 1)
 

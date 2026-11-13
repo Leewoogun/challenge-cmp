@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.LocalPlatformContext
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val PhotoShape = RoundedCornerShape(16.dp)
 
@@ -63,7 +63,7 @@ internal fun VerificationPhoto(
             .fillMaxWidth()
             .height(160.dp)
             .clip(PhotoShape)
-            .background(ChallengeTheme.colorScheme.surfaceVariant),
+            .background(ChallengeTheme.colorScheme.background.cardSub),
         contentAlignment = Alignment.Center,
     ) {
         when {
@@ -124,7 +124,7 @@ private fun PhotoMessage(text: String) {
     Text(
         text = text,
         style = ChallengeTheme.typography.medium14,
-        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+        color = ChallengeTheme.colorScheme.text.secondary,
         textAlign = TextAlign.Center,
         modifier = Modifier.padding(horizontal = 16.dp),
     )
@@ -141,7 +141,7 @@ private fun PhotoRetryMessage(text: String, onRetry: () -> Unit) {
         Text(
             text = "다시 시도",
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.primary,
+            color = ChallengeTheme.colorScheme.text.point,
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(onClick = onRetry)
@@ -151,13 +151,13 @@ private fun PhotoRetryMessage(text: String, onRetry: () -> Unit) {
 }
 
 /** 탈퇴로 사진이 삭제됨 — 아래 [VerificationPhotoMissingUrlPreview] 와 문구가 달라야 한다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoDeletedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(
@@ -171,13 +171,13 @@ private fun VerificationPhotoDeletedPreview() {
 }
 
 /** 인증했는데 URL 이 없는 데이터 이상 — 삭제가 아니므로 기존 로드 실패 문구가 그대로 나와야 한다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoMissingUrlPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(
@@ -190,13 +190,13 @@ private fun VerificationPhotoMissingUrlPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoNotVerifiedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(status = VerificationStatus.PENDING, photoUrl = null, cacheKey = null)
@@ -205,13 +205,13 @@ private fun VerificationPhotoNotVerifiedPreview() {
 }
 
 /** 마감까지 미제출 — 사진 없는 `FAILED`. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoFailedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(status = VerificationStatus.FAILED, photoUrl = null, cacheKey = null)
@@ -219,13 +219,13 @@ private fun VerificationPhotoFailedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoLoadingPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(
@@ -239,13 +239,13 @@ private fun VerificationPhotoLoadingPreview() {
 }
 
 /** 인증 현황 조회 실패 — 사진 대신 현황을 못 받았다고 밝히고 전체 재조회를 연다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoStatusUnknownPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(status = null, photoUrl = null, cacheKey = null, onRetry = {})
@@ -254,13 +254,13 @@ private fun VerificationPhotoStatusUnknownPreview() {
 }
 
 /** Coil 에러 슬롯은 프리뷰에서 재현할 수 없어 같은 제약(propagateMinConstraints)의 160dp 틀에 얹는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationPhotoLoadErrorPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             Box(
@@ -268,7 +268,7 @@ private fun VerificationPhotoLoadErrorPreview() {
                     .fillMaxWidth()
                     .height(160.dp)
                     .clip(PhotoShape)
-                    .background(ChallengeTheme.colorScheme.surfaceVariant),
+                    .background(ChallengeTheme.colorScheme.background.cardSub),
                 propagateMinConstraints = true,
             ) {
                 CenteredSlot { PhotoRetryMessage(text = LOAD_FAILED_TEXT, onRetry = {}) }

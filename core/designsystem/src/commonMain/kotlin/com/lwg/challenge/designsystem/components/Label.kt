@@ -17,8 +17,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ChallengeLabel(
@@ -63,7 +63,7 @@ fun ChallengeLabel(
 }
 
 @Composable
-@Preview
+@ThemePreviews
 private fun ChallengeLabelPreview() {
     ChallengeTheme {
         Column(
@@ -71,11 +71,11 @@ private fun ChallengeLabelPreview() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             ChallengeLabel(
-                backgroundColor = ChallengeTheme.colorScheme.primary
+                backgroundColor = ChallengeTheme.colorScheme.point
             ) {
                 Text(
                     text = "Primary Label",
-                    color = ChallengeTheme.colorScheme.onPrimary
+                    color = ChallengeTheme.colorScheme.text.onPoint
                 )
             }
 
@@ -84,16 +84,16 @@ private fun ChallengeLabelPreview() {
             ) {
                 Text(
                     text = "Gradient Label",
-                    color = ChallengeTheme.colorScheme.onPrimary
+                    color = ChallengeTheme.colorScheme.text.onPoint
                 )
             }
 
             ChallengeLabel(
-                backgroundColor = ChallengeTheme.colorScheme.surfaceVariant
+                backgroundColor = ChallengeTheme.colorScheme.background.cardSub
             ) {
                 Text(
                     text = "Secondary Label",
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant
+                    color = ChallengeTheme.colorScheme.text.secondary
                 )
             }
         }

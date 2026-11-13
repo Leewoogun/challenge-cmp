@@ -21,8 +21,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 프로필 이미지. URL 이 없거나 로딩 중·실패면 닉네임 이니셜을 보여준다. */
 @Composable
@@ -32,9 +32,9 @@ fun ProfileImage(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp,
     shape: Shape = RoundedCornerShape(12.dp),
-    backgroundColor: Color = ChallengeTheme.colorScheme.secondary,
+    backgroundColor: Color = ChallengeTheme.colorScheme.background.field,
     textStyle: TextStyle = ChallengeTheme.typography.medium20,
-    textColor: Color = ChallengeTheme.colorScheme.onSurface,
+    textColor: Color = ChallengeTheme.colorScheme.text.primary,
 ) {
     Box(
         modifier = modifier
@@ -70,13 +70,13 @@ private fun NicknameInitial(nickname: String, textStyle: TextStyle, textColor: C
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileImagePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ProfileImage(imageUrl = null, nickname = "우건")
@@ -84,13 +84,13 @@ private fun ProfileImagePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileImageVariantsPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -102,13 +102,13 @@ private fun ProfileImageVariantsPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileImageBlankNicknamePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ProfileImage(imageUrl = null, nickname = "   ")
@@ -117,13 +117,13 @@ private fun ProfileImageBlankNicknamePreview() {
 }
 
 /** URL 이 있으면 로딩·실패 슬롯도 이니셜이다. 프리뷰는 네트워크를 못 타 로딩 슬롯까지만 보인다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ProfileImageWithUrlPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ProfileImage(imageUrl = "https://k.kakaocdn.net/dn/sample/img_640x640.jpg", nickname = "우건")

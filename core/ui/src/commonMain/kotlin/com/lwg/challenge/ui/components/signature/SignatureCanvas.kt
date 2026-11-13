@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignatureLimits.GRID
@@ -32,7 +33,6 @@ import com.lwg.challenge.domain.model.signature.SignatureLimits.MAX_STROKES
 import com.lwg.challenge.domain.model.signature.SignatureLimits.MIN_POINT_DISTANCE
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 손가락으로 서명을 그리는 캔버스. */
 @Composable
@@ -40,7 +40,7 @@ fun SignatureCanvas(
     signature: Signature,
     onSignatureChange: (Signature) -> Unit,
     modifier: Modifier = Modifier,
-    strokeColor: Color = ChallengeTheme.colorScheme.primary,
+    strokeColor: Color = ChallengeTheme.colorScheme.point,
     enabled: Boolean = true,
     onDrawingChange: (Boolean) -> Unit = {},
 ) {
@@ -155,13 +155,13 @@ private fun Density.quantize(position: Offset, canvasSize: IntSize): SignaturePo
     return position.toSignaturePoint(size, signatureStrokeWidthPx(size.width))
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureCanvasEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureCanvas(
@@ -173,13 +173,13 @@ private fun SignatureCanvasEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureCanvasSignedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureCanvas(
@@ -191,20 +191,20 @@ private fun SignatureCanvasSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureCanvasDisabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureCanvas(
                 signature = PreviewSignature,
                 onSignatureChange = {},
                 modifier = Modifier.fillMaxWidth(),
-                strokeColor = ChallengeTheme.colorScheme.onSurfaceVariant,
+                strokeColor = ChallengeTheme.colorScheme.text.secondary,
                 enabled = false,
             )
         }

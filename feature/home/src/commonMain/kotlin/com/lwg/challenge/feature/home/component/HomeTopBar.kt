@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeBaseTopBar
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun HomeTopBar(
@@ -31,32 +31,32 @@ internal fun HomeTopBar(
 ) {
     ChallengeBaseTopBar(
         modifier = modifier,
-        containerColor = ChallengeTheme.colorScheme.surface.copy(alpha = 0.95f),
+        containerColor = ChallengeTheme.colorScheme.background.card.copy(alpha = 0.95f),
         title = {
             Icon(
                 imageVector = Icons.Filled.LocalFireDepartment,
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
-                tint = ChallengeTheme.colorScheme.primary,
+                tint = ChallengeTheme.colorScheme.icon.point,
             )
             Text(
                 text = "맹세",
                 style = ChallengeTheme.typography.bold20,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
                 modifier = Modifier.weight(1f),
             )
             if (debugAccountLabel != null) {
                 Text(
                     text = debugAccountLabel,
                     style = ChallengeTheme.typography.medium10,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         // 비정상적으로 긴 닉네임이 타이틀 폭을 다 먹지 않도록 상한을 둔다.
                         .widthIn(max = 160.dp)
                         .background(
-                            color = ChallengeTheme.colorScheme.secondary,
+                            color = ChallengeTheme.colorScheme.background.field,
                             shape = RoundedCornerShape(6.dp),
                         )
                         .padding(horizontal = 6.dp, vertical = 2.dp),
@@ -70,7 +70,7 @@ internal fun HomeTopBar(
                         imageVector = Icons.Filled.Notifications,
                         contentDescription = "알림",
                         modifier = Modifier.size(24.dp),
-                        tint = ChallengeTheme.colorScheme.onBackground,
+                        tint = ChallengeTheme.colorScheme.icon.primary,
                     )
                 }
                 if (hasUnreadNotification) {
@@ -90,12 +90,12 @@ internal fun HomeTopBar(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeTopBarUnreadPreview() {
     ChallengeTheme {
         Box(
-            modifier = Modifier.background(ChallengeTheme.colorScheme.background),
+            modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen),
         ) {
             HomeTopBar(
                 hasUnreadNotification = true,
@@ -105,12 +105,12 @@ private fun HomeTopBarUnreadPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeTopBarReadPreview() {
     ChallengeTheme {
         Box(
-            modifier = Modifier.background(ChallengeTheme.colorScheme.background),
+            modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen),
         ) {
             HomeTopBar(
                 hasUnreadNotification = false,
@@ -120,12 +120,12 @@ private fun HomeTopBarReadPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeTopBarDebugAccountPreview() {
     ChallengeTheme {
         Box(
-            modifier = Modifier.background(ChallengeTheme.colorScheme.background),
+            modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen),
         ) {
             HomeTopBar(
                 hasUnreadNotification = true,

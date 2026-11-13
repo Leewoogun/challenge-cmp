@@ -47,7 +47,7 @@ private fun RankingContent(
     onRetryClick: () -> Unit,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
+        statusBarColor = ChallengeTheme.colorScheme.background.card,
         topBar = { RankingTopBar() },
     ) {
         when (uiState) {

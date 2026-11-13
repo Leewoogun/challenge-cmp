@@ -8,9 +8,9 @@ import androidx.compose.material.icons.filled.Group
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.ui.components.EmptyStateCard
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 줄 세울 사람이 모자랄 때(참가자 3명 미만) 명단 아래에 붙는 카드.
@@ -32,13 +32,13 @@ internal fun RankingEmptyState(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingEmptyStatePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             RankingEmptyState(onClickAddFriend = {})

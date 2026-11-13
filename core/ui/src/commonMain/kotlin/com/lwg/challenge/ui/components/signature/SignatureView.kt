@@ -10,29 +10,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 저장된 서명을 그려 보여주기만 하는 뷰(입력 없음). */
 @Composable
 fun SignatureView(
     signature: Signature,
     modifier: Modifier = Modifier,
-    strokeColor: Color = ChallengeTheme.colorScheme.primary,
+    strokeColor: Color = ChallengeTheme.colorScheme.point,
 ) {
     Canvas(modifier = modifier.aspectRatio(SIGNATURE_ASPECT_RATIO)) {
         drawSignature(signature, strokeColor)
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureViewPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureView(
@@ -43,13 +43,13 @@ private fun SignatureViewPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureViewHalfWidthPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureView(
@@ -60,13 +60,13 @@ private fun SignatureViewHalfWidthPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureViewEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureView(

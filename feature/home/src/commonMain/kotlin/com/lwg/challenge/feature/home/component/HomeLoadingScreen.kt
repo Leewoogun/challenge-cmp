@@ -7,8 +7,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun HomeLoadingScreen() {
@@ -16,15 +16,15 @@ internal fun HomeLoadingScreen() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
+        CircularProgressIndicator(color = ChallengeTheme.colorScheme.point)
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeLoadingScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeLoadingScreen()
         }
     }

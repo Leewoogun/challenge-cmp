@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 양쪽에 1px 구분선이 있고 가운데 짧은 라벨 텍스트가 들어가는 시각 패턴.
@@ -26,8 +26,8 @@ fun LabeledDivider(
     text: String,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = ChallengeTheme.typography.bold12,
-    textColor: Color = ChallengeTheme.colorScheme.onSurfaceVariant,
-    dividerColor: Color = ChallengeTheme.colorScheme.outline,
+    textColor: Color = ChallengeTheme.colorScheme.text.secondary,
+    dividerColor: Color = ChallengeTheme.colorScheme.line.divider,
     horizontalSpacing: androidx.compose.ui.unit.Dp = 12.dp,
 ) {
     Row(
@@ -56,13 +56,13 @@ fun LabeledDivider(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LabeledDividerPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LabeledDivider(text = "한 번 서명하면 무를 수 없음")

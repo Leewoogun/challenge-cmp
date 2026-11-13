@@ -7,6 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.ChallengeTopBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.ThemeMode
 import com.lwg.challenge.feature.mypage.mypage.contract.MyPageModalEffect
 import com.lwg.challenge.feature.mypage.mypage.contract.MyPageUiEffect
 import com.lwg.challenge.feature.mypage.mypage.contract.MyPageUiState
@@ -38,6 +39,7 @@ fun MyPageRoute(
         onArchiveClick = { navigator.navigateTo(Route.MyPage.Archive) },
         onLogoutClick = mainAction::logout,
         onWithdrawClick = viewModel::requestWithdraw,
+        onThemeModeSelected = viewModel::selectThemeMode,
     )
 
     MyPageModalContent(
@@ -62,9 +64,10 @@ private fun MyPageContent(
     onArchiveClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onWithdrawClick: () -> Unit,
+    onThemeModeSelected: (ThemeMode) -> Unit,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
+        statusBarColor = ChallengeTheme.colorScheme.background.card,
         topBar = {
             ChallengeTopBar(
                 title = "마이페이지",
@@ -80,6 +83,7 @@ private fun MyPageContent(
                 onArchiveClick = onArchiveClick,
                 onLogoutClick = onLogoutClick,
                 onWithdrawClick = onWithdrawClick,
+                onThemeModeSelected = onThemeModeSelected,
             )
         }
     }

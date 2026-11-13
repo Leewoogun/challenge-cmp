@@ -15,12 +15,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.model.signature.SignaturePoint
 import com.lwg.challenge.domain.model.signature.SignatureStroke
 import com.lwg.challenge.ui.components.signature.SignatureSlot
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 서명 칸 1개 + 그 아래 소유자 라벨. 라벨이 서명 획과 겹치지 않게 칸 밖에 둔다.
@@ -49,7 +49,7 @@ internal fun SignatureColumn(
         Text(
             text = label,
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -57,13 +57,13 @@ internal fun SignatureColumn(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureColumnSignedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureColumn(
@@ -75,13 +75,13 @@ private fun SignatureColumnSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureColumnNotSignedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureColumn(
@@ -93,13 +93,13 @@ private fun SignatureColumnNotSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureColumnUnreadablePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureColumn(
@@ -112,13 +112,13 @@ private fun SignatureColumnUnreadablePreview() {
 }
 
 /** 실제 배치인 2-up. 좌우 칸의 높이가 서명 유무와 무관하게 같은지 확인한다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureColumnPairPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

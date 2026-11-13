@@ -10,12 +10,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeCardInfo
 import com.lwg.challenge.domain.model.challenge.ChallengeHistory
 import com.lwg.challenge.feature.mypage.archive.PreviewArchiveHistories
 import com.lwg.challenge.ui.components.card.ChallengeCard
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ArchiveChallengeList(
@@ -36,11 +36,11 @@ internal fun ArchiveChallengeList(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveChallengeListPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ArchiveChallengeList(challenges = PreviewArchiveHistories, onChallengeClick = {})
         }
     }

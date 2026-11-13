@@ -7,8 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 승자가 아니라 패자 랭킹임을 진입하자마자 알리는 부제. */
 @Composable
@@ -18,18 +18,18 @@ internal fun RankingSubtitle(
     Text(
         text = "패배의 왕좌 — 많이 진 놈이 대장",
         style = ChallengeTheme.typography.medium12,
-        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+        color = ChallengeTheme.colorScheme.text.secondary,
         modifier = modifier,
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingSubtitlePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             RankingSubtitle()

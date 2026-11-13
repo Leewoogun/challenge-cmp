@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ArchiveEmptyMonth(
@@ -26,7 +26,7 @@ internal fun ArchiveEmptyMonth(
     subtitle: String,
     modifier: Modifier = Modifier,
 ) {
-    val primary = ChallengeTheme.colorScheme.primary
+    val primary = ChallengeTheme.colorScheme.point
 
     // 가운데 정렬하면 월을 넘길 때마다 같은 빈 화면이 다른 높이에 나타나 바 아래 64dp 에 고정한다.
     Column(
@@ -56,7 +56,7 @@ internal fun ArchiveEmptyMonth(
         Text(
             text = title,
             style = ChallengeTheme.typography.bold16,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
 
         VerticalSpacer(4.dp)
@@ -64,13 +64,13 @@ internal fun ArchiveEmptyMonth(
         Text(
             text = subtitle,
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
     }
 }
 
 /** A형 — 기록 구간 안의 빈 달. 이 방향으로 더 가면 기록이 있는 달이 나온다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveEmptyMonthPreview() {
     ArchiveEmptyMonthPreviewContainer {
@@ -82,7 +82,7 @@ private fun ArchiveEmptyMonthPreview() {
 }
 
 /** B형 — 첫 기록보다 이전 달. 더 가도 아무것도 없다는 사실을 부제가 대신 말한다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ArchiveEmptyMonthBeforeFirstRecordPreview() {
     ArchiveEmptyMonthPreviewContainer {
@@ -96,7 +96,7 @@ private fun ArchiveEmptyMonthBeforeFirstRecordPreview() {
 @Composable
 private fun ArchiveEmptyMonthPreviewContainer(content: @Composable () -> Unit) {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             content()
         }
     }

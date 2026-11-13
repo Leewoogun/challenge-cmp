@@ -19,9 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.statusbar.SetStatusBarAppearance
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * StatusBar 색상과 TopBar 색상을 통합 관리하는 Scaffold.
@@ -47,13 +47,13 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun ChallengeScaffold(
     modifier: Modifier = Modifier,
-    statusBarColor: Color = ChallengeTheme.colorScheme.background,
+    statusBarColor: Color = ChallengeTheme.colorScheme.background.screen,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
-    containerColor: Color = ChallengeTheme.colorScheme.background,
+    containerColor: Color = ChallengeTheme.colorScheme.background.screen,
     contentColor: Color = contentColorFor(containerColor),
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -90,7 +90,7 @@ fun ChallengeScaffold(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeScaffoldPreview() {
     ChallengeTheme {
@@ -99,7 +99,7 @@ private fun ChallengeScaffoldPreview() {
                 Text(
                     text = "TopBar",
                     style = ChallengeTheme.typography.bold18,
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                     modifier = Modifier.padding(16.dp),
                 )
             },
@@ -107,13 +107,13 @@ private fun ChallengeScaffoldPreview() {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(ChallengeTheme.colorScheme.background)
+                    .background(ChallengeTheme.colorScheme.background.screen)
                     .padding(24.dp),
             ) {
                 Text(
                     text = "Content",
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
             }
         }

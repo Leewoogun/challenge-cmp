@@ -21,9 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.ui.components.StatusPillBadge
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ChallengeSection() {
@@ -56,14 +56,14 @@ internal fun ChallengeSection() {
                     Text(
                         text = "말만 번지르르한 친구에게 던지는",
                         style = ChallengeTheme.typography.light14,
-                        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                        color = ChallengeTheme.colorScheme.text.secondary,
                         textAlign = TextAlign.Center,
                     )
                     VerticalSpacer(height = 2.dp)
                     Text(
                         text = "피할 수 없는 1:1 도전장",
                         style = ChallengeTheme.typography.bold14,
-                        color = ChallengeTheme.colorScheme.onBackground,
+                        color = ChallengeTheme.colorScheme.text.primary,
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -72,13 +72,13 @@ internal fun ChallengeSection() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeSectionPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ChallengeSection()

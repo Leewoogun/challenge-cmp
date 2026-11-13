@@ -9,8 +9,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 확인/취소 2버튼 다이얼로그. design.md §3.3.2.
@@ -35,30 +35,30 @@ fun ConfirmDialog(
     val confirmColor = if (destructive) {
         ChallengeTheme.colorScheme.error
     } else {
-        ChallengeTheme.colorScheme.primary
+        ChallengeTheme.colorScheme.point
     }
     val dismissColor = if (destructive) {
-        ChallengeTheme.colorScheme.primary
+        ChallengeTheme.colorScheme.point
     } else {
-        ChallengeTheme.colorScheme.onSurfaceVariant
+        ChallengeTheme.colorScheme.text.secondary
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
-        containerColor = ChallengeTheme.colorScheme.background,
+        containerColor = ChallengeTheme.colorScheme.background.screen,
         title = {
             Text(
                 text = title,
                 style = ChallengeTheme.typography.bold18,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
         },
         text = {
             Text(
                 text = message,
                 style = ChallengeTheme.typography.medium14,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
         },
         confirmButton = {
@@ -82,13 +82,13 @@ fun ConfirmDialog(
     )
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ConfirmDialogDestructivePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ConfirmDialog(
@@ -105,13 +105,13 @@ private fun ConfirmDialogDestructivePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ConfirmDialogPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ConfirmDialog(

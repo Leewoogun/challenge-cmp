@@ -20,9 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 인증 상태(대기중/인증완료/실패)를 아이콘 + 라벨 캡슐로 표시한다.
@@ -87,13 +87,13 @@ private fun verificationStatusVisualOf(status: VerificationStatus): Verification
         )
     }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationStatusPillPendingPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             VerificationStatusPill(status = VerificationStatus.PENDING)
@@ -101,13 +101,13 @@ private fun VerificationStatusPillPendingPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationStatusPillVerifiedPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             VerificationStatusPill(status = VerificationStatus.VERIFIED)
@@ -115,13 +115,13 @@ private fun VerificationStatusPillVerifiedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun VerificationStatusPillFailedPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             VerificationStatusPill(status = VerificationStatus.FAILED)

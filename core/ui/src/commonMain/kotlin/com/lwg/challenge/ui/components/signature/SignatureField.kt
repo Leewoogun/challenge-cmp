@@ -20,9 +20,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.HorizontalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.signature.Signature
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 서명 입력란 한 세트 — 배경 · 빈 상태 안내 · 캔버스 · "다시 그리기". */
 @Composable
@@ -35,14 +35,14 @@ fun SignatureField(
     onDrawingChange: (Boolean) -> Unit = {},
 ) {
     val isEmpty = signature.isEmpty
-    val hintColor = ChallengeTheme.colorScheme.onSurfaceVariant
+    val hintColor = ChallengeTheme.colorScheme.text.secondary
 
     Column(modifier = modifier.alpha(if (enabled) 1f else 0.5f)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(SIGNATURE_SLOT_SHAPE)
-                .background(ChallengeTheme.colorScheme.secondary)
+                .background(ChallengeTheme.colorScheme.background.field)
                 // 획이 하나라도 생기면 안내 테두리를 지운다 — 그은 획을 가리기 때문.
                 .then(
                     if (isEmpty) {
@@ -83,7 +83,7 @@ fun SignatureField(
                     imageVector = Icons.Filled.Refresh,
                     contentDescription = null,
                     modifier = Modifier.size(14.dp),
-                    tint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    tint = ChallengeTheme.colorScheme.icon.secondary,
                 )
 
                 HorizontalSpacer(4.dp)
@@ -91,20 +91,20 @@ fun SignatureField(
                 Text(
                     text = "다시 그리기",
                     style = ChallengeTheme.typography.medium12,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
             }
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureFieldEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureField(
@@ -116,13 +116,13 @@ private fun SignatureFieldEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureFieldSignedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureField(
@@ -134,13 +134,13 @@ private fun SignatureFieldSignedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureFieldDisabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureField(
@@ -153,13 +153,13 @@ private fun SignatureFieldDisabledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun SignatureFieldLongHintPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureField(

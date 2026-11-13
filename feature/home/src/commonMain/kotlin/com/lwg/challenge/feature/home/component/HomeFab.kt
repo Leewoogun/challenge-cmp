@@ -12,16 +12,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun HomeFab(onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
-        containerColor = ChallengeTheme.colorScheme.primary,
-        contentColor = ChallengeTheme.colorScheme.onPrimary,
+        containerColor = ChallengeTheme.colorScheme.button.background,
+        contentColor = ChallengeTheme.colorScheme.button.text,
         modifier = Modifier.size(56.dp),
     ) {
         Icon(
@@ -32,13 +32,13 @@ internal fun HomeFab(onClick: () -> Unit) {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun HomeFabPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(16.dp),
         ) {
             HomeFab(onClick = {})

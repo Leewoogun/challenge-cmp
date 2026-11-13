@@ -16,10 +16,10 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.LabeledDivider
 import com.lwg.challenge.designsystem.components.button.NormalButton
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.login.contract.TestAccount
 import com.lwg.challenge.feature.login.contract.TestLoginUiState
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * debug 빌드 전용 테스트 계정 로그인 섹션. release 에서는 [TestLoginUiState.isVisible] 이
@@ -56,8 +56,8 @@ internal fun TestLoginSection(
                     modifier = Modifier
                         .weight(1f)
                         .height(44.dp),
-                    containerColor = ChallengeTheme.colorScheme.secondary,
-                    contentColor = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    containerColor = ChallengeTheme.colorScheme.background.field,
+                    contentColor = ChallengeTheme.colorScheme.text.secondary,
                     shape = RoundedCornerShape(12.dp),
                     textStyle = ChallengeTheme.typography.medium14,
                 )
@@ -68,20 +68,20 @@ internal fun TestLoginSection(
             Text(
                 text = caption,
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
                 modifier = Modifier.padding(top = 6.dp),
             )
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun TestLoginSectionEnabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             TestLoginSection(
@@ -93,13 +93,13 @@ private fun TestLoginSectionEnabledPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun TestLoginSectionUnavailablePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             TestLoginSection(
@@ -111,13 +111,13 @@ private fun TestLoginSectionUnavailablePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun TestLoginSectionHiddenPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             TestLoginSection(

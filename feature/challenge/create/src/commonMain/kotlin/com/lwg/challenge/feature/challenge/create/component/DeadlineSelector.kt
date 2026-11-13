@@ -16,9 +16,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.button.SelectedButton
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.DeadlineType
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 마감 기준 선택 2-up 카드. design.md §4.2.
@@ -42,7 +42,7 @@ internal fun DeadlineSelector(
         Text(
             text = "마감",
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
 
         VerticalSpacer(6.dp)
@@ -72,18 +72,18 @@ internal fun DeadlineSelector(
         Text(
             text = "선택한 자정까지가 챌린지 기간이야",
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun DeadlineSelectorTodayPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             DeadlineSelector(
@@ -96,13 +96,13 @@ private fun DeadlineSelectorTodayPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun DeadlineSelectorTomorrowPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             DeadlineSelector(
@@ -115,13 +115,13 @@ private fun DeadlineSelectorTomorrowPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun DeadlineSelectorDisabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             DeadlineSelector(

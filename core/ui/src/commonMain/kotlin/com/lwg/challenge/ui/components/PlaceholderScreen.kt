@@ -11,8 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 후속 feature 개발 전 임시 화면용 공통 placeholder. */
 @Composable
@@ -24,7 +24,7 @@ fun PlaceholderScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(ChallengeTheme.colorScheme.background)
+            .background(ChallengeTheme.colorScheme.background.screen)
             .windowInsetsPadding(WindowInsets.safeDrawing),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -32,17 +32,17 @@ fun PlaceholderScreen(
         Text(
             text = title,
             style = ChallengeTheme.typography.bold18,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
         Text(
             text = subtitle,
             style = ChallengeTheme.typography.medium14,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun PlaceholderScreenPreview() {
     ChallengeTheme {

@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 아이콘 + 텍스트 CTA 버튼.
@@ -41,10 +41,10 @@ fun IconTextButton(
     modifier: Modifier = Modifier,
     style: IconTextButtonStyle = IconTextButtonStyle.Filled,
     enabled: Boolean = true,
-    containerColor: Color = ChallengeTheme.colorScheme.primary,
+    containerColor: Color = ChallengeTheme.colorScheme.button.background,
     contentColor: Color = when (style) {
-        IconTextButtonStyle.Filled -> ChallengeTheme.colorScheme.onPrimary
-        IconTextButtonStyle.Outlined -> ChallengeTheme.colorScheme.onSurface
+        IconTextButtonStyle.Filled -> ChallengeTheme.colorScheme.button.text
+        IconTextButtonStyle.Outlined -> ChallengeTheme.colorScheme.button.subText
     },
     textStyle: TextStyle = ChallengeTheme.typography.medium14,
     shape: Shape = RoundedCornerShape(12.dp),
@@ -73,7 +73,7 @@ fun IconTextButton(
             modifier = sizedModifier,
             enabled = enabled,
             shape = shape,
-            border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+            border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.button.border),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = contentColor),
             contentPadding = contentPadding,
         ) {
@@ -109,7 +109,7 @@ private fun IconTextContent(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun IconTextButtonPreview() {
     ChallengeTheme {

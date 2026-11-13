@@ -81,7 +81,7 @@ private fun ChallengeCreateContent(
     onSubmit: () -> Unit,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
+        statusBarColor = ChallengeTheme.colorScheme.background.card,
         topBar = {
             ChallengeTopBar(
                 title = "새 챌린지",

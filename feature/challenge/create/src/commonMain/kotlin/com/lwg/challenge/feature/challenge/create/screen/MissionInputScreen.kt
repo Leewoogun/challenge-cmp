@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.VerticalSpacer
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.ui.components.LabeledInputField
 import com.lwg.challenge.ui.components.LoadingIconButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
@@ -23,7 +24,6 @@ import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.feature.challenge.create.component.StepHeader
 import com.lwg.challenge.feature.challenge.create.component.DeadlineSelector
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun MissionInputScreen(
@@ -87,11 +87,11 @@ internal fun MissionInputScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MissionInputScreenEmptyPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             MissionInputScreen(
                 uiState = previewState(),
                 onMyMissionChange = {},
@@ -103,11 +103,11 @@ private fun MissionInputScreenEmptyPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MissionInputScreenFilledPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             MissionInputScreen(
                 uiState = previewState(
                     myMission = "오늘 운동 1시간 하기",

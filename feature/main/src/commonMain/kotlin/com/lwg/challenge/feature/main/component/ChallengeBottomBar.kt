@@ -26,9 +26,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.navigation.Route
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun ChallengeBottomBar(
@@ -37,8 +37,8 @@ internal fun ChallengeBottomBar(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = ChallengeTheme.colorScheme.surface.copy(alpha = 0.95f),
-        contentColor = ChallengeTheme.colorScheme.onSurface,
+        color = ChallengeTheme.colorScheme.background.card.copy(alpha = 0.95f),
+        contentColor = ChallengeTheme.colorScheme.text.primary,
         tonalElevation = 0.dp,
     ) {
         Column(
@@ -50,7 +50,7 @@ internal fun ChallengeBottomBar(
         ) {
             HorizontalDivider(
                 thickness = 1.dp,
-                color = ChallengeTheme.colorScheme.outline,
+                color = ChallengeTheme.colorScheme.line.divider,
             )
             Row(
                 modifier = Modifier
@@ -80,9 +80,9 @@ private fun BottomNavTab(
     modifier: Modifier = Modifier,
 ) {
     val color: Color = if (selected) {
-        ChallengeTheme.colorScheme.primary
+        ChallengeTheme.colorScheme.point
     } else {
-        ChallengeTheme.colorScheme.onSurfaceVariant
+        ChallengeTheme.colorScheme.text.secondary
     }
 
     Column(
@@ -107,11 +107,11 @@ private fun BottomNavTab(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeBottomBarPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ChallengeBottomBar(
                 currentRoute = Route.Home,
                 onTabSelected = {},
@@ -120,11 +120,11 @@ private fun ChallengeBottomBarPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun BottomNavTabSelectedPreview() {
     ChallengeTheme {
-        Row(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Row(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             BottomNavTab(
                 item = BottomNavItem.HOME,
                 selected = true,
@@ -135,11 +135,11 @@ private fun BottomNavTabSelectedPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun BottomNavTabUnselectedPreview() {
     ChallengeTheme {
-        Row(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Row(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             BottomNavTab(
                 item = BottomNavItem.RANKING,
                 selected = false,

@@ -62,7 +62,7 @@ private fun NotificationContent(
     onRetryClick: () -> Unit,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
+        statusBarColor = ChallengeTheme.colorScheme.background.card,
         // 웹 정본엔 뒤로가기가 없지만 앱엔 브라우저 뒤로가기·하단 바가 없어 버튼이 없으면 화면에 갇힌다.
         topBar = { ChallengeTopBar(title = "알림", onBack = onBack) },
     ) {

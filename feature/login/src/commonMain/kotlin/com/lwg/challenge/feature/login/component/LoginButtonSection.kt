@@ -24,10 +24,10 @@ import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.LabeledDivider
 import com.lwg.challenge.designsystem.components.button.NormalButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.BrandColors
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun LoginButtonSection(
@@ -80,13 +80,13 @@ internal fun LoginButtonSection(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoginButtonSectionPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LoginButtonSection(
@@ -97,13 +97,13 @@ private fun LoginButtonSectionPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun LoginButtonSectionLoadingPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LoginButtonSection(

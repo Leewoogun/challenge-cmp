@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.domain.model.challenge.ChallengeCardInfo
@@ -16,7 +17,6 @@ import com.lwg.challenge.ui.components.card.component.ChallengeCardHeader
 import com.lwg.challenge.ui.components.card.component.ChallengeCardMyMissionRow
 import com.lwg.challenge.ui.components.card.component.ChallengeCardOpponentMissionRow
 import kotlinx.datetime.LocalDate
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * 홈·보관함의 챌린지 카드.
@@ -43,7 +43,7 @@ fun ChallengeCard(
 }
 
 /** 홈 진행 중 — 남은 시간과 미션별 인증 상태. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeCardInProgressPreview() {
     ChallengeCardPreviewContainer {
@@ -71,7 +71,7 @@ private fun ChallengeCardInProgressPreview() {
 }
 
 /** 홈 최근 결과 — 남은 시간 자리에 결과가 온다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeCardCompletedPreview() {
     ChallengeCardPreviewContainer {
@@ -89,7 +89,7 @@ private fun ChallengeCardCompletedPreview() {
 }
 
 /** 보관함 — 날짜와 결과만 있고 인증 상태는 없다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeCardArchivePreview() {
     ChallengeCardPreviewContainer {
@@ -110,7 +110,7 @@ private fun ChallengeCardArchivePreview() {
 }
 
 /** 긴 닉네임만 말줄임되고 날짜·결과는 밀리지 않는다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeCardLongTextPreview() {
     ChallengeCardPreviewContainer {
@@ -153,7 +153,7 @@ private fun ChallengeCardPreviewContainer(content: @Composable () -> Unit) {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {

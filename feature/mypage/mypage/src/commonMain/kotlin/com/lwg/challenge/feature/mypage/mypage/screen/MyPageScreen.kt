@@ -18,14 +18,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.components.button.IconTextButton
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.ThemeMode
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.user.UserInfo
 import com.lwg.challenge.feature.mypage.mypage.component.MyPageMenuCard
+import com.lwg.challenge.feature.mypage.mypage.component.ThemeSettingCard
 import com.lwg.challenge.feature.mypage.mypage.component.ProfileCard
 import com.lwg.challenge.feature.mypage.mypage.component.WithdrawText
 import com.lwg.challenge.feature.mypage.mypage.contract.MyPageUiState
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 마이페이지 탭 본문. 바텀바는 `MainScreen` 이 그리므로 여기서 그리지 않는다(이중 인셋). */
 @Composable
@@ -34,6 +36,7 @@ internal fun MyPageScreen(
     onArchiveClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onWithdrawClick: () -> Unit,
+    onThemeModeSelected: (ThemeMode) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -62,6 +65,14 @@ internal fun MyPageScreen(
 
         VerticalSpacer(8.dp)
 
+        ThemeSettingCard(
+            isDarkSelected = uiState.isDarkThemeSelected,
+            isLightSelected = uiState.isLightThemeSelected,
+            onThemeModeSelected = onThemeModeSelected,
+        )
+
+        VerticalSpacer(8.dp)
+
         IconTextButton(
             text = "로그아웃",
             icon = Icons.AutoMirrored.Filled.Logout,
@@ -81,11 +92,11 @@ internal fun MyPageScreen(
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             MyPageScreen(
                 uiState = MyPageUiState.Data(
                     record = UserRecord(win = 7, lose = 3, draw = 2, currentStreak = 3),
@@ -99,16 +110,17 @@ private fun MyPageScreenPreview() {
                 onArchiveClick = {},
                 onLogoutClick = {},
                 onWithdrawClick = {},
+                onThemeModeSelected = {},
             )
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageScreenEmptyRecordPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             MyPageScreen(
                 uiState = MyPageUiState.Data(
                     record = UserRecord.Empty,
@@ -122,16 +134,17 @@ private fun MyPageScreenEmptyRecordPreview() {
                 onArchiveClick = {},
                 onLogoutClick = {},
                 onWithdrawClick = {},
+                onThemeModeSelected = {},
             )
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageScreenRecordFailedPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             MyPageScreen(
                 uiState = MyPageUiState.Data(
                     record = null,
@@ -145,16 +158,17 @@ private fun MyPageScreenRecordFailedPreview() {
                 onArchiveClick = {},
                 onLogoutClick = {},
                 onWithdrawClick = {},
+                onThemeModeSelected = {},
             )
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageScreenAllDrawPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             MyPageScreen(
                 uiState = MyPageUiState.Data(
                     record = UserRecord(win = 0, lose = 0, draw = 3, currentStreak = 0),
@@ -168,16 +182,17 @@ private fun MyPageScreenAllDrawPreview() {
                 onArchiveClick = {},
                 onLogoutClick = {},
                 onWithdrawClick = {},
+                onThemeModeSelected = {},
             )
         }
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun MyPageScreenLongNicknamePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             MyPageScreen(
                 uiState = MyPageUiState.Data(
                     record = UserRecord(win = 7, lose = 3, draw = 2, currentStreak = 3),
@@ -191,6 +206,7 @@ private fun MyPageScreenLongNicknamePreview() {
                 onArchiveClick = {},
                 onLogoutClick = {},
                 onWithdrawClick = {},
+                onThemeModeSelected = {},
             )
         }
     }

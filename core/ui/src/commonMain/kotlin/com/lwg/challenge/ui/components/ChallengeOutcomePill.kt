@@ -20,9 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** 내가 이긴 판정. 관점을 모르는 화면은 이 단어 앞에 승자 닉네임만 붙여 같은 어휘를 쓴다. */
 const val RESULT_WIN_TEXT = "승리"
@@ -81,7 +81,7 @@ data class ChallengeOutcomeVisual(
 fun challengeOutcomeVisualOf(outcome: ChallengeOutcome): ChallengeOutcomeVisual =
     when (outcome) {
         ChallengeOutcome.WIN -> ChallengeOutcomeVisual(
-            accent = ChallengeTheme.colorScheme.primary,
+            accent = ChallengeTheme.colorScheme.point,
             label = RESULT_WIN_TEXT,
             icon = Icons.Filled.EmojiEvents,
         )
@@ -91,7 +91,7 @@ fun challengeOutcomeVisualOf(outcome: ChallengeOutcome): ChallengeOutcomeVisual 
             icon = Icons.Filled.Cancel,
         )
         ChallengeOutcome.DRAW -> ChallengeOutcomeVisual(
-            accent = ChallengeTheme.colorScheme.onBackground,
+            accent = ChallengeTheme.colorScheme.text.primary,
             label = RESULT_DRAW_TEXT,
             icon = Icons.Filled.HorizontalRule,
         )
@@ -102,7 +102,7 @@ fun challengeOutcomeVisualOf(outcome: ChallengeOutcome): ChallengeOutcomeVisual 
         )
     }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeOutcomePillWinPreview() {
     ChallengeOutcomePillPreviewContainer {
@@ -110,7 +110,7 @@ private fun ChallengeOutcomePillWinPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeOutcomePillLosePreview() {
     ChallengeOutcomePillPreviewContainer {
@@ -118,7 +118,7 @@ private fun ChallengeOutcomePillLosePreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeOutcomePillDrawPreview() {
     ChallengeOutcomePillPreviewContainer {
@@ -126,7 +126,7 @@ private fun ChallengeOutcomePillDrawPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun ChallengeOutcomePillBothLosePreview() {
     ChallengeOutcomePillPreviewContainer {
@@ -139,7 +139,7 @@ private fun ChallengeOutcomePillPreviewContainer(content: @Composable () -> Unit
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             content()

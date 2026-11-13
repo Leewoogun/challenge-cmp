@@ -16,12 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
 import com.lwg.challenge.feature.ranking.PreviewLoserRankingEntries
 import com.lwg.challenge.feature.ranking.contract.RankingUiState
 import com.lwg.challenge.feature.ranking.contract.RankingTopThree
 import com.lwg.challenge.feature.ranking.previewAsFirst
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * Top3 카드. 받침대 높이가 다른 3열을 하단 정렬하면 단이 저절로 생긴다.
@@ -35,8 +35,8 @@ internal fun RankingCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Row(
             modifier = Modifier
@@ -54,7 +54,7 @@ internal fun RankingCard(
                 pedestalHeight = 64.dp,
                 pedestalIcon = Icons.Filled.MilitaryTech,
                 pedestalIconSize = 20.dp,
-                pedestalIconTint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                pedestalIconTint = ChallengeTheme.colorScheme.icon.secondary,
             )
 
             RankingColumn(
@@ -67,7 +67,7 @@ internal fun RankingCard(
                 pedestalIcon = Icons.Filled.LocalFireDepartment,
                 pedestalIconSize = 24.dp,
                 // 알파를 받침대 전체에 걸면 20% 배경이 8% 가 되어 안 보여 아이콘에만 건다.
-                pedestalIconTint = ChallengeTheme.colorScheme.primary.copy(alpha = 0.40f),
+                pedestalIconTint = ChallengeTheme.colorScheme.icon.point.copy(alpha = 0.40f),
                 showCrown = true,
                 avatarBrush = ChallengeTheme.brushes.fire,
                 pedestalBrush = ChallengeTheme.brushes.fire,
@@ -83,7 +83,7 @@ internal fun RankingCard(
                 pedestalHeight = 48.dp,
                 pedestalIcon = Icons.Filled.MilitaryTech,
                 pedestalIconSize = 18.dp,
-                pedestalIconTint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                pedestalIconTint = ChallengeTheme.colorScheme.icon.secondary,
             )
         }
     }
@@ -100,13 +100,13 @@ private fun PreviewRankingCard(
     RankingCard(topThree = requireNotNull(RankingUiState.Data(entries).topThree))
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             PreviewRankingCard()
@@ -115,13 +115,13 @@ private fun RankingCardPreview() {
 }
 
 /** 연패 중인 1위 — 1위 캡션에만 🐷N연패 절이 붙어 나머지 두 열과 형식이 갈린다. */
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingCardFirstWithStreakPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             PreviewRankingCard(firstStreak = 7)
@@ -129,13 +129,13 @@ private fun RankingCardFirstWithStreakPreview() {
     }
 }
 
-@Preview
+@ThemePreviews
 @Composable
 private fun RankingCardLongNicknamePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             PreviewRankingCard(longFirstNickname = true)
