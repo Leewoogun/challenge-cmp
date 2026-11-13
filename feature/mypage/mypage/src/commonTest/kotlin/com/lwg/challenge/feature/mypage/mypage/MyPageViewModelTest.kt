@@ -1,10 +1,13 @@
 package com.lwg.challenge.feature.mypage.mypage
 
 import app.cash.turbine.test
+import com.lwg.challenge.domain.model.ThemeMode
 import com.lwg.challenge.domain.model.UserRecord
 import com.lwg.challenge.domain.model.user.UserInfo
 import com.lwg.challenge.domain.usecase.GetMyPageDataUseCase
 import com.lwg.challenge.domain.usecase.LogoutUseCase
+import com.lwg.challenge.domain.usecase.ObserveThemeModeUseCase
+import com.lwg.challenge.domain.usecase.UpdateThemeModeUseCase
 import com.lwg.challenge.domain.usecase.WithdrawUseCase
 import com.lwg.challenge.feature.mypage.mypage.contract.MyPageModalEffect
 import com.lwg.challenge.feature.mypage.mypage.contract.MyPageUiEffect
@@ -34,6 +37,7 @@ class MyPageViewModelTest {
     private lateinit var fakeUserInfo: FakeUserInfoRepository
     private lateinit var fakeWithdraw: FakeWithdrawRepository
     private lateinit var fakeLogin: FakeLoginRepository
+    private lateinit var fakeTheme: FakeThemeRepository
 
     @BeforeTest
     fun setup() {
@@ -42,6 +46,7 @@ class MyPageViewModelTest {
         fakeUserInfo = FakeUserInfoRepository()
         fakeWithdraw = FakeWithdrawRepository()
         fakeLogin = FakeLoginRepository()
+        fakeTheme = FakeThemeRepository()
     }
 
     @AfterTest
@@ -55,6 +60,8 @@ class MyPageViewModelTest {
             fakeWithdraw,
             LogoutUseCase(fakeLogin, fakeUserInfo),
         ),
+        observeThemeModeUseCase = ObserveThemeModeUseCase(fakeTheme),
+        updateThemeModeUseCase = UpdateThemeModeUseCase(fakeTheme),
     )
 
     // uiState 가 WhileSubscribed 이므로 구독자가 있어야 파이프라인이 시작된다.
@@ -325,5 +332,27 @@ class MyPageViewModelTest {
 
         val state = viewModel.uiState.value as MyPageUiState.Data
         assertTrue(state.isWithdrawing)
+    }
+
+    @Test
+    fun `저장된 테마가 없으면 다크가 선택돼 있다`() = runTest {
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+
+        val data = assertIs<MyPageUiState.Data>(viewModel.uiState.value)
+        assertTrue(data.isDarkThemeSelected)
+        assertFalse(data.isLightThemeSelected)
+    }
+
+    @Test
+    fun `라이트를 고르면 저장되고 선택 상태가 바뀐다`() = runTest {
+        val viewModel = createViewModel()
+        subscribeUiState(viewModel)
+
+        viewModel.selectThemeMode(ThemeMode.LIGHT)
+
+        val data = assertIs<MyPageUiState.Data>(viewModel.uiState.value)
+        assertTrue(data.isLightThemeSelected)
+        assertFalse(data.isDarkThemeSelected)
     }
 }

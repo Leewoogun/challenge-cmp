@@ -64,7 +64,7 @@ Figma에서 가져온 디자인 토큰을 프로젝트 디자인 시스템과 �
 
 생성한 모든 `@Composable` 마다 같은 파일 하단에 `@Preview` 를 **반드시** 추가한다.
 - `private @Composable fun {Name}Preview()` 형태
-- `ChallengeTheme { }` 로 래핑 + `ChallengeTheme.colorScheme.background` 배경
+- `ChallengeTheme { }` 로 래핑 + `ChallengeTheme.colorScheme.background.screen` 배경
 - 상태 분기(Loading/Data/Empty 등)가 있으면 분기별 Preview 작성
 - import 는 `org.jetbrains.compose.ui.tooling.preview.Preview` (KMP)
 

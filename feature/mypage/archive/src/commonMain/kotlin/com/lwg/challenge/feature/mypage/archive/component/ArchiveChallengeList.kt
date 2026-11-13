@@ -40,7 +40,7 @@ internal fun ArchiveChallengeList(
 @Composable
 private fun ArchiveChallengeListPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ArchiveChallengeList(challenges = PreviewArchiveHistories, onChallengeClick = {})
         }
     }

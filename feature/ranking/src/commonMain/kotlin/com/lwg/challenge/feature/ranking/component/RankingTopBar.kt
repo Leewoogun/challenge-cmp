@@ -22,7 +22,7 @@ internal fun RankingTopBar(
         Text(
             text = "개돼지 랭킹 🐷",
             style = ChallengeTheme.typography.bold20,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -34,7 +34,7 @@ internal fun RankingTopBar(
 @Composable
 private fun RankingTopBarPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             RankingTopBar()
         }
     }
@@ -49,7 +49,7 @@ private fun RankingTopBarLargeFontScalePreview() {
         CompositionLocalProvider(
             LocalDensity provides Density(density = density.density, fontScale = 1.3f),
         ) {
-            Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
                 RankingTopBar()
             }
         }

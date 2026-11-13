@@ -89,7 +89,7 @@ private fun OathForm(
             Text(
                 text = "서명란",
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
 
             VerticalSpacer(6.dp)
@@ -117,7 +117,7 @@ private fun OathForm(
 @Composable
 private fun OathScreenEmptySignaturePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathScreen(
                 uiState = previewOathState(),
                 onSignatureChange = {},
@@ -131,7 +131,7 @@ private fun OathScreenEmptySignaturePreview() {
 @Composable
 private fun OathScreenSignedPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathScreen(
                 uiState = previewOathState(signature = previewSignature()),
                 onSignatureChange = {},
@@ -145,7 +145,7 @@ private fun OathScreenSignedPreview() {
 @Composable
 private fun OathScreenSubmittingPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathScreen(
                 uiState = previewOathState(
                     signature = previewSignature(),

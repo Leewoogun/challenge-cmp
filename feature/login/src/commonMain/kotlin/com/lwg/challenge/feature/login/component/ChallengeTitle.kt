@@ -22,7 +22,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 internal fun ChallengeTitle() {
     val fireBrush = ChallengeTheme.brushes.fire
-    val onBackground = ChallengeTheme.colorScheme.onBackground
+    val onBackground = ChallengeTheme.colorScheme.text.primary
 
     val titleStyle = ChallengeTheme.typography.bold48
 
@@ -59,7 +59,7 @@ private fun ChallengeTitlePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ChallengeTitle()

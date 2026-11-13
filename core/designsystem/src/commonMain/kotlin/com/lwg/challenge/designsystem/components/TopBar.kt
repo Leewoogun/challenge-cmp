@@ -40,7 +40,7 @@ object ChallengeTopBarDefaults {
 @Composable
 fun ChallengeBaseTopBar(
     modifier: Modifier = Modifier,
-    containerColor: Color = ChallengeTheme.colorScheme.surface,
+    containerColor: Color = ChallengeTheme.colorScheme.background.card,
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
     title: @Composable RowScope.() -> Unit,
@@ -75,9 +75,9 @@ fun ChallengeTopBar(
     title: String,
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
-    containerColor: Color = ChallengeTheme.colorScheme.surface,
+    containerColor: Color = ChallengeTheme.colorScheme.background.card,
     titleStyle: TextStyle = ChallengeTheme.typography.bold18,
-    titleColor: Color = ChallengeTheme.colorScheme.onBackground,
+    titleColor: Color = ChallengeTheme.colorScheme.text.primary,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     ChallengeBaseTopBar(
@@ -111,7 +111,7 @@ fun ChallengeTopBarBackButton(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = "뒤로 가기",
             modifier = Modifier.size(ChallengeTopBarDefaults.IconSize),
-            tint = ChallengeTheme.colorScheme.onBackground,
+            tint = ChallengeTheme.colorScheme.icon.primary,
         )
     }
 }
@@ -120,7 +120,7 @@ fun ChallengeTopBarBackButton(
 @Composable
 private fun ChallengeTopBarTitleOnlyPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ChallengeTopBar(title = "친구")
         }
     }
@@ -130,7 +130,7 @@ private fun ChallengeTopBarTitleOnlyPreview() {
 @Composable
 private fun ChallengeTopBarWithBackPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ChallengeTopBar(
                 title = "새 챌린지",
                 onBack = {},
@@ -143,7 +143,7 @@ private fun ChallengeTopBarWithBackPreview() {
 @Composable
 private fun ChallengeTopBarWithActionsPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ChallengeTopBar(
                 title = "새 챌린지",
                 onBack = {},
@@ -153,7 +153,7 @@ private fun ChallengeTopBarWithActionsPreview() {
                             imageVector = Icons.Filled.Notifications,
                             contentDescription = "알림",
                             modifier = Modifier.size(24.dp),
-                            tint = ChallengeTheme.colorScheme.onBackground,
+                            tint = ChallengeTheme.colorScheme.icon.primary,
                         )
                     }
                 },
@@ -166,14 +166,14 @@ private fun ChallengeTopBarWithActionsPreview() {
 @Composable
 private fun ChallengeTopBarSlotPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ChallengeBaseTopBar(
                 navigationIcon = { ChallengeTopBarBackButton(onClick = {}) },
                 title = {
                     Text(
                         text = "커스텀 슬롯",
                         style = ChallengeTheme.typography.medium14,
-                        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                        color = ChallengeTheme.colorScheme.text.secondary,
                         modifier = Modifier.weight(1f),
                     )
                 },

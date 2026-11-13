@@ -20,8 +20,8 @@ internal fun HomeFab(onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
-        containerColor = ChallengeTheme.colorScheme.primary,
-        contentColor = ChallengeTheme.colorScheme.onPrimary,
+        containerColor = ChallengeTheme.colorScheme.button.background,
+        contentColor = ChallengeTheme.colorScheme.button.text,
         modifier = Modifier.size(56.dp),
     ) {
         Icon(
@@ -38,7 +38,7 @@ private fun HomeFabPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(16.dp),
         ) {
             HomeFab(onClick = {})

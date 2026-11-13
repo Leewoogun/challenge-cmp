@@ -33,7 +33,7 @@ internal fun CapturedPhotoImage(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(ChallengeTheme.colorScheme.surfaceVariant),
+            .background(ChallengeTheme.colorScheme.background.cardSub),
         contentAlignment = Alignment.Center,
     ) {
         if (imageBitmap != null) {
@@ -47,7 +47,7 @@ internal fun CapturedPhotoImage(
             Text(
                 text = "사진을 표시할 수 없어요",
                 style = ChallengeTheme.typography.medium14,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
         }
     }
@@ -59,7 +59,7 @@ private fun CapturedPhotoImagePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             CapturedPhotoImage(

@@ -16,7 +16,7 @@ internal fun NotificationLoadingScreen() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
+        CircularProgressIndicator(color = ChallengeTheme.colorScheme.point)
     }
 }
 
@@ -24,7 +24,7 @@ internal fun NotificationLoadingScreen() {
 @Composable
 private fun NotificationLoadingScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             NotificationLoadingScreen()
         }
     }

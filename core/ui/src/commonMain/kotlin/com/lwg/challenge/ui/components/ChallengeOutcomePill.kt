@@ -81,7 +81,7 @@ data class ChallengeOutcomeVisual(
 fun challengeOutcomeVisualOf(outcome: ChallengeOutcome): ChallengeOutcomeVisual =
     when (outcome) {
         ChallengeOutcome.WIN -> ChallengeOutcomeVisual(
-            accent = ChallengeTheme.colorScheme.primary,
+            accent = ChallengeTheme.colorScheme.point,
             label = RESULT_WIN_TEXT,
             icon = Icons.Filled.EmojiEvents,
         )
@@ -91,7 +91,7 @@ fun challengeOutcomeVisualOf(outcome: ChallengeOutcome): ChallengeOutcomeVisual 
             icon = Icons.Filled.Cancel,
         )
         ChallengeOutcome.DRAW -> ChallengeOutcomeVisual(
-            accent = ChallengeTheme.colorScheme.onBackground,
+            accent = ChallengeTheme.colorScheme.text.primary,
             label = RESULT_DRAW_TEXT,
             icon = Icons.Filled.HorizontalRule,
         )
@@ -139,7 +139,7 @@ private fun ChallengeOutcomePillPreviewContainer(content: @Composable () -> Unit
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             content()

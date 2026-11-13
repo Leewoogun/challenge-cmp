@@ -24,7 +24,7 @@ internal fun SearchHintText(text: String) {
         Text(
             text = text,
             style = ChallengeTheme.typography.medium14,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
@@ -37,7 +37,7 @@ internal fun SearchHintText(text: String) {
 @Composable
 private fun SearchHintTextPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             SearchHintText(text = "닉네임을 2자 이상 입력해주세요")
         }
     }

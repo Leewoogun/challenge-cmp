@@ -26,7 +26,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
  */
 @Composable
 internal fun NotificationEmptyScreen(modifier: Modifier = Modifier) {
-    val primary = ChallengeTheme.colorScheme.primary
+    val primary = ChallengeTheme.colorScheme.point
 
     Column(
         modifier = modifier
@@ -56,7 +56,7 @@ internal fun NotificationEmptyScreen(modifier: Modifier = Modifier) {
         Text(
             text = "아직 알림이 없어요",
             style = ChallengeTheme.typography.bold16,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
 
         VerticalSpacer(4.dp)
@@ -64,7 +64,7 @@ internal fun NotificationEmptyScreen(modifier: Modifier = Modifier) {
         Text(
             text = "챌린지가 오가면 여기에 쌓여요",
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
     }
 }
@@ -73,7 +73,7 @@ internal fun NotificationEmptyScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun NotificationEmptyScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             NotificationEmptyScreen()
         }
     }

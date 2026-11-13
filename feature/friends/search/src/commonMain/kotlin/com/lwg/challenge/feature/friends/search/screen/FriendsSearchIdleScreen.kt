@@ -18,7 +18,7 @@ internal fun FriendsSearchIdleScreen() {
 @Composable
 private fun FriendsSearchIdleScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             FriendsSearchIdleScreen()
         }
     }

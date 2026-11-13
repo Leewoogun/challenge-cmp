@@ -22,7 +22,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun HorizontalDivider(
     modifier: Modifier = Modifier,
-    lineColor: Color = ChallengeTheme.colorScheme.outline,
+    lineColor: Color = ChallengeTheme.colorScheme.line.divider,
     thickness: Dp = 1.dp,
 ) {
     Material3HorizontalDivider(
@@ -35,7 +35,7 @@ fun HorizontalDivider(
 @Composable
 fun HorizontalDivider10(
     modifier: Modifier = Modifier,
-    lineColor: Color = ChallengeTheme.colorScheme.surfaceVariant,
+    lineColor: Color = ChallengeTheme.colorScheme.line.dividerSub,
 ) {
     Material3HorizontalDivider(
         modifier = modifier,
@@ -47,7 +47,7 @@ fun HorizontalDivider10(
 @Composable
 fun VerticalDivider(
     modifier: Modifier = Modifier,
-    lineColor: Color = ChallengeTheme.colorScheme.outline,
+    lineColor: Color = ChallengeTheme.colorScheme.line.divider,
 ) {
     Material3VerticalDivider(
         modifier = modifier,
@@ -59,7 +59,7 @@ fun VerticalDivider(
 @Composable
 fun VerticalDivider10(
     modifier: Modifier = Modifier,
-    lineColor: Color = ChallengeTheme.colorScheme.surfaceVariant,
+    lineColor: Color = ChallengeTheme.colorScheme.line.dividerSub,
 ) {
     Material3VerticalDivider(
         modifier = modifier,
@@ -75,7 +75,7 @@ private fun DividerPreview() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {

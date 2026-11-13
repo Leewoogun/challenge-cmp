@@ -42,7 +42,7 @@ internal fun VerifyConfirmScreen(
         Text(
             text = "이 사진으로 인증할까요?",
             style = ChallengeTheme.typography.bold20,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
 
         VerticalSpacer(8.dp)
@@ -50,7 +50,7 @@ internal fun VerifyConfirmScreen(
         Text(
             text = "제출을 확정하면 사진을 바꿀 수 없어요.",
             style = ChallengeTheme.typography.medium14,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
 
         VerticalSpacer(20.dp)
@@ -69,7 +69,7 @@ internal fun VerifyConfirmScreen(
             )
 
             if (uiState.isSubmitting) {
-                CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
+                CircularProgressIndicator(color = ChallengeTheme.colorScheme.point)
             }
         }
 
@@ -103,8 +103,8 @@ internal fun VerifyConfirmScreen(
                 onClick = onSubmitClick,
                 modifier = Modifier.weight(1f),
                 enabled = uiState.canSubmit,
-                containerColor = ChallengeTheme.colorScheme.primary,
-                contentColor = ChallengeTheme.colorScheme.onPrimary,
+                containerColor = ChallengeTheme.colorScheme.button.background,
+                contentColor = ChallengeTheme.colorScheme.button.text,
                 textStyle = ChallengeTheme.typography.bold16,
             )
         }
@@ -124,7 +124,7 @@ private fun previewConfirm(
 @Composable
 private fun VerifyConfirmScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyConfirmScreen(
                 uiState = previewConfirm(),
                 onRetakeClick = {},
@@ -138,7 +138,7 @@ private fun VerifyConfirmScreenPreview() {
 @Composable
 private fun VerifyConfirmScreenSubmittingPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyConfirmScreen(
                 uiState = previewConfirm(isSubmitting = true),
                 onRetakeClick = {},
@@ -152,7 +152,7 @@ private fun VerifyConfirmScreenSubmittingPreview() {
 @Composable
 private fun VerifyConfirmScreenFailurePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyConfirmScreen(
                 uiState = previewConfirm(
                     failure = SubmitFailure(
@@ -171,7 +171,7 @@ private fun VerifyConfirmScreenFailurePreview() {
 @Composable
 private fun VerifyConfirmScreenNotRetryablePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyConfirmScreen(
                 uiState = previewConfirm(
                     failure = SubmitFailure(

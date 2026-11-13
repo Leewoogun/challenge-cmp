@@ -33,12 +33,12 @@ internal fun ReceivedRequestsSection(
             Text(
                 text = "받은 요청 ",
                 style = ChallengeTheme.typography.bold14,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
             Text(
                 text = "${requests.size}건",
                 style = ChallengeTheme.typography.bold14,
-                color = ChallengeTheme.colorScheme.primary,
+                color = ChallengeTheme.colorScheme.text.point,
             )
         }
 
@@ -59,7 +59,7 @@ private fun ReceivedRequestsSectionPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ReceivedRequestsSection(

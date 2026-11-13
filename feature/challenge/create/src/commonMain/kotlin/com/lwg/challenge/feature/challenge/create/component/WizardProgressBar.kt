@@ -43,9 +43,9 @@ internal fun WizardProgressBar(
                     .clip(CircleShape)
                     .background(
                         if (reached) {
-                            ChallengeTheme.colorScheme.primary
+                            ChallengeTheme.colorScheme.point
                         } else {
-                            ChallengeTheme.colorScheme.secondary
+                            ChallengeTheme.colorScheme.background.field
                         },
                     ),
             )
@@ -57,7 +57,7 @@ internal fun WizardProgressBar(
 @Composable
 private fun WizardProgressBarFriendPickPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             WizardProgressBar(step = ChallengeCreateStep.FRIEND_PICK)
         }
     }
@@ -67,7 +67,7 @@ private fun WizardProgressBarFriendPickPreview() {
 @Composable
 private fun WizardProgressBarMissionInputPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             WizardProgressBar(step = ChallengeCreateStep.MISSION_INPUT)
         }
     }
@@ -77,7 +77,7 @@ private fun WizardProgressBarMissionInputPreview() {
 @Composable
 private fun WizardProgressBarOathPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             WizardProgressBar(step = ChallengeCreateStep.OATH)
         }
     }

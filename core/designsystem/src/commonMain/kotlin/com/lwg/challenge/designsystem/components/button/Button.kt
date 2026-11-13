@@ -24,8 +24,8 @@ fun NormalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    containerColor: Color = ChallengeTheme.colorScheme.surfaceVariant,
-    contentColor: Color = ChallengeTheme.colorScheme.onSurface,
+    containerColor: Color = ChallengeTheme.colorScheme.button.subBackground,
+    contentColor: Color = ChallengeTheme.colorScheme.button.subText,
     disabledContainerColor: Color = containerColor.copy(alpha = 0.6f),
     disabledContentColor: Color = contentColor.copy(alpha = 0.4f),
     textStyle: TextStyle = ChallengeTheme.typography.medium14,
@@ -74,8 +74,8 @@ private fun NormalButtonPreview() {
             NormalButton(
                 text = "Primary 버튼",
                 onClick = {},
-                containerColor = ChallengeTheme.colorScheme.primary,
-                contentColor = ChallengeTheme.colorScheme.onPrimary,
+                containerColor = ChallengeTheme.colorScheme.button.background,
+                contentColor = ChallengeTheme.colorScheme.button.text,
             )
 
             NormalButton(

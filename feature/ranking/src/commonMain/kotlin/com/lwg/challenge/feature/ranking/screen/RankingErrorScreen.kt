@@ -39,7 +39,7 @@ internal fun RankingErrorScreen(onRetryClick: () -> Unit) {
 @Composable
 private fun RankingErrorScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             RankingErrorScreen(onRetryClick = {})
         }
     }

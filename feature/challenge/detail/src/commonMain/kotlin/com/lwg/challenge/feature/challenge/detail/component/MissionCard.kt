@@ -48,8 +48,8 @@ internal fun MissionCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -60,7 +60,7 @@ internal fun MissionCard(
                 Text(
                     text = label,
                     style = ChallengeTheme.typography.medium12,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
                 if (status != null) {
                     VerificationStatusPill(status = status)
@@ -73,9 +73,9 @@ internal fun MissionCard(
                 text = mission ?: EMPTY_MISSION_TEXT,
                 style = ChallengeTheme.typography.bold16,
                 color = if (mission == null) {
-                    ChallengeTheme.colorScheme.onSurfaceVariant
+                    ChallengeTheme.colorScheme.text.secondary
                 } else {
-                    ChallengeTheme.colorScheme.onBackground
+                    ChallengeTheme.colorScheme.text.primary
                 },
             )
 
@@ -94,7 +94,7 @@ private fun MissionCardMineWithCtaPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             MissionCard(
@@ -122,7 +122,7 @@ private fun MissionCardMineWithPhotoPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             MissionCard(
@@ -150,7 +150,7 @@ private fun MissionCardMineWithPhotoAndRetakePreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             MissionCard(
@@ -187,7 +187,7 @@ private fun MissionCardMineFailedPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             MissionCard(
@@ -220,7 +220,7 @@ private fun MissionCardOpponentPendingPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             MissionCard(
@@ -247,7 +247,7 @@ private fun MissionCardStatusUnknownPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             MissionCard(
@@ -275,7 +275,7 @@ private fun MissionCardMissionNotSetPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             MissionCard(

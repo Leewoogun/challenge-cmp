@@ -26,8 +26,8 @@ fun LabeledDivider(
     text: String,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = ChallengeTheme.typography.bold12,
-    textColor: Color = ChallengeTheme.colorScheme.onSurfaceVariant,
-    dividerColor: Color = ChallengeTheme.colorScheme.outline,
+    textColor: Color = ChallengeTheme.colorScheme.text.secondary,
+    dividerColor: Color = ChallengeTheme.colorScheme.line.divider,
     horizontalSpacing: androidx.compose.ui.unit.Dp = 12.dp,
 ) {
     Row(
@@ -62,7 +62,7 @@ private fun LabeledDividerPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LabeledDivider(text = "한 번 서명하면 무를 수 없음")

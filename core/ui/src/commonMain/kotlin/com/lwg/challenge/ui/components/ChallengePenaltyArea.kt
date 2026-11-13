@@ -27,7 +27,7 @@ fun ChallengePenaltyArea(
     text: String,
     modifier: Modifier = Modifier,
 ) {
-    val primary = ChallengeTheme.colorScheme.primary
+    val primary = ChallengeTheme.colorScheme.point
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -62,7 +62,7 @@ private fun BetStripPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ChallengePenaltyArea(text = "내기: 커피 사기 ☕")

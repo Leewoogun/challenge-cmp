@@ -109,14 +109,14 @@ fun ChallengeInputField(
         maxLines = maxLines,
         textStyle = textStyle.copy(
             color = if (enabled) {
-                ChallengeTheme.colorScheme.onBackground
+                ChallengeTheme.colorScheme.inputField.text
             } else {
-                ChallengeTheme.colorScheme.onSurfaceVariant
+                ChallengeTheme.colorScheme.inputField.hint
             },
         ),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
-        cursorBrush = SolidColor(ChallengeTheme.colorScheme.primary),
+        cursorBrush = SolidColor(ChallengeTheme.colorScheme.inputField.cursor),
         decorationBox = { innerTextField ->
             InputFieldBox(focused = focused) {
                 Row(
@@ -134,7 +134,7 @@ fun ChallengeInputField(
                             Text(
                                 text = placeholder,
                                 style = placeholderStyle,
-                                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                                color = ChallengeTheme.colorScheme.inputField.hint,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
@@ -164,14 +164,14 @@ fun InputFieldBox(
             .heightIn(min = ChallengeInputFieldDefaults.MinHeight)
             .clip(ChallengeInputFieldDefaults.Shape)
             .background(
-                color = ChallengeTheme.colorScheme.secondary,
+                color = ChallengeTheme.colorScheme.inputField.background,
                 shape = ChallengeInputFieldDefaults.Shape,
             )
             .then(
                 if (focused) {
                     Modifier.border(
                         width = ChallengeInputFieldDefaults.FocusBorderWidth,
-                        color = ChallengeTheme.colorScheme.primary,
+                        color = ChallengeTheme.colorScheme.inputField.focusedBorder,
                         shape = ChallengeInputFieldDefaults.Shape,
                     )
                 } else {
@@ -193,7 +193,7 @@ private fun ChallengeInputFieldEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ChallengeInputField(
@@ -211,7 +211,7 @@ private fun ChallengeInputFieldFilledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ChallengeInputField(
@@ -229,7 +229,7 @@ private fun ChallengeInputFieldFixedHeightPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ChallengeInputField(
@@ -248,7 +248,7 @@ private fun InputFieldBoxFocusedPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -256,14 +256,14 @@ private fun InputFieldBoxFocusedPreview() {
                 Text(
                     text = "포커스",
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                 )
             }
             InputFieldBox {
                 Text(
                     text = "기본",
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.inputField.hint,
                 )
             }
         }

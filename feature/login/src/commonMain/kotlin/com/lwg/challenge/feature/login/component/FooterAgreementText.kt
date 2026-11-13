@@ -18,8 +18,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun FooterAgreementText() {
-    val muted = ChallengeTheme.colorScheme.onSurfaceVariant
-    val emphasized = ChallengeTheme.colorScheme.onBackground
+    val muted = ChallengeTheme.colorScheme.text.secondary
+    val emphasized = ChallengeTheme.colorScheme.text.primary
 
     val text = buildAnnotatedString {
         withStyle(SpanStyle(color = muted)) {
@@ -53,7 +53,7 @@ private fun FooterAgreementTextPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             FooterAgreementText()

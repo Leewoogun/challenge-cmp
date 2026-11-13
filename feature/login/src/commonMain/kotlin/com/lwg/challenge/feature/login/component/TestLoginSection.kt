@@ -56,8 +56,8 @@ internal fun TestLoginSection(
                     modifier = Modifier
                         .weight(1f)
                         .height(44.dp),
-                    containerColor = ChallengeTheme.colorScheme.secondary,
-                    contentColor = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    containerColor = ChallengeTheme.colorScheme.background.field,
+                    contentColor = ChallengeTheme.colorScheme.text.secondary,
                     shape = RoundedCornerShape(12.dp),
                     textStyle = ChallengeTheme.typography.medium14,
                 )
@@ -68,7 +68,7 @@ internal fun TestLoginSection(
             Text(
                 text = caption,
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
                 modifier = Modifier.padding(top = 6.dp),
             )
         }
@@ -81,7 +81,7 @@ private fun TestLoginSectionEnabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             TestLoginSection(
@@ -99,7 +99,7 @@ private fun TestLoginSectionUnavailablePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             TestLoginSection(
@@ -117,7 +117,7 @@ private fun TestLoginSectionHiddenPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             TestLoginSection(

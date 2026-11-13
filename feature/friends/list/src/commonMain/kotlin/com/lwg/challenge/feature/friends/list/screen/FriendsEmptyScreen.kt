@@ -40,7 +40,7 @@ internal fun FriendsEmptyScreen(
 @Composable
 private fun FriendsEmptyScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             FriendsEmptyScreen(
                 onClickAddFriend = {},
                 onClickInvite = {},

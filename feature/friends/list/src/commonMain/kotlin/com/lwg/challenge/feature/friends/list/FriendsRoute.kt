@@ -52,7 +52,7 @@ private fun FriendsContent(
     onRejectRequest: (FriendRequest) -> Unit,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
+        statusBarColor = ChallengeTheme.colorScheme.background.card,
         topBar = { ChallengeTopBar(title = "친구") },
     ) {
         when (uiState) {

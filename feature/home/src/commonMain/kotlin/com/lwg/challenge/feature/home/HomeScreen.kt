@@ -147,12 +147,12 @@ private fun SectionTitleRow(title: String, count: Int) {
         Text(
             text = title,
             style = ChallengeTheme.typography.bold18,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
         Text(
             text = "${count}개",
             style = ChallengeTheme.typography.medium10,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
             modifier = Modifier.padding(bottom = 4.dp),
         )
     }
@@ -261,7 +261,7 @@ private val previewReceivedChallenges = listOf(
 @Composable
 private fun HomeScreenDataPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
@@ -282,7 +282,7 @@ private fun HomeScreenDataPreview() {
 @Composable
 private fun HomeScreenNoRecordPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord.Empty,
@@ -303,7 +303,7 @@ private fun HomeScreenNoRecordPreview() {
 @Composable
 private fun HomeScreenNoActiveChallengePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 8, lose = 5, draw = 2, currentStreak = 0),
@@ -324,7 +324,7 @@ private fun HomeScreenNoActiveChallengePreview() {
 @Composable
 private fun HomeScreenWithCompletedChallengesPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
@@ -348,7 +348,7 @@ private fun HomeScreenWithCompletedChallengesPreview() {
 @Composable
 private fun HomeScreenNoActiveWithCompletedChallengesPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord.Empty,
@@ -369,7 +369,7 @@ private fun HomeScreenNoActiveWithCompletedChallengesPreview() {
 @Composable
 private fun HomeScreenWithReceivedChallengesPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),
@@ -392,7 +392,7 @@ private fun HomeScreenWithReceivedChallengesPreview() {
 @Composable
 private fun HomeScreenUnreadNotificationPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             HomeScreen(
                 uiState = HomeUiState.Data(
                     record = UserRecord(win = 12, lose = 3, draw = 1, currentStreak = 4),

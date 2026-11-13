@@ -20,7 +20,7 @@ internal fun FriendsSearchLoadingScreen() {
     ) {
         CircularProgressIndicator(
             modifier = Modifier.padding(top = 64.dp),
-            color = ChallengeTheme.colorScheme.primary,
+            color = ChallengeTheme.colorScheme.point,
         )
     }
 }
@@ -29,7 +29,7 @@ internal fun FriendsSearchLoadingScreen() {
 @Composable
 private fun FriendsSearchLoadingScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             FriendsSearchLoadingScreen()
         }
     }

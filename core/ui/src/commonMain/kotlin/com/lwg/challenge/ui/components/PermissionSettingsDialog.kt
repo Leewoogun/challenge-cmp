@@ -24,19 +24,19 @@ fun PermissionSettingsDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
-        containerColor = ChallengeTheme.colorScheme.background,
+        containerColor = ChallengeTheme.colorScheme.background.screen,
         title = {
             Text(
                 text = title,
                 style = ChallengeTheme.typography.bold18,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
         },
         text = {
             Text(
                 text = message,
                 style = ChallengeTheme.typography.medium14,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
         },
         confirmButton = {
@@ -44,7 +44,7 @@ fun PermissionSettingsDialog(
                 Text(
                     text = "설정 열기",
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.primary,
+                    color = ChallengeTheme.colorScheme.text.point,
                 )
             }
         },
@@ -53,7 +53,7 @@ fun PermissionSettingsDialog(
                 Text(
                     text = "나중에",
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
             }
         },
@@ -66,7 +66,7 @@ private fun PermissionSettingsDialogPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             PermissionSettingsDialog(

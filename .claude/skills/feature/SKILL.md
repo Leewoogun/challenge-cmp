@@ -339,7 +339,7 @@ private fun {ComponentName}Preview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             {ComponentName}(/* 샘플 인자 */)

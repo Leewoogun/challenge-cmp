@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -129,7 +130,9 @@ fun MainRoute(
         }
     }
 
-    ChallengeTheme {
+    val isDarkTheme by viewModel.isDarkTheme.collectAsStateWithLifecycle()
+
+    ChallengeTheme(darkTheme = isDarkTheme) {
         CompositionLocalProvider(
             LocalNavigateAction provides navigator,
             LocalMainAction provides mainAction,

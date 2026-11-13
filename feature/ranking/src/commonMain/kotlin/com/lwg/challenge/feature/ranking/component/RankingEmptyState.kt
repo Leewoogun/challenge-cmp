@@ -38,7 +38,7 @@ private fun RankingEmptyStatePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             RankingEmptyState(onClickAddFriend = {})

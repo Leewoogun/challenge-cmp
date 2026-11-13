@@ -52,8 +52,8 @@ internal fun FriendSearchItem(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -65,7 +65,7 @@ internal fun FriendSearchItem(
             Text(
                 text = nickname,
                 style = ChallengeTheme.typography.bold14,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -117,7 +117,7 @@ private fun RelationAction(
                     imageVector = Icons.Filled.Close,
                     contentDescription = "요청 취소",
                     modifier = Modifier.size(14.dp),
-                    tint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    tint = ChallengeTheme.colorScheme.icon.secondary,
                 )
             }
         }
@@ -146,8 +146,8 @@ private fun RelationAction(
             onClick = onClickAction,
             enabled = enabled,
             style = IconTextButtonStyle.Filled,
-            containerColor = ChallengeTheme.colorScheme.secondary,
-            contentColor = ChallengeTheme.colorScheme.onSurface,
+            containerColor = ChallengeTheme.colorScheme.background.field,
+            contentColor = ChallengeTheme.colorScheme.text.primary,
             textStyle = ChallengeTheme.typography.bold14,
             shape = RoundedCornerShape(12.dp),
             height = 36.dp,
@@ -165,9 +165,9 @@ private fun RelationBadge(
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = ChallengeTheme.colorScheme.secondary,
+        color = ChallengeTheme.colorScheme.background.field,
         border = if (withBorder) {
-            BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline)
+            BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border)
         } else {
             null
         },
@@ -181,7 +181,7 @@ private fun RelationBadge(
             Text(
                 text = text,
                 style = textStyle,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
         }
     }
@@ -283,7 +283,7 @@ private fun PreviewContainer(content: @Composable () -> Unit) {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             content()

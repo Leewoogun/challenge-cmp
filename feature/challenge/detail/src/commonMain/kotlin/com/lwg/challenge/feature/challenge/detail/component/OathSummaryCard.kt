@@ -50,8 +50,8 @@ internal fun OathSummaryCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -62,12 +62,12 @@ internal fun OathSummaryCard(
                     imageVector = Icons.Filled.Description,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
-                    tint = ChallengeTheme.colorScheme.primary,
+                    tint = ChallengeTheme.colorScheme.icon.point,
                 )
                 Text(
                     text = "영혼의 맹세",
                     style = ChallengeTheme.typography.bold14,
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                 )
             }
 
@@ -77,21 +77,21 @@ internal fun OathSummaryCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(ChallengeTheme.colorScheme.surfaceVariant)
+                    .background(ChallengeTheme.colorScheme.background.cardSub)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 OathField(
                     label = "내기",
                     value = betContent,
-                    valueColor = ChallengeTheme.colorScheme.primary,
+                    valueColor = ChallengeTheme.colorScheme.text.point,
                 )
 
                 // 디자인에 없지만 의도적으로 둔 행이다. 상대 표기만으로는 마감 날짜를 알 수 없다.
                 OathField(
                     label = "마감",
                     value = deadlineText,
-                    valueColor = ChallengeTheme.colorScheme.onBackground,
+                    valueColor = ChallengeTheme.colorScheme.text.primary,
                 )
 
                 if (contract != null) {
@@ -101,7 +101,7 @@ internal fun OathSummaryCard(
                         Text(
                             text = "서명",
                             style = ChallengeTheme.typography.medium10,
-                            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                            color = ChallengeTheme.colorScheme.text.secondary,
                         )
 
                         VerticalSpacer(8.dp)
@@ -140,7 +140,7 @@ private fun OathField(
         Text(
             text = label,
             style = ChallengeTheme.typography.medium10,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
 
         VerticalSpacer(4.dp)
@@ -159,7 +159,7 @@ private fun OathSummaryCardBothSignedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             OathSummaryCard(
@@ -181,7 +181,7 @@ private fun OathSummaryCardOpponentNotSignedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             OathSummaryCard(
@@ -204,7 +204,7 @@ private fun OathSummaryCardNoContractPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             OathSummaryCard(

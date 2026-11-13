@@ -19,7 +19,7 @@ internal fun ChallengeDetailLoadingScreen(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
+        CircularProgressIndicator(color = ChallengeTheme.colorScheme.point)
     }
 }
 
@@ -27,7 +27,7 @@ internal fun ChallengeDetailLoadingScreen(
 @Composable
 private fun ChallengeDetailLoadingScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ChallengeDetailLoadingScreen()
         }
     }

@@ -59,12 +59,12 @@ internal fun ReceivedChallengesHeader(
         Text(
             text = "받은 도전장 ",
             style = ChallengeTheme.typography.bold14,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
         Text(
             text = "${count}건",
             style = ChallengeTheme.typography.bold14,
-            color = ChallengeTheme.colorScheme.primary,
+            color = ChallengeTheme.colorScheme.text.point,
         )
     }
 }
@@ -75,7 +75,7 @@ private fun ReceivedChallengesHeaderPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ReceivedChallengesHeader(count = 2)
@@ -88,7 +88,7 @@ private fun ReceivedChallengesHeaderPreview() {
 private fun ReceivedChallengesSectionPreview() {
     ChallengeTheme {
         LazyColumn(
-            modifier = Modifier.background(ChallengeTheme.colorScheme.background),
+            modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen),
             contentPadding = PaddingValues(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {

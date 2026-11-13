@@ -16,7 +16,7 @@ internal fun MyPageLoadingScreen() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
+        CircularProgressIndicator(color = ChallengeTheme.colorScheme.point)
     }
 }
 
@@ -24,7 +24,7 @@ internal fun MyPageLoadingScreen() {
 @Composable
 private fun MyPageLoadingScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             MyPageLoadingScreen()
         }
     }

@@ -35,7 +35,7 @@ internal fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(ChallengeTheme.colorScheme.background),
+            .background(ChallengeTheme.colorScheme.background.screen),
     ) {
         BackgroundDecor()
 
@@ -73,7 +73,7 @@ internal fun LoginScreen(
                     .background(Color.Black.copy(alpha = 0.30f)),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
+                CircularProgressIndicator(color = ChallengeTheme.colorScheme.point)
             }
         }
     }

@@ -63,7 +63,7 @@ internal fun VerificationPhoto(
             .fillMaxWidth()
             .height(160.dp)
             .clip(PhotoShape)
-            .background(ChallengeTheme.colorScheme.surfaceVariant),
+            .background(ChallengeTheme.colorScheme.background.cardSub),
         contentAlignment = Alignment.Center,
     ) {
         when {
@@ -124,7 +124,7 @@ private fun PhotoMessage(text: String) {
     Text(
         text = text,
         style = ChallengeTheme.typography.medium14,
-        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+        color = ChallengeTheme.colorScheme.text.secondary,
         textAlign = TextAlign.Center,
         modifier = Modifier.padding(horizontal = 16.dp),
     )
@@ -141,7 +141,7 @@ private fun PhotoRetryMessage(text: String, onRetry: () -> Unit) {
         Text(
             text = "다시 시도",
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.primary,
+            color = ChallengeTheme.colorScheme.text.point,
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(onClick = onRetry)
@@ -157,7 +157,7 @@ private fun VerificationPhotoDeletedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(
@@ -177,7 +177,7 @@ private fun VerificationPhotoMissingUrlPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(
@@ -196,7 +196,7 @@ private fun VerificationPhotoNotVerifiedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(status = VerificationStatus.PENDING, photoUrl = null, cacheKey = null)
@@ -211,7 +211,7 @@ private fun VerificationPhotoFailedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(status = VerificationStatus.FAILED, photoUrl = null, cacheKey = null)
@@ -225,7 +225,7 @@ private fun VerificationPhotoLoadingPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(
@@ -245,7 +245,7 @@ private fun VerificationPhotoStatusUnknownPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             VerificationPhoto(status = null, photoUrl = null, cacheKey = null, onRetry = {})
@@ -260,7 +260,7 @@ private fun VerificationPhotoLoadErrorPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             Box(
@@ -268,7 +268,7 @@ private fun VerificationPhotoLoadErrorPreview() {
                     .fillMaxWidth()
                     .height(160.dp)
                     .clip(PhotoShape)
-                    .background(ChallengeTheme.colorScheme.surfaceVariant),
+                    .background(ChallengeTheme.colorScheme.background.cardSub),
                 propagateMinConstraints = true,
             ) {
                 CenteredSlot { PhotoRetryMessage(text = LOAD_FAILED_TEXT, onRetry = {}) }

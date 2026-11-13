@@ -71,11 +71,11 @@ private fun ChallengeLabelPreview() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             ChallengeLabel(
-                backgroundColor = ChallengeTheme.colorScheme.primary
+                backgroundColor = ChallengeTheme.colorScheme.point
             ) {
                 Text(
                     text = "Primary Label",
-                    color = ChallengeTheme.colorScheme.onPrimary
+                    color = ChallengeTheme.colorScheme.text.onPoint
                 )
             }
 
@@ -84,16 +84,16 @@ private fun ChallengeLabelPreview() {
             ) {
                 Text(
                     text = "Gradient Label",
-                    color = ChallengeTheme.colorScheme.onPrimary
+                    color = ChallengeTheme.colorScheme.text.onPoint
                 )
             }
 
             ChallengeLabel(
-                backgroundColor = ChallengeTheme.colorScheme.surfaceVariant
+                backgroundColor = ChallengeTheme.colorScheme.background.cardSub
             ) {
                 Text(
                     text = "Secondary Label",
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant
+                    color = ChallengeTheme.colorScheme.text.secondary
                 )
             }
         }

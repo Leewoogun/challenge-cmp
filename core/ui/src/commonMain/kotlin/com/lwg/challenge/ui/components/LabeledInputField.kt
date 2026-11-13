@@ -41,7 +41,7 @@ fun LabeledInputField(
         Text(
             text = label,
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
 
         VerticalSpacer(6.dp)
@@ -68,7 +68,7 @@ fun LabeledInputField(
                 color = if (counterAtMax) {
                     ChallengeTheme.colorScheme.warning
                 } else {
-                    ChallengeTheme.colorScheme.onSurfaceVariant
+                    ChallengeTheme.colorScheme.text.secondary
                 },
                 textAlign = TextAlign.End,
                 modifier = Modifier.fillMaxWidth(),
@@ -83,7 +83,7 @@ private fun LabeledInputFieldEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LabeledInputField(
@@ -104,7 +104,7 @@ private fun LabeledInputFieldFilledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LabeledInputField(
@@ -125,7 +125,7 @@ private fun LabeledInputFieldAtMaxPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LabeledInputField(
@@ -145,7 +145,7 @@ private fun LabeledInputFieldNoCounterPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             LabeledInputField(

@@ -57,7 +57,7 @@ internal fun RankingAvatar(
             shape = AvatarShape,
             backgroundColor = Color.Transparent,
             textStyle = textStyle,
-            textColor = ChallengeTheme.colorScheme.onPrimary,
+            textColor = ChallengeTheme.colorScheme.text.onPoint,
         )
     }
 }
@@ -68,7 +68,7 @@ private fun RankingAvatarPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -96,7 +96,7 @@ private fun RankingAvatarBlankNicknamePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             RankingAvatar(

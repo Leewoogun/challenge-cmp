@@ -34,21 +34,21 @@ internal fun StatsBar(
     muted: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val mutedColor = ChallengeTheme.colorScheme.onSurfaceVariant
+    val mutedColor = ChallengeTheme.colorScheme.text.secondary
 
-    val winColor = if (muted) mutedColor else ChallengeTheme.colorScheme.primary
+    val winColor = if (muted) mutedColor else ChallengeTheme.colorScheme.point
     val loseColor = if (muted) mutedColor else ChallengeTheme.colorScheme.error
-    val drawColor = if (muted) mutedColor else ChallengeTheme.colorScheme.onBackground
+    val drawColor = if (muted) mutedColor else ChallengeTheme.colorScheme.text.primary
     val streakColor = if (muted) mutedColor else ChallengeTheme.colorScheme.warning
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(color = ChallengeTheme.colorScheme.surface)
+            .background(color = ChallengeTheme.colorScheme.background.card)
             .border(
                 width = 1.dp,
-                color = ChallengeTheme.colorScheme.outline,
+                color = ChallengeTheme.colorScheme.line.border,
                 shape = RoundedCornerShape(12.dp),
             )
             .padding(vertical = 12.dp),
@@ -83,7 +83,7 @@ private fun RowScope.StatCell(
         Text(
             text = label,
             style = ChallengeTheme.typography.medium10,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
     }
 }
@@ -94,7 +94,7 @@ private fun CellDivider() {
         modifier = Modifier
             .width(1.dp)
             .height(20.dp)
-            .background(ChallengeTheme.colorScheme.outline),
+            .background(ChallengeTheme.colorScheme.line.divider),
     )
 }
 
@@ -104,7 +104,7 @@ private fun StatsBarPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(16.dp),
         ) {
             StatsBar(win = 12, lose = 3, draw = 1, streakText = "4🔥", muted = false)
@@ -118,7 +118,7 @@ private fun StatsBarEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(16.dp),
         ) {
             StatsBar(win = 0, lose = 0, draw = 0, streakText = "0", muted = true)

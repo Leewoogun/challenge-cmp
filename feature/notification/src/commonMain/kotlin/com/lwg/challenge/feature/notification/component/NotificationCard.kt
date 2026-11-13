@@ -54,8 +54,8 @@ internal fun NotificationCard(
             .fillMaxWidth()
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -67,7 +67,7 @@ internal fun NotificationCard(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(ChallengeTheme.colorScheme.secondary),
+                    .background(ChallengeTheme.colorScheme.background.field),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -83,7 +83,7 @@ internal fun NotificationCard(
                 Text(
                     text = body,
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                 )
 
                 VerticalSpacer(4.dp)
@@ -91,7 +91,7 @@ internal fun NotificationCard(
                 Text(
                     text = timeText,
                     style = ChallengeTheme.typography.medium10,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
             }
 
@@ -103,7 +103,7 @@ internal fun NotificationCard(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .size(16.dp),
-                    tint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    tint = ChallengeTheme.colorScheme.icon.secondary,
                 )
             }
         }
@@ -197,7 +197,7 @@ private fun NotificationCardPreviewContainer(content: @Composable () -> Unit) {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {

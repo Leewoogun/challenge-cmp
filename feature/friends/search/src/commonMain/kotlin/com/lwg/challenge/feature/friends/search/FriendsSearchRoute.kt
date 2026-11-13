@@ -55,7 +55,7 @@ private fun FriendsSearchContent(
     onClickCancel: (UserSearchResult) -> Unit,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
+        statusBarColor = ChallengeTheme.colorScheme.background.card,
         topBar = {
             FriendsSearchTopBar(
                 query = query,

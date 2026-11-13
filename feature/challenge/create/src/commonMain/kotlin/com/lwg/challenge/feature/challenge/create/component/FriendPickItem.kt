@@ -41,11 +41,11 @@ internal fun FriendPickItem(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
+        color = ChallengeTheme.colorScheme.background.card,
         border = if (selected) {
-            BorderStroke(width = 2.dp, color = ChallengeTheme.colorScheme.primary)
+            BorderStroke(width = 2.dp, color = ChallengeTheme.colorScheme.point)
         } else {
-            BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline)
+            BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border)
         },
     ) {
         Row(
@@ -58,7 +58,7 @@ internal fun FriendPickItem(
             Text(
                 text = nickname,
                 style = ChallengeTheme.typography.bold14,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -68,7 +68,7 @@ internal fun FriendPickItem(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
-                tint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                tint = ChallengeTheme.colorScheme.icon.secondary,
             )
         }
     }
@@ -80,7 +80,7 @@ private fun FriendPickItemPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             FriendPickItem(
@@ -99,7 +99,7 @@ private fun FriendPickItemSelectedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             FriendPickItem(
@@ -118,7 +118,7 @@ private fun FriendPickItemLongNicknamePreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             FriendPickItem(

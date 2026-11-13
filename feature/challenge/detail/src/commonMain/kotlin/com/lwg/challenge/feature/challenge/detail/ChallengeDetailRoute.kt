@@ -68,7 +68,7 @@ private fun ChallengeDetailContent(
     onForfeitClick: () -> Unit,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
+        statusBarColor = ChallengeTheme.colorScheme.background.card,
         topBar = {
             ChallengeTopBar(
                 title = "챌린지 상세",

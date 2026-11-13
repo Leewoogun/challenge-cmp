@@ -76,7 +76,7 @@ private fun NotificationScreenPreview() {
 @Composable
 private fun NotificationScreenPreviewContainer(uiState: NotificationUiState.Data) {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             NotificationScreen(
                 uiState = uiState,
                 listState = rememberLazyListState(),

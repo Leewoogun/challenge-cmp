@@ -55,7 +55,7 @@ private fun ArchiveContent(
     onRetryClick: () -> Unit,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
+        statusBarColor = ChallengeTheme.colorScheme.background.card,
         topBar = {
             ChallengeTopBar(title = "계약서 보관함", onBack = onBack)
         },

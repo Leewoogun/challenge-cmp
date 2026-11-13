@@ -40,7 +40,7 @@ fun SignatureCanvas(
     signature: Signature,
     onSignatureChange: (Signature) -> Unit,
     modifier: Modifier = Modifier,
-    strokeColor: Color = ChallengeTheme.colorScheme.primary,
+    strokeColor: Color = ChallengeTheme.colorScheme.point,
     enabled: Boolean = true,
     onDrawingChange: (Boolean) -> Unit = {},
 ) {
@@ -161,7 +161,7 @@ private fun SignatureCanvasEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureCanvas(
@@ -179,7 +179,7 @@ private fun SignatureCanvasSignedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureCanvas(
@@ -197,14 +197,14 @@ private fun SignatureCanvasDisabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureCanvas(
                 signature = PreviewSignature,
                 onSignatureChange = {},
                 modifier = Modifier.fillMaxWidth(),
-                strokeColor = ChallengeTheme.colorScheme.onSurfaceVariant,
+                strokeColor = ChallengeTheme.colorScheme.text.secondary,
                 enabled = false,
             )
         }

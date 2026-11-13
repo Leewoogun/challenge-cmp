@@ -62,7 +62,7 @@ internal fun OathFormScreen(
                 Text(
                     text = uiState.opponentSignatureLabel,
                     style = ChallengeTheme.typography.medium12,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
 
                 VerticalSpacer(6.dp)
@@ -87,7 +87,7 @@ internal fun OathFormScreen(
             Text(
                 text = "영혼의 맹세 📜",
                 style = ChallengeTheme.typography.bold20,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
 
             VerticalSpacer(4.dp)
@@ -95,7 +95,7 @@ internal fun OathFormScreen(
             Text(
                 text = "서명하면 수정 불가! 진짜야?",
                 style = ChallengeTheme.typography.medium14,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
 
             VerticalSpacer(24.dp)
@@ -129,7 +129,7 @@ internal fun OathFormScreen(
             Text(
                 text = "서명란",
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
 
             VerticalSpacer(6.dp)
@@ -162,7 +162,7 @@ internal fun OathFormScreen(
 @Composable
 private fun OathFormScreenEmptyPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathFormScreen(
                 uiState = previewOathData(),
                 onMyMissionChange = {},
@@ -177,7 +177,7 @@ private fun OathFormScreenEmptyPreview() {
 @Composable
 private fun OathFormScreenFilledPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathFormScreen(
                 uiState = previewOathData(
                     myMission = "책 30페이지 읽기",
@@ -195,7 +195,7 @@ private fun OathFormScreenFilledPreview() {
 @Composable
 private fun OathFormScreenSubmittingPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathFormScreen(
                 uiState = previewOathData(
                     myMission = "책 30페이지 읽기",
@@ -214,7 +214,7 @@ private fun OathFormScreenSubmittingPreview() {
 @Composable
 private fun OathFormScreenNoOpponentSignaturePreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             OathFormScreen(
                 uiState = previewOathData(opponentSignature = null),
                 onMyMissionChange = {},

@@ -93,7 +93,7 @@ private fun VerificationStatusPillPendingPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             VerificationStatusPill(status = VerificationStatus.PENDING)
@@ -107,7 +107,7 @@ private fun VerificationStatusPillVerifiedPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             VerificationStatusPill(status = VerificationStatus.VERIFIED)
@@ -121,7 +121,7 @@ private fun VerificationStatusPillFailedPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             VerificationStatusPill(status = VerificationStatus.FAILED)

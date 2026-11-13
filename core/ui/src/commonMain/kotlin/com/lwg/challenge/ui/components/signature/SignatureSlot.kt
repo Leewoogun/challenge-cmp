@@ -35,12 +35,12 @@ fun SignatureSlot(
     modifier: Modifier = Modifier,
     emptyHint: String = "서명 대기 중",
 ) {
-    val hintColor = ChallengeTheme.colorScheme.onSurfaceVariant
+    val hintColor = ChallengeTheme.colorScheme.text.secondary
 
     Box(
         modifier = modifier
             .clip(SIGNATURE_SLOT_SHAPE)
-            .background(ChallengeTheme.colorScheme.secondary)
+            .background(ChallengeTheme.colorScheme.background.field)
             // 획이 있으면 안내 테두리를 지운다 — 그은 획을 가리기 때문.
             .then(
                 if (signature == null) {
@@ -93,7 +93,7 @@ private fun SignatureSlotSignedPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureSlot(
@@ -110,7 +110,7 @@ private fun SignatureSlotEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureSlot(
@@ -127,7 +127,7 @@ private fun SignatureSlotHalfWidthPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureSlot(

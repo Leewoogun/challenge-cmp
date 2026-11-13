@@ -61,8 +61,8 @@ internal fun SoulStampLogo(
         label = "sparkle2-alpha",
     )
 
-    val onPrimary = ChallengeTheme.colorScheme.onPrimary
-    val primary = ChallengeTheme.colorScheme.primary
+    val onPrimary = ChallengeTheme.colorScheme.text.onPoint
+    val primary = ChallengeTheme.colorScheme.point
     val fireBrush = ChallengeTheme.brushes.fire
 
     Box(modifier = modifier.size(140.dp)) {
@@ -122,7 +122,7 @@ private fun SoulStampLogoPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(32.dp),
         ) {
             SoulStampLogo()

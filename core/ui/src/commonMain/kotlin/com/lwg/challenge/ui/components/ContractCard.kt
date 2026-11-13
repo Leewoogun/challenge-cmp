@@ -41,8 +41,8 @@ fun ContractCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Column(
             modifier = Modifier.padding(20.dp),
@@ -61,15 +61,15 @@ fun ContractCard(
                     label = myMissionLabel,
                     value = myMission?.takeIf { it.isNotBlank() } ?: EMPTY_VALUE_TEXT,
                     valueColor = if (myMission.isNullOrBlank()) {
-                        ChallengeTheme.colorScheme.onSurfaceVariant
+                        ChallengeTheme.colorScheme.text.secondary
                     } else {
-                        ChallengeTheme.colorScheme.onBackground
+                        ChallengeTheme.colorScheme.text.primary
                     },
                 )
                 ContractRow(
                     label = "내기",
                     value = penalty,
-                    valueColor = ChallengeTheme.colorScheme.primary,
+                    valueColor = ChallengeTheme.colorScheme.text.point,
                 )
                 ContractRow(label = "마감", value = deadlineText)
             }
@@ -91,7 +91,7 @@ private fun ContractTitle() {
         Text(
             text = "영혼의 맹세",
             style = ChallengeTheme.typography.bold18,
-            color = ChallengeTheme.colorScheme.primary,
+            color = ChallengeTheme.colorScheme.text.point,
         )
 
         VerticalSpacer(4.dp)
@@ -99,7 +99,7 @@ private fun ContractTitle() {
         Text(
             text = "SOUL CONTRACT",
             style = ChallengeTheme.typography.medium10,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
     }
 }
@@ -108,7 +108,7 @@ private fun ContractTitle() {
 private fun ContractDivider() {
     HorizontalDivider(
         thickness = 1.dp,
-        color = ChallengeTheme.colorScheme.outline,
+        color = ChallengeTheme.colorScheme.line.divider,
     )
 }
 
@@ -116,7 +116,7 @@ private fun ContractDivider() {
 private fun ContractRow(
     label: String,
     value: String,
-    valueColor: Color = ChallengeTheme.colorScheme.onBackground,
+    valueColor: Color = ChallengeTheme.colorScheme.text.primary,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -126,7 +126,7 @@ private fun ContractRow(
         Text(
             text = label,
             style = ChallengeTheme.typography.medium14,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
         Text(
             text = value,
@@ -144,7 +144,7 @@ private fun ContractCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ContractCard(
@@ -163,7 +163,7 @@ private fun ContractCardMissionEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ContractCard(
@@ -182,7 +182,7 @@ private fun ContractCardWithOpponentMissionPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ContractCard(
@@ -203,7 +203,7 @@ private fun ContractCardCustomMyMissionLabelPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ContractCard(
@@ -225,7 +225,7 @@ private fun ContractCardWithFooterPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ContractCard(
@@ -237,7 +237,7 @@ private fun ContractCardWithFooterPreview() {
                     Text(
                         text = "서명 완료",
                         style = ChallengeTheme.typography.medium12,
-                        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                        color = ChallengeTheme.colorScheme.text.secondary,
                     )
                 },
             )

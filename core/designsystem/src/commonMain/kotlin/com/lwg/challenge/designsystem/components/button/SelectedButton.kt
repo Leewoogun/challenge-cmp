@@ -60,12 +60,12 @@ fun SelectedButton(
     role: Role = Role.RadioButton,
     contentPadding: PaddingValues = SelectedButtonDefaults.ContentPadding,
 ) {
-    val primary = ChallengeTheme.colorScheme.primary
-    val contentColor = if (selected) primary else ChallengeTheme.colorScheme.onSurfaceVariant
+    val primary = ChallengeTheme.colorScheme.point
+    val contentColor = if (selected) primary else ChallengeTheme.colorScheme.text.secondary
     val supportingColor = if (selected) {
         primary.copy(alpha = SelectedButtonDefaults.SelectedSupportingAlpha)
     } else {
-        ChallengeTheme.colorScheme.onSurfaceVariant.copy(
+        ChallengeTheme.colorScheme.text.secondary.copy(
             alpha = SelectedButtonDefaults.UnselectedSupportingAlpha,
         )
     }
@@ -78,7 +78,7 @@ fun SelectedButton(
                 if (selected) {
                     primary.copy(alpha = SelectedButtonDefaults.SelectedContainerAlpha)
                 } else {
-                    ChallengeTheme.colorScheme.secondary
+                    ChallengeTheme.colorScheme.background.field
                 },
             )
             .then(
@@ -140,7 +140,7 @@ private fun SelectedButtonSelectedPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -171,7 +171,7 @@ private fun SelectedButtonTextOnlyPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -198,7 +198,7 @@ private fun SelectedButtonDisabledPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),

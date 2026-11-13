@@ -37,8 +37,8 @@ internal fun ChallengeBottomBar(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = ChallengeTheme.colorScheme.surface.copy(alpha = 0.95f),
-        contentColor = ChallengeTheme.colorScheme.onSurface,
+        color = ChallengeTheme.colorScheme.background.card.copy(alpha = 0.95f),
+        contentColor = ChallengeTheme.colorScheme.text.primary,
         tonalElevation = 0.dp,
     ) {
         Column(
@@ -50,7 +50,7 @@ internal fun ChallengeBottomBar(
         ) {
             HorizontalDivider(
                 thickness = 1.dp,
-                color = ChallengeTheme.colorScheme.outline,
+                color = ChallengeTheme.colorScheme.line.divider,
             )
             Row(
                 modifier = Modifier
@@ -80,9 +80,9 @@ private fun BottomNavTab(
     modifier: Modifier = Modifier,
 ) {
     val color: Color = if (selected) {
-        ChallengeTheme.colorScheme.primary
+        ChallengeTheme.colorScheme.point
     } else {
-        ChallengeTheme.colorScheme.onSurfaceVariant
+        ChallengeTheme.colorScheme.text.secondary
     }
 
     Column(
@@ -111,7 +111,7 @@ private fun BottomNavTab(
 @Composable
 private fun ChallengeBottomBarPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ChallengeBottomBar(
                 currentRoute = Route.Home,
                 onTabSelected = {},
@@ -124,7 +124,7 @@ private fun ChallengeBottomBarPreview() {
 @Composable
 private fun BottomNavTabSelectedPreview() {
     ChallengeTheme {
-        Row(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Row(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             BottomNavTab(
                 item = BottomNavItem.HOME,
                 selected = true,
@@ -139,7 +139,7 @@ private fun BottomNavTabSelectedPreview() {
 @Composable
 private fun BottomNavTabUnselectedPreview() {
     ChallengeTheme {
-        Row(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Row(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             BottomNavTab(
                 item = BottomNavItem.RANKING,
                 selected = false,

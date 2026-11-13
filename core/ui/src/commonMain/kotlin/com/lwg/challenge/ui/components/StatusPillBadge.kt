@@ -25,7 +25,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun StatusPillBadge(
     text: String,
     modifier: Modifier = Modifier,
-    accentColor: Color = ChallengeTheme.colorScheme.primary,
+    accentColor: Color = ChallengeTheme.colorScheme.point,
     textStyle: TextStyle = ChallengeTheme.typography.bold12,
     contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
 ) {
@@ -60,7 +60,7 @@ private fun StatusPillBadgePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             StatusPillBadge(text = "SOUL CONTRACT")

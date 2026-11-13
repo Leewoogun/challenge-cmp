@@ -18,7 +18,7 @@ internal fun RankingSectionTitle(
     Text(
         text = "수치의 명단",
         style = ChallengeTheme.typography.bold14,
-        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+        color = ChallengeTheme.colorScheme.text.secondary,
         modifier = modifier,
     )
 }
@@ -29,7 +29,7 @@ private fun RankingSectionTitlePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             RankingSectionTitle()

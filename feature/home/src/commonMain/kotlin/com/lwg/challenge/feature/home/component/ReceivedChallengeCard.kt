@@ -53,8 +53,8 @@ internal fun ReceivedChallengeCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             HeaderRow(
@@ -71,12 +71,12 @@ internal fun ReceivedChallengeCard(
                 Text(
                     text = "${challenge.opponent.nickname}의 미션",
                     style = ChallengeTheme.typography.medium12,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
                 Text(
                     text = challenge.opponent.mission,
                     style = ChallengeTheme.typography.bold14,
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -124,7 +124,7 @@ private fun HeaderRow(
             Text(
                 text = "${opponentNickname}의 도전장",
                 style = ChallengeTheme.typography.bold14,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -192,7 +192,7 @@ private fun ReceivedChallengeCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ReceivedChallengeCard(
@@ -212,7 +212,7 @@ private fun ReceivedChallengeCardLongMissionPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ReceivedChallengeCard(
@@ -233,7 +233,7 @@ private fun ReceivedChallengeCardActionsDisabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             ReceivedChallengeCard(

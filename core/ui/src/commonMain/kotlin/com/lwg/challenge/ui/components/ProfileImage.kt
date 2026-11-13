@@ -32,9 +32,9 @@ fun ProfileImage(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp,
     shape: Shape = RoundedCornerShape(12.dp),
-    backgroundColor: Color = ChallengeTheme.colorScheme.secondary,
+    backgroundColor: Color = ChallengeTheme.colorScheme.background.field,
     textStyle: TextStyle = ChallengeTheme.typography.medium20,
-    textColor: Color = ChallengeTheme.colorScheme.onSurface,
+    textColor: Color = ChallengeTheme.colorScheme.text.primary,
 ) {
     Box(
         modifier = modifier
@@ -76,7 +76,7 @@ private fun ProfileImagePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ProfileImage(imageUrl = null, nickname = "우건")
@@ -90,7 +90,7 @@ private fun ProfileImageVariantsPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -108,7 +108,7 @@ private fun ProfileImageBlankNicknamePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ProfileImage(imageUrl = null, nickname = "   ")
@@ -123,7 +123,7 @@ private fun ProfileImageWithUrlPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ProfileImage(imageUrl = "https://k.kakaocdn.net/dn/sample/img_640x640.jpg", nickname = "우건")

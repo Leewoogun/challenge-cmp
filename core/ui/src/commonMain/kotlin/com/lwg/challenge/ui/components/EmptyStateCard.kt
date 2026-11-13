@@ -53,13 +53,13 @@ fun EmptyStateCard(
     ctaIcon: ImageVector = Icons.Filled.PersonAdd,
     inviteIcon: ImageVector = Icons.AutoMirrored.Filled.Send,
 ) {
-    val primary = ChallengeTheme.colorScheme.primary
+    val primary = ChallengeTheme.colorScheme.point
 
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Column(
             modifier = Modifier
@@ -87,7 +87,7 @@ fun EmptyStateCard(
             Text(
                 text = title,
                 style = ChallengeTheme.typography.bold16,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
 
             VerticalSpacer(4.dp)
@@ -95,7 +95,7 @@ fun EmptyStateCard(
             Text(
                 text = subtitle,
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
 
             VerticalSpacer(20.dp)
@@ -128,7 +128,7 @@ private fun EmptyStateCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             EmptyStateCard(
@@ -148,7 +148,7 @@ private fun EmptyStateCardWithInvitePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             EmptyStateCard(

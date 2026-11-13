@@ -87,7 +87,7 @@ internal fun FriendPickScreen(
 @Composable
 private fun FriendPickScreenDataPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             FriendPickScreen(
                 uiState = previewState(
                     friends = listOf(previewFriend(1, "우건"), previewFriend(2, "도전왕")),
@@ -105,7 +105,7 @@ private fun FriendPickScreenDataPreview() {
 @Composable
 private fun FriendPickScreenEmptyPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             FriendPickScreen(
                 uiState = previewState(friends = emptyList()),
                 onSelectFriend = {},
@@ -120,7 +120,7 @@ private fun FriendPickScreenEmptyPreview() {
 @Composable
 private fun FriendPickScreenLoadFailedPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             FriendPickScreen(
                 uiState = previewState(friends = emptyList(), loadFailed = true),
                 onSelectFriend = {},

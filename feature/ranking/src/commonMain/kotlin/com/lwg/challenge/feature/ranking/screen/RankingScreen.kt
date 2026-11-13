@@ -86,7 +86,7 @@ private fun previewData(
 @Composable
 private fun RankingScreenPreviewBox(content: @Composable () -> Unit) {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             content()
         }
     }
@@ -167,7 +167,7 @@ private fun RankingScreenLargeFontScalePreview() {
         CompositionLocalProvider(
             LocalDensity provides Density(density = density.density, fontScale = 1.3f),
         ) {
-            Column(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+            Column(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
                 RankingTopBar()
                 RankingScreen(uiState = previewData(), onClickAddFriend = {})
             }

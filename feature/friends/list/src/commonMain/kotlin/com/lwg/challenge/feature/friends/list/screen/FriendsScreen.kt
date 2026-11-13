@@ -63,7 +63,7 @@ internal fun FriendsScreen(
 @Composable
 private fun FriendsScreenFriendsOnlyPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             FriendsScreen(
                 uiState = FriendsUiState.Data(
                     receivedRequests = emptyList(),
@@ -82,7 +82,7 @@ private fun FriendsScreenFriendsOnlyPreview() {
 @Composable
 private fun FriendsScreenRequestsAndFriendsPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             FriendsScreen(
                 uiState = FriendsUiState.Data(
                     receivedRequests = previewRequests(),

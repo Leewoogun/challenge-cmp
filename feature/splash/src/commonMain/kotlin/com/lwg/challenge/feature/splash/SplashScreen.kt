@@ -32,10 +32,10 @@ internal fun SplashScreen() {
             Text(
                 text = "맹세",
                 style = ChallengeTheme.typography.bold48,
-                color = ChallengeTheme.colorScheme.onPrimary,
+                color = ChallengeTheme.colorScheme.text.onPoint,
             )
             VerticalSpacer(24.dp)
-            CircularProgressIndicator(color = ChallengeTheme.colorScheme.onPrimary)
+            CircularProgressIndicator(color = ChallengeTheme.colorScheme.text.onPoint)
         }
     }
 }

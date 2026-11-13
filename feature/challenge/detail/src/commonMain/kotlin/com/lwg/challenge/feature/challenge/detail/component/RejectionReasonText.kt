@@ -23,7 +23,7 @@ internal fun RejectionReasonText(
         text = text,
         modifier = modifier,
         style = ChallengeTheme.typography.medium12,
-        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+        color = ChallengeTheme.colorScheme.text.secondary,
     )
 }
 
@@ -54,7 +54,7 @@ private fun RejectionReasonTextPreviewContainer(content: @Composable () -> Unit)
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             content()

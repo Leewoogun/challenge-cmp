@@ -25,7 +25,7 @@ internal fun RankingNumberLabel(
         color = when (rank) {
             1 -> ChallengeTheme.colorScheme.error
             3 -> ChallengeTheme.colorScheme.warning
-            else -> ChallengeTheme.colorScheme.onSurfaceVariant
+            else -> ChallengeTheme.colorScheme.text.secondary
         },
         textAlign = TextAlign.Center,
         modifier = modifier.width(28.dp),
@@ -38,7 +38,7 @@ private fun RankingNumberLabelPreview() {
     ChallengeTheme {
         Row(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {

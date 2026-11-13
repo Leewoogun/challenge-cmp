@@ -18,7 +18,7 @@ internal fun RankingSubtitle(
     Text(
         text = "패배의 왕좌 — 많이 진 놈이 대장",
         style = ChallengeTheme.typography.medium12,
-        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+        color = ChallengeTheme.colorScheme.text.secondary,
         modifier = modifier,
     )
 }
@@ -29,7 +29,7 @@ private fun RankingSubtitlePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             RankingSubtitle()

@@ -38,7 +38,7 @@ internal fun ArchiveNoArchiveEver(onCreateChallengeClick: () -> Unit) {
 @Composable
 private fun ArchiveNoArchiveEverPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ArchiveNoArchiveEver(onCreateChallengeClick = {})
         }
     }

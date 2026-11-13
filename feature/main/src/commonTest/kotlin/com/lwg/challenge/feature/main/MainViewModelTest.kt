@@ -1,7 +1,9 @@
 package com.lwg.challenge.feature.main
 
 import app.cash.turbine.test
+import com.lwg.challenge.domain.model.ThemeMode
 import com.lwg.challenge.domain.usecase.LogoutUseCase
+import com.lwg.challenge.domain.usecase.ObserveThemeModeUseCase
 import com.lwg.challenge.feature.main.contract.MainUiEffect
 import com.lwg.challenge.navigation.Route
 import com.lwg.challenge.push.PushEvent
@@ -17,7 +19,9 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
@@ -27,6 +31,7 @@ class MainViewModelTest {
     private lateinit var fakeLoginRepository: FakeLoginRepository
     private lateinit var fakeUserInfoRepository: FakeUserInfoRepository
     private lateinit var fakePermissionManager: FakePermissionManager
+    private lateinit var fakeThemeRepository: FakeThemeRepository
 
     @BeforeTest
     fun setup() {
@@ -36,6 +41,7 @@ class MainViewModelTest {
         fakeLoginRepository = FakeLoginRepository()
         fakeUserInfoRepository = FakeUserInfoRepository()
         fakePermissionManager = FakePermissionManager()
+        fakeThemeRepository = FakeThemeRepository()
     }
 
     @AfterTest
@@ -49,6 +55,7 @@ class MainViewModelTest {
             pushEventBus = pushEventBus,
             logoutUseCase = LogoutUseCase(fakeLoginRepository, fakeUserInfoRepository),
             permissionManager = fakePermissionManager,
+            observeThemeModeUseCase = ObserveThemeModeUseCase(fakeThemeRepository),
         )
     }
 
@@ -213,5 +220,21 @@ class MainViewModelTest {
 
             assertEquals(MainUiEffect.NavigateToPush(Route.Challenge.Detail(7L)), awaitItem())
         }
+    }
+
+    @Test
+    fun `저장된 테마가 없으면 다크로 그린다`() = runTest {
+        val viewModel = createViewModel()
+
+        assertTrue(viewModel.isDarkTheme.value)
+    }
+
+    @Test
+    fun `라이트로 저장하면 라이트 테마로 바뀐다`() = runTest {
+        val viewModel = createViewModel()
+
+        fakeThemeRepository.saveThemeMode(ThemeMode.LIGHT)
+
+        assertFalse(viewModel.isDarkTheme.value)
     }
 }

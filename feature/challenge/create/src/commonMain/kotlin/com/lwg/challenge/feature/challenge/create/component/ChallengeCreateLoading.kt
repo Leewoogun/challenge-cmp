@@ -25,7 +25,7 @@ internal fun ChallengeCreateLoading(
             .then(
                 if (overlay) {
                     Modifier
-                        .background(ChallengeTheme.colorScheme.background.copy(alpha = 0.6f))
+                        .background(ChallengeTheme.colorScheme.background.screen.copy(alpha = 0.6f))
                         .pointerInput(Unit) {
                             awaitPointerEventScope {
                                 while (true) {
@@ -39,7 +39,7 @@ internal fun ChallengeCreateLoading(
             ),
         contentAlignment = Alignment.Center,
     ) {
-        CircularProgressIndicator(color = ChallengeTheme.colorScheme.primary)
+        CircularProgressIndicator(color = ChallengeTheme.colorScheme.point)
     }
 }
 
@@ -47,7 +47,7 @@ internal fun ChallengeCreateLoading(
 @Composable
 private fun ChallengeCreateLoadingOverlayPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ChallengeCreateLoading(overlay = true)
         }
     }

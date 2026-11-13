@@ -50,8 +50,8 @@ internal fun VsHeaderCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(
@@ -92,7 +92,7 @@ internal fun VsHeaderCard(
                     text = forfeitText,
                     modifier = Modifier.fillMaxWidth(),
                     style = ChallengeTheme.typography.medium12,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -113,7 +113,7 @@ private fun headlineVisualOf(tone: HeadlineTone): HeadlineVisual = when (tone) {
     )
 
     HeadlineTone.NEUTRAL -> HeadlineVisual(
-        accent = ChallengeTheme.colorScheme.onSurfaceVariant,
+        accent = ChallengeTheme.colorScheme.text.secondary,
         icon = Icons.Filled.Schedule,
     )
 
@@ -144,7 +144,7 @@ private fun PartyColumn(nickname: String, profileImageUrl: String?) {
         Text(
             text = nickname,
             style = ChallengeTheme.typography.bold14,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -159,7 +159,7 @@ private fun VsColumn() {
             imageVector = Icons.Filled.LocalFireDepartment,
             contentDescription = null,
             modifier = Modifier.size(28.dp),
-            tint = ChallengeTheme.colorScheme.primary,
+            tint = ChallengeTheme.colorScheme.icon.point,
         )
 
         VerticalSpacer(4.dp)
@@ -167,7 +167,7 @@ private fun VsColumn() {
         Text(
             text = "VS",
             style = ChallengeTheme.typography.bold12,
-            color = ChallengeTheme.colorScheme.primary,
+            color = ChallengeTheme.colorScheme.text.point,
         )
     }
 }
@@ -269,7 +269,7 @@ private fun VsHeaderCardPreviewContainer(content: @Composable () -> Unit) {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             content()

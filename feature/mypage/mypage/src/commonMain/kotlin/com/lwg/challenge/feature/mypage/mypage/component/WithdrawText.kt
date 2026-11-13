@@ -25,7 +25,7 @@ internal fun WithdrawText(
         Text(
             text = "회원 탈퇴",
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
     }
 }
@@ -36,7 +36,7 @@ private fun WithdrawTextPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             WithdrawText(onClick = {})

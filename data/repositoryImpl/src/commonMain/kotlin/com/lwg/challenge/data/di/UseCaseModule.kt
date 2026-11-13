@@ -6,6 +6,7 @@ import com.lwg.challenge.domain.repository.FriendsRepository
 import com.lwg.challenge.domain.repository.LoginRepository
 import com.lwg.challenge.domain.repository.NotificationRepository
 import com.lwg.challenge.domain.repository.RecordRepository
+import com.lwg.challenge.domain.repository.ThemeRepository
 import com.lwg.challenge.domain.repository.UserInfoRepository
 import com.lwg.challenge.domain.repository.VerificationRepository
 import com.lwg.challenge.domain.repository.WithdrawRepository
@@ -20,6 +21,8 @@ import com.lwg.challenge.domain.usecase.GetStoredTokensUseCase
 import com.lwg.challenge.domain.usecase.LoginWithKakaoUseCase
 import com.lwg.challenge.domain.usecase.LoginWithTestAccountUseCase
 import com.lwg.challenge.domain.usecase.LogoutUseCase
+import com.lwg.challenge.domain.usecase.ObserveThemeModeUseCase
+import com.lwg.challenge.domain.usecase.UpdateThemeModeUseCase
 import com.lwg.challenge.domain.usecase.WithdrawUseCase
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
@@ -110,4 +113,14 @@ class UseCaseModule {
         withdrawRepository: WithdrawRepository,
         logoutUseCase: LogoutUseCase,
     ): WithdrawUseCase = WithdrawUseCase(withdrawRepository, logoutUseCase)
+
+    @Factory
+    fun provideObserveThemeModeUseCase(
+        themeRepository: ThemeRepository,
+    ): ObserveThemeModeUseCase = ObserveThemeModeUseCase(themeRepository)
+
+    @Factory
+    fun provideUpdateThemeModeUseCase(
+        themeRepository: ThemeRepository,
+    ): UpdateThemeModeUseCase = UpdateThemeModeUseCase(themeRepository)
 }

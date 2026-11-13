@@ -2,7 +2,10 @@ package com.lwg.challenge.feature.mypage.mypage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lwg.challenge.domain.model.ThemeMode
 import com.lwg.challenge.domain.usecase.GetMyPageDataUseCase
+import com.lwg.challenge.domain.usecase.ObserveThemeModeUseCase
+import com.lwg.challenge.domain.usecase.UpdateThemeModeUseCase
 import com.lwg.challenge.domain.usecase.WithdrawUseCase
 import com.lwg.challenge.feature.mypage.mypage.contract.MyPageModalEffect
 import com.lwg.challenge.feature.mypage.mypage.contract.MyPageUiEffect
@@ -24,6 +27,8 @@ import org.koin.android.annotation.KoinViewModel
 class MyPageViewModel(
     getMyPageDataUseCase: GetMyPageDataUseCase,
     private val withdrawUseCase: WithdrawUseCase,
+    observeThemeModeUseCase: ObserveThemeModeUseCase,
+    private val updateThemeModeUseCase: UpdateThemeModeUseCase,
 ) : ViewModel() {
 
     private val _modalEffect = MutableStateFlow<MyPageModalEffect>(MyPageModalEffect.Hidden)
@@ -38,11 +43,13 @@ class MyPageViewModel(
     val uiState: TriggerStateFlow<MyPageUiState> = combine(
         getMyPageDataUseCase(::showMessage),
         _isWithdrawing,
-    ) { data, isWithdrawing ->
+        observeThemeModeUseCase(),
+    ) { data, isWithdrawing, themeMode ->
         MyPageUiState.Data(
             record = data.record,
             userInfo = data.userInfo,
             isWithdrawing = isWithdrawing,
+            themeMode = themeMode,
         )
     }.triggerStateIn(
         scope = viewModelScope,
@@ -70,6 +77,12 @@ class MyPageViewModel(
                     showMessage(message)
                 },
             )
+        }
+    }
+
+    fun selectThemeMode(themeMode: ThemeMode) {
+        viewModelScope.launch {
+            updateThemeModeUseCase(themeMode)
         }
     }
 

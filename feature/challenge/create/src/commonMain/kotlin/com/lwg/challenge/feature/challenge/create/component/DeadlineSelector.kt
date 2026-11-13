@@ -42,7 +42,7 @@ internal fun DeadlineSelector(
         Text(
             text = "마감",
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
 
         VerticalSpacer(6.dp)
@@ -72,7 +72,7 @@ internal fun DeadlineSelector(
         Text(
             text = "선택한 자정까지가 챌린지 기간이야",
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
         )
     }
 }
@@ -83,7 +83,7 @@ private fun DeadlineSelectorTodayPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             DeadlineSelector(
@@ -102,7 +102,7 @@ private fun DeadlineSelectorTomorrowPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             DeadlineSelector(
@@ -121,7 +121,7 @@ private fun DeadlineSelectorDisabledPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             DeadlineSelector(

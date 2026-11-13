@@ -35,30 +35,30 @@ fun ConfirmDialog(
     val confirmColor = if (destructive) {
         ChallengeTheme.colorScheme.error
     } else {
-        ChallengeTheme.colorScheme.primary
+        ChallengeTheme.colorScheme.point
     }
     val dismissColor = if (destructive) {
-        ChallengeTheme.colorScheme.primary
+        ChallengeTheme.colorScheme.point
     } else {
-        ChallengeTheme.colorScheme.onSurfaceVariant
+        ChallengeTheme.colorScheme.text.secondary
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
-        containerColor = ChallengeTheme.colorScheme.background,
+        containerColor = ChallengeTheme.colorScheme.background.screen,
         title = {
             Text(
                 text = title,
                 style = ChallengeTheme.typography.bold18,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
         },
         text = {
             Text(
                 text = message,
                 style = ChallengeTheme.typography.medium14,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
         },
         confirmButton = {
@@ -88,7 +88,7 @@ private fun ConfirmDialogDestructivePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ConfirmDialog(
@@ -111,7 +111,7 @@ private fun ConfirmDialogPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ConfirmDialog(

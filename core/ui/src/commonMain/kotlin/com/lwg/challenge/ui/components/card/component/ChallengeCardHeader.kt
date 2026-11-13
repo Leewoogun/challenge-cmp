@@ -51,7 +51,7 @@ fun ChallengeCardHeader(
                 imageVector = Icons.Filled.LocalFireDepartment,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
-                tint = ChallengeTheme.colorScheme.primary,
+                tint = ChallengeTheme.colorScheme.icon.point,
             )
             // 닉네임만 줄인다. 날짜와 결과는 카드의 핵심 정보라 밀려나면 안 된다.
             CaptionText(
@@ -116,7 +116,7 @@ private fun CaptionText(
         text = text,
         modifier = modifier,
         style = ChallengeTheme.typography.medium12,
-        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+        color = ChallengeTheme.colorScheme.text.secondary,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )
@@ -128,7 +128,7 @@ private fun ChallengeCardHeaderPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.surface)
+                .background(ChallengeTheme.colorScheme.background.card)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {

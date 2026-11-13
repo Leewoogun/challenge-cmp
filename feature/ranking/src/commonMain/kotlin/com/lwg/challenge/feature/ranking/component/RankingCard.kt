@@ -35,8 +35,8 @@ internal fun RankingCard(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Row(
             modifier = Modifier
@@ -54,7 +54,7 @@ internal fun RankingCard(
                 pedestalHeight = 64.dp,
                 pedestalIcon = Icons.Filled.MilitaryTech,
                 pedestalIconSize = 20.dp,
-                pedestalIconTint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                pedestalIconTint = ChallengeTheme.colorScheme.icon.secondary,
             )
 
             RankingColumn(
@@ -67,7 +67,7 @@ internal fun RankingCard(
                 pedestalIcon = Icons.Filled.LocalFireDepartment,
                 pedestalIconSize = 24.dp,
                 // 알파를 받침대 전체에 걸면 20% 배경이 8% 가 되어 안 보여 아이콘에만 건다.
-                pedestalIconTint = ChallengeTheme.colorScheme.primary.copy(alpha = 0.40f),
+                pedestalIconTint = ChallengeTheme.colorScheme.icon.point.copy(alpha = 0.40f),
                 showCrown = true,
                 avatarBrush = ChallengeTheme.brushes.fire,
                 pedestalBrush = ChallengeTheme.brushes.fire,
@@ -83,7 +83,7 @@ internal fun RankingCard(
                 pedestalHeight = 48.dp,
                 pedestalIcon = Icons.Filled.MilitaryTech,
                 pedestalIconSize = 18.dp,
-                pedestalIconTint = ChallengeTheme.colorScheme.onSurfaceVariant,
+                pedestalIconTint = ChallengeTheme.colorScheme.icon.secondary,
             )
         }
     }
@@ -106,7 +106,7 @@ private fun RankingCardPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             PreviewRankingCard()
@@ -121,7 +121,7 @@ private fun RankingCardFirstWithStreakPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             PreviewRankingCard(firstStreak = 7)
@@ -135,7 +135,7 @@ private fun RankingCardLongNicknamePreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             PreviewRankingCard(longFirstNickname = true)

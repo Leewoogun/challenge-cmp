@@ -18,19 +18,19 @@ internal fun CameraPermissionDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
-        containerColor = ChallengeTheme.colorScheme.background,
+        containerColor = ChallengeTheme.colorScheme.background.screen,
         title = {
             Text(
                 text = "카메라 권한이 필요해요",
                 style = ChallengeTheme.typography.bold18,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
         },
         text = {
             Text(
                 text = "인증 사진은 실시간 촬영으로만 올릴 수 있어요. 설정에서 카메라 권한을 허용해주세요.",
                 style = ChallengeTheme.typography.medium14,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
         },
         confirmButton = {
@@ -38,7 +38,7 @@ internal fun CameraPermissionDialog(
                 Text(
                     text = "설정으로 이동",
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.primary,
+                    color = ChallengeTheme.colorScheme.text.point,
                 )
             }
         },
@@ -47,7 +47,7 @@ internal fun CameraPermissionDialog(
                 Text(
                     text = "닫기",
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                 )
             }
         },

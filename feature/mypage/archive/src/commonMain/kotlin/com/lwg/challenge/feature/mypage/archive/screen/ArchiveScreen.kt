@@ -116,7 +116,7 @@ private fun previewData(
 @Composable
 private fun ArchiveScreenPreviewContainer(uiState: ArchiveUiState.Data) {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ArchiveScreen(
                 uiState = uiState,
                 onPreviousMonthClick = {},

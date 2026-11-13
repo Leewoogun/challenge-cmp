@@ -38,12 +38,12 @@ fun ChallengeCardMissionRow(
             Text(
                 text = label,
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
             Text(
                 text = mission,
                 style = if (isMine) ChallengeTheme.typography.bold14 else ChallengeTheme.typography.medium14,
-                color = if (isMine) ChallengeTheme.colorScheme.onBackground else ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = if (isMine) ChallengeTheme.colorScheme.text.primary else ChallengeTheme.colorScheme.text.secondary,
             )
         }
 
@@ -81,7 +81,7 @@ private fun ChallengeCardMissionRowPreview() {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.surface)
+                .background(ChallengeTheme.colorScheme.background.card)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {

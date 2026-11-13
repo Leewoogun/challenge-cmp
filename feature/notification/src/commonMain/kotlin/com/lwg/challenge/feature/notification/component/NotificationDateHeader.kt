@@ -29,7 +29,7 @@ internal fun NotificationDateHeader(
             .padding(horizontal = 24.dp)
             .padding(bottom = 8.dp),
         style = ChallengeTheme.typography.bold14,
-        color = ChallengeTheme.colorScheme.onBackground,
+        color = ChallengeTheme.colorScheme.text.primary,
     )
 }
 
@@ -37,7 +37,7 @@ internal fun NotificationDateHeader(
 @Composable
 private fun NotificationDateHeaderPreview() {
     ChallengeTheme {
-        Column(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Column(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             NotificationDateHeader(label = "오늘")
             NotificationDateHeader(label = "어제", modifier = Modifier.padding(top = 16.dp))
             NotificationDateHeader(label = "8월 28일", modifier = Modifier.padding(top = 16.dp))

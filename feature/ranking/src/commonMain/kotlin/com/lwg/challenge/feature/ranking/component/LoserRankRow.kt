@@ -38,16 +38,16 @@ internal fun LoserRankRow(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = if (entry.isMe) {
-            ChallengeTheme.colorScheme.surfaceVariant
+            ChallengeTheme.colorScheme.background.cardSub
         } else {
-            ChallengeTheme.colorScheme.surface
+            ChallengeTheme.colorScheme.background.card
         },
         border = BorderStroke(
             width = 1.dp,
             color = if (entry.isTopThree) {
                 ChallengeTheme.colorScheme.error.copy(alpha = 0.20f)
             } else {
-                ChallengeTheme.colorScheme.outline
+                ChallengeTheme.colorScheme.line.divider
             },
         ),
     ) {
@@ -70,14 +70,14 @@ internal fun LoserRankRow(
                 Text(
                     text = entry.displayName,
                     style = ChallengeTheme.typography.bold14,
-                    color = ChallengeTheme.colorScheme.onBackground,
+                    color = ChallengeTheme.colorScheme.text.primary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = entry.listCaption,
                     style = ChallengeTheme.typography.medium10,
-                    color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                    color = ChallengeTheme.colorScheme.text.secondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = 2.dp),
@@ -109,7 +109,7 @@ private fun LoserRankRowPreviewBox(content: @Composable () -> Unit) {
     ChallengeTheme {
         Column(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {

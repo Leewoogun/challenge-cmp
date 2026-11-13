@@ -46,7 +46,7 @@ internal fun FriendsSearchScreen(
 @Composable
 private fun FriendsSearchScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             FriendsSearchScreen(
                 uiState = FriendsSearchUiState.Result(
                     items = listOf(

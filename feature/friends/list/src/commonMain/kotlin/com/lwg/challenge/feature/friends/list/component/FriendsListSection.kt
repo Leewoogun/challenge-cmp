@@ -28,7 +28,7 @@ internal fun FriendsListSection(
         Text(
             text = "친구 ${friends.size}명",
             style = ChallengeTheme.typography.bold14,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
 
         friends.forEach { friend ->
@@ -46,7 +46,7 @@ private fun FriendsListSectionPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(20.dp),
         ) {
             FriendsListSection(

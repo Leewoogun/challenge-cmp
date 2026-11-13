@@ -38,7 +38,7 @@ internal fun ArchiveErrorScreen(onRetryClick: () -> Unit) {
 @Composable
 private fun ArchiveErrorScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             ArchiveErrorScreen(onRetryClick = {})
         }
     }

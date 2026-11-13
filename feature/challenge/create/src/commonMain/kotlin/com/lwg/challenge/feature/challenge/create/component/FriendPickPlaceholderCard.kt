@@ -36,13 +36,13 @@ internal fun FriendPickPlaceholderCard(
     onClickCta: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val primary = ChallengeTheme.colorScheme.primary
+    val primary = ChallengeTheme.colorScheme.point
 
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = ChallengeTheme.colorScheme.surface,
-        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.outline),
+        color = ChallengeTheme.colorScheme.background.card,
+        border = BorderStroke(width = 1.dp, color = ChallengeTheme.colorScheme.line.border),
     ) {
         Column(
             modifier = Modifier
@@ -70,7 +70,7 @@ internal fun FriendPickPlaceholderCard(
             Text(
                 text = title,
                 style = ChallengeTheme.typography.bold16,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
 
             VerticalSpacer(4.dp)
@@ -78,7 +78,7 @@ internal fun FriendPickPlaceholderCard(
             Text(
                 text = subtitle,
                 style = ChallengeTheme.typography.medium12,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
 
             VerticalSpacer(20.dp)
@@ -99,7 +99,7 @@ private fun FriendPickPlaceholderCardEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             FriendPickPlaceholderCard(
@@ -119,7 +119,7 @@ private fun FriendPickPlaceholderCardErrorPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             FriendPickPlaceholderCard(

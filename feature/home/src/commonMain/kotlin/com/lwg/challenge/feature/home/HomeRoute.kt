@@ -61,7 +61,7 @@ private fun HomeContent(
     onRejectClick: (ReceivedChallenge) -> Unit,
 ) {
     ChallengeScaffold(
-        statusBarColor = ChallengeTheme.colorScheme.surface,
+        statusBarColor = ChallengeTheme.colorScheme.background.card,
         topBar = {
             HomeTopBar(
                 hasUnreadNotification = uiState.hasUnreadNotification,

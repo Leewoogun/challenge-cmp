@@ -56,14 +56,14 @@ internal fun ChallengeSection() {
                     Text(
                         text = "말만 번지르르한 친구에게 던지는",
                         style = ChallengeTheme.typography.light14,
-                        color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                        color = ChallengeTheme.colorScheme.text.secondary,
                         textAlign = TextAlign.Center,
                     )
                     VerticalSpacer(height = 2.dp)
                     Text(
                         text = "피할 수 없는 1:1 도전장",
                         style = ChallengeTheme.typography.bold14,
-                        color = ChallengeTheme.colorScheme.onBackground,
+                        color = ChallengeTheme.colorScheme.text.primary,
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -78,7 +78,7 @@ private fun ChallengeSectionPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             ChallengeSection()

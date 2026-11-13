@@ -18,19 +18,19 @@ internal fun ExitConfirmDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
-        containerColor = ChallengeTheme.colorScheme.background,
+        containerColor = ChallengeTheme.colorScheme.background.screen,
         title = {
             Text(
                 text = "작성 중인 내용이 사라져요",
                 style = ChallengeTheme.typography.bold18,
-                color = ChallengeTheme.colorScheme.onBackground,
+                color = ChallengeTheme.colorScheme.text.primary,
             )
         },
         text = {
             Text(
                 text = "맹세를 마치지 않고 나가면 입력한 미션과 서명이 저장되지 않아요.",
                 style = ChallengeTheme.typography.medium14,
-                color = ChallengeTheme.colorScheme.onSurfaceVariant,
+                color = ChallengeTheme.colorScheme.text.secondary,
             )
         },
         confirmButton = {
@@ -47,7 +47,7 @@ internal fun ExitConfirmDialog(
                 Text(
                     text = "계속 작성",
                     style = ChallengeTheme.typography.medium14,
-                    color = ChallengeTheme.colorScheme.primary,
+                    color = ChallengeTheme.colorScheme.text.point,
                 )
             }
         },

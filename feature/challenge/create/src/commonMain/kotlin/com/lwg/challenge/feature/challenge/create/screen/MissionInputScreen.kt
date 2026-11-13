@@ -91,7 +91,7 @@ internal fun MissionInputScreen(
 @Composable
 private fun MissionInputScreenEmptyPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             MissionInputScreen(
                 uiState = previewState(),
                 onMyMissionChange = {},
@@ -107,7 +107,7 @@ private fun MissionInputScreenEmptyPreview() {
 @Composable
 private fun MissionInputScreenFilledPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             MissionInputScreen(
                 uiState = previewState(
                     myMission = "오늘 운동 1시간 하기",

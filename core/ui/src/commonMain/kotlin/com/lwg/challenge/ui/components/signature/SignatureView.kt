@@ -19,7 +19,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun SignatureView(
     signature: Signature,
     modifier: Modifier = Modifier,
-    strokeColor: Color = ChallengeTheme.colorScheme.primary,
+    strokeColor: Color = ChallengeTheme.colorScheme.point,
 ) {
     Canvas(modifier = modifier.aspectRatio(SIGNATURE_ASPECT_RATIO)) {
         drawSignature(signature, strokeColor)
@@ -32,7 +32,7 @@ private fun SignatureViewPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureView(
@@ -49,7 +49,7 @@ private fun SignatureViewHalfWidthPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureView(
@@ -66,7 +66,7 @@ private fun SignatureViewEmptyPreview() {
     ChallengeTheme {
         Box(
             modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background)
+                .background(ChallengeTheme.colorScheme.background.screen)
                 .padding(24.dp),
         ) {
             SignatureView(

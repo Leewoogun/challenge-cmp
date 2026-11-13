@@ -46,7 +46,7 @@ private fun BackgroundDecorPreview() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(ChallengeTheme.colorScheme.background),
+                .background(ChallengeTheme.colorScheme.background.screen),
         ) {
             BackgroundDecor()
         }

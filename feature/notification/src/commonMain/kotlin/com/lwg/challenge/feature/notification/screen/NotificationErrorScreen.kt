@@ -39,7 +39,7 @@ internal fun NotificationErrorScreen(onRetryClick: () -> Unit) {
 @Composable
 private fun NotificationErrorScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             NotificationErrorScreen(onRetryClick = {})
         }
     }

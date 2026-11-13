@@ -39,7 +39,7 @@ internal fun VerifyCaptureScreen(
             imageVector = Icons.Filled.PhotoCamera,
             contentDescription = null,
             modifier = Modifier.size(64.dp),
-            tint = ChallengeTheme.colorScheme.primary,
+            tint = ChallengeTheme.colorScheme.icon.point,
         )
 
         VerticalSpacer(20.dp)
@@ -47,7 +47,7 @@ internal fun VerifyCaptureScreen(
         Text(
             text = "오늘의 미션을 인증해요",
             style = ChallengeTheme.typography.bold20,
-            color = ChallengeTheme.colorScheme.onBackground,
+            color = ChallengeTheme.colorScheme.text.primary,
         )
 
         VerticalSpacer(8.dp)
@@ -55,7 +55,7 @@ internal fun VerifyCaptureScreen(
         Text(
             text = "인증 사진은 실시간 촬영으로만 올릴 수 있어요.\n촬영한 사진을 확인한 뒤 제출을 확정해요.",
             style = ChallengeTheme.typography.medium14,
-            color = ChallengeTheme.colorScheme.onSurfaceVariant,
+            color = ChallengeTheme.colorScheme.text.secondary,
             textAlign = TextAlign.Center,
         )
 
@@ -65,8 +65,8 @@ internal fun VerifyCaptureScreen(
             text = "촬영하기",
             onClick = onCaptureClick,
             modifier = Modifier.fillMaxWidth(),
-            containerColor = ChallengeTheme.colorScheme.primary,
-            contentColor = ChallengeTheme.colorScheme.onPrimary,
+            containerColor = ChallengeTheme.colorScheme.button.background,
+            contentColor = ChallengeTheme.colorScheme.button.text,
             textStyle = ChallengeTheme.typography.bold16,
         )
     }
@@ -76,7 +76,7 @@ internal fun VerifyCaptureScreen(
 @Composable
 private fun VerifyCaptureScreenPreview() {
     ChallengeTheme {
-        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(ChallengeTheme.colorScheme.background.screen)) {
             VerifyCaptureScreen(onCaptureClick = {})
         }
     }
