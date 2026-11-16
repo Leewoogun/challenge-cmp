@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SportsKabaddi
 import androidx.compose.runtime.Composable
@@ -16,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
+import com.lwg.challenge.designsystem.components.ChallengeToolTip
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.ui.components.LabeledInputField
@@ -54,25 +54,21 @@ internal fun MissionInputScreen(
         VerticalSpacer(24.dp)
 
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Column {
-                LabeledInputField(
-                    label = "나의 미션",
-                    value = uiState.myMission,
-                    onValueChange = onMyMissionChange,
-                    placeholder = "예) 오늘 운동 1시간 하기",
-                    counterText = uiState.myMissionCounterText,
-                    counterAtMax = uiState.isMyMissionAtMax,
-                    imeAction = ImeAction.Next,
-                )
-
-                VerticalSpacer(6.dp)
-
-                Text(
-                    text = "사진으로 인증할 수 있는 미션을 적어줘",
-                    style = ChallengeTheme.typography.medium12,
-                    color = ChallengeTheme.colorScheme.text.secondary,
-                )
-            }
+            LabeledInputField(
+                label = "나의 미션",
+                value = uiState.myMission,
+                onValueChange = onMyMissionChange,
+                placeholder = "예) 오늘 운동 1시간 하기",
+                counterText = uiState.myMissionCounterText,
+                counterAtMax = uiState.isMyMissionAtMax,
+                imeAction = ImeAction.Next,
+                labelEndContent = {
+                    ChallengeToolTip(
+                        title = "사진으로 인증할 수 있는 미션을 적어줘",
+                        text = "금연·금주처럼 안 하는 것을 지키는 미션은 사진으로 증명할 수 없어",
+                    )
+                },
+            )
 
             LabeledInputField(
                 label = "내기 (진 사람이 해야 할 것)",

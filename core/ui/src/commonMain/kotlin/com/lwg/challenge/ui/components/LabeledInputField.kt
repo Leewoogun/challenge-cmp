@@ -1,19 +1,23 @@
 package com.lwg.challenge.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeInputField
+import com.lwg.challenge.designsystem.components.ChallengeToolTip
 import com.lwg.challenge.designsystem.components.InputFieldType
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.preview.ThemePreviews
@@ -36,13 +40,21 @@ fun LabeledInputField(
     imeAction: ImeAction = ImeAction.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     focusRequester: FocusRequester? = null,
+    labelEndContent: @Composable (() -> Unit)? = null,
 ) {
     Column(modifier = modifier) {
-        Text(
-            text = label,
-            style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.text.secondary,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                text = label,
+                style = ChallengeTheme.typography.medium12,
+                color = ChallengeTheme.colorScheme.text.secondary,
+            )
+
+            labelEndContent?.invoke()
+        }
 
         VerticalSpacer(6.dp)
 
@@ -152,6 +164,29 @@ private fun LabeledInputFieldNoCounterPreview() {
                 label = "닉네임",
                 value = "우건",
                 onValueChange = {},
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun LabeledInputFieldWithToolTipPreview() {
+    ChallengeTheme {
+        Box(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background.screen)
+                .padding(24.dp),
+        ) {
+            LabeledInputField(
+                label = "나의 미션",
+                value = "",
+                onValueChange = {},
+                placeholder = "예) 오늘 운동 1시간 하기",
+                counterText = "0/100",
+                labelEndContent = {
+                    ChallengeToolTip(text = "사진으로 인증할 수 있는 미션을 적어줘")
+                },
             )
         }
     }
