@@ -2,9 +2,13 @@ package com.lwg.challenge.remote.datasource
 
 import com.lwg.challenge.data.datasource.remote.FriendsRemoteDataSource
 import com.lwg.challenge.domain.model.friend.Friend
+import com.lwg.challenge.domain.model.friend.FriendChallengePage
+import com.lwg.challenge.domain.model.friend.FriendRecord
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.remote.api.FriendsApi
+import com.lwg.challenge.remote.mapper.toFriendChallengePage
+import com.lwg.challenge.remote.mapper.toFriendRecord
 import com.lwg.challenge.remote.mapper.toFriendRequests
 import com.lwg.challenge.remote.mapper.toFriends
 import com.lwg.challenge.remote.mapper.toUserSearchResults
@@ -82,6 +86,26 @@ class FriendsRemoteDataSourceImpl(
     ) {
         friendsApi.cancelRequest(requestId)
             .suspendOnSuccess { onSuccess() }
+            .suspendOnFailureWithErrorHandling(onError)
+    }
+
+    override fun getFriendRecord(
+        friendId: Long,
+        onError: (String) -> Unit,
+    ): Flow<FriendRecord> = flow {
+        friendsApi.getFriendRecord(friendId)
+            .suspendOnSuccess { this@flow.emit(response.toFriendRecord()) }
+            .suspendOnFailureWithErrorHandling(onError)
+    }
+
+    override fun getFriendChallenges(
+        friendId: Long,
+        nextChallengeId: Long?,
+        size: Int,
+        onError: (String) -> Unit,
+    ): Flow<FriendChallengePage> = flow {
+        friendsApi.getFriendChallenges(friendId = friendId, nextChallengeId = nextChallengeId, size = size)
+            .suspendOnSuccess { this@flow.emit(response.toFriendChallengePage()) }
             .suspendOnFailureWithErrorHandling(onError)
     }
 }

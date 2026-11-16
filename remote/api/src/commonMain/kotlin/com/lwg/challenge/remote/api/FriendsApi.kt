@@ -2,6 +2,8 @@ package com.lwg.challenge.remote.api
 
 import com.lwg.challenge.remote.model.friend.AcceptFriendRequestResponse
 import com.lwg.challenge.remote.model.friend.CancelFriendRequestResponse
+import com.lwg.challenge.remote.model.friend.FriendChallengesResponse
+import com.lwg.challenge.remote.model.friend.FriendRecordResponse
 import com.lwg.challenge.remote.model.friend.FriendsResponse
 import com.lwg.challenge.remote.model.friend.ReceivedFriendRequestsResponse
 import com.lwg.challenge.remote.model.friend.RejectFriendRequestResponse
@@ -58,4 +60,23 @@ interface FriendsApi {
     /** GET /api/v1/friends/requests/received — 받은 요청 목록 (PENDING). `created_at DESC`. */
     @GET("api/v1/friends/requests/received")
     suspend fun getReceivedRequestList(): ApiResult<ReceivedFriendRequestsResponse>
+
+    /** GET /api/v1/friends/{friendId}/record — 이 친구와의 스코어 + 진행 중 챌린지(`deadline ASC`). */
+    @GET("api/v1/friends/{friendId}/record")
+    suspend fun getFriendRecord(
+        @Path("friendId") friendId: Long,
+    ): ApiResult<FriendRecordResponse>
+
+    /**
+     * GET /api/v1/friends/{friendId}/challenges — 이 친구와의 지난 챌린지. `id DESC`, 키 기반 페이지네이션.
+     *
+     * @param nextChallengeId 직전 응답의 `nextChallengeId` 를 그대로 보낸다. 포함 경계(`id <= `)라 마지막 항목 id 를 보내면 그 항목이 중복된다
+     * @param size `1..50`. 범위 밖은 서버가 깎지 않고 code 700 으로 거부한다
+     */
+    @GET("api/v1/friends/{friendId}/challenges")
+    suspend fun getFriendChallenges(
+        @Path("friendId") friendId: Long,
+        @Query("nextChallengeId") nextChallengeId: Long?,
+        @Query("size") size: Int,
+    ): ApiResult<FriendChallengesResponse>
 }

@@ -1,12 +1,15 @@
 package com.lwg.challenge.feature.friends.list
 
 import com.lwg.challenge.domain.model.friend.Friend
+import com.lwg.challenge.domain.model.friend.FriendChallengePage
+import com.lwg.challenge.domain.model.friend.FriendRecord
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.domain.repository.FriendsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 
 /**
  * 테스트용 [FriendsRepository] 페이크.
@@ -87,4 +90,13 @@ class FakeFriendsRepository : FriendsRepository {
         cancelRequestCalls += requestId
         cancelRequestError.let { if (it == null) onSuccess() else onError(it) }
     }
+
+    override fun getFriendRecord(friendId: Long, onError: (String) -> Unit): Flow<FriendRecord> = emptyFlow()
+
+    override fun getFriendChallenges(
+        friendId: Long,
+        nextChallengeId: Long?,
+        size: Int,
+        onError: (String) -> Unit,
+    ): Flow<FriendChallengePage> = emptyFlow()
 }

@@ -1,6 +1,8 @@
 package com.lwg.challenge.feature.challenge.create
 
 import com.lwg.challenge.domain.model.friend.Friend
+import com.lwg.challenge.domain.model.friend.FriendChallengePage
+import com.lwg.challenge.domain.model.friend.FriendRecord
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.domain.repository.FriendsRepository
@@ -69,4 +71,13 @@ class FakeFriendsRepository : FriendsRepository {
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     ) = Unit
+
+    override fun getFriendRecord(friendId: Long, onError: (String) -> Unit): Flow<FriendRecord> = emptyFlow()
+
+    override fun getFriendChallenges(
+        friendId: Long,
+        nextChallengeId: Long?,
+        size: Int,
+        onError: (String) -> Unit,
+    ): Flow<FriendChallengePage> = emptyFlow()
 }

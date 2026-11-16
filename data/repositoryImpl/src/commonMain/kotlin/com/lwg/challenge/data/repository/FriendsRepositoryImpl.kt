@@ -2,6 +2,8 @@ package com.lwg.challenge.data.repository
 
 import com.lwg.challenge.data.datasource.remote.FriendsRemoteDataSource
 import com.lwg.challenge.domain.model.friend.Friend
+import com.lwg.challenge.domain.model.friend.FriendChallengePage
+import com.lwg.challenge.domain.model.friend.FriendRecord
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import com.lwg.challenge.domain.repository.FriendsRepository
@@ -57,4 +59,21 @@ class FriendsRepositoryImpl(
     ) {
         friendsRemoteDataSource.cancelRequest(requestId, onSuccess, onError)
     }
+
+    override fun getFriendRecord(
+        friendId: Long,
+        onError: (String) -> Unit,
+    ): Flow<FriendRecord> = friendsRemoteDataSource.getFriendRecord(friendId, onError)
+
+    override fun getFriendChallenges(
+        friendId: Long,
+        nextChallengeId: Long?,
+        size: Int,
+        onError: (String) -> Unit,
+    ): Flow<FriendChallengePage> = friendsRemoteDataSource.getFriendChallenges(
+        friendId = friendId,
+        nextChallengeId = nextChallengeId,
+        size = size,
+        onError = onError,
+    )
 }
