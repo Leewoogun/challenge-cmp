@@ -124,6 +124,14 @@ internal fun OathFormScreen(
                 readOnly = uiState.isSubmitting,
             )
 
+            VerticalSpacer(6.dp)
+
+            Text(
+                text = "사진으로 인증할 수 있는 미션을 적어줘",
+                style = ChallengeTheme.typography.medium12,
+                color = ChallengeTheme.colorScheme.text.secondary,
+            )
+
             VerticalSpacer(20.dp)
 
             Text(

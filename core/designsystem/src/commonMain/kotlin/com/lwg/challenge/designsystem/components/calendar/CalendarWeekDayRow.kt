@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.utils.datetime.koreanLabel
 import kotlinx.datetime.DayOfWeek
 
 @Composable
@@ -44,17 +45,6 @@ internal fun CalendarWeekDayRow(
         }
     }
 }
-
-private val DayOfWeek.koreanLabel: String
-    get() = when (this) {
-        DayOfWeek.MONDAY -> "월"
-        DayOfWeek.TUESDAY -> "화"
-        DayOfWeek.WEDNESDAY -> "수"
-        DayOfWeek.THURSDAY -> "목"
-        DayOfWeek.FRIDAY -> "금"
-        DayOfWeek.SATURDAY -> "토"
-        DayOfWeek.SUNDAY -> "일"
-    }
 
 @ThemePreviews
 @Composable

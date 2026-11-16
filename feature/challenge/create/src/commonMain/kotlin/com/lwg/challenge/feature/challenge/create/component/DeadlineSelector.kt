@@ -4,11 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,23 +17,28 @@ import com.lwg.challenge.designsystem.components.button.SelectedButton
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.domain.model.challenge.DeadlineType
+import com.lwg.challenge.feature.challenge.create.contract.DeadlineOption
+import kotlinx.datetime.LocalDate
+
+// 3등분 폭에 "12/31(목) 24:00" 이 한 줄로 들어가도록 아이콘을 빼고 좌우 여백을 줄인다
+private val DeadlineCardPadding = PaddingValues(horizontal = 4.dp, vertical = 10.dp)
 
 /**
- * 마감 기준 선택 2-up 카드. design.md §4.2.
+ * 마감 선택 3-up 카드 (오늘 자정 / 내일 자정 / 날짜 선택).
  *
- * 2지선다이므로 각 옵션에 라디오 시맨틱을 부여한다.
- *
- * @param todayHintText "오늘 자정"의 실제 마감 시각. 포맷팅 금지 규칙 + 진입 시 1회 계산(§8 #14)이라 밖에서 받는다.
- * @param tomorrowHintText "내일 자정"의 실제 마감 시각.
+ * @param onCustomClick 날짜 선택 카드. 캘린더를 연다.
  * @param enabled false 면 클릭을 막고 컴포넌트 전체를 50% 로 흐린다(제출 중).
  */
 @Composable
 internal fun DeadlineSelector(
-    value: DeadlineType,
-    onValueChange: (DeadlineType) -> Unit,
+    selected: DeadlineOption,
+    today: LocalDate,
+    tomorrow: LocalDate,
     todayHintText: String,
     tomorrowHintText: String,
+    customHintText: String,
+    onDateSelect: (LocalDate) -> Unit,
+    onCustomClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
@@ -51,17 +55,24 @@ internal fun DeadlineSelector(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            DeadlineType.entries.forEach { type ->
+            DeadlineOption.entries.forEach { option ->
                 SelectedButton(
-                    text = type.label,
-                    supportingText = when (type) {
-                        DeadlineType.TODAY -> todayHintText
-                        DeadlineType.TOMORROW -> tomorrowHintText
+                    text = option.label,
+                    supportingText = when (option) {
+                        DeadlineOption.TODAY -> todayHintText
+                        DeadlineOption.TOMORROW -> tomorrowHintText
+                        DeadlineOption.CUSTOM -> customHintText
                     },
-                    leadingIcon = Icons.Filled.Schedule,
-                    selected = type == value,
+                    selected = option == selected,
                     enabled = enabled,
-                    onClick = { onValueChange(type) },
+                    onClick = {
+                        when (option) {
+                            DeadlineOption.TODAY -> onDateSelect(today)
+                            DeadlineOption.TOMORROW -> onDateSelect(tomorrow)
+                            DeadlineOption.CUSTOM -> onCustomClick()
+                        }
+                    },
+                    contentPadding = DeadlineCardPadding,
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -77,9 +88,12 @@ internal fun DeadlineSelector(
     }
 }
 
-@ThemePreviews
 @Composable
-private fun DeadlineSelectorTodayPreview() {
+private fun DeadlineSelectorPreviewBox(
+    selected: DeadlineOption,
+    customHintText: String = PREVIEW_CUSTOM_EMPTY_HINT,
+    enabled: Boolean = true,
+) {
     ChallengeTheme {
         Box(
             modifier = Modifier
@@ -87,53 +101,44 @@ private fun DeadlineSelectorTodayPreview() {
                 .padding(24.dp),
         ) {
             DeadlineSelector(
-                value = DeadlineType.TODAY,
-                onValueChange = {},
+                selected = selected,
+                today = LocalDate(2026, 11, 16),
+                tomorrow = LocalDate(2026, 11, 17),
                 todayHintText = PREVIEW_TODAY_HINT,
                 tomorrowHintText = PREVIEW_TOMORROW_HINT,
+                customHintText = customHintText,
+                onDateSelect = {},
+                onCustomClick = {},
+                enabled = enabled,
             )
         }
     }
+}
+
+@ThemePreviews
+@Composable
+private fun DeadlineSelectorTodayPreview() {
+    DeadlineSelectorPreviewBox(selected = DeadlineOption.TODAY)
 }
 
 @ThemePreviews
 @Composable
 private fun DeadlineSelectorTomorrowPreview() {
-    ChallengeTheme {
-        Box(
-            modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background.screen)
-                .padding(24.dp),
-        ) {
-            DeadlineSelector(
-                value = DeadlineType.TOMORROW,
-                onValueChange = {},
-                todayHintText = PREVIEW_TODAY_HINT,
-                tomorrowHintText = PREVIEW_TOMORROW_HINT,
-            )
-        }
-    }
+    DeadlineSelectorPreviewBox(selected = DeadlineOption.TOMORROW)
+}
+
+@ThemePreviews
+@Composable
+private fun DeadlineSelectorCustomPreview() {
+    DeadlineSelectorPreviewBox(selected = DeadlineOption.CUSTOM, customHintText = "12/31(목) 24:00")
 }
 
 @ThemePreviews
 @Composable
 private fun DeadlineSelectorDisabledPreview() {
-    ChallengeTheme {
-        Box(
-            modifier = Modifier
-                .background(ChallengeTheme.colorScheme.background.screen)
-                .padding(24.dp),
-        ) {
-            DeadlineSelector(
-                value = DeadlineType.TODAY,
-                onValueChange = {},
-                todayHintText = PREVIEW_TODAY_HINT,
-                tomorrowHintText = PREVIEW_TOMORROW_HINT,
-                enabled = false,
-            )
-        }
-    }
+    DeadlineSelectorPreviewBox(selected = DeadlineOption.TODAY, enabled = false)
 }
 
-private const val PREVIEW_TODAY_HINT = "7/28 24:00"
-private const val PREVIEW_TOMORROW_HINT = "7/29 24:00"
+private const val PREVIEW_TODAY_HINT = "11/16(월) 24:00"
+private const val PREVIEW_TOMORROW_HINT = "11/17(화) 24:00"
+private const val PREVIEW_CUSTOM_EMPTY_HINT = "최대 3개월"

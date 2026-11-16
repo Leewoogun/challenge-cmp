@@ -5,42 +5,48 @@ package com.lwg.challenge.feature.challenge.create
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
-import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.signature.Signature
 import com.lwg.challenge.domain.repository.FriendsRepository
 import com.lwg.challenge.domain.usecase.CreateChallengeUseCase
+import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateModalEffect
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateStep
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiEffect
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
 import com.lwg.challenge.feature.challenge.create.contract.MAX_INPUT_LENGTH
 import com.lwg.challenge.feature.challenge.create.contract.UserInputState
-import com.lwg.challenge.utils.datetime.kstDeadlineHintText
+import com.lwg.challenge.feature.challenge.create.contract.selectableDatesFrom
+import com.lwg.challenge.utils.datetime.endOfDayText
+import com.lwg.challenge.utils.datetime.nowKst
 import com.lwg.challenge.utils.flow.TriggerStateFlow
 import com.lwg.challenge.utils.flow.triggerStateIn
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class ChallengeCreateViewModel(
     friendsRepository: FriendsRepository,
     private val createChallengeUseCase: CreateChallengeUseCase,
+    private val now: () -> LocalDateTime = ::nowKst,
 ) : ViewModel() {
 
-    private val todayDeadlineHint = kstDeadlineHintText(daysAhead = 0)
-    private val tomorrowDeadlineHint = kstDeadlineHintText(daysAhead = 1)
-
     private val _friendListLoadFailed = MutableStateFlow(false)
-    private val _userInputForm = MutableStateFlow(UserInputState())
+    private val _userInputForm = MutableStateFlow(
+        now().date.let { today -> UserInputState(today = today, challengeDate = today) },
+    )
 
     private val friendsFlow = friendsRepository
         .getFriendList(
@@ -63,6 +69,9 @@ class ChallengeCreateViewModel(
 
     private val _uiEffect = MutableSharedFlow<ChallengeCreateUiEffect>()
     val uiEffect: SharedFlow<ChallengeCreateUiEffect> = _uiEffect.asSharedFlow()
+
+    private val _modalEffect = MutableStateFlow<ChallengeCreateModalEffect>(ChallengeCreateModalEffect.Hidden)
+    val modalEffect: StateFlow<ChallengeCreateModalEffect> = _modalEffect.asStateFlow()
 
     fun selectFriend(friend: Friend) {
         _userInputForm.update {
@@ -102,8 +111,17 @@ class ChallengeCreateViewModel(
         _userInputForm.update { it.copy(penalty = value.take(MAX_INPUT_LENGTH)) }
     }
 
-    fun selectDeadline(type: DeadlineType) {
-        _userInputForm.update { it.copy(deadlineType = type) }
+    fun selectChallengeDate(date: LocalDate) {
+        _userInputForm.update { it.copy(challengeDate = date) }
+        _modalEffect.update { ChallengeCreateModalEffect.Hidden }
+    }
+
+    fun openDeadlineCalendar() {
+        _modalEffect.update { ChallengeCreateModalEffect.DeadlineCalendar }
+    }
+
+    fun dismissModal() {
+        _modalEffect.update { ChallengeCreateModalEffect.Hidden }
     }
 
     fun updateSignature(value: Signature) {
@@ -133,12 +151,20 @@ class ChallengeCreateViewModel(
                     opponentId = opponentId,
                     myMission = form.myMission.trim(),
                     penalty = form.penalty.trim(),
-                    deadlineType = form.deadlineType,
+                    challengeDate = form.challengeDate,
                     signature = form.signature,
                 ),
                 onSuccess = { navigateBack() },
                 onError = { message ->
-                    _userInputForm.update { it.copy(isSubmitting = false) }
+                    // 실패 원인이 자정을 넘겨 범위 밖이 된 날짜일 수 있어 "오늘" 기준을 다시 잡는다
+                    _userInputForm.update { current ->
+                        val today = now().date
+                        current.copy(
+                            isSubmitting = false,
+                            today = today,
+                            challengeDate = current.challengeDate.takeIf { it in selectableDatesFrom(today) } ?: today,
+                        )
+                    }
                     showMessage(message)
                 },
             )
@@ -170,19 +196,16 @@ class ChallengeCreateViewModel(
         ChallengeCreateStep.MISSION_INPUT -> ChallengeCreateUiState.MissionInput(
             myMission = myMission,
             penalty = penalty,
-            deadlineType = deadlineType,
-            todayDeadlineHint = todayDeadlineHint,
-            tomorrowDeadlineHint = tomorrowDeadlineHint,
+            challengeDate = challengeDate,
+            today = today,
+            selectableDates = selectableDates,
         )
 
         ChallengeCreateStep.OATH -> ChallengeCreateUiState.Oath(
             opponent = checkNotNull(selectedFriend),
             myMission = myMission,
             penalty = penalty,
-            deadlineText = when (deadlineType) {
-                DeadlineType.TODAY -> todayDeadlineHint
-                DeadlineType.TOMORROW -> tomorrowDeadlineHint
-            },
+            deadlineText = endOfDayText(challengeDate),
             signature = signature,
             isSubmitting = isSubmitting,
         )

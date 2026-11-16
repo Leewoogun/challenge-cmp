@@ -2,9 +2,12 @@ package com.lwg.challenge.feature.challenge.create.contract
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.signature.Signature
+import com.lwg.challenge.utils.datetime.kstDeadlineHintText
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.plus
 
 /** 미션 / 내기 입력 최대 길이. */
 const val MAX_INPUT_LENGTH = 100
@@ -39,13 +42,30 @@ sealed interface ChallengeCreateUiState {
     data class MissionInput(
         val myMission: String,
         val penalty: String,
-        val deadlineType: DeadlineType,
-        val todayDeadlineHint: String,
-        val tomorrowDeadlineHint: String,
+        val challengeDate: LocalDate,
+        val today: LocalDate,
+        val selectableDates: ClosedRange<LocalDate>,
     ) : ChallengeCreateUiState {
 
         override val step: ChallengeCreateStep
             get() = ChallengeCreateStep.MISSION_INPUT
+
+        val tomorrow: LocalDate get() = today.plus(1, DateTimeUnit.DAY)
+
+        val selectedDeadlineOption: DeadlineOption
+            get() = when (challengeDate) {
+                today -> DeadlineOption.TODAY
+                tomorrow -> DeadlineOption.TOMORROW
+                else -> DeadlineOption.CUSTOM
+            }
+
+        val todayHintText: String get() = kstDeadlineHintText(today)
+        val tomorrowHintText: String get() = kstDeadlineHintText(tomorrow)
+        val customHintText: String
+            get() = when (selectedDeadlineOption) {
+                DeadlineOption.CUSTOM -> kstDeadlineHintText(challengeDate)
+                DeadlineOption.TODAY, DeadlineOption.TOMORROW -> "최대 3개월"
+            }
 
         val canProceedToOath: Boolean
             get() = myMissionCount in 1..MAX_INPUT_LENGTH &&
@@ -88,14 +108,28 @@ internal data class UserInputState(
     val selectedFriend: Friend? = null,
     val myMission: String = "",
     val penalty: String = "",
-    val deadlineType: DeadlineType = DeadlineType.TODAY,
+    val today: LocalDate,
+    val challengeDate: LocalDate,
     val signature: Signature = Signature.Empty,
     val isSubmitting: Boolean = false,
 ) {
+    val selectableDates: ClosedRange<LocalDate> get() = selectableDatesFrom(today)
+
     val canProceedToOath: Boolean
         get() = !isSubmitting &&
             myMission.trim().length in 1..MAX_INPUT_LENGTH &&
             penalty.trim().length in 1..MAX_INPUT_LENGTH
+}
+
+/** 서버와 같은 규칙 — 월 단위 덧셈은 말일을 clamp 한다(11/30 + 3개월 = 2/28). */
+internal fun selectableDatesFrom(today: LocalDate): ClosedRange<LocalDate> =
+    today..today.plus(3, DateTimeUnit.MONTH)
+
+/** 마감 카드 3종. 선택 강조는 선택한 날짜에서 파생한다. */
+enum class DeadlineOption(val label: String) {
+    TODAY("오늘 자정"),
+    TOMORROW("내일 자정"),
+    CUSTOM("날짜 선택"),
 }
 
 enum class ChallengeCreateStep {

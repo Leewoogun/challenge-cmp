@@ -69,4 +69,46 @@ class RelativeTimeFormatTest {
 
         assertEquals("2시간 30분", deadline.toRelativeKoreanString(lateNow))
     }
+
+    @Test
+    fun `23시간 59분 남으면 일 단위 없이 시간 분 을 표시한다`() {
+        val deadline = LocalDateTime(2026, 7, 29, 11, 59, 0)
+
+        assertEquals("23시간 59분", deadline.toRelativeKoreanString(now))
+    }
+
+    @Test
+    fun `정확히 24시간 남으면 1일 을 표시한다`() {
+        val deadline = LocalDateTime(2026, 7, 29, 12, 0, 0)
+
+        assertEquals("1일", deadline.toRelativeKoreanString(now))
+    }
+
+    @Test
+    fun `24시간 이상이면 분은 생략한다`() {
+        val deadline = LocalDateTime(2026, 7, 29, 12, 1, 0)
+
+        assertEquals("1일", deadline.toRelativeKoreanString(now))
+    }
+
+    @Test
+    fun `24시간 이상이고 남는 시간이 있으면 N일 X시간 을 표시한다`() {
+        val deadline = LocalDateTime(2026, 7, 29, 13, 30, 0)
+
+        assertEquals("1일 1시간", deadline.toRelativeKoreanString(now))
+    }
+
+    @Test
+    fun `48시간 남으면 2일 을 표시한다`() {
+        val deadline = LocalDateTime(2026, 7, 30, 12, 0, 0)
+
+        assertEquals("2일", deadline.toRelativeKoreanString(now))
+    }
+
+    @Test
+    fun `2184시간 남으면 91일 을 표시한다`() {
+        val deadline = LocalDateTime(2026, 10, 27, 12, 0, 0)
+
+        assertEquals("91일", deadline.toRelativeKoreanString(now))
+    }
 }

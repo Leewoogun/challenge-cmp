@@ -4,6 +4,7 @@ package com.lwg.challenge.utils.datetime
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.daysUntil
+import kotlinx.datetime.number
 import kotlinx.datetime.toInstant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -39,5 +40,5 @@ fun LocalDateTime.toElapsedKoreanString(now: LocalDateTime = nowKst()): String {
     if (elapsed < 24.hours) return "${elapsed.inWholeHours}시간 전"
     if (this.date.daysUntil(now.date) == 1) return "어제"
 
-    return "${this.date.monthNumber}월 ${this.date.day}일"
+    return "${this.date.month.number}월 ${this.date.day}일"
 }

@@ -4,6 +4,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.minus
+import kotlinx.datetime.number
 
 /**
  * 챌린지의 절대 마감 시각 표시 문자열. 예: "7/28 24:00"
@@ -15,21 +16,20 @@ import kotlinx.datetime.minus
  * deadline 우선으로 되돌리면 하루 밀림이 그대로 재발한다.
  *
  * "00:00" 대신 "24:00" 으로 적는 근거는 [kstDeadlineHintText] KDoc 참고.
- * 생성 플로우 전용인 [kstDeadlineHintText] 는 `daysAhead` 를 받으므로 조회 화면에서는 쓸 수 없다.
  *
  * @param challengeDate 챌린지 수행 날짜. null 이면 [deadline] 에서 역산한다.
  * @param deadline 마감 시각(KST). 00:00 이면 전날 24:00 으로, 그 외 시각은 그대로 표기한다 —
  *   "서버는 항상 00:00 을 준다" 는 가정을 코드가 강제하면 예외적인 값이 조용히 24:00 으로 위장된다.
  */
 fun deadlineAbsoluteText(challengeDate: LocalDate?, deadline: LocalDateTime): String {
-    if (challengeDate != null) return "${challengeDate.monthNumber}/${challengeDate.day} 24:00"
+    if (challengeDate != null) return endOfDayText(challengeDate)
 
-    if (deadline.hour == 0 && deadline.minute == 0) {
-        val endingDate = deadline.date.minus(1, DateTimeUnit.DAY)
-        return "${endingDate.monthNumber}/${endingDate.day} 24:00"
-    }
+    if (deadline.hour == 0 && deadline.minute == 0) return endOfDayText(deadline.date.minus(1, DateTimeUnit.DAY))
 
     val hour = deadline.hour.toString().padStart(2, '0')
     val minute = deadline.minute.toString().padStart(2, '0')
-    return "${deadline.date.monthNumber}/${deadline.date.day} $hour:$minute"
+    return "${deadline.date.month.number}/${deadline.date.day} $hour:$minute"
 }
+
+/** [date] 가 끝나는 순간의 요일 없는 표기. 예: "7/28 24:00" */
+fun endOfDayText(date: LocalDate): String = "${date.month.number}/${date.day} 24:00"

@@ -1,11 +1,9 @@
 package com.lwg.challenge.remote.mapper
 
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
-import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
 import com.lwg.challenge.remote.model.challenge.ChallengeCreateBody
-import com.lwg.challenge.remote.model.challenge.DeadlineTypeDto
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengeDto
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengesResponse
 
@@ -44,11 +42,6 @@ fun ChallengeCreateInput.toBody(): ChallengeCreateBody = ChallengeCreateBody(
     opponentId = opponentId,
     myMission = myMission,
     betContent = penalty,
-    deadlineType = deadlineType.toDto(),
+    challengeDate = challengeDate.toString(),
     signature = SignatureCodec.encode(signature),
 )
-
-fun DeadlineType.toDto(): DeadlineTypeDto = when (this) {
-    DeadlineType.TODAY -> DeadlineTypeDto.TODAY
-    DeadlineType.TOMORROW -> DeadlineTypeDto.TOMORROW
-}

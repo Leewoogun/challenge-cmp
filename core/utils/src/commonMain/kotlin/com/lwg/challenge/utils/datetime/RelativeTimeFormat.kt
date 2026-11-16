@@ -13,7 +13,8 @@ import kotlin.time.ExperimentalTime
  * 챌린지 마감 시각(deadline)을 한국어 상대 시간 텍스트로 변환.
  *
  * 카드 UI 의 우상단 "5시간 32분" 같은 표기에 사용한다.
- * - 1시간 이상 남음: "X시간 Y분" (정각이면 "X시간")
+ * - 24시간 이상 남음: "N일 X시간" (분 생략, X 가 0 이면 "N일")
+ * - 1시간 ~ 24시간: "X시간 Y분" (정각이면 "X시간")
  * - 1분 ~ 1시간: "X분"
  * - 1분 미만(양수): "곧 마감"
  * - 이미 지난 시각(또는 0): "마감"
@@ -28,10 +29,12 @@ fun LocalDateTime.toRelativeKoreanString(now: LocalDateTime = nowKst()): String 
     if (remaining < 1.minutes) return "곧 마감"
 
     val totalMinutes = remaining.inWholeMinutes
+    val days = totalMinutes / (24 * 60)
     val hours = totalMinutes / 60
     val minutes = totalMinutes % 60
 
     return when {
+        days > 0L -> if (hours % 24 == 0L) "${days}일" else "${days}일 ${hours % 24}시간"
         hours <= 0L -> "${minutes}분"
         minutes == 0L -> "${hours}시간"
         else -> "${hours}시간 ${minutes}분"
