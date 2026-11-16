@@ -21,6 +21,10 @@ kotlin {
             // ChallengeCard.deadline = Instant, StatsBar/HomeEmptyState 내부에서 utils 헬퍼 사용.
             // :core:utils 는 :core:designsystem 미의존(역방향)이므로 안전하게 단방향.
             implementation(projects.core.utils)
+            implementation(libs.kotlinx.datetime)
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
     }
 }

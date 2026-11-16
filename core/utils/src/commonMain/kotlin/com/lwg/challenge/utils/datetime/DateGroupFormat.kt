@@ -3,6 +3,7 @@ package com.lwg.challenge.utils.datetime
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.daysUntil
+import kotlinx.datetime.number
 
 /**
  * 날짜를 목록 그룹 헤더 문구로 변환. "오늘" / "어제" / "M월 d일" (0 패딩 없음).
@@ -20,7 +21,7 @@ import kotlinx.datetime.daysUntil
 fun LocalDate.toDateGroupLabel(today: LocalDate): String = when (daysUntil(today)) {
     0 -> "오늘"
     1 -> "어제"
-    else -> "${monthNumber}월 ${day}일"
+    else -> "${month.number}월 ${day}일"
 }
 
 /**

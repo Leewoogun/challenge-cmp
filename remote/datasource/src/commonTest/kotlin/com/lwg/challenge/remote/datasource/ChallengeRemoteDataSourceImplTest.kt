@@ -2,7 +2,6 @@ package com.lwg.challenge.remote.datasource
 
 import com.lwg.challenge.domain.model.challenge.ChallengeArchive
 import com.lwg.challenge.domain.model.challenge.ChallengeCreateInput
-import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.domain.model.challenge.ChallengeOutcome
 import com.lwg.challenge.domain.model.challenge.ReceivedChallenge
 import com.lwg.challenge.domain.model.challenge.ReceivedOpponentInfo
@@ -27,7 +26,6 @@ import com.lwg.challenge.remote.model.challenge.ChallengeHistoryResponse
 import com.lwg.challenge.remote.model.challenge.ChallengeOutcomeDto
 import com.lwg.challenge.remote.model.challenge.ContractDto
 import com.lwg.challenge.remote.model.challenge.ContractUserInfoDto
-import com.lwg.challenge.remote.model.challenge.DeadlineTypeDto
 import com.lwg.challenge.remote.model.challenge.ForfeitChallengeData
 import com.lwg.challenge.remote.model.challenge.ForfeitChallengeResponse
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengeDto
@@ -36,12 +34,15 @@ import com.lwg.challenge.remote.model.challenge.ReceivedChallengesData
 import com.lwg.challenge.remote.model.challenge.ReceivedChallengesResponse
 import com.lwg.challenge.remote.model.challenge.RejectChallengeData
 import com.lwg.challenge.remote.model.challenge.RejectChallengeResponse
+import com.lwg.challenge.remote.network.di.KtorfitModule
 import com.lwg.challenge.remote.network.util.ApiResult
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.YearMonth
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -87,7 +88,7 @@ class ChallengeRemoteDataSourceImplTest {
         opponentId = 42L,
         myMission = "오늘 운동 1시간 하기",
         penalty = "커피 사기",
-        deadlineType = DeadlineType.TODAY,
+        challengeDate = LocalDate(2026, 11, 20),
         signature = signature,
     )
 
@@ -293,11 +294,25 @@ class ChallengeRemoteDataSourceImplTest {
                 opponentId = 42L,
                 myMission = "오늘 운동 1시간 하기",
                 betContent = "커피 사기",
-                deadlineType = DeadlineTypeDto.TODAY,
+                challengeDate = "2026-11-20",
                 signature = encodedSignature,
             ),
             api.capturedCreateBody,
         )
+    }
+
+    /** 앱의 실제 Json 설정으로 인코딩한 와이어를 고정한다 — 키가 하나라도 더 실리면 서버 계약과 어긋난다. */
+    @Test
+    fun `createChallenge - body 와이어는 계약의 5개 키뿐이고 challengeDate 는 yyyy-MM-dd 다`() = runTest {
+        val api = FakeChallengeApi()
+        val dataSource = ChallengeRemoteDataSourceImpl(api)
+
+        dataSource.createChallenge(createInput, onSuccess = {}, onError = {})
+
+        val json = KtorfitModule().provideJson()
+        val wire = json.parseToJsonElement(json.encodeToString(assertNotNull(api.capturedCreateBody))).jsonObject
+        assertEquals("2026-11-20", wire.getValue("challengeDate").jsonPrimitive.content)
+        assertEquals(setOf("opponentId", "myMission", "betContent", "challengeDate", "signature"), wire.keys)
     }
 
     @Test

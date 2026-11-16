@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
+import com.lwg.challenge.designsystem.components.ChallengeToolTip
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
@@ -122,6 +123,12 @@ internal fun OathFormScreen(
                 counterAtMax = uiState.isMyMissionAtMax,
                 imeAction = ImeAction.Done,
                 readOnly = uiState.isSubmitting,
+                labelEndContent = {
+                    ChallengeToolTip(
+                        title = "사진으로 인증할 수 있는 미션을 적어줘",
+                        text = "금연·금주처럼 안 하는 것을 지키는 미션은 사진으로 증명할 수 없어",
+                    )
+                },
             )
 
             VerticalSpacer(20.dp)

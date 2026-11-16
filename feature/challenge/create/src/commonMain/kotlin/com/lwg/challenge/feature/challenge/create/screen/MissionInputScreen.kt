@@ -15,22 +15,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
+import com.lwg.challenge.designsystem.components.ChallengeToolTip
 import com.lwg.challenge.designsystem.components.VerticalSpacer
 import com.lwg.challenge.designsystem.preview.ThemePreviews
 import com.lwg.challenge.ui.components.LabeledInputField
 import com.lwg.challenge.ui.components.LoadingIconButton
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
-import com.lwg.challenge.domain.model.challenge.DeadlineType
 import com.lwg.challenge.feature.challenge.create.component.StepHeader
 import com.lwg.challenge.feature.challenge.create.component.DeadlineSelector
 import com.lwg.challenge.feature.challenge.create.contract.ChallengeCreateUiState
+import com.lwg.challenge.feature.challenge.create.contract.selectableDatesFrom
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.plus
 
 @Composable
 internal fun MissionInputScreen(
     uiState: ChallengeCreateUiState.MissionInput,
     onMyMissionChange: (String) -> Unit,
     onPenaltyChange: (String) -> Unit,
-    onDeadlineChange: (DeadlineType) -> Unit,
+    onChallengeDateChange: (LocalDate) -> Unit,
+    onOpenDeadlineCalendar: () -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -43,7 +48,7 @@ internal fun MissionInputScreen(
     ) {
         StepHeader(
             title = "미션을 입력해 ✍️",
-            subtitle = "오늘 반드시 해낼 것을 적어",
+            subtitle = "마감까지 반드시 해낼 것을 적어",
         )
 
         VerticalSpacer(24.dp)
@@ -57,6 +62,12 @@ internal fun MissionInputScreen(
                 counterText = uiState.myMissionCounterText,
                 counterAtMax = uiState.isMyMissionAtMax,
                 imeAction = ImeAction.Next,
+                labelEndContent = {
+                    ChallengeToolTip(
+                        title = "사진으로 인증할 수 있는 미션을 적어줘",
+                        text = "금연·금주처럼 안 하는 것을 지키는 미션은 사진으로 증명할 수 없어",
+                    )
+                },
             )
 
             LabeledInputField(
@@ -70,10 +81,14 @@ internal fun MissionInputScreen(
             )
 
             DeadlineSelector(
-                value = uiState.deadlineType,
-                onValueChange = onDeadlineChange,
-                todayHintText = uiState.todayDeadlineHint,
-                tomorrowHintText = uiState.tomorrowDeadlineHint,
+                selected = uiState.selectedDeadlineOption,
+                today = uiState.today,
+                tomorrow = uiState.tomorrow,
+                todayHintText = uiState.todayHintText,
+                tomorrowHintText = uiState.tomorrowHintText,
+                customHintText = uiState.customHintText,
+                onDateSelect = onChallengeDateChange,
+                onCustomClick = onOpenDeadlineCalendar,
             )
 
             LoadingIconButton(
@@ -96,7 +111,8 @@ private fun MissionInputScreenEmptyPreview() {
                 uiState = previewState(),
                 onMyMissionChange = {},
                 onPenaltyChange = {},
-                onDeadlineChange = {},
+                onChallengeDateChange = {},
+                onOpenDeadlineCalendar = {},
                 onNext = {},
             )
         }
@@ -112,11 +128,12 @@ private fun MissionInputScreenFilledPreview() {
                 uiState = previewState(
                     myMission = "오늘 운동 1시간 하기",
                     penalty = "커피 사기",
-                    deadlineType = DeadlineType.TOMORROW,
+                    challengeDate = PREVIEW_TODAY.plus(1, DateTimeUnit.DAY),
                 ),
                 onMyMissionChange = {},
                 onPenaltyChange = {},
-                onDeadlineChange = {},
+                onChallengeDateChange = {},
+                onOpenDeadlineCalendar = {},
                 onNext = {},
             )
         }
@@ -126,11 +143,13 @@ private fun MissionInputScreenFilledPreview() {
 private fun previewState(
     myMission: String = "",
     penalty: String = "",
-    deadlineType: DeadlineType = DeadlineType.TODAY,
+    challengeDate: LocalDate = PREVIEW_TODAY,
 ) = ChallengeCreateUiState.MissionInput(
     myMission = myMission,
     penalty = penalty,
-    deadlineType = deadlineType,
-    todayDeadlineHint = "7/28 24:00",
-    tomorrowDeadlineHint = "7/29 24:00",
+    challengeDate = challengeDate,
+    today = PREVIEW_TODAY,
+    selectableDates = selectableDatesFrom(PREVIEW_TODAY),
 )
+
+private val PREVIEW_TODAY = LocalDate(2026, 11, 16)

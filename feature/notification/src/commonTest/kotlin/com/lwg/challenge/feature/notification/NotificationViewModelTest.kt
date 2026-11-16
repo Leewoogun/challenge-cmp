@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.number
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.test.AfterTest
@@ -325,7 +326,7 @@ class NotificationViewModelTest {
 
         val groups = dataState(viewModel).dateGroups
         assertEquals(
-            listOf("오늘", "${older.date.monthNumber}월 ${older.date.day}일"),
+            listOf("오늘", "${older.date.month.number}월 ${older.date.day}일"),
             groups.map { it.label },
         )
         assertEquals(listOf(9L, 8L, 5L), groups[0].notifications.map { it.notificationId })
@@ -349,7 +350,7 @@ class NotificationViewModelTest {
         val viewModel = createViewModel()
 
         assertEquals(
-            listOf("오늘", "어제", "${older.date.monthNumber}월 ${older.date.day}일"),
+            listOf("오늘", "어제", "${older.date.month.number}월 ${older.date.day}일"),
             dataState(viewModel).dateGroups.map { it.label },
         )
     }
