@@ -24,9 +24,11 @@ import com.lwg.challenge.ui.components.ProfileImage
 internal fun FriendListItem(
     profileImageUrl: String?,
     nickname: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = ChallengeTheme.colorScheme.background.card,
@@ -63,6 +65,7 @@ private fun FriendListItemPreview() {
             FriendListItem(
                 profileImageUrl = null,
                 nickname = "우건",
+                onClick = {},
             )
         }
     }
@@ -80,6 +83,7 @@ private fun FriendListItemLongNicknamePreview() {
             FriendListItem(
                 profileImageUrl = null,
                 nickname = "엄청나게긴닉네임을가진사용자가존재한다면어떻게보일까요테스트",
+                onClick = {},
             )
         }
     }
@@ -97,6 +101,7 @@ private fun FriendListItemNoProfilePreview() {
             FriendListItem(
                 profileImageUrl = null,
                 nickname = "도전자",
+                onClick = {},
             )
         }
     }

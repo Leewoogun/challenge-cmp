@@ -34,6 +34,7 @@ import com.lwg.challenge.feature.challenge.detail.ChallengeDetailRoute
 import com.lwg.challenge.feature.challenge.oath.OathRoute
 import com.lwg.challenge.feature.challenge.verify.VerifyRoute
 import com.lwg.challenge.feature.friends.list.FriendsRoute
+import com.lwg.challenge.feature.friends.record.FriendRecordRoute
 import com.lwg.challenge.feature.friends.search.FriendsSearchRoute
 import com.lwg.challenge.feature.home.HomeRoute
 import com.lwg.challenge.feature.login.LoginRoute
@@ -215,14 +216,17 @@ private fun MainScreen(
                 entry<Route.Home>(clazzContentKey = { it.uniqueContentKey() }) { HomeRoute() }
                 entry<Route.Friends.List>(clazzContentKey = { it.uniqueContentKey() }) { FriendsRoute() }
                 entry<Route.Friends.Search>(clazzContentKey = { it.uniqueContentKey() }) { FriendsSearchRoute() }
+                entry<Route.Friends.Record>(clazzContentKey = { it.uniqueContentKey() }) { route ->
+                    FriendRecordRoute(friendId = route.friendId)
+                }
                 entry<Route.Ranking>(clazzContentKey = { it.uniqueContentKey() }) { RankingRoute() }
                 entry<Route.MyPage.Main>(clazzContentKey = { it.uniqueContentKey() }) { MyPageRoute() }
                 entry<Route.MyPage.Archive>(clazzContentKey = { it.uniqueContentKey() }) { ArchiveRoute() }
                 entry<Route.Challenge.Detail>(clazzContentKey = { it.uniqueContentKey() }) { route ->
                     ChallengeDetailRoute(challengeId = route.challengeId)
                 }
-                entry<Route.Challenge.Create>(clazzContentKey = { it.uniqueContentKey() }) {
-                    ChallengeCreateRoute()
+                entry<Route.Challenge.Create>(clazzContentKey = { it.uniqueContentKey() }) { route ->
+                    ChallengeCreateRoute(opponentId = route.opponentId)
                 }
                 entry<Route.Challenge.Oath>(clazzContentKey = { it.uniqueContentKey() }) { route ->
                     OathRoute(challengeId = route.challengeId)

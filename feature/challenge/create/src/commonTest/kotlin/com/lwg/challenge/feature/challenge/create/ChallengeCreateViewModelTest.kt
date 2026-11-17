@@ -51,8 +51,9 @@ class ChallengeCreateViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): ChallengeCreateViewModel =
+    private fun createViewModel(opponentId: Long? = null): ChallengeCreateViewModel =
         ChallengeCreateViewModel(
+            opponentId = opponentId,
             friendsRepository = fakeFriendsRepository,
             createChallengeUseCase = CreateChallengeUseCase(fakeChallengeRepository),
             now = { currentNow },
@@ -65,7 +66,16 @@ class ChallengeCreateViewModelTest {
         }
     }
 
-    private fun ChallengeCreateViewModel.friendPick(): ChallengeCreateUiState.FriendPick =
+    // 중간에 다른 단계가 스쳐 지나가는지 보려고 구독하면서 받은 상태를 모두 남긴다.
+    private fun TestScope.recordUiStates(viewModel: ChallengeCreateViewModel): List<ChallengeCreateUiState> {
+        val history = mutableListOf<ChallengeCreateUiState>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { history += it }
+        }
+        return history
+    }
+
+    private fun ChallengeCreateViewModel.friendPick():ChallengeCreateUiState.FriendPick =
         assertIs<ChallengeCreateUiState.FriendPick>(uiState.value)
 
     private fun ChallengeCreateViewModel.missionInput(): ChallengeCreateUiState.MissionInput =
@@ -245,6 +255,78 @@ class ChallengeCreateViewModelTest {
         // 첫 단계에서는 더 내려갈 곳이 없다 — 화면을 벗어나는 건 Route 의 popBackStack 책임이다.
         viewModel.goToPreviousStep()
         viewModel.friendPick()
+    }
+
+    @Test
+    fun `상대 지정 진입 시 친구 로드 후 첫 상태는 그 상대가 선택된 미션 입력이다`() = runTest {
+        fakeFriendsRepository.friends = listOf(sampleFriend(1), sampleFriend(7))
+
+        val viewModel = createViewModel(opponentId = 7)
+        val history = recordUiStates(viewModel)
+
+        assertTrue(history.none { it is ChallengeCreateUiState.FriendPick })
+        assertIs<ChallengeCreateUiState.MissionInput>(history.last())
+
+        viewModel.updateMyMission("오늘 운동 1시간 하기")
+        viewModel.updatePenalty("커피 사기")
+        viewModel.goToOathStep()
+        assertEquals(7L, viewModel.oath().opponent.userId)
+    }
+
+    @Test
+    fun `상대 지정 진입 시 미션 입력에서 뒤로 가면 상대 선택 대신 NavigateBack 을 발행한다`() = runTest {
+        fakeFriendsRepository.friends = listOf(sampleFriend(7))
+
+        val viewModel = createViewModel(opponentId = 7)
+        subscribeUiState(viewModel)
+        viewModel.missionInput()
+
+        viewModel.uiEffect.test {
+            viewModel.goToPreviousStep()
+            assertEquals(ChallengeCreateUiEffect.NavigateBack, awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        viewModel.missionInput()
+    }
+
+    @Test
+    fun `상대 지정 진입이어도 맹세에서 뒤로 가면 미션 입력으로 돌아간다`() = runTest {
+        fakeFriendsRepository.friends = listOf(sampleFriend(7))
+
+        val viewModel = createViewModel(opponentId = 7)
+        subscribeUiState(viewModel)
+        viewModel.updateMyMission("오늘 운동 1시간 하기")
+        viewModel.updatePenalty("커피 사기")
+        viewModel.goToOathStep()
+        viewModel.oath()
+
+        viewModel.goToPreviousStep()
+
+        viewModel.missionInput()
+    }
+
+    @Test
+    fun `상대 지정 진입인데 목록에 그 상대가 없으면 선택 없이 상대 선택 단계로 시작한다`() = runTest {
+        fakeFriendsRepository.friends = listOf(sampleFriend(1))
+
+        val viewModel = createViewModel(opponentId = 99)
+        subscribeUiState(viewModel)
+
+        val state = viewModel.friendPick()
+        assertEquals(null, state.selectedFriendId)
+        assertEquals(listOf(1L), state.friends.map { it.userId })
+    }
+
+    @Test
+    fun `상대 미지정 진입은 친구 로드 후 첫 상태가 상대 선택이다`() = runTest {
+        fakeFriendsRepository.friends = listOf(sampleFriend(7))
+
+        val viewModel = createViewModel(opponentId = null)
+        val history = recordUiStates(viewModel)
+
+        assertTrue(history.none { it is ChallengeCreateUiState.MissionInput })
+        assertEquals(null, viewModel.friendPick().selectedFriendId)
     }
 
     @Test

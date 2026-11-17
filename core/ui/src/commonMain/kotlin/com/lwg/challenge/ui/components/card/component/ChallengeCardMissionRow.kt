@@ -17,14 +17,19 @@ import com.lwg.challenge.domain.model.VerificationStatus
 import com.lwg.challenge.ui.components.VerificationStatusPill
 import com.lwg.challenge.ui.components.card.ChallengeCardScope
 
-/** 미션 한 줄. 내 미션은 굵고 진하게, 상대 미션은 옅게 둬 누구 몫인지 바로 갈린다. */
+/**
+ * 미션 한 줄. 내 미션은 굵고 진하게, 상대 미션은 옅게 둬 누구 몫인지 바로 갈린다.
+ *
+ * @param emptyMissionText [mission] 이 아직 정해지지 않았을 때(수락 전 도전장) 대신 보여 줄 안내.
+ */
 @Composable
 fun ChallengeCardMissionRow(
     label: String,
-    mission: String,
+    mission: String?,
     isMine: Boolean,
     verificationStatus: VerificationStatus?,
     modifier: Modifier = Modifier,
+    emptyMissionText: String = "",
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -40,11 +45,19 @@ fun ChallengeCardMissionRow(
                 style = ChallengeTheme.typography.medium12,
                 color = ChallengeTheme.colorScheme.text.secondary,
             )
-            Text(
-                text = mission,
-                style = if (isMine) ChallengeTheme.typography.bold14 else ChallengeTheme.typography.medium14,
-                color = if (isMine) ChallengeTheme.colorScheme.text.primary else ChallengeTheme.colorScheme.text.secondary,
-            )
+            if (mission != null) {
+                Text(
+                    text = mission,
+                    style = if (isMine) ChallengeTheme.typography.bold14 else ChallengeTheme.typography.medium14,
+                    color = if (isMine) ChallengeTheme.colorScheme.text.primary else ChallengeTheme.colorScheme.text.secondary,
+                )
+            } else {
+                Text(
+                    text = emptyMissionText,
+                    style = ChallengeTheme.typography.medium14,
+                    color = ChallengeTheme.colorScheme.text.secondary.copy(alpha = 0.7f),
+                )
+            }
         }
 
         if (verificationStatus != null) {
@@ -99,6 +112,35 @@ private fun ChallengeCardMissionRowPreview() {
             )
             ChallengeCardMissionRow(label = "나의 미션", mission = "헬스장 가기", isMine = true, verificationStatus = null)
             ChallengeCardMissionRow(label = "준혁의 미션", mission = "금주", isMine = false, verificationStatus = null)
+        }
+    }
+}
+
+/** 수락 전 도전장 — 아직 없는 미션 자리에 언제 정해지는지 옅게 알린다. */
+@ThemePreviews
+@Composable
+private fun ChallengeCardMissionRowPendingPreview() {
+    ChallengeTheme {
+        Column(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background.card)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            ChallengeCardMissionRow(
+                label = "나의 미션",
+                mission = null,
+                isMine = true,
+                verificationStatus = null,
+                emptyMissionText = "수락할 때 정해요",
+            )
+            ChallengeCardMissionRow(
+                label = "민수의 미션",
+                mission = null,
+                isMine = false,
+                verificationStatus = null,
+                emptyMissionText = "수락하면 정해져요",
+            )
         }
     }
 }

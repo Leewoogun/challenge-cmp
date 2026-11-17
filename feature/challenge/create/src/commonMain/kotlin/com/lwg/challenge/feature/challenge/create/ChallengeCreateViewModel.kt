@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
@@ -35,9 +36,11 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.InjectedParam
 
 @KoinViewModel
 class ChallengeCreateViewModel(
+    @InjectedParam opponentId: Long?,
     friendsRepository: FriendsRepository,
     private val createChallengeUseCase: CreateChallengeUseCase,
     private val now: () -> LocalDateTime = ::nowKst,
@@ -45,7 +48,9 @@ class ChallengeCreateViewModel(
 
     private val _friendListLoadFailed = MutableStateFlow(false)
     private val _userInputForm = MutableStateFlow(
-        now().date.let { today -> UserInputState(today = today, challengeDate = today) },
+        now().date.let { today ->
+            UserInputState(today = today, challengeDate = today, pendingOpponentId = opponentId)
+        },
     )
 
     private val friendsFlow = friendsRepository
@@ -57,6 +62,7 @@ class ChallengeCreateViewModel(
         )
         .onStart { _friendListLoadFailed.update { false } }
         .onEmpty { emit(emptyList()) }
+        .onEach { friends -> resolvePendingOpponent(friends) }
 
     val uiState: TriggerStateFlow<ChallengeCreateUiState> =
         combine(friendsFlow, _userInputForm, _friendListLoadFailed) { friends, form, friendListLoadFailed ->
@@ -93,6 +99,11 @@ class ChallengeCreateViewModel(
     }
 
     fun goToPreviousStep() {
+        val current = _userInputForm.value
+        if (current.step == ChallengeCreateStep.MISSION_INPUT && current.isFriendPickSkipped) {
+            navigateBack()
+            return
+        }
         _userInputForm.update { form ->
             if (form.isSubmitting) return@update form
             when (form.step) {
@@ -171,6 +182,21 @@ class ChallengeCreateViewModel(
         }
     }
 
+    // 대조는 첫 로드 1회뿐이다 — 재구독(WhileSubscribed)이 사용자가 바꾼 입력을 덮지 않게 한다
+    private fun resolvePendingOpponent(friends: List<Friend>) {
+        _userInputForm.update { form ->
+            val opponentId = form.pendingOpponentId ?: return@update form
+            val opponent = friends.find { it.userId == opponentId }
+                ?: return@update form.copy(pendingOpponentId = null)
+            form.copy(
+                pendingOpponentId = null,
+                selectedFriend = opponent,
+                step = ChallengeCreateStep.MISSION_INPUT,
+                isFriendPickSkipped = true,
+            )
+        }
+    }
+
     private fun navigateBack() {
         viewModelScope.launch {
             _uiEffect.emit(ChallengeCreateUiEffect.NavigateBack)
@@ -186,28 +212,33 @@ class ChallengeCreateViewModel(
     private fun UserInputState.toUiState(
         friends: List<Friend>,
         friendListLoadFailed: Boolean,
-    ): ChallengeCreateUiState = when (step) {
-        ChallengeCreateStep.FRIEND_PICK -> ChallengeCreateUiState.FriendPick(
-            friends = friends,
-            selectedFriendId = selectedFriend?.userId,
-            loadFailed = friendListLoadFailed,
-        )
+    ): ChallengeCreateUiState {
+        // 상대 대조 전에 친구 선택 화면이 잠깐이라도 보이지 않게 한다
+        if (pendingOpponentId != null) return ChallengeCreateUiState.Loading
 
-        ChallengeCreateStep.MISSION_INPUT -> ChallengeCreateUiState.MissionInput(
-            myMission = myMission,
-            penalty = penalty,
-            challengeDate = challengeDate,
-            today = today,
-            selectableDates = selectableDates,
-        )
+        return when (step) {
+            ChallengeCreateStep.FRIEND_PICK -> ChallengeCreateUiState.FriendPick(
+                friends = friends,
+                selectedFriendId = selectedFriend?.userId,
+                loadFailed = friendListLoadFailed,
+            )
 
-        ChallengeCreateStep.OATH -> ChallengeCreateUiState.Oath(
-            opponent = checkNotNull(selectedFriend),
-            myMission = myMission,
-            penalty = penalty,
-            deadlineText = endOfDayText(challengeDate),
-            signature = signature,
-            isSubmitting = isSubmitting,
-        )
+            ChallengeCreateStep.MISSION_INPUT -> ChallengeCreateUiState.MissionInput(
+                myMission = myMission,
+                penalty = penalty,
+                challengeDate = challengeDate,
+                today = today,
+                selectableDates = selectableDates,
+            )
+
+            ChallengeCreateStep.OATH -> ChallengeCreateUiState.Oath(
+                opponent = checkNotNull(selectedFriend),
+                myMission = myMission,
+                penalty = penalty,
+                deadlineText = endOfDayText(challengeDate),
+                signature = signature,
+                isSubmitting = isSubmitting,
+            )
+        }
     }
 }

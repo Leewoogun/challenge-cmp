@@ -28,12 +28,12 @@ fun HomeRoute(
     HomeContent(
         uiState = uiState,
         onBellClick = { navigateAction.navigateTo(Route.Notifications) },
-        onFabClick = { navigateAction.navigateTo(Route.Challenge.Create) },
+        onFabClick = { navigateAction.navigateTo(Route.Challenge.Create()) },
         onChallengeClick = { challengeId ->
             navigateAction.navigateTo(Route.Challenge.Detail(challengeId))
         },
         onAddFriendClick = { navigateAction.switchTab(Route.Friends.List) },
-        onCreateChallengeClick = { navigateAction.navigateTo(Route.Challenge.Create) },
+        onCreateChallengeClick = { navigateAction.navigateTo(Route.Challenge.Create()) },
         onAcceptClick = { challenge ->
             navigateAction.navigateTo(Route.Challenge.Oath(challenge.challengeId))
         },

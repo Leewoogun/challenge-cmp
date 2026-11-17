@@ -39,7 +39,7 @@ fun ArchiveRoute(
         onPreviousMonthClick = viewModel::previousMonth,
         onNextMonthClick = viewModel::nextMonth,
         onChallengeClick = { challengeId -> navigator.navigateTo(Route.Challenge.Detail(challengeId)) },
-        onCreateChallengeClick = { navigator.navigateTo(Route.Challenge.Create) },
+        onCreateChallengeClick = { navigator.navigateTo(Route.Challenge.Create()) },
         onRetryClick = viewModel::retry,
     )
 }

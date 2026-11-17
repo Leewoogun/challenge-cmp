@@ -28,6 +28,7 @@ internal fun FriendsScreen(
     onClickInvite: () -> Unit,
     onAcceptRequest: (FriendRequest) -> Unit,
     onRejectRequest: (FriendRequest) -> Unit,
+    onFriendClick: (Friend) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -53,7 +54,7 @@ internal fun FriendsScreen(
 
         if (uiState.hasFriends) {
             item {
-                FriendsListSection(friends = uiState.friends)
+                FriendsListSection(friends = uiState.friends, onFriendClick = onFriendClick)
             }
         }
     }
@@ -73,6 +74,7 @@ private fun FriendsScreenFriendsOnlyPreview() {
                 onClickInvite = {},
                 onAcceptRequest = {},
                 onRejectRequest = {},
+                onFriendClick = {},
             )
         }
     }
@@ -92,6 +94,7 @@ private fun FriendsScreenRequestsAndFriendsPreview() {
                 onClickInvite = {},
                 onAcceptRequest = {},
                 onRejectRequest = {},
+                onFriendClick = {},
             )
         }
     }

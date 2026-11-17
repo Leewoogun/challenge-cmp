@@ -112,6 +112,9 @@ internal data class UserInputState(
     val challengeDate: LocalDate,
     val signature: Signature = Signature.Empty,
     val isSubmitting: Boolean = false,
+    /** 진입 시 지정된 상대. 친구 목록과 대조하기 전까지만 값이 있다. */
+    val pendingOpponentId: Long? = null,
+    val isFriendPickSkipped: Boolean = false,
 ) {
     val selectableDates: ClosedRange<LocalDate> get() = selectableDatesFrom(today)
 
