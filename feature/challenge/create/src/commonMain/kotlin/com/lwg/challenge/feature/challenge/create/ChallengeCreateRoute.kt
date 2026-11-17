@@ -25,10 +25,12 @@ import com.lwg.challenge.navigation.Route
 import com.lwg.challenge.ui.components.PlatformBackHandler
 import kotlinx.datetime.LocalDate
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun ChallengeCreateRoute(
-    viewModel: ChallengeCreateViewModel = koinViewModel(),
+    opponentId: Long?,
+    viewModel: ChallengeCreateViewModel = koinViewModel { parametersOf(opponentId) },
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val modalEffect by viewModel.modalEffect.collectAsStateWithLifecycle()

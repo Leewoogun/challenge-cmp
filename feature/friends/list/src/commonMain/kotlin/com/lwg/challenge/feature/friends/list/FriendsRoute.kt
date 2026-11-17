@@ -7,6 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lwg.challenge.designsystem.components.ChallengeScaffold
 import com.lwg.challenge.designsystem.components.ChallengeTopBar
 import com.lwg.challenge.designsystem.theme.ChallengeTheme
+import com.lwg.challenge.domain.model.friend.Friend
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiEffect
 import com.lwg.challenge.feature.friends.list.contract.FriendsUiState
@@ -40,6 +41,7 @@ fun FriendsRoute(
         onClickInvite = viewModel::inviteFriend,
         onAcceptRequest = viewModel::acceptRequest,
         onRejectRequest = viewModel::rejectRequest,
+        onFriendClick = { friend -> navigator.navigateTo(Route.Friends.Record(friend.userId)) },
     )
 }
 
@@ -50,6 +52,7 @@ private fun FriendsContent(
     onClickInvite: () -> Unit,
     onAcceptRequest: (FriendRequest) -> Unit,
     onRejectRequest: (FriendRequest) -> Unit,
+    onFriendClick: (Friend) -> Unit,
 ) {
     ChallengeScaffold(
         statusBarColor = ChallengeTheme.colorScheme.background.card,
@@ -69,6 +72,7 @@ private fun FriendsContent(
                 onClickInvite = onClickInvite,
                 onAcceptRequest = onAcceptRequest,
                 onRejectRequest = onRejectRequest,
+                onFriendClick = onFriendClick,
             )
         }
     }

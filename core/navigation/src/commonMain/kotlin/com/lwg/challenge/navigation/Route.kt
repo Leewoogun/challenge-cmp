@@ -49,14 +49,22 @@ sealed interface Route : NavKey {
 
         @Serializable
         data object Search : Friends
+
+        /** 이 친구와의 전적. 친구 목록 행 탭 진입. */
+        @Serializable
+        data class Record(val friendId: Long) : Friends
     }
 
     @Serializable
     sealed interface Challenge : Route {
 
-        /** 챌린지 생성. home-feed FAB / 빈 상태 "챌린지 만들기" CTA 진입. */
+        /**
+         * 챌린지 생성. 홈 FAB·빈 상태 / 보관함 / 친구 전적 빈 상태 CTA 진입.
+         *
+         * @property opponentId 미리 선택된 상대. null 이면 친구 선택부터 시작한다.
+         */
         @Serializable
-        data object Create : Challenge
+        data class Create(val opponentId: Long? = null) : Challenge
 
         /** 챌린지 상세(계약서 + 양측 서명). home-feed 카드 탭 시 진입. */
         @Serializable
@@ -91,6 +99,7 @@ val routeSerializersModule = SerializersModule {
         subclass(Route.Notifications::class)
         subclass(Route.Friends.List::class)
         subclass(Route.Friends.Search::class)
+        subclass(Route.Friends.Record::class)
         subclass(Route.Challenge.Create::class)
         subclass(Route.Challenge.Detail::class)
         subclass(Route.Challenge.Oath::class)

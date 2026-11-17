@@ -19,6 +19,7 @@ import kotlinx.datetime.LocalDateTime
 @Composable
 internal fun FriendsListSection(
     friends: List<Friend>,
+    onFriendClick: (Friend) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -35,6 +36,7 @@ internal fun FriendsListSection(
             FriendListItem(
                 profileImageUrl = friend.profileImageUrl,
                 nickname = friend.nickname,
+                onClick = { onFriendClick(friend) },
             )
         }
     }
@@ -54,6 +56,7 @@ private fun FriendsListSectionPreview() {
                     Friend(userId = 1, nickname = "우건", profileImageUrl = null, since = LocalDateTime.parse("2026-06-24T12:00:00")),
                     Friend(userId = 2, nickname = "도전자", profileImageUrl = null, since = LocalDateTime.parse("2026-06-17T12:00:00")),
                 ),
+                onFriendClick = {},
             )
         }
     }

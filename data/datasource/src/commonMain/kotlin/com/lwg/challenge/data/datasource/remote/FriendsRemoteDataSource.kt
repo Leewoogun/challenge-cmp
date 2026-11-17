@@ -1,6 +1,8 @@
 package com.lwg.challenge.data.datasource.remote
 
 import com.lwg.challenge.domain.model.friend.Friend
+import com.lwg.challenge.domain.model.friend.FriendChallengePage
+import com.lwg.challenge.domain.model.friend.FriendRecord
 import com.lwg.challenge.domain.model.friend.FriendRequest
 import com.lwg.challenge.domain.model.friend.UserSearchResult
 import kotlinx.coroutines.flow.Flow
@@ -43,4 +45,16 @@ interface FriendsRemoteDataSource {
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
     )
+
+    fun getFriendRecord(
+        friendId: Long,
+        onError: (String) -> Unit,
+    ): Flow<FriendRecord>
+
+    fun getFriendChallenges(
+        friendId: Long,
+        nextChallengeId: Long?,
+        size: Int,
+        onError: (String) -> Unit,
+    ): Flow<FriendChallengePage>
 }

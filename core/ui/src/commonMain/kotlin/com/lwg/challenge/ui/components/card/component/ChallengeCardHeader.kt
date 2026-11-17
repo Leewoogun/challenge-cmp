@@ -47,12 +47,7 @@ fun ChallengeCardHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Icon(
-                imageVector = Icons.Filled.LocalFireDepartment,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = ChallengeTheme.colorScheme.icon.point,
-            )
+            FireIcon()
             // 닉네임만 줄인다. 날짜와 결과는 카드의 핵심 정보라 밀려나면 안 된다.
             CaptionText(
                 text = "vs $opponentNickname",
@@ -64,11 +59,38 @@ fun ChallengeCardHeader(
             }
         }
 
-        if (outcome != null) {
-            ChallengeOutcomePill(outcome = outcome)
-        } else if (deadlineTimeText != null) {
-            DeadlineTimeText(text = deadlineTimeText)
+        HeaderTrailing(outcome = outcome, deadlineTimeText = deadlineTimeText, isDeadlineUrgent = false)
+    }
+}
+
+/**
+ * 상대가 한 사람뿐인 목록(친구 전적)의 첫 줄. `vs 닉네임` 대신 카드끼리 갈리는 값([leadingText])만 둔다.
+ *
+ * @param isDeadlineUrgent true 면 남은 시간을 `warning` 대신 `error` 로 그린다.
+ */
+@Composable
+fun ChallengeCardHeader(
+    leadingText: String,
+    outcome: ChallengeOutcome?,
+    modifier: Modifier = Modifier,
+    deadlineTimeText: String? = null,
+    isDeadlineUrgent: Boolean = false,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            FireIcon()
+            CaptionText(text = leadingText)
         }
+
+        HeaderTrailing(outcome = outcome, deadlineTimeText = deadlineTimeText, isDeadlineUrgent = isDeadlineUrgent)
     }
 }
 
@@ -88,7 +110,31 @@ internal fun ChallengeCardScope.ChallengeCardHeader(
 }
 
 @Composable
-private fun DeadlineTimeText(text: String) {
+private fun HeaderTrailing(
+    outcome: ChallengeOutcome?,
+    deadlineTimeText: String?,
+    isDeadlineUrgent: Boolean,
+) {
+    if (outcome != null) {
+        ChallengeOutcomePill(outcome = outcome)
+    } else if (deadlineTimeText != null) {
+        DeadlineTimeText(text = deadlineTimeText, isUrgent = isDeadlineUrgent)
+    }
+}
+
+@Composable
+private fun FireIcon() {
+    Icon(
+        imageVector = Icons.Filled.LocalFireDepartment,
+        contentDescription = null,
+        modifier = Modifier.size(18.dp),
+        tint = ChallengeTheme.colorScheme.icon.point,
+    )
+}
+
+@Composable
+private fun DeadlineTimeText(text: String, isUrgent: Boolean) {
+    val color = if (isUrgent) ChallengeTheme.colorScheme.error else ChallengeTheme.colorScheme.warning
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -97,12 +143,12 @@ private fun DeadlineTimeText(text: String) {
             imageVector = Icons.Filled.Schedule,
             contentDescription = null,
             modifier = Modifier.size(14.dp),
-            tint = ChallengeTheme.colorScheme.warning,
+            tint = color,
         )
         Text(
             text = text,
             style = ChallengeTheme.typography.medium12,
-            color = ChallengeTheme.colorScheme.warning,
+            color = color,
         )
     }
 }
@@ -140,6 +186,29 @@ private fun ChallengeCardHeaderPreview() {
                 outcome = ChallengeOutcome.DRAW,
                 dateText = "8월 31일",
             )
+        }
+    }
+}
+
+/** 닉네임 없이 leading 만 — 친구 전적의 진행 중(상태 라벨)·지난(날짜) 카드. */
+@ThemePreviews
+@Composable
+private fun ChallengeCardHeaderLeadingOnlyPreview() {
+    ChallengeTheme {
+        Column(
+            modifier = Modifier
+                .background(ChallengeTheme.colorScheme.background.card)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            ChallengeCardHeader(leadingText = "진행 중", outcome = null, deadlineTimeText = "3시간 남음")
+            ChallengeCardHeader(
+                leadingText = "받은 도전장",
+                outcome = null,
+                deadlineTimeText = "곧 마감",
+                isDeadlineUrgent = true,
+            )
+            ChallengeCardHeader(leadingText = "11월 12일", outcome = ChallengeOutcome.BOTH_LOSE)
         }
     }
 }
